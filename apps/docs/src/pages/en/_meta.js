@@ -1,7 +1,11 @@
 export default {
   index: {},
-  "wiki": {
-    title: "Wiki",
-    route: "/wiki",
+  "catalyst-proposals": {
+    title: "Catalyst Proposals",
+    route: "/catalyst-proposals",
+  },
+  "drep-voting": {
+    title: "DRep Voting",
+    route: "/drep-voting",
   },
 };
