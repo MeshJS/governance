@@ -18,6 +18,7 @@ For comprehensive information about our governance activities, visit our site:
 
 - DRep Voting History and rationale
 - Project Catalyst proposals and progress
+- Mesh SDK Usage Statistics and community growth metrics
 
 ## Our Governance Principles
 
