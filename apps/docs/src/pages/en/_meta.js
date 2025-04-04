@@ -8,4 +8,8 @@ export default {
     title: "DRep Voting",
     route: "/drep-voting",
   },
+  "mesh-stats": {
+    title: "MeshJS Stats",
+    route: "/mesh-stats",
+  },
 };
