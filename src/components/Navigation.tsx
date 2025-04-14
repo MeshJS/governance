@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import styles from '../styles/Navigation.module.css';
 
@@ -53,10 +54,13 @@ const Navigation = () => {
     return (
         <nav className={`${styles.navCard} ${isMobile ? styles.navCardMobile : ''}`}>
             <div className={styles.logoContainer}>
-                <img 
-                    src="/mesh-white-txt.png" 
-                    alt="Mesh Logo" 
+                <Image
+                    src="/mesh-white-txt.png"
+                    alt="Mesh Logo"
                     className={styles.logo}
+                    width={120}
+                    height={40}
+                    priority
                 />
             </div>
             <div className={styles.navItems}>

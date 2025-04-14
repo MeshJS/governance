@@ -1,10 +1,17 @@
 import MeshStatsView, { FilteredStats } from '../components/MeshStatsView';
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/MeshStats.module.css';
-import SearchFilterBar, { SearchFilterConfig } from '../components/SearchFilterBar';
+import SearchFilterBar from '../components/SearchFilterBar';
 import { generateMeshStatsFilterConfig } from '../config/filterConfig';
 import { useState, useMemo } from 'react';
 import PageHeader from '../components/PageHeader';
+import { CurrentStats } from '../types';
+
+interface MonthlyDownload {
+    month: string;
+    downloads: number;
+    trend: string;
+}
 
 export default function MeshStatsPage() {
     const { meshData, isLoading, error } = useData();
@@ -27,8 +34,38 @@ export default function MeshStatsPage() {
 
     // Generate dynamic filter config
     const dynamicFilterConfig = useMemo(() => {
-        return generateMeshStatsFilterConfig(packageData);
-    }, [packageData]);
+        const defaultStats: CurrentStats = {
+            github: {
+                core_in_package_json: 0,
+                core_in_any_file: 0
+            },
+            npm: {
+                downloads: {
+                    last_day: 0,
+                    last_week: 0,
+                    last_month: 0,
+                    last_year: 0
+                },
+                react_package_downloads: 0,
+                transaction_package_downloads: 0,
+                wallet_package_downloads: 0,
+                provider_package_downloads: 0,
+                core_csl_package_downloads: 0,
+                core_cst_package_downloads: 0,
+                latest_version: '',
+                dependents_count: 0
+            },
+            urls: {
+                npm_stat_url: '',
+                npm_stat_compare_url: ''
+            },
+            contributors: {
+                unique_count: 0,
+                contributors: []
+            }
+        };
+        return generateMeshStatsFilterConfig(meshData?.currentStats || defaultStats);
+    }, [meshData?.currentStats]);
 
     // Version subtitle for PageHeader
     const versionSubtitle = useMemo(() => {
@@ -94,17 +131,17 @@ export default function MeshStatsPage() {
         const latestYear = years[0];
 
         // Filter monthly data if trend filter is active
-        let filteredMonthly: any[] = [];
+        let filteredMonthly: MonthlyDownload[] = [];
         if (latestYear && meshData.yearlyStats?.[latestYear]?.monthlyDownloads) {
             const monthlyData = meshData.yearlyStats[latestYear].monthlyDownloads;
 
             filteredMonthly = !activeFilters.trend ? monthlyData :
-                monthlyData.filter((month: { trend: string }) => month.trend === activeFilters.trend);
+                monthlyData.filter((month: MonthlyDownload) => month.trend === activeFilters.trend);
         }
 
         setFilteredStats({
             packageData: filteredPackages,
-            monthlyData: filteredMonthly.length > 0 ? filteredMonthly.map((month: { month: string; downloads: number; trend: string }) => ({
+            monthlyData: filteredMonthly.length > 0 ? filteredMonthly.map((month: MonthlyDownload) => ({
                 name: month.month,
                 downloads: month.downloads,
                 trend: month.trend

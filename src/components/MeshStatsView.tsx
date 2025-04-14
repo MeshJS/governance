@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import styles from '../styles/MeshStats.module.css';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps } from 'recharts';
 import { YearlyStats, CurrentStats } from '../types';
 
 interface MonthlyDownload {
@@ -9,11 +9,22 @@ interface MonthlyDownload {
     trend: string;
 }
 
+interface PackageData {
+    name: string;
+    downloads: number;
+}
+
+interface MonthlyData {
+    name: string;
+    downloads: number;
+    trend: string;
+}
+
 export interface FilteredStats {
-    packageData?: { name: string; downloads: number }[];
-    monthlyData?: { name: string; downloads: number; trend: string }[];
-    currentStats?: any;
-    yearlyStats?: Record<number, any>;
+    packageData?: PackageData[];
+    monthlyData?: MonthlyData[];
+    currentStats?: CurrentStats;
+    yearlyStats?: Record<number, YearlyStats>;
 }
 
 interface MeshStatsViewProps {
@@ -26,8 +37,8 @@ const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('en-US').format(num);
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length && payload[0].value !== undefined) {
         return (
             <div className={styles.customTooltip}>
                 <p className={styles.tooltipLabel}>{label}</p>
@@ -40,9 +51,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-const barColor = '#FFFFFF';
+interface CustomBarChartProps {
+    data: PackageData[] | MonthlyData[];
+    chartId: string;
+}
 
-const CustomBarChart = ({ data, chartId }: { data: any[], chartId: string }) => (
+const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => (
     <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} barGap={8} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
             <defs>
@@ -51,12 +65,12 @@ const CustomBarChart = ({ data, chartId }: { data: any[], chartId: string }) => 
                     <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.5" />
                 </linearGradient>
             </defs>
-            <CartesianGrid 
-                strokeDasharray="3 3" 
+            <CartesianGrid
+                strokeDasharray="3 3"
                 stroke="rgba(255, 255, 255, 0.03)"
                 vertical={false}
             />
-            <XAxis 
+            <XAxis
                 dataKey="name"
                 axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
                 tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
@@ -67,20 +81,20 @@ const CustomBarChart = ({ data, chartId }: { data: any[], chartId: string }) => 
                 axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
                 tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
                 tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
-                tickFormatter={(value) => value >= 1000 ? `${value/1000}k` : value}
+                tickFormatter={(value) => value >= 1000 ? `${value / 1000}k` : value}
             />
-            <Tooltip 
+            <Tooltip
                 content={<CustomTooltip />}
                 cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
             />
-            <Bar 
-                dataKey="downloads" 
+            <Bar
+                dataKey="downloads"
                 fill={`url(#barGradient-${chartId})`}
                 radius={[4, 4, 0, 0]}
                 maxBarSize={40}
             >
                 {data.map((entry, index) => (
-                    <Cell 
+                    <Cell
                         key={`cell-${index}`}
                         fill={`url(#barGradient-${chartId})`}
                     />

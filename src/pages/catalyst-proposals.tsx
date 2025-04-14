@@ -5,7 +5,7 @@ import PageHeader from '../components/PageHeader';
 import SearchFilterBar, { SearchFilterConfig } from '../components/SearchFilterBar';
 import { filterProposals, generateCatalystProposalsFilterConfig } from '../config/filterConfig';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { CatalystData, CatalystProject } from '../types';
+import { CatalystProject } from '../types';
 import { useRouter } from 'next/router';
 
 // Simple number formatting function that doesn't rely on locale settings

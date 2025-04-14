@@ -4,6 +4,7 @@ import PageHeader from '../components/PageHeader';
 import { useState } from 'react';
 import SearchFilterBar from '../components/SearchFilterBar';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Interface for project data
 interface Project {
@@ -144,38 +145,17 @@ const ProjectCard = ({ project }: { project: Project }) => {
         <div className={styles.projectCard}>
             <div className={styles.projectHeader}>
                 <div className={styles.projectIcon}>
-                    <img src={project.icon} alt={`${project.name} icon`} />
+                    <Image
+                        src={project.icon}
+                        alt={`${project.name} icon`}
+                        width={40}
+                        height={40}
+                    />
                 </div>
                 <h3 className={styles.projectName}>{project.name}</h3>
             </div>
             <p className={styles.projectDescription}>{project.description}</p>
-            <Link 
-                href={project.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.projectLink}
-            >
-                View Project
-            </Link>
-        </div>
-    );
-};
-
-// Add this component near the ProjectCard component
-const HighlightedCard = ({ project }: { project: HighlightedProject }) => {
-    return (
-        <div className={styles.highlightedCard}>
-            <div className={styles.projectHeader}>
-                <div className={styles.projectIcon}>
-                    <img src={project.icon} alt={`${project.name} icon`} />
-                </div>
-                <div>
-                    <h3 className={styles.projectName}>{project.name}</h3>
-                    <span className={styles.projectCategory}>{project.category}</span>
-                </div>
-            </div>
-            <p className={styles.projectDescription}>{project.description}</p>
-            <Link 
+            <Link
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -211,7 +191,7 @@ export default function Projects() {
     const totalReferences = meshData?.currentStats?.github?.core_in_any_file || 0;
 
     // Filter projects based on search term
-    const filteredProjects = projects.filter(project => 
+    const filteredProjects = projects.filter(project =>
         project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -263,7 +243,7 @@ export default function Projects() {
             </div>
 
             <div className={styles.moreSection}>
-                <a 
+                <a
                     href="https://meshjs.dev/"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -286,7 +266,12 @@ export default function Projects() {
                         rel="noopener noreferrer"
                         className={styles.builderItem}
                     >
-                        <img src={project.icon} alt={`${project.id} icon`} />
+                        <Image
+                            src={project.icon}
+                            alt={`${project.id} icon`}
+                            width={100}
+                            height={40}
+                        />
                     </Link>
                 ))}
             </div>
@@ -312,7 +297,7 @@ export default function Projects() {
             </div>
 
             <div className={styles.moreSection}>
-                <a 
+                <a
                     href="https://github.com/MeshJS/mesh/network/dependents"
                     target="_blank"
                     rel="noopener noreferrer"

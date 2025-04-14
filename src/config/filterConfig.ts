@@ -1,4 +1,5 @@
 import { SearchFilterConfig } from '../components/SearchFilterBar';
+import { CatalystProject, GovernanceVote, CurrentStats } from '../types';
 
 // Helper functions to generate filter options dynamically from data
 export const getUniqueValues = <T, K extends keyof T>(items: T[], key: K): T[K][] => {
@@ -6,19 +7,27 @@ export const getUniqueValues = <T, K extends keyof T>(items: T[], key: K): T[K][
     return [...new Set(values)];
 };
 
-export const extractFundingRounds = (projects: any[]): string[] => {
+export const extractFundingRounds = (projects: CatalystProject[]): string[] => {
     const fundingRounds = projects.map(project =>
         project.projectDetails.category.substring(0, 3)
     );
     return [...new Set(fundingRounds)];
 };
 
-export const getProposalTypes = (votes: any[]): string[] => {
+export const getProposalTypes = (votes: GovernanceVote[]): string[] => {
     return [...new Set(votes.map(vote => vote.proposalType))];
 };
 
-export const getPackageNames = (packageData: any[]): string[] => {
-    return [...new Set(packageData.map(pkg => pkg.name))];
+export const getPackageNames = (_stats: CurrentStats): string[] => {
+    return [
+        'core',
+        'react',
+        'transaction',
+        'wallet',
+        'provider',
+        'core-csl',
+        'core-cst'
+    ];
 };
 
 // Dashboard page - search across all data (this one is static by nature)
@@ -37,7 +46,7 @@ export const dashboardFilterConfig: SearchFilterConfig = {
 };
 
 // Dynamic filter configuration generators
-export const generateDrepVotingFilterConfig = (votes: any[]): SearchFilterConfig => {
+export const generateDrepVotingFilterConfig = (votes: GovernanceVote[]): SearchFilterConfig => {
     // Get unique proposal types from votes data
     const proposalTypes = getProposalTypes(votes);
 
@@ -65,7 +74,7 @@ export const generateDrepVotingFilterConfig = (votes: any[]): SearchFilterConfig
     };
 };
 
-export const generateCatalystProposalsFilterConfig = (projects: any[]): SearchFilterConfig => {
+export const generateCatalystProposalsFilterConfig = (projects: CatalystProject[]): SearchFilterConfig => {
     // Extract unique statuses and funding rounds from projects data
     const statuses = [...new Set(projects.map(project => project.projectDetails.status))];
     const fundingRounds = extractFundingRounds(projects);
@@ -93,9 +102,9 @@ export const generateCatalystProposalsFilterConfig = (projects: any[]): SearchFi
     };
 };
 
-export const generateMeshStatsFilterConfig = (packageData: any[]): SearchFilterConfig => {
-    // Extract unique package names from stats data
-    const packageNames = getPackageNames(packageData);
+export const generateMeshStatsFilterConfig = (stats: CurrentStats): SearchFilterConfig => {
+    // Get package names from stats data
+    const packageNames = getPackageNames(stats);
 
     return {
         placeholder: 'Search statistics by package name or trend...',
@@ -122,7 +131,7 @@ export const generateMeshStatsFilterConfig = (packageData: any[]): SearchFilterC
 };
 
 // Search helper functions for each data type
-export const filterVotes = (votes: any[], searchTerm: string, filters: Record<string, string>): any[] => {
+export const filterVotes = (votes: GovernanceVote[], searchTerm: string, filters: Record<string, string>): GovernanceVote[] => {
     // Don't filter if no search term and no filters
     if (!searchTerm && Object.keys(filters).length === 0) return votes;
 
@@ -142,7 +151,7 @@ export const filterVotes = (votes: any[], searchTerm: string, filters: Record<st
     });
 };
 
-export const filterProposals = (projects: any[], searchTerm: string, filters: Record<string, string>): any[] => {
+export const filterProposals = (projects: CatalystProject[], searchTerm: string, filters: Record<string, string>): CatalystProject[] => {
     // Don't filter if no search term and no filters
     if (!searchTerm && Object.keys(filters).length === 0) return projects;
 
@@ -164,19 +173,17 @@ export const filterProposals = (projects: any[], searchTerm: string, filters: Re
     });
 };
 
-export const filterStats = (packageData: any[], searchTerm: string, filters: Record<string, string>): any[] => {
+export const filterStats = (stats: CurrentStats, searchTerm: string, filters: Record<string, string>): CurrentStats | undefined => {
     // Don't filter if no search term and no filters
-    if (!searchTerm && Object.keys(filters).length === 0) return packageData;
+    if (!searchTerm && Object.keys(filters).length === 0) return stats;
 
-    return packageData.filter(pkg => {
-        // Search term filter - check package name
-        const searchMatch = !searchTerm ||
-            pkg.name.toLowerCase().includes(searchTerm.toLowerCase());
+    // Since CurrentStats is a single object, we'll just return it if it matches the filters
+    const packageNames = getPackageNames(stats);
+    const searchMatch = !searchTerm ||
+        packageNames.some(name => name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        // Apply package filter
-        const packageMatch = !filters.package || pkg.name === filters.package;
-        // Note: trend filtering would need additional data that might not be available in packageData
+    const packageMatch = !filters.package ||
+        packageNames.includes(filters.package);
 
-        return searchMatch && packageMatch;
-    });
+    return searchMatch && packageMatch ? stats : undefined;
 }; 

@@ -1,12 +1,7 @@
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/Dashboard.module.css';
-import { useRouter } from 'next/router';
-import PageHeader from '../components/PageHeader';
-import StatusCard, { StatusIconType } from '../components/StatusCard';
-import SearchFilterBar from '../components/SearchFilterBar';
-import { dashboardFilterConfig } from '../config/filterConfig';
+import StatusCard from '../components/StatusCard';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { CatalystProject, GovernanceVote } from '../types';
 import Image from 'next/image';
 
@@ -14,21 +9,6 @@ import Image from 'next/image';
 const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('en-US').format(num);
 };
-
-// Format date to a readable format
-const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    }).format(date);
-};
-
-// Extended project interface with completion percentage
-interface ProjectWithCompletion extends CatalystProject {
-    completionPercentage: number;
-}
 
 // Component to display compact catalyst proposals overview
 const CatalystProposalsCard = ({ projects }: { projects: CatalystProject[] }) => {
@@ -51,9 +31,9 @@ const CatalystProposalsCard = ({ projects }: { projects: CatalystProject[] }) =>
                         <div key={index} className={styles.progressRow}>
                             <span className={styles.progressLabel}>{project.title}</span>
                             <div className={styles.progressBar}>
-                                <div 
+                                <div
                                     className={styles.progressFill}
-                                    style={{width: `${project.progress}%`}}
+                                    style={{ width: `${project.progress}%` }}
                                 />
                             </div>
                             <span className={styles.progressValue}>{project.progress}%</span>
@@ -79,15 +59,15 @@ const VotingTableCard = ({ votes }: { votes: GovernanceVote[] }) => {
         <div className={`${styles.statusItem} ${styles.catalystProposalsCard}`}>
             <div className={styles.statusItemContent}>
                 <div className={styles.description}>
-                    Mesh DRep votes at Cardano's onchain Governance
+                    Mesh DRep votes at Cardano&rsquo;s onchain Governance
                 </div>
                 <div className={styles.progressBars}>
                     <div className={styles.progressRow}>
                         <span className={styles.progressLabel}>Yes</span>
                         <div className={styles.progressBar}>
-                            <div 
-                                className={`${styles.progressFill} ${styles.yes}`} 
-                                style={{width: `${(voteStats.yes / voteStats.total) * 100}%`}}
+                            <div
+                                className={`${styles.progressFill} ${styles.yes}`}
+                                style={{ width: `${(voteStats.yes / voteStats.total) * 100}%` }}
                             ></div>
                         </div>
                         <span className={styles.progressValue}>{voteStats.yes}</span>
@@ -95,9 +75,9 @@ const VotingTableCard = ({ votes }: { votes: GovernanceVote[] }) => {
                     <div className={styles.progressRow}>
                         <span className={styles.progressLabel}>No</span>
                         <div className={styles.progressBar}>
-                            <div 
-                                className={`${styles.progressFill} ${styles.no}`} 
-                                style={{width: `${(voteStats.no / voteStats.total) * 100}%`}}
+                            <div
+                                className={`${styles.progressFill} ${styles.no}`}
+                                style={{ width: `${(voteStats.no / voteStats.total) * 100}%` }}
                             ></div>
                         </div>
                         <span className={styles.progressValue}>{voteStats.no}</span>
@@ -105,9 +85,9 @@ const VotingTableCard = ({ votes }: { votes: GovernanceVote[] }) => {
                     <div className={styles.progressRow}>
                         <span className={styles.progressLabel}>Abstain</span>
                         <div className={styles.progressBar}>
-                            <div 
-                                className={`${styles.progressFill} ${styles.abstain}`} 
-                                style={{width: `${(voteStats.abstain / voteStats.total) * 100}%`}}
+                            <div
+                                className={`${styles.progressFill} ${styles.abstain}`}
+                                style={{ width: `${(voteStats.abstain / voteStats.total) * 100}%` }}
                             ></div>
                         </div>
                         <span className={styles.progressValue}>{voteStats.abstain}</span>
@@ -119,12 +99,10 @@ const VotingTableCard = ({ votes }: { votes: GovernanceVote[] }) => {
 };
 
 export default function Dashboard() {
-    const { meshData, catalystData, drepVotingData, isLoading, error, refetchData } = useData();
-    const router = useRouter();
+    const { meshData, catalystData, drepVotingData, isLoading, error } = useData();
     const [filteredVotes, setFilteredVotes] = useState<GovernanceVote[]>([]);
     const [filteredProjects, setFilteredProjects] = useState<CatalystProject[]>([]);
-    const [isSearchActive, setIsSearchActive] = useState<boolean>(false);
-    
+
     // Update filtered data when source data changes
     useEffect(() => {
         if (drepVotingData?.votes) {
@@ -154,14 +132,6 @@ export default function Dashboard() {
         );
     }
 
-    // Calculate totals
-    const totalProposals = catalystData?.catalystData?.projects?.length || 0;
-    const completedProposals = catalystData?.catalystData?.projects?.filter(
-        (p: CatalystProject) => p.projectDetails.status === 'Completed'
-    ).length || 0;
-    const totalVotes = drepVotingData?.votes?.length || 0;
-    const allVotes = drepVotingData?.votes || [];
-
     // SDK download stats - get last month's downloads
     const monthlyDownloads = meshData?.currentStats?.npm?.downloads?.last_month || 0;
     const githubUsage = meshData?.currentStats?.github?.core_in_package_json || 0;
@@ -173,61 +143,6 @@ export default function Dashboard() {
         const category = project.projectDetails.category;
         categories[category] = (categories[category] || 0) + 1;
     });
-
-    // Get projects closest to completion (but not completed)
-    const projectsNearCompletion = catalystData?.catalystData?.projects
-        ?.filter((project: CatalystProject) =>
-            project.projectDetails.status !== 'Completed' &&
-            project.projectDetails.milestones_qty > 0 &&
-            project.milestonesCompleted > 0
-        )
-        .map((project: CatalystProject): ProjectWithCompletion => ({
-            ...project,
-            completionPercentage: Math.round((project.milestonesCompleted / project.projectDetails.milestones_qty) * 100)
-        }))
-        .sort((a: ProjectWithCompletion, b: ProjectWithCompletion) => b.completionPercentage - a.completionPercentage)
-        .slice(0, 3) || [];
-
-    // All catalyst projects for the overview card
-    const allProjects = catalystData?.catalystData?.projects || [];
-
-    // Search functionality
-    const handleSearch = (searchTerm: string, filters: Record<string, string>) => {
-        // Clear filters if empty search
-        if (!searchTerm && Object.keys(filters).length === 0) {
-            setFilteredVotes(drepVotingData?.votes || []);
-            setFilteredProjects(catalystData?.catalystData?.projects || []);
-            setIsSearchActive(false);
-            return;
-        }
-
-        setIsSearchActive(true);
-        const searchType = filters.type || '';
-
-        // Filter votes
-        if (!searchType || searchType === 'vote') {
-            const matchingVotes = drepVotingData?.votes?.filter((vote: GovernanceVote) => {
-                return vote.proposalTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    vote.proposalType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    vote.rationale.toLowerCase().includes(searchTerm.toLowerCase());
-            }) || [];
-            setFilteredVotes(matchingVotes);
-        } else {
-            setFilteredVotes([]);
-        }
-
-        // Filter catalyst proposals
-        if (!searchType || searchType === 'proposal') {
-            const matchingProjects = catalystData?.catalystData?.projects?.filter((project: CatalystProject) => {
-                return project.projectDetails.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    project.projectDetails.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    project.projectDetails.status.toLowerCase().includes(searchTerm.toLowerCase());
-            }) || [];
-            setFilteredProjects(matchingProjects);
-        } else {
-            setFilteredProjects([]);
-        }
-    };
 
     return (
         <div className={styles.container}>

@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import styles from '../styles/Proposals.module.css';
-import { CatalystData, CatalystProject } from '../types';
+import { CatalystData } from '../types';
 
 // Simple number formatting function that doesn't rely on locale settings
 const formatNumber = (num: number): string => {
@@ -36,45 +36,13 @@ const getFundingRound = (category: string): string => {
     return category.trim().substring(0, 3);
 };
 
-interface ProjectDetails {
-    id: number;
-    title: string;
-    budget: number;
-    milestones_qty: number;
-    funds_distributed: number;
-    project_id: number;
-    category: string;
-    status: string;
-    finished: string;
-}
-
-interface Project {
-    projectDetails: ProjectDetails;
-    milestonesCompleted: number;
-}
-
 interface CatalystProposalsListProps {
     data: CatalystData;
     onRowClick?: (projectId: number) => void;
 }
 
 const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClick }) => {
-    // Calculate overall statistics
-    const totalProjects = data.projects.length;
-    const completedProjects = data.projects.filter(p => p.projectDetails.status === 'Completed').length;
-    const inProgressProjects = data.projects.filter(p => p.projectDetails.status === 'In Progress').length;
     
-    const totalBudget = data.projects.reduce((sum, p) => sum + p.projectDetails.budget, 0);
-    const totalDistributed = data.projects.reduce((sum, p) => sum + p.projectDetails.funds_distributed, 0);
-    
-    const totalMilestones = data.projects.reduce((sum, p) => sum + p.projectDetails.milestones_qty, 0);
-    const completedMilestones = data.projects.reduce((sum, p) => sum + (p.milestonesCompleted ?? 0), 0);
-    
-    // Calculate percentages
-    const completionRate = Math.round((completedProjects / totalProjects) * 100);
-    const distributionRate = Math.round((totalDistributed / totalBudget) * 100);
-    const milestoneRate = Math.round((completedMilestones / totalMilestones) * 100);
-
     // Format the timestamp consistently using UTC to avoid timezone issues
     const formatDate = (timestamp: string): string => {
         const date = new Date(timestamp);
