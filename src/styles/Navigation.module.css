@@ -1,0 +1,203 @@
+.navCard {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    width: 250px;
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px -1px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 1.5rem 1rem;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+}
+
+.navItems {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    background: transparent;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.navItem::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(165deg,
+        rgba(255, 255, 255, 0.03) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.navItem::after {
+    content: '';
+    position: absolute;
+    inset: -100%;
+    background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 30%,
+        rgba(255, 255, 255, 0.06) 50%,
+        rgba(255, 255, 255, 0.03) 70%,
+        transparent 100%
+    );
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translateX(-100%) rotate(45deg);
+    pointer-events: none;
+}
+
+.navItem:hover {
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 
+        0 4px 16px -2px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.navItem:hover::before {
+    opacity: 1;
+}
+
+.navItem:hover::after {
+    transform: translateX(100%) rotate(45deg);
+}
+
+.active {
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    font-weight: 600;
+    box-shadow: 
+        0 4px 16px -2px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.8),
+        rgba(255, 255, 255, 0.4)
+    );
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.icon {
+    font-size: 1.25rem;
+    min-width: 28px;
+    margin-right: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.3s ease;
+}
+
+.navItem:hover .icon {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.active .icon {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.navCardMobile {
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    margin: 0;
+    padding: 1rem;
+    border-radius: 0;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    max-height: none;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 767px) {
+    .navCard {
+        top: 0;
+        left: 0;
+        width: 100%;
+        border-radius: 0;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        padding: 1rem;
+        max-height: none;
+    }
+
+    .navItems {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .navItem {
+        padding: 0.75rem;
+        border-radius: 10px;
+    }
+
+    .label {
+        display: none;
+    }
+
+    .icon {
+        margin-right: 0;
+        font-size: 1.125rem;
+    }
+}
+
+.logoContainer {
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+}
+
+.logo {
+    width: 100%;
+    height: auto;
+    max-width: 180px;
+    display: block;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+}
+
+.logo:hover {
+    opacity: 0.9;
+}

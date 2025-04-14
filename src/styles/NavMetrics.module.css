@@ -1,0 +1,164 @@
+.metricsContainer {
+    position: fixed;
+    top: calc(1.5rem + 388px);
+    left: 1.5rem;
+    width: 230px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.metricCard {
+    background-color: var(--sidebar-bg);
+    border-radius: 12px;
+    padding: 1.25rem 0.75rem;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.metricCard:hover {
+    transform: translateY(-2px);
+}
+
+.metricHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.metricTitle {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.metricIcon {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.iconGreen {
+    background-color: var(--status-green);
+    box-shadow: 0 0 8px rgba(12, 242, 180, 0.5);
+}
+
+.iconYellow {
+    background-color: var(--status-yellow);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+}
+
+.iconBlue {
+    background-color: var(--status-blue);
+    box-shadow: 0 0 8px rgba(16, 132, 255, 0.5);
+}
+
+.metricValue {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0.25rem 0 0.75rem 0;
+}
+
+.metricSubtext {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.25rem;
+}
+
+.metricExtra {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.yearlyTable {
+    margin-top: 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.yearlyTable table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7rem;
+}
+
+.yearlyTable th,
+.yearlyTable td {
+    padding: 0.25rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.yearlyTable th {
+    font-weight: 500;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    opacity: 0.8;
+    padding-top: 0.5rem;
+}
+
+.yearlyTable td {
+    font-weight: 500;
+}
+
+.yearlyTable tr:hover td {
+    color: var(--text-color);
+    background-color: var(--sidebar-hover);
+}
+
+/* Hide metrics on mobile */
+@media (max-width: 767px) {
+    .metricsContainer {
+        display: none;
+    }
+}
+
+.chartsContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 0.5rem 0;
+    gap: 0.5rem;
+}
+
+.chartWrapper {
+    width: 100%;
+    max-width: 160px;
+    text-align: center;
+}
+
+.chartWrapper:first-child {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.25rem;
+}
+
+.chartWrapper:last-child {
+    padding-top: 0.25rem;
+}
+
+.chartWrapper h4 {
+    margin: 0 0 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.chartSubtext {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    text-align: center;
+}

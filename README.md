@@ -1,36 +1,64 @@
-# Mesh Governance
+# Mesh Governance Dashboard
 
-All Mesh activities involving governance in the Cardano ecosystem.
+A comprehensive Next.js dashboard that provides transparency into Mesh's governance activities by visualizing data from multiple sources including Project Catalyst proposals, DRep voting decisions, and Mesh SDK usage statistics.
 
-## Overview
+## 🎯 Purpose
 
-Mesh actively participates in Cardano's governance system through multiple channels:
+This dashboard serves as a central hub for tracking and visualizing:
 
-- **DRep Voting**: As a Delegated Representative, we vote on important governance proposals that shape the future of Cardano
-- **Project Catalyst**: We develop and maintain proposals that contribute to the Cardano ecosystem's growth
+- Project Catalyst proposal funding and milestone completion status
+- DRep voting decisions with detailed rationales
+- Mesh SDK usage metrics and GitHub contributor statistics
 
-## Documentation
+The data is automatically refreshed weekly through Incremental Static Regeneration (ISR), pulling from GitHub-hosted JSON files.
 
-For comprehensive information about our governance activities, visit our site:
-[gov.meshjs.dev](https://gov.meshjs.dev/)
+## 🔍 Key Features
 
-## Key Areas
+- **Catalyst Proposals**: Track funded proposals, budget distribution, and milestone progress
+- **DRep Voting**: View voting history, rationales, and epoch information
+- **Mesh Stats**: Monitor SDK usage trends, GitHub contributions, and dependency statistics
+- **Responsive Design**: Mobile-friendly interface with modern UI/UX
 
-- DRep Voting History and rationale
-- Project Catalyst proposals and progress
-- Mesh SDK Usage Statistics and community growth metrics
+## 🛠️ Tech Stack
 
-## Our Governance Principles
+- **Framework**: Next.js 14 with App Router
+- **Styling**: CSS Modules
+- **Data Visualization**: Recharts/Chart.js
+- **Tables**: React Table
+- **Deployment**: Vercel/Netlify
+- **Data Source**: GitHub-hosted JSON files
 
-1. **Transparency**: All our governance activities are publicly documented and verifiable
-2. **Technical Excellence**: We focus on proposals and decisions that enhance Cardano's technical capabilities
-3. **Community Growth**: We support initiatives that benefit the broader Cardano ecosystem
-4. **Sustainable Development**: We prioritize long-term, sustainable solutions over short-term gains
+## Getting Started
 
-## Resources
+First, run the development server:
 
-- [Cardano Governance Overview](https://www.cardano.org/governance/)
-- [Cardano Improvement Proposals (CIPs)](https://cips.cardano.org/)
-- [Project Catalyst](https://projectcatalyst.io/)
-- [Catalyst Milestones](https://milestones.projectcatalyst.io/)
-- [MeshJS GitHub Organization](https://github.com/meshJS)
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
