@@ -1,0 +1,73 @@
+.glassCard {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.glassCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        800px circle at var(--mouse-x) var(--mouse-y),
+        rgba(255, 255, 255, 0.06),
+        transparent 40%
+    );
+    opacity: 0;
+    transition: opacity 0.4s;
+    z-index: 1;
+}
+
+.glassCard:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 4px 24px -1px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.glassCard:hover::before {
+    opacity: 1;
+}
+
+.glassCard > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Compact variant */
+.glassCardCompact {
+    composes: glassCard;
+    padding: 1.5rem;
+}
+
+/* Large variant */
+.glassCardLarge {
+    composes: glassCard;
+    padding: 2.5rem;
+}
+
+/* Dark variant */
+.glassCardDark {
+    composes: glassCard;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* Interactive variant with stronger hover effect */
+.glassCardInteractive {
+    composes: glassCard;
+}
+
+.glassCardInteractive:hover {
+    transform: translateY(-6px);
+    box-shadow: 
+        0 8px 32px -4px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+} 
