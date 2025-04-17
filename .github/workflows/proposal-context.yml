@@ -1,0 +1,50 @@
+name: Generate Proposal Context
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["DRep Voting Action"]
+    types:
+      - completed
+
+jobs:
+  generate-proposal-context:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run proposal context script
+      env:
+        KOIOS_API_KEY: ${{ secrets.KOIOS_API_KEY }}
+      run: node scripts/proposal-context.js
+
+    - name: Check for changes
+      id: git-check
+      run: |
+        git status --porcelain
+        echo "changes=$(git status --porcelain | wc -l)" >> $GITHUB_OUTPUT
+
+    - name: Commit files
+      if: steps.git-check.outputs.changes > 0
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add vote-context/proposals.json || true
+        git add vote-context/**/*.jsonId || true
+        git commit -m "Update proposal voting contexts" || exit 0
+        
+    - name: Push changes
+      if: steps.git-check.outputs.changes > 0
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }} 

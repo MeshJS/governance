@@ -1,0 +1,30 @@
+{
+    "gov_action12meeq4r43udremwpm6fzt4nt7fctvt0ah7798x036m2r4nhlccmqqhmr9wx": {
+        "title": "Defining the Cardano Vision and Roadmap for 2025 and beyond",
+        "rationale": "We see the proposed roadmap  for 2025 as a helpful effort in building ecosystem wide alignment on top priorities, and vote Yes on this proposal. We also hope that this proposal will encourage other efforts which aim to propose further roadmaps for the Cardano ecosystem. Since we achieved the last of the initial Cardano Milestones with Voltaire, we think that longterm roadmaps at Cardano have proven their worth and value and are a existential part of our culture and careful longterm thinking"
+    },
+    "gov_action10lty9xka3unprtvdfrqvcjgsz33sjwhv9p06afqzar8au782trtsq7dhd95": {
+        "title": "Should K increased?",
+        "rationale": "We generally agree with increasing \"K\", however, the info action does not proposes any actual number of the increased \"K\", therefore, Mesh votes \"Abstain\"."
+    },
+    "gov_action1llcd7ezdx299xeep9azm4dvsvz7783qfrhykcu3sv2ykl4sewv2qq4myfpk": {
+        "title": "Rename the Chang 2 Hard Fork to the Plomin Hard Fork",
+        "rationale": "Plomin founder at Mehen was a outstanding contributor to the Cardano Ecosystem. His unexpected passing on November 14th, 2024 will leave a void at the Community. We lost one of our best. We endorse to pay tribute to Matthew and to honor his work and achievements. Lets keep his name alive."
+    },
+    "gov_action133jnaewfsq8x6v08ndd87l2yqryp63r30t2dkceacxx5cply5n7sqzlcyqf": {
+        "title": "Cardano Constitution to Replace the Interim Constitution",
+        "rationale": "We see the proposed Constitution as a major improvement to the currently active interim Constitution and feel confident that emerging governance infrastructure and capacities are in place and growing to build and act upon the new Constitution. However, while we respect the significant community engagement and involvement which has led to major improvements, we still see room for improvements at the proposed constitution and hope that further evolutions lead of a constantly evolving constitution which is able to reflect and support rapid ecosystem growth and changes"
+    },
+    "gov_action1js2s9v92zpxg2rge0y3jt9zy626he2m67x9kx9phw4r942kvsn6sqfym0d7": {
+        "title": "Decrease Treasury Tax from 20% to 10%",
+        "rationale": "While we generally agree to reduce treasury spending and think that reducing the allocation to the Treasury is a effective way to achieve lower spending capacities, we yet see that we lack research on how such changes will impact the SPO ecosystem and deem that we currently should not change treasury income before we have better insights"
+    },
+    "gov_action1nd3t833j7v5sz65k3tp9yyvztw60sjcjgcgjr37682s3m7frwrusqmd2k80": {
+        "title": "2025 Net Change Limit",
+        "rationale": "We see the NCL of 350M Ada for 2025 as a relatively high, yet acceptable metric which is likely to cover all most relevant funding to core operations within the Cardano Ecosystem. Good enough to agree with. Lets then make sure that we effectively allocate budgets up to 350m ADA in 2025 and not waste funds with projects no one needs."
+    },
+    "gov_action10ueqgzwenxr39le68n0se9peu92r7gm2846xwehh3u0ahc0qd0uqqyljxu5": {
+        "title": "Set 2025 Net Change Limit of 300M ADA, 2026 Net Change Limit of 250M ADA",
+        "rationale": "We see the alternative '2025 Net-Change-Limit' (gov_action1nd3t833j7v5sz65k3tp9yyvztw60sjcjgcgjr37682s3m7frwrusqmd2k80) proposal as a more robust and clear proposal, since it focuses on 2025 solely instead of 2025+2026, we vote NO on this proposal and YES on the alternative. We see the NCL of 350M Ada for 2025 as a relatively high, yet acceptable metric which is likely to cover all most relevant funding to core operations within the Cardano Ecosystem"
+    }
+}
