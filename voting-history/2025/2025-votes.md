@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Set 2025 Net Change Limit of 300M ADA, 2026 Net Change Limit of 250M ADA](https://adastat.net/governances/7f320409d9998712ff3a3cdf0c9439e1543f236a3d746766f78f1fdbe1e06bf800) |
+| Hash           | 7f320409d9998712ff3a3cdf0c9439e1543f236a3d746766f78f1fdbe1e06bf800 |
+| Action ID      | gov_action10ueqgzwenxr39le68n0se9peu92r7gm2846xwehh3u0ahc0qd0uqqyljxu5 |
+| Type           | InfoAction |
+| Proposed Epoch | 546 |
+| Expires Epoch  | 553 |
+| Vote           | ❌No |
+| Vote Submitted | 4/16/2025 |
+| Rationale       | We see the alternative '2025 Net-Change-Limit' (gov_action1nd3t833j7v5sz65k3tp9yyvztw60sjcjgcgjr37682s3m7frwrusqmd2k80) proposal as a more robust and clear proposal, since it focuses on 2025 solely instead of 2025+2026, we vote NO on this proposal and YES on the alternative. We see the NCL of 350M Ada for 2025 as a relatively high, yet acceptable metric which is likely to cover all most relevant funding to core operations within the Cardano Ecosystem |
+|Link|https://adastat.net/transactions/edb68b980c151d01db1db054af4f176c2af9bdbedfa977aed08e1354fd717120 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [2025 Net Change Limit](https://adastat.net/governances/9b62b3c632f329016a968ac25211825bb4f84b12461121c7da3aa11df92370f900) |
 | Hash           | 9b62b3c632f329016a968ac25211825bb4f84b12461121c7da3aa11df92370f900 |
 | Action ID      | gov_action1nd3t833j7v5sz65k3tp9yyvztw60sjcjgcgjr37682s3m7frwrusqmd2k80 |
@@ -10,7 +26,7 @@
 | Expires Epoch  | 554 |
 | Vote           | ✅Yes |
 | Vote Submitted | 4/14/2025 |
-| Rationale       | No rationale available |
+| Rationale       | We see the NCL of 350M Ada for 2025 as a relatively high, yet acceptable metric which is likely to cover all most relevant funding to core operations within the Cardano Ecosystem. Good enough to agree with. Lets then make sure that we effectively allocate budgets up to 350m ADA in 2025 and not waste funds with projects no one needs. |
 |Link|https://adastat.net/transactions/97286d801834e523e53c16ae2fc255f233ba8a1651eb0cf379e5d5f8ae22bd1f |
 
 
