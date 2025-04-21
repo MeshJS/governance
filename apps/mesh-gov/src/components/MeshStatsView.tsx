@@ -124,36 +124,29 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => (
     </ResponsiveContainer>
 );
 
-const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filteredStats }) => {
-    // Determine if we're showing filtered data or all data
-    const isFiltered = !!filteredStats && (filteredStats.packageData?.length || filteredStats.monthlyData?.length);
-
-    // Use filtered package data if available, otherwise use all data
-    const packageData = isFiltered && filteredStats?.packageData
-        ? filteredStats.packageData
-        : currentStats?.npm ? [
-            { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
-            { name: 'React', downloads: currentStats.npm.react_package_downloads },
-            { name: 'Transaction', downloads: currentStats.npm.transaction_package_downloads },
-            { name: 'Wallet', downloads: currentStats.npm.wallet_package_downloads },
-            { name: 'Provider', downloads: currentStats.npm.provider_package_downloads },
-            { name: 'Core CSL', downloads: currentStats.npm.core_csl_package_downloads },
-            { name: 'Core CST', downloads: currentStats.npm.core_cst_package_downloads },
-        ] : [];
+const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats }) => {
+    // Use all package data
+    const packageData = currentStats?.npm ? [
+        { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
+        { name: 'React', downloads: currentStats.npm.react_package_downloads },
+        { name: 'Transaction', downloads: currentStats.npm.transaction_package_downloads },
+        { name: 'Wallet', downloads: currentStats.npm.wallet_package_downloads },
+        { name: 'Provider', downloads: currentStats.npm.provider_package_downloads },
+        { name: 'Core CSL', downloads: currentStats.npm.core_csl_package_downloads },
+        { name: 'Core CST', downloads: currentStats.npm.core_cst_package_downloads },
+    ] : [];
 
     const years = Object.keys(yearlyStats || {}).map(Number).sort((a, b) => b - a);
     const latestYear = years[0];
 
-    // Use filtered monthly data if available, otherwise use all data
-    const monthlyData = isFiltered && filteredStats?.monthlyData
-        ? filteredStats.monthlyData
-        : latestYear && yearlyStats?.[latestYear]?.monthlyDownloads
-            ? yearlyStats[latestYear].monthlyDownloads.map((month: YearlyStats['monthlyDownloads'][0]) => ({
-                name: month.month,
-                downloads: month.downloads,
-                trend: month.trend
-            }))
-            : [];
+    // Use all monthly data
+    const monthlyData = latestYear && yearlyStats?.[latestYear]?.monthlyDownloads
+        ? yearlyStats[latestYear].monthlyDownloads.map((month: YearlyStats['monthlyDownloads'][0]) => ({
+            name: month.month,
+            downloads: month.downloads,
+            trend: month.trend
+        }))
+        : [];
 
     // Get the current year's repositories data up to current month
     const repositoriesData = useMemo(() => {
@@ -172,14 +165,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
 
     return (
         <div data-testid="mesh-stats-view">
-            {isFiltered && (
-                <div className={styles.filterNotice}>
-                    <h2>Filtered Results</h2>
-                    <p>Showing filtered statistics based on your search criteria.</p>
-                </div>
-            )}
-
-            {currentStats?.npm?.downloads && !isFiltered && (
+            {currentStats?.npm?.downloads && (
                 <>
                     <h2 className={styles.statsHeader}>meshsdk/core downloads</h2>
                     <div className={styles.statsGrid}>
@@ -199,7 +185,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
                 </>
             )}
 
-            {currentStats?.github && !isFiltered && (
+            {currentStats?.github && (
                 <div className={styles.githubStats}>
                     <h2>GitHub Usage</h2>
                     <div className={styles.statsGrid}>
@@ -224,14 +210,14 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
             {packageData.length > 0 && monthlyData.length > 0 && (
                 <div className={styles.chartsGrid}>
                     <div className={styles.chartSection}>
-                        <h2>Package Downloads {isFiltered ? '(Filtered)' : '(Last 12 Months)'}</h2>
+                        <h2>Package Downloads (Last 12 Months)</h2>
                         <div className={styles.chart}>
                             <CustomBarChart data={packageData} chartId="package" />
                         </div>
                     </div>
 
                     <div className={styles.chartSection}>
-                        <h2>Monthly Downloads {isFiltered ? '(Filtered)' : `(${latestYear})`}</h2>
+                        <h2>Monthly Downloads ({latestYear})</h2>
                         <div className={styles.chart}>
                             <CustomBarChart data={monthlyData} chartId="monthly" />
                         </div>
@@ -246,7 +232,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
                 </div>
             )}
 
-            {years.length > 0 && !isFiltered && (
+            {years.length > 0 && (
                 <div className={styles.chartSection}>
                     <h2>Yearly Comparison</h2>
                     <div className={styles.yearGrid}>

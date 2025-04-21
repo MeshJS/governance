@@ -169,7 +169,6 @@ const ProjectCard = ({ project }: { project: Project }) => {
 
 export default function Projects() {
     const { meshData, isLoading, error } = useData();
-    const [searchTerm, setSearchTerm] = useState('');
 
     if (isLoading) {
         return (
@@ -190,28 +189,11 @@ export default function Projects() {
     const githubUsage = meshData?.currentStats?.github?.core_in_package_json || 0;
     const totalReferences = meshData?.currentStats?.github?.core_in_any_file || 0;
 
-    // Filter projects based on search term
-    const filteredProjects = projects.filter(project =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // Filter config for search
-    const filterConfig = {
-        placeholder: "Search projects...",
-        filters: []
-    };
-
     return (
         <div className={styles.container}>
             <PageHeader
                 title={<>Mesh <span>Projects</span></>}
                 subtitle="Projects using Mesh SDK in their GitHub repositories"
-            />
-
-            <SearchFilterBar
-                config={filterConfig}
-                onSearch={(term) => setSearchTerm(term)}
             />
 
             <div className={styles.stats}>
@@ -231,26 +213,9 @@ export default function Projects() {
             </div>
 
             <div className={styles.projectsGrid}>
-                {filteredProjects.length > 0 ? (
-                    filteredProjects.map(project => (
-                        <ProjectCard key={project.id} project={project} />
-                    ))
-                ) : (
-                    <div className={styles.noResults}>
-                        {searchTerm ? 'No projects found matching your search.' : 'Add projects to display them here.'}
-                    </div>
-                )}
-            </div>
-
-            <div className={styles.moreSection}>
-                <a
-                    href="https://meshjs.dev/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.moreButton}
-                >
-                    Explore More Projects
-                </a>
+                {projects.map(project => (
+                    <ProjectCard key={project.id} project={project} />
+                ))}
             </div>
 
             <div className={styles.sectionHeader}>
