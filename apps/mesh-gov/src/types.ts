@@ -11,6 +11,13 @@ export interface CatalystProject {
         url: string;
         status: 'In Progress' | 'Completed';
         finished: string;
+        voting: {
+            proposalId: number;
+            yes_votes_count: number;
+            no_votes_count: number | null;
+            abstain_votes_count: number | null;
+            unique_wallets: number;
+        };
     };
     milestonesCompleted: number;
 }
@@ -114,8 +121,35 @@ export interface MeshData {
     lastFetched: number;
 }
 
+export interface DRepEpochInfo {
+    voting_power_lovelace: string;
+    total_delegators: number;
+}
+
+export interface DRepTimeline {
+    epochs: Record<string, DRepEpochInfo>;
+    current_epoch: number;
+    total_delegators: number;
+    total_amount_ada: number;
+}
+
+export interface DRepInfo {
+    drepId: string;
+    amount: string;
+    active: boolean;
+    registered: boolean;
+    expires_epoch_no: number;
+    last_updated: string;
+}
+
+export interface DRepDelegationData {
+    timeline: DRepTimeline;
+    drepInfo: DRepInfo;
+}
+
 export interface DRepVotingData {
     votes: GovernanceVote[];
+    delegationData: DRepDelegationData | null;
     lastFetched: number;
 }
 

@@ -33,10 +33,9 @@
 
 /* Main sections with glass effect */
 .section {
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
+    background: linear-gradient(165deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 16px;
@@ -51,7 +50,7 @@
 .section:hover {
     transform: translateY(-2px) translateZ(0);
     border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    box-shadow:
         0 12px 32px -8px rgba(0, 0, 0, 0.2),
         0 4px 16px -4px rgba(0, 0, 0, 0.1),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
@@ -115,14 +114,12 @@
     content: '';
     position: absolute;
     inset: -100%;
-    background: linear-gradient(
-        45deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.03) 30%,
-        rgba(255, 255, 255, 0.05) 50%,
-        rgba(255, 255, 255, 0.03) 70%,
-        transparent 100%
-    );
+    background: linear-gradient(45deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.03) 30%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0.03) 70%,
+            transparent 100%);
     transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
     transform: translateX(-100%) rotate(45deg);
     pointer-events: none;
@@ -473,34 +470,30 @@
 .progressFill {
     height: 100%;
     transition: width 0.3s ease;
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.25) 0%,
-        rgba(255, 255, 255, 0.35) 100%
-    );
-    box-shadow: 
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0.35) 100%);
+    box-shadow:
         0 0 10px rgba(255, 255, 255, 0.1),
         inset 0 1px rgba(255, 255, 255, 0.15);
 }
 
 .progressFill.yes {
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.25) 0%,
-        rgba(255, 255, 255, 0.35) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0.35) 100%);
 }
 
 .progressFill.no {
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0.25) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.25) 100%);
 }
 
 .progressFill.abstain {
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.15) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.15) 100%);
 }
 
 .progressValue {
@@ -583,7 +576,32 @@
 }
 
 .description {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
     margin-bottom: 1rem;
+}
+
+.delegationInfo {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.delegationRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.delegationLabel {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+
+.delegationValue {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.875rem;
+    font-weight: 500;
 }

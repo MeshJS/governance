@@ -50,9 +50,8 @@
 .stat {
     flex: 1;
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 12px;
@@ -65,7 +64,7 @@
 .stat:hover {
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    box-shadow:
         0 8px 32px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
@@ -186,10 +185,9 @@
 }
 
 .item {
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
+    background: linear-gradient(165deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 12px;
@@ -206,9 +204,8 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.03) 0%,
-        rgba(255, 255, 255, 0) 100%
-    );
+            rgba(255, 255, 255, 0.03) 0%,
+            rgba(255, 255, 255, 0) 100%);
     opacity: 0;
     transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
@@ -218,14 +215,12 @@
     content: '';
     position: absolute;
     inset: -100%;
-    background: linear-gradient(
-        45deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.03) 30%,
-        rgba(255, 255, 255, 0.06) 50%,
-        rgba(255, 255, 255, 0.03) 70%,
-        transparent 100%
-    );
+    background: linear-gradient(45deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.03) 30%,
+            rgba(255, 255, 255, 0.06) 50%,
+            rgba(255, 255, 255, 0.03) 70%,
+            transparent 100%);
     transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
     transform: translateX(-100%) rotate(45deg);
     pointer-events: none;
@@ -234,7 +229,7 @@
 .item:hover {
     transform: translateY(-4px) scale(1.01);
     border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    box-shadow:
         0 8px 32px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
@@ -376,9 +371,8 @@
     font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.06) 0%,
-        rgba(255, 255, 255, 0.03) 100%
-    );
+            rgba(255, 255, 255, 0.06) 0%,
+            rgba(255, 255, 255, 0.03) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -398,23 +392,20 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.2) 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            transparent 100%);
     transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1;
 }
 
 .link:hover {
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0.05) 100%
-    );
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.05) 100%);
     border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 
+    box-shadow:
         0 8px 24px -4px rgba(0, 0, 0, 0.3),
         0 0 0 1px rgba(255, 255, 255, 0.15) inset,
         0 0 0 2px rgba(255, 255, 255, 0.05);
@@ -430,16 +421,15 @@
 .link:active {
     transform: translateY(0);
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.04) 100%
-    );
-    box-shadow: 
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.04) 100%);
+    box-shadow:
         0 4px 16px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     border-color: rgba(255, 255, 255, 0.15);
 }
 
-.link > * {
+.link>* {
     position: relative;
     z-index: 2;
 }
@@ -512,9 +502,8 @@
 .statsCard {
     flex: 1;
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 12px;
@@ -527,7 +516,7 @@
 .statsCard:hover {
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    box-shadow:
         0 8px 32px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
@@ -586,9 +575,8 @@
 
 .votingProgress {
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 12px;
@@ -604,6 +592,31 @@
     color: var(--text-color);
     margin-bottom: 1.25rem;
     letter-spacing: -0.01em;
+}
+
+.drepStats {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.statLabel {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.statValue {
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
 }
 
 .progressBars {
@@ -637,9 +650,8 @@
     height: 100%;
     border-radius: 4px;
     background: linear-gradient(90deg,
-        rgba(255, 255, 255, 0.5) 0%,
-        rgba(255, 255, 255, 0.7) 100%
-    );
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0.7) 100%);
     box-shadow:
         0 0 10px rgba(255, 255, 255, 0.2),
         0 0 5px rgba(255, 255, 255, 0.1),
@@ -651,9 +663,8 @@
 .progressFill.no,
 .progressFill.abstain {
     background: linear-gradient(90deg,
-        rgba(255, 255, 255, 0.5) 0%,
-        rgba(255, 255, 255, 0.7) 100%
-    );
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0.7) 100%);
     box-shadow:
         0 0 10px rgba(255, 255, 255, 0.2),
         0 0 5px rgba(255, 255, 255, 0.1),

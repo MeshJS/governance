@@ -155,12 +155,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 .flat()
                 .sort((a, b) => new Date(b.blockTime).getTime() - new Date(a.blockTime).getTime());
 
-            if (allVotes.length === 0) {
-                throw new Error('No voting data available');
-            }
+            // Fetch delegation data
+            const delegationData = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/refs/heads/main/mesh-gov-updates/drep-voting/drep-delegation-info.json');
 
             const newData: DRepVotingData = {
                 votes: allVotes,
+                delegationData: delegationData || null,
                 lastFetched: Date.now()
             };
 

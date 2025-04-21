@@ -7,7 +7,10 @@ import Image from 'next/image';
 
 // Simple number formatting function
 const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat('en-US').format(num);
+    return new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0
+    }).format(num);
 };
 
 // Component to display compact catalyst proposals overview
@@ -46,7 +49,7 @@ const CatalystProposalsCard = ({ projects }: { projects: CatalystProject[] }) =>
 };
 
 // Component to display voting table
-const VotingTableCard = ({ votes }: { votes: GovernanceVote[] }) => {
+const VotingTableCard = ({ votes, delegationData }: { votes: GovernanceVote[], delegationData: any }) => {
     // Calculate vote stats
     const voteStats = {
         total: votes.length,
@@ -60,6 +63,16 @@ const VotingTableCard = ({ votes }: { votes: GovernanceVote[] }) => {
             <div className={styles.statusItemContent}>
                 <div className={styles.description}>
                     Mesh DRep votes at Cardano&rsquo;s onchain Governance
+                </div>
+                <div className={styles.delegationInfo}>
+                    <div className={styles.delegationRow}>
+                        <span className={styles.delegationLabel}>Total Delegators:</span>
+                        <span className={styles.delegationValue}>{delegationData?.timeline?.total_delegators || 0}</span>
+                    </div>
+                    <div className={styles.delegationRow}>
+                        <span className={styles.delegationLabel}>Total ADA Delegated:</span>
+                        <span className={styles.delegationValue}>{formatNumber(delegationData?.timeline?.total_amount_ada || 0)} ₳</span>
+                    </div>
                 </div>
                 <div className={styles.progressBars}>
                     <div className={styles.progressRow}>
@@ -143,7 +156,7 @@ export default function Dashboard() {
         const category = project.projectDetails.category;
         categories[category] = (categories[category] || 0) + 1;
     });
-
+    console.log('meshData', meshData, drepVotingData, catalystData);
     return (
         <div className={styles.container}>
             <header className={styles.mainHeader}>
@@ -172,7 +185,7 @@ export default function Dashboard() {
                         />
                     </div>
                     <div className={styles.sectionContent}>
-                        <VotingTableCard votes={filteredVotes} />
+                        <VotingTableCard votes={filteredVotes} delegationData={drepVotingData?.delegationData} />
                     </div>
                 </section>
 

@@ -135,13 +135,23 @@ export default function DRepVoting() {
 
             <div className={styles.votingProgress}>
                 <h2 className={styles.votingProgressTitle}>Voting Distribution</h2>
+                <div className={styles.drepStats}>
+                    <div className={styles.statItem}>
+                        <span className={styles.statLabel}>Total Delegated ADA:</span>
+                        <span className={styles.statValue}>{Math.round(drepVotingData?.delegationData?.timeline?.total_amount_ada || 0).toLocaleString()} ₳</span>
+                    </div>
+                    <div className={styles.statItem}>
+                        <span className={styles.statLabel}>Total Delegators:</span>
+                        <span className={styles.statValue}>{drepVotingData?.delegationData?.timeline?.total_delegators}</span>
+                    </div>
+                </div>
                 <div className={styles.progressBars}>
                     <div className={styles.progressRow}>
                         <div className={styles.progressLabel}>Yes</div>
                         <div className={styles.progressBar}>
-                            <div 
-                                className={`${styles.progressFill} ${styles.yes}`} 
-                                style={{width: `${(voteStats.yes / voteStats.total) * 100}%`}}
+                            <div
+                                className={`${styles.progressFill} ${styles.yes}`}
+                                style={{ width: `${(voteStats.yes / voteStats.total) * 100}%` }}
                             ></div>
                         </div>
                         <div className={styles.progressValue}>{voteStats.yes}</div>
@@ -149,9 +159,9 @@ export default function DRepVoting() {
                     <div className={styles.progressRow}>
                         <div className={styles.progressLabel}>No</div>
                         <div className={styles.progressBar}>
-                            <div 
-                                className={`${styles.progressFill} ${styles.no}`} 
-                                style={{width: `${(voteStats.no / voteStats.total) * 100}%`}}
+                            <div
+                                className={`${styles.progressFill} ${styles.no}`}
+                                style={{ width: `${(voteStats.no / voteStats.total) * 100}%` }}
                             ></div>
                         </div>
                         <div className={styles.progressValue}>{voteStats.no}</div>
@@ -159,9 +169,9 @@ export default function DRepVoting() {
                     <div className={styles.progressRow}>
                         <div className={styles.progressLabel}>Abstain</div>
                         <div className={styles.progressBar}>
-                            <div 
-                                className={`${styles.progressFill} ${styles.abstain}`} 
-                                style={{width: `${(voteStats.abstain / voteStats.total) * 100}%`}}
+                            <div
+                                className={`${styles.progressFill} ${styles.abstain}`}
+                                style={{ width: `${(voteStats.abstain / voteStats.total) * 100}%` }}
                             ></div>
                         </div>
                         <div className={styles.progressValue}>{voteStats.abstain}</div>
