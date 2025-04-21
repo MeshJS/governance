@@ -43,10 +43,17 @@ const ContributorNetwork: React.FC<ContributorNetworkProps> = ({ contributors })
             });
         });
 
-        // Create repository nodes
-        Array.from(meshRepos).forEach((repo, index) => {
-            const x = Math.cos((index * 2 * Math.PI) / meshRepos.size) * 300;
-            const y = Math.sin((index * 2 * Math.PI) / meshRepos.size) * 300;
+        // Calculate grid dimensions
+        const repos = Array.from(meshRepos);
+        const gridSize = Math.ceil(Math.sqrt(repos.length));
+        const spacing = 300; // Space between nodes
+
+        // Create repository nodes in grid formation
+        repos.forEach((repo, index) => {
+            const row = Math.floor(index / gridSize);
+            const col = index % gridSize;
+            const x = col * spacing;
+            const y = row * spacing;
             nodePositions.set(repo, { x, y });
 
             // Calculate total contributions and contributor count for this repo
@@ -143,16 +150,6 @@ const ContributorNetwork: React.FC<ContributorNetworkProps> = ({ contributors })
                         border: '1px solid rgba(255, 255, 255, 0.1)',
                         borderRadius: '8px',
                     }}
-                />
-                <MiniMap
-                    style={{
-                        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                        backdropFilter: 'blur(16px)',
-                        WebkitBackdropFilter: 'blur(16px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
-                    nodeColor="rgba(255, 255, 255, 0.8)"
-                    maskColor="rgba(0, 0, 0, 0.6)"
                 />
             </ReactFlow>
         </div>
