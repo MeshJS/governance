@@ -33,20 +33,18 @@ const ContributorNetwork: React.FC<ContributorNetworkProps> = ({ contributors })
         const newEdges: Edge[] = [];
         const nodePositions = new Map<string, { x: number, y: number }>();
 
-        // Get all unique Mesh repositories
+        // Get all unique repositories
         const meshRepos = new Set<string>();
         contributors.forEach(contributor => {
             contributor.repositories.forEach(repo => {
-                if (repo.name.toLowerCase().includes('mesh')) {
-                    meshRepos.add(repo.name);
-                }
+                meshRepos.add(repo.name);
             });
         });
 
         // Calculate grid dimensions
         const repos = Array.from(meshRepos);
         const gridSize = Math.ceil(Math.sqrt(repos.length));
-        const spacing = 300; // Space between nodes
+        const spacing = 200; // Reduced from 300 to bring nodes closer together
 
         // Create repository nodes in grid formation
         repos.forEach((repo, index) => {

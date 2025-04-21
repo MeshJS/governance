@@ -193,16 +193,17 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats }) =>
                             <h3>Projects Using Mesh</h3>
                             <p>{formatNumber(currentStats.github.core_in_repositories)}</p>
                         </div>
-                        <div className={styles.stat}>
-                            <h3>Total File References</h3>
-                            <p>{formatNumber(currentStats.github.core_in_any_file)}</p>
-                        </div>
+                        
                         {currentStats.contributors?.unique_count && (
                             <div className={styles.stat}>
                                 <h3>GitHub Contributors</h3>
                                 <p>{formatNumber(currentStats.contributors.unique_count)}</p>
                             </div>
                         )}
+                        <div className={styles.stat}>
+                            <h3>Total Contributions</h3>
+                            <p>{formatNumber(currentStats.contributors.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
+                        </div>
                     </div>
                 </div>
             )}
