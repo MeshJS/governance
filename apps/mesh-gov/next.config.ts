@@ -1,9 +1,16 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const config: NextConfig = {
   images: {
-    domains: ['avatars.githubusercontent.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',          // leave empty string for default ports
+        pathname: '/**',   // allow any path under this host
+      },
+    ],
   },
-};
+}
 
-export default config;
+export default config
