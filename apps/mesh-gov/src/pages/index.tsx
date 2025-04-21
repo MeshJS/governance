@@ -147,7 +147,7 @@ export default function Dashboard() {
 
     // SDK download stats - get last month's downloads
     const monthlyDownloads = meshData?.currentStats?.npm?.downloads?.last_month || 0;
-    const githubUsage = meshData?.currentStats?.github?.core_in_package_json || 0;
+    const githubUsage = meshData?.currentStats?.github?.core_in_repositories || 0;
     const activeContributors = meshData?.currentStats?.contributors?.unique_count || 0;
 
     // Calculate project categories
