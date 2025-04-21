@@ -9,7 +9,7 @@ const formatNumber = (num: number): string => {
 
 // Format ADA amount with symbol
 const formatAda = (amount: number): string => {
-    return `₳${formatNumber(amount)}`;
+    return `₳ ${formatNumber(amount)}`;
 };
 
 // Calculate progress percentage safely
@@ -42,7 +42,7 @@ interface CatalystProposalsListProps {
 }
 
 const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClick }) => {
-    
+
     // Format the timestamp consistently using UTC to avoid timezone issues
     const formatDate = (timestamp: string): string => {
         const date = new Date(timestamp);
@@ -81,15 +81,15 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClic
                                     </div>
                                 </div>
                                 <div className={styles.milestoneProgressBar}>
-                                    <div 
+                                    <div
                                         className={styles.milestoneProgressFill}
-                                        style={{ 
+                                        style={{
                                             width: `${progressPercent}%`,
-                                            background: progressPercent === 100 
+                                            background: progressPercent === 100
                                                 ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.35))'
                                                 : progressPercent > 50
-                                                ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
-                                                : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
+                                                    ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
+                                                    : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
                                         }}
                                     />
                                 </div>
@@ -118,11 +118,10 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClic
                         >
                             <div className={styles.cardInner}>
                                 <div className={styles.cardHeader}>
-                                    <span className={`${styles.status} ${
-                                        project.projectDetails.status === 'Completed' ? styles.statusCompleted :
-                                        project.projectDetails.status === 'In Progress' ? styles.statusInProgress : 
-                                        styles.statusPending
-                                    }`}>
+                                    <span className={`${styles.status} ${project.projectDetails.status === 'Completed' ? styles.statusCompleted :
+                                        project.projectDetails.status === 'In Progress' ? styles.statusInProgress :
+                                            styles.statusPending
+                                        }`}>
                                         {project.projectDetails.status}
                                     </span>
                                     <h3 className={styles.title}>{project.projectDetails.title}</h3>
@@ -151,19 +150,30 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClic
                                                 {project.milestonesCompleted ?? 0}/{project.projectDetails.milestones_qty}
                                             </span>
                                             <div className={styles.progressBar}>
-                                                <div 
-                                                    className={styles.progressFill} 
-                                                    style={{ 
+                                                <div
+                                                    className={styles.progressFill}
+                                                    style={{
                                                         width: `${progressPercent}%`,
-                                                        background: progressPercent === 100 
+                                                        background: progressPercent === 100
                                                             ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.35))'
                                                             : progressPercent > 50
-                                                            ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
-                                                            : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
+                                                                ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
+                                                                : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
                                                     }}
                                                 />
                                             </div>
                                         </div>
+
+                                        <div className={styles.infoBox}>
+                                            <span className={styles.infoLabel}>Yes Votes</span>
+                                            <span className={styles.infoValue}>{formatAda(project.projectDetails.voting.yes_votes_count)}</span>
+                                        </div>
+
+                                        <div className={styles.infoBox}>
+                                            <span className={styles.infoLabel}>Unique Voters</span>
+                                            <span className={styles.infoValue}>{project.projectDetails.voting.unique_wallets}</span>
+                                        </div>
+                                        
                                     </div>
 
                                     <div className={styles.projectIdBox}>

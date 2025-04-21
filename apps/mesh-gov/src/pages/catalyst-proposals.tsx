@@ -42,7 +42,8 @@ export default function CatalystProposals() {
     const stats = useMemo(() => ({
         totalBudget: allProjects.reduce((sum: number, p: CatalystProject) => sum + p.projectDetails.budget, 0),
         completedProjects: allProjects.filter((p: CatalystProject) => p.projectDetails.status === 'Completed').length,
-        totalProjects: allProjects.length
+        totalProjects: allProjects.length,
+        totalVotes: allProjects.reduce((sum: number, p: CatalystProject) => sum + (p.projectDetails.voting.yes_votes_count || 0), 0)
     }), [allProjects]);
 
     // Debounced URL update
@@ -147,6 +148,10 @@ export default function CatalystProposals() {
                 <div className={styles.stat}>
                     <h3>Completed Projects</h3>
                     <p aria-label="Completed Projects">{stats.completedProjects}</p>
+                </div>
+                <div className={styles.stat}>
+                    <h3>Total Votes</h3>
+                    <p aria-label="Total Votes">{formatAda(stats.totalVotes)}</p>
                 </div>
             </div>
 
