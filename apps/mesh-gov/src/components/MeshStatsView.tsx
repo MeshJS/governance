@@ -1,6 +1,6 @@
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import styles from '../styles/MeshStats.module.css';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps, LineChart, Line } from 'recharts';
 import { YearlyStats, CurrentStats } from '../types';
 
 interface MonthlyDownload {
@@ -104,6 +104,56 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => (
     </ResponsiveContainer>
 );
 
+interface CustomLineChartProps {
+    data: Array<{
+        month: string;
+        repositories: number;
+    }>;
+    chartId: string;
+}
+
+const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => (
+    <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+            <defs>
+                <linearGradient id={`lineGradient-${chartId}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.5" />
+                </linearGradient>
+            </defs>
+            <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255, 255, 255, 0.03)"
+                vertical={false}
+            />
+            <XAxis
+                dataKey="month"
+                axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
+                tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                dy={8}
+            />
+            <YAxis
+                axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
+                tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+            />
+            <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+            />
+            <Line
+                type="monotone"
+                dataKey="repositories"
+                stroke={`url(#lineGradient-${chartId})`}
+                strokeWidth={2}
+                dot={{ fill: '#FFFFFF', strokeWidth: 2 }}
+                activeDot={{ r: 4, fill: '#FFFFFF' }}
+            />
+        </LineChart>
+    </ResponsiveContainer>
+);
+
 const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filteredStats }) => {
     // Determine if we're showing filtered data or all data
     const isFiltered = !!filteredStats && (filteredStats.packageData?.length || filteredStats.monthlyData?.length);
@@ -134,6 +184,21 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
                 trend: month.trend
             }))
             : [];
+
+    // Get the current year's repositories data up to current month
+    const repositoriesData = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        return months.slice(0, currentMonth + 1).map(month => {
+            const yearData = yearlyStats[currentYear]?.githubStats.find(stat => stat.month === month);
+            return {
+                month,
+                repositories: yearData?.repositories || 0
+            };
+        });
+    }, [yearlyStats]);
 
     return (
         <div data-testid="mesh-stats-view">
@@ -170,7 +235,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
                     <div className={styles.statsGrid}>
                         <div className={styles.stat}>
                             <h3>Projects Using Mesh</h3>
-                            <p>{formatNumber(currentStats.github.core_in_package_json)}</p>
+                            <p>{formatNumber(currentStats.github.core_in_repositories)}</p>
                         </div>
                         <div className={styles.stat}>
                             <h3>Total File References</h3>
@@ -199,6 +264,13 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
                         <h2>Monthly Downloads {isFiltered ? '(Filtered)' : `(${latestYear})`}</h2>
                         <div className={styles.chart}>
                             <CustomBarChart data={monthlyData} chartId="monthly" />
+                        </div>
+                    </div>
+
+                    <div className={styles.chartSection}>
+                        <h2>GitHub Repositories ({new Date().getFullYear()})</h2>
+                        <div className={styles.chart}>
+                            <CustomLineChart data={repositoriesData} chartId="repositories" />
                         </div>
                     </div>
                 </div>

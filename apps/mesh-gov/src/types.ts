@@ -63,6 +63,7 @@ export interface YearlyStats {
         month: string;
         projects: number;
         files: number;
+        repositories: number;
     }>;
     peakMonth: {
         name: string;
@@ -87,6 +88,7 @@ export interface CurrentStats {
     github: {
         core_in_package_json: number;
         core_in_any_file: number;
+        core_in_repositories: number;
     };
     npm: {
         downloads: {
