@@ -1,37 +1,7 @@
 import { FC, useMemo } from 'react';
 import styles from '../styles/MeshStats.module.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps, LineChart, Line } from 'recharts';
-import { YearlyStats, CurrentStats } from '../types';
-
-interface MonthlyDownload {
-    month: string;
-    downloads: number;
-    trend: string;
-}
-
-interface PackageData {
-    name: string;
-    downloads: number;
-}
-
-interface MonthlyData {
-    name: string;
-    downloads: number;
-    trend: string;
-}
-
-export interface FilteredStats {
-    packageData?: PackageData[];
-    monthlyData?: MonthlyData[];
-    currentStats?: CurrentStats;
-    yearlyStats?: Record<number, YearlyStats>;
-}
-
-interface MeshStatsViewProps {
-    currentStats: CurrentStats;
-    yearlyStats: Record<number, YearlyStats>;
-    filteredStats?: FilteredStats;
-}
+import { YearlyStats, PackageData, MeshStatsViewProps } from '../types';
 
 const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('en-US').format(num);
@@ -52,7 +22,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
 };
 
 interface CustomBarChartProps {
-    data: PackageData[] | MonthlyData[];
+    data: PackageData[] | YearlyStats['monthlyDownloads'];
     chartId: string;
 }
 
@@ -162,7 +132,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
     const packageData = isFiltered && filteredStats?.packageData
         ? filteredStats.packageData
         : currentStats?.npm ? [
-            { name: 'Core', downloads: currentStats.npm.downloads.last_month },
+            { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
             { name: 'React', downloads: currentStats.npm.react_package_downloads },
             { name: 'Transaction', downloads: currentStats.npm.transaction_package_downloads },
             { name: 'Wallet', downloads: currentStats.npm.wallet_package_downloads },
@@ -178,7 +148,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, filt
     const monthlyData = isFiltered && filteredStats?.monthlyData
         ? filteredStats.monthlyData
         : latestYear && yearlyStats?.[latestYear]?.monthlyDownloads
-            ? yearlyStats[latestYear].monthlyDownloads.map((month: MonthlyDownload) => ({
+            ? yearlyStats[latestYear].monthlyDownloads.map((month: YearlyStats['monthlyDownloads'][0]) => ({
                 name: month.month,
                 downloads: month.downloads,
                 trend: month.trend
