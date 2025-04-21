@@ -167,6 +167,7 @@ export default function Dashboard() {
                     height={100}
                     className={styles.meshLogo}
                     priority
+                    style={{ width: 'auto', height: 'auto' }}
                 />
             </header>
 

@@ -3,6 +3,7 @@ import styles from '../styles/Contributors.module.css';
 import Card from '../components/ContributorCard';
 import Image from 'next/image';
 import PageHeader from '../components/PageHeader';
+import ContributorNetwork from '../components/ContributorNetwork';
 
 export default function Contributors() {
     const { meshData, isLoading, error } = useData();
@@ -23,6 +24,8 @@ export default function Contributors() {
                 title={<>Mesh <span>Contributors</span></>}
                 subtitle="Meet the amazing people who contribute to Mesh"
             />
+
+            <ContributorNetwork contributors={contributors.contributors} />
 
             <div className={styles.summaryContainer}>
                 <Card className={styles.summaryCard}>
