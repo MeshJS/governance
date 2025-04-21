@@ -174,7 +174,7 @@ async function getDRepVotes(drepId) {
         // Fetch proposal details first
         const proposalDetails = await getProposalDetails(drepId);
 
-        const response = await axios.get(`https://api.koios.rest/api/v1/drep_votes?_drep_id=${drepId}`, {
+        const response = await axios.get(`https://api.koios.rest/api/v1/vote_list?voter_id=eq.${encodeURIComponent(drepId)}`, {
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'accept': 'application/json'
