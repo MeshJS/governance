@@ -7,13 +7,13 @@ const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('en-US').format(num);
 };
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+const CustomTooltip = ({ active, payload, label, chartId }: TooltipProps<number, string> & { chartId?: string }) => {
     if (active && payload && payload.length && payload[0].value !== undefined) {
         return (
             <div className={styles.customTooltip}>
                 <p className={styles.tooltipLabel}>{label}</p>
                 <p className={styles.tooltipValue}>
-                    {formatNumber(payload[0].value)} downloads
+                    {formatNumber(payload[0].value)} {chartId === 'repositories' ? 'repositories' : 'downloads'}
                 </p>
             </div>
         );
@@ -109,7 +109,7 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => (
                 tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
             />
             <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip chartId="repositories" />}
                 cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
             />
             <Line
@@ -193,7 +193,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats }) =>
                             <h3>Projects Using Mesh</h3>
                             <p>{formatNumber(currentStats.github.core_in_repositories)}</p>
                         </div>
-                        
+
                         {currentStats.contributors?.unique_count && (
                             <div className={styles.stat}>
                                 <h3>GitHub Contributors</h3>
@@ -225,7 +225,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats }) =>
                     </div>
 
                     <div className={styles.chartSection}>
-                        <h2>GitHub Repositories ({new Date().getFullYear()})</h2>
+                        <h2>Repositories that depend on @meshsdk/core ({new Date().getFullYear()})</h2>
                         <div className={styles.chart}>
                             <CustomLineChart data={repositoriesData} chartId="repositories" />
                         </div>

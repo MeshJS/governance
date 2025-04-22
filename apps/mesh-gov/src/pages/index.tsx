@@ -156,7 +156,7 @@ export default function Dashboard() {
         const category = project.projectDetails.category;
         categories[category] = (categories[category] || 0) + 1;
     });
-    console.log('meshData', meshData, drepVotingData, catalystData);
+    //console.log('meshData', meshData, drepVotingData, catalystData);
     return (
         <div className={styles.container}>
             <header className={styles.mainHeader}>
