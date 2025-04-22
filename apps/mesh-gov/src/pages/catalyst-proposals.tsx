@@ -15,7 +15,7 @@ const formatNumber = (num: number): string => {
 
 // Format ADA amount with symbol
 const formatAda = (amount: number): string => {
-    return `₳${formatNumber(amount)}`;
+    return `₳ ${formatNumber(amount)}`;
 };
 
 export default function CatalystProposals() {

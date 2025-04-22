@@ -71,7 +71,7 @@ const VotingTableCard = ({ votes, delegationData }: { votes: GovernanceVote[], d
                     </div>
                     <div className={styles.delegationRow}>
                         <span className={styles.delegationLabel}>Total ADA Delegated:</span>
-                        <span className={styles.delegationValue}>{formatNumber(delegationData?.timeline?.total_amount_ada || 0)} ₳</span>
+                        <span className={styles.delegationValue}>₳ {formatNumber(delegationData?.timeline?.total_amount_ada || 0)}</span>
                     </div>
                 </div>
                 <div className={styles.progressBars}>

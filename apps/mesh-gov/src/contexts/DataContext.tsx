@@ -16,7 +16,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 // Cache is enabled by default unless explicitly disabled via NEXT_PUBLIC_ENABLE_DEV_CACHE=false
 const CACHE_DURATION = process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE === 'false'
     ? 0
-    : 3 * 24 * 60 * 60 * 1000;
+    : 30 * 60 * 1000;
 const MESH_STORAGE_KEY = 'meshGovData';
 const CATALYST_STORAGE_KEY = 'catalystData';
 const DREP_VOTING_STORAGE_KEY = 'drepVotingData';

@@ -24,13 +24,32 @@ interface NodeData extends Record<string, unknown> {
     contributorCount?: number;
 }
 
+const RepositoryNode = ({ data }: { data: NodeData }) => (
+    <div className={styles.repositoryNode}>
+        <div className={styles.repoName}>{data.label}</div>
+        <div className={styles.stats}>
+            <div className={styles.stat}>
+                <span className={styles.statLabel}>Contributors:</span>
+                <span className={styles.statValue}>{data.contributorCount}</span>
+            </div>
+            <div className={styles.stat}>
+                <span className={styles.statLabel}>Contributions:</span>
+                <span className={styles.statValue}>{data.contributions}</span>
+            </div>
+        </div>
+    </div>
+);
+
+const nodeTypes = {
+    repository: RepositoryNode,
+};
+
 const ContributorNetwork: React.FC<ContributorNetworkProps> = ({ contributors }) => {
     const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-    const generateNodesAndEdges = useCallback(() => {
+    const generateNodes = useCallback(() => {
         const newNodes: Node<NodeData>[] = [];
-        const newEdges: Edge[] = [];
         const nodePositions = new Map<string, { x: number, y: number }>();
 
         // Get all unique repositories
@@ -44,7 +63,7 @@ const ContributorNetwork: React.FC<ContributorNetworkProps> = ({ contributors })
         // Calculate grid dimensions
         const repos = Array.from(meshRepos);
         const gridSize = Math.ceil(Math.sqrt(repos.length));
-        const spacing = 200; // Reduced from 300 to bring nodes closer together
+        const spacing = 200;
 
         // Create repository nodes in grid formation
         repos.forEach((repo, index) => {
@@ -73,61 +92,16 @@ const ContributorNetwork: React.FC<ContributorNetworkProps> = ({ contributors })
                     contributions: repoData.contributions,
                     contributorCount: repoData.contributorCount,
                 },
-                sourcePosition: Position.Right,
-                targetPosition: Position.Left,
             });
         });
 
-        // Add edges between repositories that share contributors
-        const repoArray = Array.from(meshRepos);
-        for (let i = 0; i < repoArray.length; i++) {
-            for (let j = i + 1; j < repoArray.length; j++) {
-                const repo1 = repoArray[i];
-                const repo2 = repoArray[j];
-
-                // Check if repositories share any contributors
-                const hasSharedContributors = contributors.some(contributor =>
-                    contributor.repositories.some(r => r.name === repo1) &&
-                    contributor.repositories.some(r => r.name === repo2)
-                );
-
-                if (hasSharedContributors) {
-                    newEdges.push({
-                        id: `edge-${repo1}-${repo2}`,
-                        source: `repo-${repo1}`,
-                        target: `repo-${repo2}`,
-                        type: 'smoothstep',
-                        animated: true,
-                    });
-                }
-            }
-        }
-
         setNodes(newNodes);
-        setEdges(newEdges);
+        setEdges([]); // Set empty edges array
     }, [contributors]);
 
     useMemo(() => {
-        generateNodesAndEdges();
-    }, [generateNodesAndEdges]);
-
-    const nodeTypes = {
-        repository: ({ data }: { data: NodeData }) => (
-            <div className={styles.repositoryNode}>
-                <div className={styles.repoName}>{data.label}</div>
-                <div className={styles.stats}>
-                    <div className={styles.stat}>
-                        <span className={styles.statLabel}>Contributors:</span>
-                        <span className={styles.statValue}>{data.contributorCount}</span>
-                    </div>
-                    <div className={styles.stat}>
-                        <span className={styles.statLabel}>Contributions:</span>
-                        <span className={styles.statValue}>{data.contributions}</span>
-                    </div>
-                </div>
-            </div>
-        ),
-    };
+        generateNodes();
+    }, [generateNodes]);
 
     return (
         <div className={styles.networkContainer}>
