@@ -138,7 +138,7 @@ export default function DRepVoting() {
                 <div className={styles.drepStats}>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>Total Delegated ADA:</span>
-                        <span className={styles.statValue}>{Math.round(drepVotingData?.delegationData?.timeline?.total_amount_ada || 0).toLocaleString()} ₳</span>
+                        <span className={styles.statValue}>₳ {Math.round(drepVotingData?.delegationData?.timeline?.total_amount_ada || 0).toLocaleString()}</span>
                     </div>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>Total Delegators:</span>

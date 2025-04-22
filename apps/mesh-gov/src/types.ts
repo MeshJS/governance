@@ -92,6 +92,7 @@ export interface CurrentStats {
     };
     npm: {
         downloads: {
+            core_package_last_12_months: number;
             last_day: number;
             last_week: number;
             last_month: number;
@@ -167,4 +168,28 @@ export interface DataContextType {
     isLoading: boolean;
     error: string | null;
     refetchData: () => Promise<void>;
+}
+
+export interface MonthlyDownload {
+    month: string;
+    downloads: number;
+    trend: string;
+}
+
+export interface PackageData {
+    name: string;
+    downloads: number;
+}
+
+export interface FilteredStats {
+    packageData?: PackageData[];
+    monthlyData?: YearlyStats['monthlyDownloads'];
+    currentStats?: CurrentStats;
+    yearlyStats?: Record<number, YearlyStats>;
+}
+
+export interface MeshStatsViewProps {
+    currentStats: CurrentStats;
+    yearlyStats: Record<number, YearlyStats>;
+    filteredStats?: FilteredStats;
 } 

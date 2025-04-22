@@ -71,7 +71,7 @@ const VotingTableCard = ({ votes, delegationData }: { votes: GovernanceVote[], d
                     </div>
                     <div className={styles.delegationRow}>
                         <span className={styles.delegationLabel}>Total ADA Delegated:</span>
-                        <span className={styles.delegationValue}>{formatNumber(delegationData?.timeline?.total_amount_ada || 0)} ₳</span>
+                        <span className={styles.delegationValue}>₳ {formatNumber(delegationData?.timeline?.total_amount_ada || 0)}</span>
                     </div>
                 </div>
                 <div className={styles.progressBars}>
@@ -156,7 +156,7 @@ export default function Dashboard() {
         const category = project.projectDetails.category;
         categories[category] = (categories[category] || 0) + 1;
     });
-    console.log('meshData', meshData, drepVotingData, catalystData);
+    //console.log('meshData', meshData, drepVotingData, catalystData);
     return (
         <div className={styles.container}>
             <header className={styles.mainHeader}>
@@ -167,6 +167,7 @@ export default function Dashboard() {
                     height={100}
                     className={styles.meshLogo}
                     priority
+                    style={{ width: 'auto', height: 'auto' }}
                 />
             </header>
 
