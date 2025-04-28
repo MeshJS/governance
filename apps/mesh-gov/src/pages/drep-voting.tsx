@@ -167,19 +167,19 @@ export default function DRepVoting() {
                 <div className={styles.infoCard}>
                     <h3 className={styles.infoCardTitle}>Objectives</h3>
                     <p className={styles.infoCardContent}>
-                        We are a no-drama, no-politics DRep. We don't engage in public disputes nor do we take side with any political entities or parties. We prefer writing code over tweeting, and contributing over disrupting
+                        We are a no-drama, no-politics DRep. We dont engage in public disputes nor do we take side with any political entities or parties. We prefer writing code over tweeting, and contributing over disrupting
                     </p>
                 </div>
                 <div className={styles.infoCard}>
                     <h3 className={styles.infoCardTitle}>Motivation</h3>
                     <p className={styles.infoCardContent}>
-                        The biggest threat to Governance is apathy, or worse, uninformed engagement. As long-time Cardano builders, we see it as our responsibility to participate meaningfully in Cardano's governance. It matters to us because we build on it every day
+                        The biggest threat to Governance is apathy, or worse, uninformed engagement. As long-time Cardano builders, we see it as our responsibility to participate meaningfully in Cardanos governance. It matters to us because we build on it every day
                     </p>
                 </div>
                 <div className={styles.infoCard}>
                     <h3 className={styles.infoCardTitle}>Qualification</h3>
                     <p className={styles.infoCardContent}>
-                        We've been building non-stop on Cardano for years. We're experienced developers with a deep personal and professional stake in the ecosystem. Governance affects our work and our future, so we're here to help guide it with integrity and care
+                        We have been building non-stop on Cardano for years. We are experienced developers with a deep personal and professional stake in the ecosystem. Governance affects our work and our future, so we are here to help guide it with integrity and care
                     </p>
                 </div>
             </div>

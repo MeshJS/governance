@@ -2,82 +2,67 @@ import React, { useState, useEffect } from 'react';
 import styles from '../styles/Proposals.module.css';
 import DonutChart from '../components/DonutChart';
 import VotesDonutChart from '../components/VotesDonutChart';
+import { CatalystProject } from '../types';
 
 interface Proposal {
-    id: string;
-    title: string;
-    description: string;
-    status: string;
-    totalVotes: number;
-    milestones: Array<{
-        completed: boolean;
-    }>;
-    budget: {
-        total: number;
-        distributed: number;
+    projectDetails: {
+        id: number;
+        title: string;
+        budget: number;
+        milestones_qty: number;
+        funds_distributed: number;
+        project_id: number;
+        name: string;
+        category: string;
+        url: string;
+        status: 'In Progress' | 'Completed';
+        finished: string;
+        voting: {
+            proposalId: number;
+            yes_votes_count: number;
+            no_votes_count: number | null;
+            abstain_votes_count: number | null;
+            unique_wallets: number;
+        };
     };
+    milestonesCompleted: number;
 }
 
 const Proposals: React.FC = () => {
     const [proposals, setProposals] = useState<Proposal[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchProposals = async () => {
             try {
-                const response = await fetch('/api/proposals');
+                const response = await fetch('https://raw.githubusercontent.com/Signius/mesh-automations/main/mesh-gov-updates/catalyst-proposals/catalyst-data.json');
                 const data = await response.json();
-                setProposals(data);
+                setProposals(data.projects);
             } catch (err) {
                 setError('Failed to fetch proposals');
+                console.error('Error fetching proposals:', err);
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
         fetchProposals();
     }, []);
 
-    if (loading) return <div>Loading...</div>;
+    if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
-    const milestoneData = [
-        {
-            name: 'Completed',
-            value: proposals.reduce((sum, p) => sum + p.milestones.filter(m => m.completed).length, 0)
-        },
-        {
-            name: 'Remaining',
-            value: proposals.reduce((sum, p) => sum + p.milestones.filter(m => !m.completed).length, 0)
-        }
-    ];
+    const budgetData = proposals.map(proposal => ({
+        name: proposal.projectDetails.title,
+        value: proposal.projectDetails.budget
+    }));
 
-    const totalMilestones = proposals.reduce((sum, p) => sum + p.milestones.length, 0);
-
-    const budgetData = [
-        {
-            name: 'Distributed',
-            value: proposals.reduce((sum, p) => sum + p.budget.distributed, 0)
-        },
-        {
-            name: 'Remaining',
-            value: proposals.reduce((sum, p) => sum + (p.budget.total - p.budget.distributed), 0)
-        }
-    ];
-
-    const totalBudget = proposals.reduce((sum, p) => sum + p.budget.total, 0);
+    const totalBudget = proposals.reduce((sum, proposal) => sum + proposal.projectDetails.budget, 0);
 
     return (
         <div className={styles.container}>
-            <div className={styles.chartsGrid}>
-                <div className={styles.chartSection}>
-                    <DonutChart
-                        title="Milestone Completion"
-                        data={milestoneData}
-                        total={totalMilestones}
-                    />
-                </div>
+            <div className={styles.chartsContainer}>
                 <div className={styles.chartSection}>
                     <DonutChart
                         title="Budget Distribution"

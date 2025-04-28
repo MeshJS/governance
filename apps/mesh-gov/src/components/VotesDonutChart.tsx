@@ -6,7 +6,7 @@ interface VotesDonutChartProps {
     proposals: CatalystProject[];
 }
 
-const VotesDonutChart: React.FC<VotesDonutChartProps> = ({ proposals }) => {
+const VotesDonutChart = ({ proposals }: VotesDonutChartProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [activeSegment, setActiveSegment] = useState<string | null>(null);
     const [segments, setSegments] = useState<Array<{
@@ -198,38 +198,16 @@ const VotesDonutChart: React.FC<VotesDonutChartProps> = ({ proposals }) => {
                 className={styles.donutChart}
                 onMouseMove={handleCanvasMouseMove}
                 onMouseLeave={handleCanvasMouseLeave}
-            ></canvas>
-            <div className={styles.donutLegend}>
-                <div 
-                    className={styles.legendItem}
-                    onMouseEnter={() => setActiveSegment(null)}
-                    onMouseLeave={() => setActiveSegment(null)}
-                >
-                    <span className={`${styles.legendColor} ${styles.distributed}`}></span>
-                    <span className={styles.legendLabel}>Total Votes</span>
-                    <span className={styles.legendValue}>
-                        {formatNumber(segments.reduce((sum, s) => sum + s.votes, 0))}
-                    </span>
-                </div>
-                {activeSegment && activeSegmentData && (
-                    <div 
-                        className={`${styles.legendItem} ${styles.active}`}
-                        onMouseEnter={() => setActiveSegment(activeSegmentData.id)}
-                        onMouseLeave={() => setActiveSegment(null)}
-                    >
-                        <span className={`${styles.legendColor} ${styles.distributed}`}></span>
-                        <span className={styles.legendLabel} title={activeSegmentData.title}>
-                            <span className={styles.fundTag}>{activeSegmentData.fund}</span>
-                            {activeSegmentData.title.length > 30 
-                                ? activeSegmentData.title.substring(0, 30) + '...'
-                                : activeSegmentData.title}
-                        </span>
-                        <span className={styles.legendValue}>
-                            {formatNumber(activeSegmentData.votes)}
-                        </span>
+            />
+            {activeSegmentData && (
+                <div className={styles.tooltip}>
+                    <div className={styles.tooltipTitle}>{activeSegmentData.title}</div>
+                    <div className={styles.tooltipContent}>
+                        <div>Fund: {activeSegmentData.fund}</div>
+                        <div>Votes: {formatNumber(activeSegmentData.votes)}</div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import {
     ReactFlow,
-    Node,
     Edge,
     Background,
     Controls,
@@ -22,6 +21,16 @@ interface NodeData extends Record<string, unknown> {
     label: string;
     contributions?: number;
     contributorCount?: number;
+}
+
+interface FlowNode<T = any> {
+    id: string;
+    position: {
+        x: number;
+        y: number;
+    };
+    data: T;
+    type?: string;
 }
 
 const RepositoryNode = ({ data }: { data: NodeData }) => (
@@ -45,11 +54,11 @@ const nodeTypes = {
 };
 
 const ContributorNetwork: React.FC<ContributorNetworkProps> = ({ contributors }) => {
-    const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
+    const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode<NodeData>>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
     const generateNodes = useCallback(() => {
-        const newNodes: Node<NodeData>[] = [];
+        const newNodes: FlowNode<NodeData>[] = [];
         const nodePositions = new Map<string, { x: number, y: number }>();
 
         // Get all unique repositories

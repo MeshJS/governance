@@ -2,6 +2,7 @@ import { useData } from '../contexts/DataContext';
 import styles from '../styles/ContributorNetwork.module.css';
 import ContributorNetwork from '../components/ContributorNetwork';
 import PageHeader from '../components/PageHeader';
+import { Contributor } from '../types';
 
 export default function ContributorNetworkPage() {
     const { meshData, isLoading, error } = useData();
