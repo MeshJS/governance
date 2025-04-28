@@ -50,17 +50,7 @@ export default function Contributors({ contributors }: ContributorsProps) {
 
     // Generate a consistent color for a repository
     const getRepoColor = (repoName: string) => {
-        const colors = [
-            '#FF6B6B', '#4ECDC4', '#45B7D1', 
-            '#96CEB4', '#FFEEAD', '#D4A5A5',
-            '#9B59B6', '#3498DB', '#F1C40F'
-        ];
-        
-        const hash = repoName.split('').reduce((acc, char) => {
-            return char.charCodeAt(0) + ((acc << 5) - acc);
-        }, 0);
-        
-        return colors[Math.abs(hash) % colors.length];
+        return 'rgba(255, 255, 255, 0.3)';
     };
 
     const handleContributorClick = (contributor: Contributor) => {

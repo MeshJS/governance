@@ -31,7 +31,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-bottom: 2rem;
+    padding: 1.5rem 0 3rem 0;
 }
 
 .cardanoLogo {
@@ -39,10 +39,128 @@
     padding: 1rem;
     opacity: 0.8;
     transition: opacity 0.3s ease;
+    position: relative;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cardanoLogo:hover {
     opacity: 1;
+}
+
+.cardanoLogo:hover .logoOrbit {
+    width: 100px;
+    height: 100px;
+    margin: -50px 0 0 -50px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(12, 242, 180, 0.3);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardanoLogo:hover .logoOrbitInner {
+    width: 80px;
+    height: 80px;
+    margin: -40px 0 0 -40px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px rgba(12, 242, 180, 0.2);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardanoLogo:hover .logoOrbit::before,
+.cardanoLogo:hover .logoOrbit::after {
+    width: 8px;
+    height: 8px;
+    box-shadow: 0 0 15px rgba(12, 242, 180, 0.6);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardanoLogo:hover .logoOrbitInner::before,
+.cardanoLogo:hover .logoOrbitInner::after {
+    width: 6px;
+    height: 6px;
+    box-shadow: 0 0 12px rgba(12, 242, 180, 0.5);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logoOrbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    margin: -40px 0 0 -40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: rotate 20s linear infinite;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logoOrbit::before {
+    top: -3px;
+    left: 50%;
+    margin-left: -3px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.logoOrbit::after {
+    bottom: -3px;
+    left: 50%;
+    margin-left: -3px;
+    animation: pulse 2s ease-in-out infinite 1s;
+}
+
+.logoOrbitInner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: rotate 15s linear infinite reverse;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logoOrbitInner::before {
+    top: -2px;
+    right: 50%;
+    margin-right: -2px;
+    animation: pulse 1.5s ease-in-out infinite 0.5s;
+}
+
+.logoOrbitInner::after {
+    bottom: -2px;
+    right: 50%;
+    margin-right: -2px;
+    animation: pulse 1.5s ease-in-out infinite 1.5s;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .main {

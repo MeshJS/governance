@@ -16,26 +16,46 @@
     padding: 1.5rem 1rem;
     max-height: calc(100vh - 3rem);
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .navItems {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    margin-top: 0.5rem;
 }
 
 .navItem {
     display: flex;
     align-items: center;
-    padding: 0.875rem 1rem;
-    border-radius: 12px;
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    background: transparent;
-    border: 1px solid transparent;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    overflow: hidden;
+    animation: float 5s ease-in-out infinite;
+}
+
+.navItem:nth-child(1) {
+    animation: float 5.2s ease-in-out infinite;
+}
+
+.navItem:nth-child(2) {
+    animation: float 4.8s ease-in-out infinite;
+}
+
+.navItem:nth-child(3) {
+    animation: float 5.5s ease-in-out infinite;
+}
+
+.navItem:nth-child(4) {
+    animation: float 4.6s ease-in-out infinite;
+}
+
+.navItem:nth-child(5) {
+    animation: float 5.3s ease-in-out infinite;
 }
 
 .navItem::before {
@@ -69,69 +89,156 @@
 }
 
 .navItem:hover {
-    color: rgba(255, 255, 255, 0.95);
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-1px);
-    box-shadow: 
-        0 4px 16px -2px rgba(0, 0, 0, 0.1),
-        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    transform: translateY(-2px);
 }
 
-.navItem:hover::before {
-    opacity: 1;
+.navItem:hover .label {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(12, 242, 180, 0.8) 50%,
+        rgba(255, 255, 255, 0.8) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientText 2s ease infinite;
 }
 
-.navItem:hover::after {
-    transform: translateX(100%) rotate(45deg);
+.navItem:hover .icon {
+    color: rgba(12, 242, 180, 0.8);
+    transform: scale(1.05);
+}
+
+.navItem .label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    animation: float 5s ease-in-out infinite;
+}
+
+.navItem:nth-child(1) .label {
+    animation: float 4.9s ease-in-out infinite 0.05s;
+}
+
+.navItem:nth-child(2) .label {
+    animation: float 5.1s ease-in-out infinite 0.15s;
+}
+
+.navItem:nth-child(3) .label {
+    animation: float 4.7s ease-in-out infinite 0.1s;
+}
+
+.navItem:nth-child(4) .label {
+    animation: float 5.4s ease-in-out infinite 0.2s;
+}
+
+.navItem:nth-child(5) .label {
+    animation: float 4.8s ease-in-out infinite 0.25s;
+}
+
+.navItem .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    animation: float 5s ease-in-out infinite;
+}
+
+.navItem:nth-child(1) .icon {
+    animation: float 5.3s ease-in-out infinite 0.1s;
+}
+
+.navItem:nth-child(2) .icon {
+    animation: float 4.9s ease-in-out infinite 0.2s;
+}
+
+.navItem:nth-child(3) .icon {
+    animation: float 5.2s ease-in-out infinite 0.15s;
+}
+
+.navItem:nth-child(4) .icon {
+    animation: float 4.8s ease-in-out infinite 0.25s;
+}
+
+.navItem:nth-child(5) .icon {
+    animation: float 5.1s ease-in-out infinite 0.3s;
+}
+
+.navItem.active {
+    background: linear-gradient(
+        90deg,
+        rgba(12, 242, 180, 0.9) 0%,
+        rgba(255, 255, 255, 0.95) 50%,
+        rgba(12, 242, 180, 0.9) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientText 3s ease infinite, float 4s ease-in-out infinite;
+}
+
+.navItem.active .label {
+    animation: gradientText 3s ease infinite, float 4s ease-in-out infinite 0.2s;
+}
+
+.navItem.active .icon {
+    animation: float 4s ease-in-out infinite 0.4s;
+    color: rgba(12, 242, 180, 0.9);
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes gradientText {
+    0% {
+        background-position: 0% center;
+    }
+    50% {
+        background-position: 100% center;
+    }
+    100% {
+        background-position: 0% center;
+    }
 }
 
 .active {
     color: rgba(255, 255, 255, 0.95);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.12);
     font-weight: 600;
-    box-shadow: 
-        0 4px 16px -2px rgba(0, 0, 0, 0.1),
-        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-}
-
-.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.8),
-        rgba(255, 255, 255, 0.4)
-    );
-    border-radius: 0 4px 4px 0;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
-}
-
-.icon {
-    font-size: 1.25rem;
-    min-width: 28px;
-    margin-right: 1rem;
-    color: rgba(255, 255, 255, 0.7);
-    transition: color 0.3s ease;
-}
-
-.navItem:hover .icon {
-    color: rgba(255, 255, 255, 0.95);
+    position: relative;
 }
 
 .active .icon {
     color: rgba(255, 255, 255, 0.95);
+    transition: all 0.3s ease;
 }
 
-.label {
-    font-size: 0.9375rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
+.active .label {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: linear-gradient(
+        90deg,
+        rgba(12, 242, 180, 0.9) 0%,
+        rgba(255, 255, 255, 0.95) 50%,
+        rgba(12, 242, 180, 0.9) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientText 3s ease infinite;
 }
 
 .navCardMobile {
@@ -187,29 +294,134 @@
 .logoContainer {
     margin-bottom: 1.5rem;
     padding: 0 0.5rem;
+    position: relative;
+    width: 120px;
+    height: 40px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .logo {
     width: 100%;
     height: auto;
-    max-width: 180px;
+    max-width: 120px;
     display: block;
     margin: 0 auto;
     transition: opacity 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .logo:hover {
     opacity: 0.9;
 }
 
+.logoOrbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    margin: -100px 0 0 -100px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: rotate 20s linear infinite;
+}
+
+.logoOrbit::before,
+.logoOrbit::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgba(12, 242, 180, 0.8), rgba(255, 255, 255, 0.8));
+    box-shadow: 0 0 10px rgba(12, 242, 180, 0.5);
+}
+
+.logoOrbit::before {
+    top: -4px;
+    left: 50%;
+    margin-left: -4px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.logoOrbit::after {
+    bottom: -4px;
+    left: 50%;
+    margin-left: -4px;
+    animation: pulse 2s ease-in-out infinite 1s;
+}
+
+.logoOrbitInner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160px;
+    height: 160px;
+    margin: -80px 0 0 -80px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: rotate 15s linear infinite reverse;
+}
+
+.logoOrbitInner::before,
+.logoOrbitInner::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.8), rgba(12, 242, 180, 0.8));
+    box-shadow: 0 0 8px rgba(12, 242, 180, 0.4);
+}
+
+.logoOrbitInner::before {
+    top: -3px;
+    right: 50%;
+    margin-right: -3px;
+    animation: pulse 1.5s ease-in-out infinite 0.5s;
+}
+
+.logoOrbitInner::after {
+    bottom: -3px;
+    right: 50%;
+    margin-right: -3px;
+    animation: pulse 1.5s ease-in-out infinite 1.5s;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 .socialLinks {
     margin-top: auto;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
-    flex-direction: row;
-    gap: 1rem;
     justify-content: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
 }
 
 .socialLink {

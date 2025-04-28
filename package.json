@@ -4,7 +4,10 @@
     "description": "Script to fetch DRep information using Koios API",
     "main": "voting-action.js",
     "dependencies": {
+        "@types/d3": "^7.4.3",
         "axios": "^1.6.7",
-        "dotenv": "^16.4.7"
+        "d3": "^7.9.0",
+        "dotenv": "^16.4.7",
+        "framer-motion": "^12.9.1"
     }
 }

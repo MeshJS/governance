@@ -10,16 +10,21 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
+  padding: 2rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .modal {
-  width: 100vw;
-  height: 100vh;
+  max-width: 1200px;
+  max-height: 90vh;
+  width: 100%;
   background: linear-gradient(165deg,
     rgba(56, 232, 225, 0.03) 0%,
     rgba(0, 0, 0, 0.95) 100%);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(56, 232, 225, 0.03) inset;
@@ -28,6 +33,7 @@
   animation: expandModal 0.3s ease-out forwards;
   overflow-y: auto;
   position: relative;
+  border-radius: 12px;
 }
 
 .closeButton {

@@ -1,0 +1,29 @@
+.legendLabel {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #9CA3AF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fundTag {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366F1;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.legendValue {
+    font-size: 0.9rem;
+    color: #E5E7EB;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: right;
+} 

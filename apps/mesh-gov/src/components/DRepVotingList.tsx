@@ -24,6 +24,16 @@ interface DRepVotingListProps {
     onRowClick?: (proposalId: string) => void;
 }
 
+const truncateText = (text: string, maxLength: number = 100) => {
+    if (text.length <= maxLength) return text;
+    
+    // Find the last space before maxLength
+    const lastSpace = text.lastIndexOf(' ', maxLength);
+    if (lastSpace === -1) return text.substring(0, maxLength) + '...';
+    
+    return text.substring(0, lastSpace) + '...';
+};
+
 export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProps) {
     const [selectedProposal, setSelectedProposal] = useState<VoteData | null>(null);
 
@@ -43,22 +53,22 @@ export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProp
                             className={styles.item}
                             onClick={(e) => handleCardClick(vote, e)}
                         >
-                            <div className={styles.header}>
-                                <h3 className={styles.title}>{vote.proposalTitle}</h3>
-                                <span className={`${styles.vote} ${styles[vote.vote.toLowerCase()]}`}>
-                                    {vote.vote}
-                                </span>
+                            <div className={`${styles.voteHeader} ${styles[vote.vote.toLowerCase()]}`}>
+                                {vote.vote}
                             </div>
-                            <span className={styles.type}>{vote.proposalType}</span>
-                            <p className={styles.rationale}>{vote.rationale}</p>
-                            <div className={styles.meta}>
-                                <div>
-                                    <span>Proposed</span>
-                                    <strong>Epoch {vote.proposedEpoch}</strong>
-                                </div>
-                                <div>
-                                    <span>Expires</span>
-                                    <strong>Epoch {vote.expirationEpoch}</strong>
+                            <div className={styles.cardContent}>
+                                <h3 className={styles.title}>{vote.proposalTitle}</h3>
+                                <span className={styles.type}>{vote.proposalType}</span>
+                                <p className={styles.rationale}>{truncateText(vote.rationale)}</p>
+                                <div className={styles.meta}>
+                                    <div>
+                                        <span>Proposed</span>
+                                        <strong>Epoch {vote.proposedEpoch}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Expires</span>
+                                        <strong>Epoch {vote.expirationEpoch}</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>

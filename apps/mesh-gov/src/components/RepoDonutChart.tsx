@@ -40,6 +40,22 @@ const REPO_COLORS: { [key: string]: number } = {
 // Default hue for unknown repositories
 const DEFAULT_HUE = 100;
 
+// Use the same teal gradient as the main donut charts
+const GRADIENT_STOPS = [
+    { stop: 0, color: '#38E8E1' },   // Teal
+    { stop: 0.4, color: '#14B8A6' }, // Deep teal
+    { stop: 0.8, color: '#084A43' }, // Very dark teal
+    { stop: 1, color: '#000' }       // Black
+];
+
+// Generate a canvas gradient for the chart and a CSS gradient for the legend
+function getCanvasGradient(ctx: CanvasRenderingContext2D, width: number, height: number) {
+    const grad = ctx.createLinearGradient(0, height, width, 0);
+    GRADIENT_STOPS.forEach(({ stop, color }) => grad.addColorStop(stop, color));
+    return grad;
+}
+const LEGEND_GRADIENT = `linear-gradient(135deg, #38E8E1 0%, #14B8A6 40%, #084A43 80%, #000 100%)`;
+
 const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [activeSegment, setActiveSegment] = useState<string | null>(null);
@@ -63,6 +79,15 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
         ? [...topRepos, { name: 'Others', contributions: otherContributions }]
         : topRepos;
 
+    // Generate color for each repository (all use the same gradient)
+    const data = chartData.map((repo) => {
+        return {
+            name: repo.name,
+            value: repo.contributions,
+            color: LEGEND_GRADIENT
+        };
+    });
+
     const drawChart = (isHovered: string | null) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -82,34 +107,6 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
 
         // Calculate total contributions
         const total = chartData.reduce((sum, repo) => sum + repo.contributions, 0);
-
-        // Generate gradients for each repository
-        const data = chartData.map(repo => {
-            const gradient = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
-            const hoverGradient = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
-            
-            // Get consistent hue for the repository
-            const hue = REPO_COLORS[repo.name] ?? DEFAULT_HUE;
-            
-            // Base gradient
-            gradient.addColorStop(0, `hsla(${hue}, 85%, 70%, 0.95)`);
-            gradient.addColorStop(0.4, `hsla(${hue}, 75%, 50%, 0.85)`);
-            gradient.addColorStop(0.8, `hsla(${hue}, 65%, 30%, 0.8)`);
-            gradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
-
-            // Hover gradient (brighter)
-            hoverGradient.addColorStop(0, `hsla(${hue}, 90%, 75%, 1)`);
-            hoverGradient.addColorStop(0.4, `hsla(${hue}, 80%, 55%, 0.95)`);
-            hoverGradient.addColorStop(0.8, `hsla(${hue}, 70%, 35%, 0.9)`);
-            hoverGradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
-
-            return {
-                name: repo.name,
-                value: repo.contributions,
-                gradient,
-                hoverGradient
-            };
-        });
 
         // Draw donut chart
         const centerX = canvas.width / (2 * dpr);
@@ -161,23 +158,9 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
             ctx.closePath();
 
             // Fill with gradient
-            ctx.fillStyle = segment.name === isHovered ? segment.hoverGradient : segment.gradient;
+            ctx.fillStyle = getCanvasGradient(ctx, canvas.width, canvas.height);
             ctx.globalAlpha = 1;
             ctx.fill();
-
-            // Add highlight effects
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.lineWidth = segment.name === isHovered ? 3 : 2;
-            ctx.stroke();
-
-            // Add inner highlight
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, innerRadius, startAngle, endAngle);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = segment.name === isHovered ? 2 : 1;
-            ctx.stroke();
 
             // Restore context
             ctx.restore();
@@ -239,37 +222,26 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
                 data-active-slice={activeSegment || undefined}
             ></canvas>
             <div className={styles.donutLegend}>
-                {chartData.map((repo) => {
-                    const hue = REPO_COLORS[repo.name] ?? DEFAULT_HUE;
-                    return (
-                        <a
-                            key={repo.name}
-                            href={repo.name === 'Others' ? 'https://github.com/MeshJS' : `https://github.com/MeshJS/${repo.name}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.legendItem}
-                            data-active={activeSegment === repo.name || undefined}
-                            onMouseEnter={() => setActiveSegment(repo.name)}
-                            onMouseLeave={() => setActiveSegment(null)}
-                            style={{
-                                '--repo-color': `hsl(${hue}, 85%, 70%)`
-                            } as React.CSSProperties}
-                        >
-                            <span 
-                                className={styles.legendColor} 
-                                style={{
-                                    background: `linear-gradient(135deg, 
-                                        hsla(${hue}, 85%, 70%, 0.95) 0%, 
-                                        hsla(${hue}, 75%, 50%, 0.85) 40%, 
-                                        hsla(${hue}, 65%, 30%, 0.8) 80%, 
-                                        rgba(0, 0, 0, 0.9) 100%)`
-                                }}
-                            ></span>
-                            <span className={styles.legendLabel}>{repo.name}</span>
-                            <span className={styles.legendValue}>{repo.contributions}</span>
-                        </a>
-                    );
-                })}
+                {data.map((repo) => (
+                    <a
+                        key={repo.name}
+                        href={repo.name === 'Others' ? 'https://github.com/MeshJS' : `https://github.com/MeshJS/${repo.name}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.legendItem}
+                        data-active={activeSegment === repo.name || undefined}
+                        onMouseEnter={() => setActiveSegment(repo.name)}
+                        onMouseLeave={() => setActiveSegment(null)}
+                        style={{}}
+                    >
+                        <span 
+                            className={styles.legendColor} 
+                            style={{ background: LEGEND_GRADIENT }}
+                        ></span>
+                        <span className={styles.legendLabel}>{repo.name}</span>
+                        <span className={styles.legendValue}>{repo.value}</span>
+                    </a>
+                ))}
             </div>
         </div>
     );

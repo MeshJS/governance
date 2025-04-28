@@ -19,6 +19,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     rel="noopener noreferrer"
                     className={styles.cardanoLogo}
                 >
+                    <div className={styles.logoOrbit}></div>
+                    <div className={styles.logoOrbitInner}></div>
                     <Image
                         src="/Cardano-RGB_Logo-Icon-White.png"
                         alt="Cardano Logo"

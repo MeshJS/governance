@@ -46,32 +46,17 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
             if (e.key === 'Escape') onClose();
         }
 
-        function handleClickOutside(e: MouseEvent) {
-            if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-                onClose();
-            }
-        }
-
         document.addEventListener('keydown', handleEscape);
-        document.addEventListener('mousedown', handleClickOutside);
-
-        // Lock body scroll
         document.body.style.overflow = 'hidden';
 
         return () => {
             document.removeEventListener('keydown', handleEscape);
-            document.removeEventListener('mousedown', handleClickOutside);
             document.body.style.overflow = 'unset';
         };
     }, [onClose]);
 
-    const handleClose = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onClose();
-    };
-
     return (
-        <div className={styles.overlay} onClick={handleClose}>
+        <div className={styles.overlay} onClick={onClose}>
             <div 
                 className={styles.modal} 
                 ref={modalRef} 
@@ -80,7 +65,7 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
             >
                 <button 
                     className={styles.closeButton} 
-                    onClick={handleClose}
+                    onClick={onClose}
                     type="button"
                     aria-label="Close modal"
                 >

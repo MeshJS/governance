@@ -239,12 +239,18 @@ export default function Projects() {
                 </div>
             </div>
 
+            <div className={styles.moreSection} style={{ justifyContent: 'flex-start' }}>
+                <a href="https://github.com/MeshJS/mesh/network/dependents" className={styles.moreButton} target="_blank" rel="noopener noreferrer">
+                    View all Projects
+                </a>
+            </div>
+
             <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Mesh Native Projects</h2>
                 <p className={styles.sectionDescription}>Open Source Projects being built by the Mesh team</p>
             </div>
 
-            <div className={styles.projectsGrid}>
+            <div className={styles.projectsGrid} id="projectsGrid">
                 {projects.map(project => (
                     <ProjectCard key={project.id} project={project} />
                 ))}
