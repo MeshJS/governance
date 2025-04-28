@@ -20,10 +20,10 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
     useEffect(() => {
         console.log('Chart Data:', data);
         if (!chartRef.current || !data || data.length === 0) {
-            console.log('Chart not rendering:', { 
-                hasRef: !!chartRef.current, 
-                hasData: !!data, 
-                dataLength: data?.length 
+            console.log('Chart not rendering:', {
+                hasRef: !!chartRef.current,
+                hasData: !!data,
+                dataLength: data?.length
             });
             return;
         }
@@ -48,26 +48,26 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
 
         // Set up scales
         const xScale = d3.scaleTime()
-            .domain(d3.extent(data, d => d.date) as [Date, Date])
+            .domain(d3.extent(data, (d: DelegationDataPoint) => d.date) as [Date, Date])
             .range([0, width]);
 
         const yScaleAda = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.totalAdaDelegated) as number])
+            .domain([0, d3.max(data, (d: DelegationDataPoint) => d.totalAdaDelegated) as number])
             .range([height, 0]);
 
         const yScaleDelegators = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.totalDelegators) as number])
+            .domain([0, d3.max(data, (d: DelegationDataPoint) => d.totalDelegators) as number])
             .range([height, 0]);
 
         // Create line generators
         const lineAda = d3.line<DelegationDataPoint>()
-            .x(d => xScale(d.date))
-            .y(d => yScaleAda(d.totalAdaDelegated))
+            .x((d: DelegationDataPoint) => xScale(d.date))
+            .y((d: DelegationDataPoint) => yScaleAda(d.totalAdaDelegated))
             .curve(d3.curveMonotoneX);
 
         const lineDelegators = d3.line<DelegationDataPoint>()
-            .x(d => xScale(d.date))
-            .y(d => yScaleDelegators(d.totalDelegators))
+            .x((d: DelegationDataPoint) => xScale(d.date))
+            .y((d: DelegationDataPoint) => yScaleDelegators(d.totalDelegators))
             .curve(d3.curveMonotoneX);
 
         // Add axes
@@ -79,13 +79,13 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
         svg.append('g')
             .attr('class', styles.yAxisAda)
             .call(d3.axisLeft(yScaleAda)
-                .tickFormat(d => `₳${d3.format('.2s')(d)}`));
+                .tickFormat((d: d3.NumberValue) => `₳${d3.format('.2s')(d.valueOf())}`));
 
         svg.append('g')
             .attr('class', styles.yAxisDelegators)
             .attr('transform', `translate(${width},0)`)
             .call(d3.axisRight(yScaleDelegators)
-                .tickFormat(d => d3.format('.0f')(d)));
+                .tickFormat((d: d3.NumberValue) => d3.format('.0f')(d.valueOf())));
 
         // Add gradients
         const gradientAda = svg.append('defs')
@@ -160,13 +160,13 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
                 focus.style('display', 'none');
                 setHovered(null);
             })
-            .on('mousemove', (event) => {
+            .on('mousemove', (event: MouseEvent) => {
                 const [mouseX, mouseY] = d3.pointer(event);
                 const x0 = xScale.invert(mouseX);
-                const bisectDate = d3.bisector<DelegationDataPoint, Date>(d => d.date).left;
+                const bisectDate = d3.bisector<DelegationDataPoint, Date>((d: DelegationDataPoint) => d.date).left;
                 const i = bisectDate(data, x0, 1);
                 if (i >= data.length) return;
-                
+
                 const d0 = data[i - 1];
                 const d1 = data[i];
                 if (!d0 || !d1) return;
