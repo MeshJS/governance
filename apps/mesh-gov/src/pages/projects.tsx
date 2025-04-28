@@ -13,6 +13,7 @@ interface Project {
     description: string;
     icon: string;
     url: string;
+    category?: string;  // Make category optional
 }
 
 // Update the BuilderProject interface
@@ -39,21 +40,24 @@ const projects: Project[] = [
         name: 'Mesh Core',
         description: 'Collection of comprehensive TypeScript libraries for blockchain development on Cardano.',
         icon: '/logo-mesh-white-512x512.png',
-        url: 'https://github.com/MeshJS/mesh'
+        url: 'https://github.com/MeshJS/mesh',
+        category: 'Development Tool'
     },
     {
         id: '2',
         name: 'Midnight',
         description: 'Mesh Midnight providers tools and resources for developers to build on Midnight.',
         icon: '/Midnight-RGB_Symbol-White.png',
-        url: 'https://github.com/MeshJS/midnight'
+        url: 'https://github.com/MeshJS/midnight',
+        category: 'Development Tool'
     },
     {
         id: '3',
         name: 'Multisig Platform',
         description: 'Secure your treasury and participant in Cardano governance as a team with multi-signatureSecure your treasury and participant in Cardano governance as a team with multi-signature. With Fluidtoken & ClarityDAO',
         icon: '/wallet.png',
-        url: 'https://github.com/MeshJS/multisig'
+        url: 'https://github.com/MeshJS/multisig',
+        category: 'Development Tool'
     }
 ];
 
@@ -89,6 +93,16 @@ const builderProjects: BuilderProject[] = [
         icon: '/txpipe.png',
         url: 'https://txpipe.io/'
     },
+    {
+        id: 'b7',
+        icon: '/deltadefi.png',
+        url: 'https://www.deltadefi.io/'
+    },
+    {
+        id: 'b8',
+        icon: '/sidan.png',
+        url: 'https://www.sidan.io/'
+    }
 ];
 
 // Add this array with the other const arrays
@@ -167,6 +181,24 @@ const ProjectCard = ({ project }: { project: Project }) => {
     );
 };
 
+// Spotlight Card Component
+const SpotlightCard = ({ project }: { project: Project }) => {
+    return (
+        <div className={styles.spotlightCard}>
+            <h3 className={styles.projectName}>{project.name}</h3>
+            <p className={styles.projectDescription}>{project.description}</p>
+            <Link
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.projectLink}
+            >
+                View Project
+            </Link>
+        </div>
+    );
+};
+
 export default function Projects() {
     const { meshData, isLoading, error } = useData();
 
@@ -219,7 +251,19 @@ export default function Projects() {
             </div>
 
             <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Spotlight</h2>
+                <p className={styles.sectionDescription}>Highlighting a few innovative projects using Mesh at their projects. Give it a look, maybe get inspired...</p>
+            </div>
+
+            <div className={styles.highlightedGrid}>
+                {highlightedProjects.map((project) => (
+                    <SpotlightCard key={project.name} project={project} />
+                ))}
+            </div>
+
+            <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Trusted by Builders</h2>
+                <p className={styles.sectionDescription}>Awesome projects and organizations building with Mesh</p>
             </div>
 
             <div className={styles.buildersGallery}>
@@ -239,37 +283,6 @@ export default function Projects() {
                         />
                     </Link>
                 ))}
-            </div>
-
-            <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Spotlight</h2>
-                <p className={styles.sectionDescription}>Highlighting innovative projects powered by Mesh</p>
-            </div>
-
-            <div className={styles.highlightedGrid}>
-                {highlightedProjects.map(project => (
-                    <Link
-                        key={project.id}
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.highlightedCard}
-                    >
-                        <h3 className={styles.projectName}>{project.name}</h3>
-                        <p className={styles.projectDescription}>{project.description}</p>
-                    </Link>
-                ))}
-            </div>
-
-            <div className={styles.moreSection}>
-                <a
-                    href="https://github.com/MeshJS/mesh/network/dependents"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.moreButton}
-                >
-                    Explore More Projects
-                </a>
             </div>
         </div>
     );

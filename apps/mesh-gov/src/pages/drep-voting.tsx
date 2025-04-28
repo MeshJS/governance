@@ -6,6 +6,7 @@ import SearchFilterBar, { SearchFilterConfig } from '../components/SearchFilterB
 import { filterVotes, generateDrepVotingFilterConfig } from '../config/filterConfig';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import VotingDonutChart from '../components/VotingDonutChart';
 
 interface VoteData {
     proposalId: string;
@@ -123,18 +124,42 @@ export default function DRepVoting() {
     return (
         <div className={styles.container}>
             <PageHeader
-                title={<>DRep Voting <span>Dashboard</span></>}
-                subtitle="Track and analyze DRep voting patterns here."
+                title={<>Mesh DRep Voting <span>Dashboard</span></>}
+                subtitle="Overview and Insights on Mesh DRep voting activities at Cardano onchain Governance"
             />
 
-            <SearchFilterBar
-                config={dynamicFilterConfig}
-                onSearch={handleSearch}
-                initialSearchTerm={router.query.search as string}
-            />
+            <div className={styles.bioSection}>
+                <h2 className={styles.bioTitle}>About Mesh DRep</h2>
+                <p className={styles.bioContent}>
+                    Mesh is an open-source project focused on building quality developer tools for Web3 builders at the Cardano Ecosystem. The Mesh DRep is operated collectively by core Mesh contributors. Our votes are submitted and signed onchain via a Multisignature account.
+                </p>
+                <div className={styles.drepId}>
+                    drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3
+                </div>
+            </div>
+
+            <div className={styles.infoCardsSection}>
+                <div className={styles.infoCard}>
+                    <h3 className={styles.infoCardTitle}>Objectives</h3>
+                    <p className={styles.infoCardContent}>
+                        We are a no-drama, no-politics DRep. We don't engage in public disputes nor do we take side with any political entities or parties. We prefer writing code over tweeting, and contributing over disrupting
+                    </p>
+                </div>
+                <div className={styles.infoCard}>
+                    <h3 className={styles.infoCardTitle}>Motivation</h3>
+                    <p className={styles.infoCardContent}>
+                        The biggest threat to Governance is apathy, or worse, uninformed engagement. As long-time Cardano builders, we see it as our responsibility to participate meaningfully in Cardano's governance. It matters to us because we build on it every day
+                    </p>
+                </div>
+                <div className={styles.infoCard}>
+                    <h3 className={styles.infoCardTitle}>Qualification</h3>
+                    <p className={styles.infoCardContent}>
+                        We've been building non-stop on Cardano for years. We're experienced developers with a deep personal and professional stake in the ecosystem. Governance affects our work and our future, so we're here to help guide it with integrity and care
+                    </p>
+                </div>
+            </div>
 
             <div className={styles.votingProgress}>
-                <h2 className={styles.votingProgressTitle}>Voting Distribution</h2>
                 <div className={styles.drepStats}>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>Total Delegated ADA:</span>
@@ -145,39 +170,14 @@ export default function DRepVoting() {
                         <span className={styles.statValue}>{drepVotingData?.delegationData?.timeline?.total_delegators}</span>
                     </div>
                 </div>
-                <div className={styles.progressBars}>
-                    <div className={styles.progressRow}>
-                        <div className={styles.progressLabel}>Yes</div>
-                        <div className={styles.progressBar}>
-                            <div
-                                className={`${styles.progressFill} ${styles.yes}`}
-                                style={{ width: `${(voteStats.yes / voteStats.total) * 100}%` }}
-                            ></div>
-                        </div>
-                        <div className={styles.progressValue}>{voteStats.yes}</div>
-                    </div>
-                    <div className={styles.progressRow}>
-                        <div className={styles.progressLabel}>No</div>
-                        <div className={styles.progressBar}>
-                            <div
-                                className={`${styles.progressFill} ${styles.no}`}
-                                style={{ width: `${(voteStats.no / voteStats.total) * 100}%` }}
-                            ></div>
-                        </div>
-                        <div className={styles.progressValue}>{voteStats.no}</div>
-                    </div>
-                    <div className={styles.progressRow}>
-                        <div className={styles.progressLabel}>Abstain</div>
-                        <div className={styles.progressBar}>
-                            <div
-                                className={`${styles.progressFill} ${styles.abstain}`}
-                                style={{ width: `${(voteStats.abstain / voteStats.total) * 100}%` }}
-                            ></div>
-                        </div>
-                        <div className={styles.progressValue}>{voteStats.abstain}</div>
-                    </div>
-                </div>
+                <VotingDonutChart voteStats={voteStats} />
             </div>
+
+            <SearchFilterBar
+                config={dynamicFilterConfig}
+                onSearch={handleSearch}
+                initialSearchTerm={router.query.search as string}
+            />
 
             {!isSearching && (
                 <div className={styles.typeStats}>
