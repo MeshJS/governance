@@ -1,6 +1,7 @@
-import { FC } from 'react';
+import { useState } from 'react';
 import styles from '../styles/Voting.module.css';
 import { formatDate } from '../utils/dateUtils';
+import ProposalModal from './ProposalModal';
 
 interface VoteData {
     proposalId: string;
@@ -23,64 +24,68 @@ interface DRepVotingListProps {
     onRowClick?: (proposalId: string) => void;
 }
 
-const DRepVotingList: FC<DRepVotingListProps> = ({ votes, onRowClick }) => {
-    if (!votes || votes.length === 0) {
-        return <div className={styles.empty}>No voting data available</div>;
-    }
-
-    return (
-        <div className={styles.listContainer}>
-            <ul className={styles.list}>
-                {votes.map((vote) => (
-                    <li
-                        key={vote.proposalId}
-                        className={`${styles.item} ${onRowClick ? styles.clickable : ''}`}
-                        onClick={() => onRowClick && onRowClick(vote.proposalId)}
-                    >
-                        <div className={styles.header}>
-                            <h3 className={styles.title}>{vote.proposalTitle}</h3>
-                            <span className={`${styles.vote} ${styles[vote.vote.toLowerCase()]}`}>
-                                {vote.vote}
-                            </span>
-                        </div>
-                        
-                        <div className={styles.type}>
-                            Type: {vote.proposalType}
-                        </div>
-                        
-                        <p className={styles.rationale}>{vote.rationale}</p>
-                        
-                        <div className={styles.meta}>
-                            <div>Proposed: {formatDate(vote.blockTime)}</div>
-                            <div>Epoch: {vote.proposedEpoch}</div>
-                            <div>Expires: {vote.expirationEpoch}</div>
-                        </div>
-                        
-                        <div className={styles.links}>
-                            <a 
-                                href={`https://adastat.net/governances/${vote.proposalTxHash}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className={styles.link}
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                View Proposal
-                            </a>
-                            <a 
-                                href={`https://adastat.net/transactions/${vote.voteTxHash}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className={styles.link}
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                View Vote
-                            </a>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+const truncateText = (text: string, maxLength: number = 100) => {
+    if (text.length <= maxLength) return text;
+    
+    // Find the last space before maxLength
+    const lastSpace = text.lastIndexOf(' ', maxLength);
+    if (lastSpace === -1) return text.substring(0, maxLength) + '...';
+    
+    return text.substring(0, lastSpace) + '...';
 };
 
-export default DRepVotingList; 
+export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProps) {
+    const [selectedProposal, setSelectedProposal] = useState<VoteData | null>(null);
+
+    const handleCardClick = (vote: VoteData, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedProposal(vote);
+    };
+
+    return (
+        <>
+            <div className={styles.listContainer}>
+                <div className={styles.list}>
+                    {votes.map((vote) => (
+                        <div
+                            key={vote.proposalId}
+                            className={styles.item}
+                            onClick={(e) => handleCardClick(vote, e)}
+                        >
+                            <div className={`${styles.voteHeader} ${styles[vote.vote.toLowerCase()]}`}>
+                                {vote.vote}
+                            </div>
+                            <div className={styles.cardContent}>
+                                <h3 className={styles.title}>{vote.proposalTitle}</h3>
+                                <span className={styles.type}>{vote.proposalType}</span>
+                                <p className={styles.rationale}>{truncateText(vote.rationale)}</p>
+                                <div className={styles.meta}>
+                                    <div>
+                                        <span>Proposed</span>
+                                        <strong>Epoch {vote.proposedEpoch}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Expires</span>
+                                        <strong>Epoch {vote.expirationEpoch}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {selectedProposal && (
+                <ProposalModal
+                    proposal={selectedProposal}
+                    onClose={() => setSelectedProposal(null)}
+                />
+            )}
+
+            {votes.length === 0 && (
+                <div className={styles.empty}>No votes found</div>
+            )}
+        </>
+    );
+} 

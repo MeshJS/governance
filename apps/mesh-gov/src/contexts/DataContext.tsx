@@ -156,7 +156,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 .sort((a, b) => new Date(b.blockTime).getTime() - new Date(a.blockTime).getTime());
 
             // Fetch delegation data
-            const delegationData = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/refs/heads/main/mesh-gov-updates/drep-voting/drep-delegation-info.json');
+            console.log('Fetching delegation data...');
+            const delegationData = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/main/mesh-gov-updates/drep-voting/drep-delegation-info.json');
+            console.log('Received delegation data:', delegationData);
 
             const newData: DRepVotingData = {
                 votes: allVotes,
@@ -164,6 +166,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 lastFetched: Date.now()
             };
 
+            console.log('Setting DRep voting data:', newData);
             safeSetItem(DREP_VOTING_STORAGE_KEY, JSON.stringify(newData));
             setDrepVotingData(newData);
         } catch (err) {

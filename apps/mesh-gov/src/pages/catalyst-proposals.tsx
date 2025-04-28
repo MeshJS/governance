@@ -7,6 +7,9 @@ import { filterProposals, generateCatalystProposalsFilterConfig } from '../confi
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { CatalystProject } from '../types';
 import { useRouter } from 'next/router';
+import CatalystMilestonesDonut from '../components/CatalystMilestonesDonut';
+import CatalystBudgetDonut from '../components/CatalystBudgetDonut';
+import VotesDonutChart from '../components/VotesDonutChart';
 
 // Simple number formatting function that doesn't rely on locale settings
 const formatNumber = (num: number): string => {
@@ -45,6 +48,32 @@ export default function CatalystProposals() {
         totalProjects: allProjects.length,
         totalVotes: allProjects.reduce((sum: number, p: CatalystProject) => sum + (p.projectDetails.voting.yes_votes_count || 0), 0)
     }), [allProjects]);
+
+    // Calculate milestone stats
+    const milestoneStats = useMemo(() => {
+        let totalMilestones = 0;
+        let completedMilestones = 0;
+
+        allProjects.forEach(project => {
+            totalMilestones += project.projectDetails.milestones_qty;
+            completedMilestones += project.milestonesCompleted;
+        });
+
+        return { totalMilestones, completedMilestones };
+    }, [allProjects]);
+
+    // Calculate budget stats
+    const budgetStats = useMemo(() => {
+        let totalBudget = 0;
+        let distributedBudget = 0;
+
+        allProjects.forEach(project => {
+            totalBudget += project.projectDetails.budget;
+            distributedBudget += project.projectDetails.funds_distributed;
+        });
+
+        return { totalBudget, distributedBudget };
+    }, [allProjects]);
 
     // Debounced URL update
     const updateUrl = useCallback((searchTerm: string) => {
@@ -127,7 +156,7 @@ export default function CatalystProposals() {
         <div className={styles.container}>
             <PageHeader
                 title={<>Catalyst Proposal <span>Dashboard</span></>}
-                subtitle="View and analyze Catalyst proposals here."
+                subtitle="Mesh received strong support from Ada voters at Cardano's Project Catalyst. We are greatful for every support and want to make sure that our supporters have easy overview and insights on the progress of our funded proposals"
             />
 
             <SearchFilterBar
@@ -136,22 +165,21 @@ export default function CatalystProposals() {
                 initialSearchTerm={router.query.search as string}
             />
 
-            <div className={styles.stats} role="region" aria-label="statistics">
-                <div className={styles.stat}>
-                    <h3>Total Projects</h3>
-                    <p aria-label="Total Projects">{stats.totalProjects}</p>
+            <div className={styles.chartsGrid}>
+                <div className={styles.chartSection}>
+                    <CatalystMilestonesDonut
+                        totalMilestones={milestoneStats.totalMilestones}
+                        completedMilestones={milestoneStats.completedMilestones}
+                    />
                 </div>
-                <div className={styles.stat}>
-                    <h3>Total Budget</h3>
-                    <p aria-label="Total Budget">{formatAda(stats.totalBudget)}</p>
+                <div className={styles.chartSection}>
+                    <CatalystBudgetDonut
+                        totalBudget={budgetStats.totalBudget}
+                        distributedBudget={budgetStats.distributedBudget}
+                    />
                 </div>
-                <div className={styles.stat}>
-                    <h3>Completed Projects</h3>
-                    <p aria-label="Completed Projects">{stats.completedProjects}</p>
-                </div>
-                <div className={styles.stat}>
-                    <h3>Total Votes</h3>
-                    <p aria-label="Total Votes">{formatAda(stats.totalVotes)}</p>
+                <div className={styles.chartSection}>
+                    <VotesDonutChart proposals={allProjects} />
                 </div>
             </div>
 
