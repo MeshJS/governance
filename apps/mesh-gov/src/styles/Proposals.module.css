@@ -31,32 +31,91 @@
 }
 
 .stat {
-    background-color: var(--card-bg);
-    padding: var(--card-padding);
-    border-radius: var(--card-radius);
-    border: var(--card-border);
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
     text-align: center;
-    box-shadow: var(--card-shadow);
-    transition: var(--hover-transition);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(165deg,
+        rgba(255, 255, 255, 0.03) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.stat::after {
+    content: '';
+    position: absolute;
+    inset: -100%;
+    background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 30%,
+        rgba(255, 255, 255, 0.06) 50%,
+        rgba(255, 255, 255, 0.03) 70%,
+        transparent 100%
+    );
+    transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translateX(-100%) rotate(45deg);
+    pointer-events: none;
 }
 
 .stat:hover {
-    transform: var(--hover-transform);
-    box-shadow: var(--card-hover-shadow);
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 8px 32px -4px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.stat:hover::before {
+    opacity: 1;
+}
+
+.stat:hover::after {
+    transform: translateX(100%) rotate(45deg);
 }
 
 .stat h3 {
     font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin: 0 0 0.5rem 0;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 0.75rem 0;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stat p {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 600;
-    color: var(--text-color);
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.85) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin: 0;
+    position: relative;
+    z-index: 1;
 }
 
 /* List and card styles */
@@ -1010,5 +1069,189 @@
 
     .milestoneRow {
         padding: 0.75rem;
+    }
+}
+
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 2rem 0 4rem;
+    padding: 0 1rem;
+    align-items: start;
+}
+
+.chartSection {
+    display: flex;
+    flex-direction: column;
+    height: 420px;
+    width: 100%;
+    position: relative;
+}
+
+.donutChartContainer {
+    position: absolute;
+    inset: 0;
+    max-width: none;
+    margin: 0;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.donutChart {
+    width: 100%;
+    height: 280px;
+    margin-bottom: 1rem;
+}
+
+.donutLegend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 7rem;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.legendItem::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.legendItem:hover::before {
+    left: 100%;
+}
+
+.legendItem:hover,
+.legendItem.active {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(56, 232, 225, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.legendItem:hover .legendColor,
+.legendItem.active .legendColor {
+    transform: scale(1.1);
+}
+
+.legendItem:hover .legendLabel,
+.legendItem.active .legendLabel,
+.legendItem:hover .legendValue,
+.legendItem.active .legendValue {
+    color: rgba(56, 232, 225, 0.95);
+}
+
+.legendColor {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.legendColor.completed,
+.legendColor.distributed {
+    background: linear-gradient(135deg, rgba(56, 232, 225, 0.95), rgba(8, 74, 67, 0.8));
+}
+
+.legendColor.remaining {
+    background: linear-gradient(135deg, rgba(226, 232, 240, 0.85), rgba(71, 85, 105, 0.75));
+}
+
+.legendLabel {
+    flex: 1;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.legendValue {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.completionText {
+    text-align: center;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+    padding-top: 0.5rem;
+    height: 2rem;
+    margin-top: auto;
+}
+
+.completionRate {
+    text-align: center;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.emptySection {
+    height: 100%;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.emptySection h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+.emptySection p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+@media (max-width: 1024px) {
+    .chartsGrid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 }

@@ -1,12 +1,21 @@
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/Contributors.module.css';
-import Card from '../components/ContributorCard';
+import BaseCard from '../components/ContributorCard';
 import Image from 'next/image';
 import PageHeader from '../components/PageHeader';
-import ContributorNetwork from '../components/ContributorNetwork';
+import { ContributorModal } from '../components/ContributorModal';
+import { useState } from 'react';
+import { Contributor } from '../types';
+import Link from 'next/link';
+
+// Generate a consistent color for a repository
+const getRepoColor = (repoName: string) => {
+    return 'rgba(255, 255, 255, 0.3)';
+};
 
 export default function Contributors() {
     const { meshData, isLoading, error } = useData();
+    const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -18,30 +27,45 @@ export default function Contributors() {
         0
     );
 
+    const handleCardClick = (contributor: Contributor) => {
+        setSelectedContributor(contributor);
+    };
+
     return (
         <div className={styles.container}>
             <PageHeader
                 title={<>Mesh <span>Contributors</span></>}
-                subtitle="Meet the amazing people who contribute to Mesh"
+                subtitle="Mesh is build by many minds and hands, here our Contributors"
             />
 
-            <ContributorNetwork contributors={contributors.contributors} />
-
             <div className={styles.summaryContainer}>
-                <Card className={styles.summaryCard}>
-                    <h2>Total Contributors</h2>
-                    <p className={styles.summaryNumber}>{contributors.unique_count}</p>
-                </Card>
+                <div className={styles.summaryCards}>
+                    <BaseCard className={styles.summaryCard}>
+                        <h2>Total Contributors</h2>
+                        <p className={styles.summaryNumber}>{contributors.unique_count}</p>
+                    </BaseCard>
 
-                <Card className={styles.summaryCard}>
-                    <h2>Total Contributions</h2>
-                    <p className={styles.summaryNumber}>{totalContributions}</p>
-                </Card>
+                    <BaseCard className={styles.summaryCard}>
+                        <h2>Total Contributions</h2>
+                        <p className={styles.summaryNumber}>{totalContributions}</p>
+                    </BaseCard>
+                </div>
             </div>
 
             <div className={styles.contributorsGrid}>
                 {contributors.contributors.map((contributor) => (
-                    <Card key={contributor.login} className={styles.contributorCard}>
+                    <div 
+                        key={contributor.login} 
+                        className={styles.contributorCard}
+                        onClick={() => handleCardClick(contributor)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                handleCardClick(contributor);
+                            }
+                        }}
+                    >
                         <div className={styles.contributorHeader}>
                             <Image
                                 src={contributor.avatar_url}
@@ -62,9 +86,36 @@ export default function Contributors() {
                                 <span className={styles.statValue}>{contributor.repositories.length}</span>
                             </div>
                         </div>
-                    </Card>
+
+                        <div className={styles.topRepos}>
+                            {contributor.repositories
+                                .sort((a, b) => b.contributions - a.contributions)
+                                .slice(0, 3)
+                                .map((repo) => (
+                                    <div key={repo.name} className={styles.repoBreakdown}>
+                                        <div 
+                                            className={styles.repoColor}
+                                            style={{ backgroundColor: getRepoColor(repo.name) }}
+                                        />
+                                        <div className={styles.repoInfo}>
+                                            <span className={styles.repoName}>{repo.name}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
                 ))}
             </div>
+
+            {selectedContributor && (
+                <ContributorModal
+                    username={selectedContributor.login}
+                    avatar={selectedContributor.avatar_url}
+                    totalContributions={selectedContributor.contributions}
+                    repositories={selectedContributor.repositories}
+                    onClose={() => setSelectedContributor(null)}
+                />
+            )}
         </div>
     );
 } 
