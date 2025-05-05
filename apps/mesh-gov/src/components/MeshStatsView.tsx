@@ -353,28 +353,31 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
             )}
 
             {packageData.length > 0 && monthlyData.length > 0 && (
-                <div className={styles.chartsGrid}>
-                    <div className={styles.chartSection}>
-                        <h2>Package Downloads (Last 12 Months)</h2>
-                        <div className={styles.chart}>
-                            <CustomBarChart data={packageData} chartId="package" />
+                <>
+                    <div className={styles.chartsGrid}>
+                        <div className={styles.chartSection}>
+                            <h2>Package Downloads (Last 12 Months)</h2>
+                            <div className={styles.chart}>
+                                <CustomBarChart data={packageData} chartId="package" />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className={styles.chartSection}>
-                        <h2>Monthly Downloads ({latestYear})</h2>
-                        <div className={styles.chart}>
-                            <CustomBarChart data={monthlyData} chartId="monthly" />
+                        <div className={styles.chartSection}>
+                            <h2>Monthly Downloads ({latestYear})</h2>
+                            <div className={styles.chart}>
+                                <CustomBarChart data={monthlyData} chartId="monthly" />
+                            </div>
                         </div>
-                    </div>
 
+                    </div>
                     <div className={styles.chartSection}>
                         <h2>Repositories that depend on @meshsdk/core ({new Date().getFullYear()})</h2>
                         <div className={styles.chart}>
                             <CustomLineChart data={repositoriesData} chartId="repositories" />
                         </div>
                     </div>
-                </div>
+                </>
+                
             )}
 
             {years.length > 0 && (
