@@ -315,44 +315,6 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                 </div>
             )}
 
-            {/* Add Discord stats summary and chart */}
-            {discordStatsData.length > 0 && (
-                <>
-                    <div className={styles.githubStats}>
-                        <h2>Discord Community</h2>
-                        <div className={styles.statsGrid}>
-                            <div className={styles.stat}>
-                                <h3>Total Members</h3>
-                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].memberCount)}</p>
-                            </div>
-                            <div className={styles.stat}>
-                                <h3>Unique Posters</h3>
-                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].uniquePosters)}</p>
-                            </div>
-                            <div className={styles.stat}>
-                                <h3>Messages Last Month</h3>
-                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].totalMessages)}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.chartSection}>
-                        <h2>Discord Community Activity</h2>
-                        <div className={styles.chart}>
-                            <CustomMultiLineChart
-                                data={discordStatsData}
-                                chartId="discord"
-                                lines={[
-                                    { dataKey: 'memberCount', name: 'Members', stroke: '#7289DA' },
-                                    { dataKey: 'totalMessages', name: 'Messages', stroke: '#FFFFFF' },
-                                    { dataKey: 'uniquePosters', name: 'Unique Posters', stroke: '#43B581' }
-                                ]}
-                            />
-                        </div>
-                    </div>
-                </>
-            )}
-
             {packageData.length > 0 && monthlyData.length > 0 && (
                 <>
                     <div className={styles.chartsGrid}>
@@ -394,6 +356,44 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                         ))}
                     </div>
                 </div>
+            )}
+
+            {/* Add Discord stats summary and chart */}
+            {discordStatsData.length > 0 && (
+                <>
+                    <div className={styles.githubStats}>
+                        <h2>Discord Community</h2>
+                        <div className={styles.statsGrid}>
+                            <div className={styles.stat}>
+                                <h3>Total Members</h3>
+                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].memberCount)}</p>
+                            </div>
+                            <div className={styles.stat}>
+                                <h3>Unique Posters</h3>
+                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].uniquePosters)}</p>
+                            </div>
+                            <div className={styles.stat}>
+                                <h3>Messages Last Month</h3>
+                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].totalMessages)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={styles.chartSection}>
+                        <h2>Discord Community Activity</h2>
+                        <div className={styles.chart}>
+                            <CustomMultiLineChart
+                                data={discordStatsData}
+                                chartId="discord"
+                                lines={[
+                                    { dataKey: 'memberCount', name: 'Members', stroke: '#7289DA' },
+                                    { dataKey: 'totalMessages', name: 'Messages', stroke: '#FFFFFF' },
+                                    { dataKey: 'uniquePosters', name: 'Unique Posters', stroke: '#43B581' }
+                                ]}
+                            />
+                        </div>
+                    </div>
+                </>
             )}
         </div>
     );
