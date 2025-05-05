@@ -165,6 +165,7 @@ export interface DataContextType {
     meshData: MeshData | null;
     catalystData: CatalystContextData | null;
     drepVotingData: DRepVotingData | null;
+    discordStats: DiscordStats | null;
     isLoading: boolean;
     error: string | null;
     refetchData: () => Promise<void>;
@@ -188,8 +189,20 @@ export interface FilteredStats {
     yearlyStats?: Record<number, YearlyStats>;
 }
 
+export interface MonthlyDiscordStats {
+    memberCount: number;
+    totalMessages: number;
+    uniquePosters: number;
+}
+
+export interface DiscordStats {
+    stats: Record<string, MonthlyDiscordStats>;
+    lastFetched: number;
+}
+
 export interface MeshStatsViewProps {
     currentStats: CurrentStats;
     yearlyStats: Record<number, YearlyStats>;
     filteredStats?: FilteredStats;
+    discordStats?: DiscordStats;
 } 
