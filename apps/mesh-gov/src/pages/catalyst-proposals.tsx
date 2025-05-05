@@ -75,33 +75,18 @@ export default function CatalystProposals() {
         return { totalBudget, distributedBudget };
     }, [allProjects]);
 
-    // Debounced URL update
-    const updateUrl = useCallback((searchTerm: string) => {
-        const now = Date.now();
-        if (now - lastNavigationTime < 1000) return; // Prevent updates within 1 second
-
-        if (searchTerm) {
-            router.push(`/catalyst-proposals?search=${searchTerm}`, undefined, { shallow: true });
-        } else {
-            router.push('/catalyst-proposals', undefined, { shallow: true });
-        }
-        setLastNavigationTime(now);
-    }, [router, lastNavigationTime]);
-
     // Handle search and filtering
     const handleSearch = useCallback((searchTerm: string, activeFilters: Record<string, string>) => {
         if (!searchTerm && Object.keys(activeFilters).length === 0) {
             setFilteredProjects([]);
             setIsSearching(false);
-            updateUrl('');
             return;
         }
 
         setIsSearching(true);
         const filtered = filterProposals(allProjects, searchTerm, activeFilters);
         setFilteredProjects(filtered);
-        updateUrl(searchTerm);
-    }, [allProjects, updateUrl]);
+    }, [allProjects]);
 
     // Handle row click
     const handleRowClick = useCallback((projectId: number) => {
