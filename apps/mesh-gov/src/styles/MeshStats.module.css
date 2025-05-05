@@ -47,11 +47,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(
-        800px circle at var(--mouse-x) var(--mouse-y),
-        rgba(255, 255, 255, 0.06),
-        transparent 40%
-    );
+    background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.06),
+            transparent 40%);
     opacity: 0;
     transition: opacity 0.4s;
     z-index: 1;
@@ -60,7 +58,7 @@
 .stat:hover {
     transform: translateY(-4px);
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 
+    box-shadow:
         0 4px 24px -1px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
@@ -69,7 +67,7 @@
     opacity: 1;
 }
 
-.stat > * {
+.stat>* {
     position: relative;
     z-index: 2;
 }
@@ -134,7 +132,7 @@
 .chart:hover {
     transform: translateY(-4px);
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 
+    box-shadow:
         0 4px 24px -1px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
@@ -146,11 +144,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(
-        800px circle at var(--mouse-x) var(--mouse-y),
-        rgba(255, 255, 255, 0.06),
-        transparent 40%
-    );
+    background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.06),
+            transparent 40%);
     opacity: 0;
     transition: opacity 0.4s;
     z-index: 1;
@@ -160,7 +156,7 @@
     opacity: 1;
 }
 
-.chart > * {
+.chart>* {
     position: relative;
     z-index: 2;
 }
@@ -202,11 +198,10 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0) 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -214,7 +209,7 @@
 .year:hover {
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 
+    box-shadow:
         0 20px 40px -8px rgba(0, 0, 0, 0.4),
         0 8px 16px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
@@ -314,7 +309,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 12px 16px;
-    box-shadow: 
+    box-shadow:
         0 8px 24px rgba(0, 0, 0, 0.4),
         0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -365,7 +360,7 @@
 .statCard:hover {
     transform: translateY(-4px);
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 
+    box-shadow:
         0 4px 24px -1px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
@@ -377,11 +372,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(
-        800px circle at var(--mouse-x) var(--mouse-y),
-        rgba(255, 255, 255, 0.06),
-        transparent 40%
-    );
+    background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.06),
+            transparent 40%);
     opacity: 0;
     transition: opacity 0.4s;
     z-index: 1;
@@ -391,7 +384,7 @@
     opacity: 1;
 }
 
-.statCard > * {
+.statCard>* {
     position: relative;
     z-index: 2;
 }

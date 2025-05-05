@@ -30,7 +30,7 @@ const CustomDiscordTooltip = ({ active, payload, label }: TooltipProps<number, s
                 <p className={styles.tooltipLabel}>{label}</p>
                 {payload.map((entry, index) => (
                     <p key={index} className={styles.tooltipValue}>
-                        {entry.name}: {formatNumber(entry.value)}
+                        {entry.name}: <span style={{ color: entry.stroke }}>{formatNumber(entry.value)}</span>
                     </p>
                 ))}
             </div>
@@ -193,8 +193,9 @@ const CustomMultiLineChart = ({ data, chartId, lines }: CustomMultiLineChartProp
                     type="monotone"
                     name={line.name}
                     dataKey={line.dataKey}
-                    stroke={`url(#lineGradient-${chartId}-${line.dataKey})`}
+                    stroke={line.stroke}
                     strokeWidth={2}
+                    strokeDasharray={index === 1 ? "5 5" : (index === 2 ? "3 3" : undefined)}
                     dot={{ fill: line.stroke, strokeWidth: 2 }}
                     activeDot={{ r: 4, fill: line.stroke }}
                 />
@@ -323,7 +324,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                             <div className={styles.stat}>
                                 <h3>Total Members</h3>
                                 <p>{formatNumber(discordStatsData[discordStatsData.length - 1].memberCount)}</p>
-                            </div> 
+                            </div>
                             <div className={styles.stat}>
                                 <h3>Unique Posters</h3>
                                 <p>{formatNumber(discordStatsData[discordStatsData.length - 1].uniquePosters)}</p>
@@ -377,7 +378,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                         </div>
                     </div>
                 </>
-                
+
             )}
 
             {years.length > 0 && (
