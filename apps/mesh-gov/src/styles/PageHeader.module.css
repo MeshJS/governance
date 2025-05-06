@@ -56,6 +56,10 @@
         padding: 1rem 0;
     }
 
+    .headerContainer {
+        margin-top: 1rem;
+    }
+
     .titleArea {
         width: 100%;
     }
@@ -77,6 +81,7 @@
 @media (max-width: 480px) {
     .headerContainer {
         margin-bottom: 1.5rem;
+        margin-top: 1.5rem;
     }
 
     .header {

@@ -143,6 +143,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -153,10 +154,12 @@
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.2);
         opacity: 0.8;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;
@@ -189,15 +192,14 @@
     }
 
     .main {
-        padding: 7.5rem 1.5rem 1.5rem 1.5rem;
-        /* Extra space at top for the navigation and headings */
+        padding: 9.5rem 1.5rem 1.5rem 1.5rem;
+        /* Adjusted top padding to better fit with header */
     }
 
     .content h1:first-child,
     .content h2:first-child,
     .content h3:first-child {
         margin-top: 0.5rem;
-        /* Ensure headings don't get too close to the nav */
     }
 }
 
