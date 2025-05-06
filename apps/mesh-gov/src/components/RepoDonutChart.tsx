@@ -3,7 +3,9 @@ import styles from '../styles/ContributorModal.module.css';
 
 interface ContributorRepository {
     name: string;
+    commits: number;
     contributions: number;
+    pull_requests: number;
 }
 
 interface RepoDonutChartProps {
@@ -73,10 +75,17 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
     // Combine remaining repositories into "Others"
     const otherRepos = repositories.slice(12);
     const otherContributions = otherRepos.reduce((sum, repo) => sum + repo.contributions, 0);
+    const otherCommits = otherRepos.reduce((sum, repo) => sum + repo.commits, 0);
+    const otherPRs = otherRepos.reduce((sum, repo) => sum + repo.pull_requests, 0);
 
     // Final data for visualization
-    const chartData = otherContributions > 0 
-        ? [...topRepos, { name: 'Others', contributions: otherContributions }]
+    const chartData = otherContributions > 0
+        ? [...topRepos, {
+            name: 'Others',
+            contributions: otherContributions,
+            commits: otherCommits,
+            pull_requests: otherPRs
+        }]
         : topRepos;
 
     // Generate color for each repository (all use the same gradient)
@@ -84,6 +93,8 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
         return {
             name: repo.name,
             value: repo.contributions,
+            commits: repo.commits,
+            pull_requests: repo.pull_requests,
             color: LEGEND_GRADIENT
         };
     });
@@ -127,7 +138,7 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
         data.forEach(segment => {
             const segmentAngle = (segment.value / total) * (Math.PI * 2);
             const endAngle = startAngle + segmentAngle;
-            
+
             newSegments.push({
                 name: segment.name,
                 startAngle,
@@ -199,7 +210,7 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
         // Check if mouse is within donut area
         if (distance > innerRadius && distance < radius) {
             // Find which segment the angle corresponds to
-            const activeSegment = segments.find(segment => 
+            const activeSegment = segments.find(segment =>
                 adjustedAngle >= segment.startAngle && adjustedAngle <= segment.endAngle
             );
             setActiveSegment(activeSegment ? activeSegment.name : null);
@@ -214,8 +225,8 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
 
     return (
         <div className={styles.donutChartContainer}>
-            <canvas 
-                ref={canvasRef} 
+            <canvas
+                ref={canvasRef}
                 className={styles.donutChart}
                 onMouseMove={handleCanvasMouseMove}
                 onMouseLeave={handleCanvasMouseLeave}
@@ -234,12 +245,14 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
                         onMouseLeave={() => setActiveSegment(null)}
                         style={{}}
                     >
-                        <span 
-                            className={styles.legendColor} 
+                        <span
+                            className={styles.legendColor}
                             style={{ background: LEGEND_GRADIENT }}
                         ></span>
                         <span className={styles.legendLabel}>{repo.name}</span>
-                        <span className={styles.legendValue}>{repo.value}</span>
+                        <div className={styles.legendValueGroup}>
+                            <span className={styles.legendValue}>{repo.value}</span>
+                        </div>
                     </a>
                 ))}
             </div>

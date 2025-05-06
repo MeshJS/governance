@@ -3,10 +3,13 @@ import styles from '../styles/Contributors.module.css';
 import BaseCard from '../components/ContributorCard';
 import Image from 'next/image';
 import PageHeader from '../components/PageHeader';
-import { ContributorModal } from '../components/ContributorModal';
+import ContributorModal from '../components/ContributorModal';
 import { useState } from 'react';
 import { Contributor } from '../types';
 import Link from 'next/link';
+import { FaUsers } from 'react-icons/fa';
+import { VscGitCommit, VscGitPullRequest } from 'react-icons/vsc';
+import { VscRepo } from 'react-icons/vsc';
 
 // Generate a consistent color for a repository
 const getRepoColor = (repoName: string) => {
@@ -22,10 +25,15 @@ export default function Contributors() {
     if (!meshData) return <div>No data available</div>;
 
     const { contributors } = meshData.currentStats;
-    const totalContributions = contributors.contributors.reduce(
-        (sum, contributor) => sum + contributor.contributions,
-        0
-    );
+
+    // Calculate total unique repositories
+    const uniqueRepos = new Set();
+    contributors.contributors.forEach(contributor => {
+        contributor.repositories.forEach(repo => {
+            uniqueRepos.add(repo.name);
+        });
+    });
+    const totalUniqueRepos = uniqueRepos.size;
 
     const handleCardClick = (contributor: Contributor) => {
         setSelectedContributor(contributor);
@@ -41,21 +49,41 @@ export default function Contributors() {
             <div className={styles.summaryContainer}>
                 <div className={styles.summaryCards}>
                     <BaseCard className={styles.summaryCard}>
-                        <h2>Total Contributors</h2>
-                        <p className={styles.summaryNumber}>{contributors.unique_count}</p>
+                        <div className={styles.summaryContent}>
+                            <div className={styles.statColumn}>
+                                <FaUsers className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Contributors</p>
+                                <p className={styles.summaryNumber}>{contributors.unique_count}</p>
+                            </div>
+                            <div className={styles.statColumn}>
+                                <VscRepo className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Repositories</p>
+                                <p className={styles.summaryNumber}>{totalUniqueRepos}</p>
+                            </div>
+                        </div>
                     </BaseCard>
 
                     <BaseCard className={styles.summaryCard}>
-                        <h2>Total Contributions</h2>
-                        <p className={styles.summaryNumber}>{totalContributions}</p>
+                        <div className={styles.summaryContent}>
+                            <div className={styles.statColumn}>
+                                <VscGitCommit className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Commits</p>
+                                <p className={styles.summaryNumber}>{meshData.currentStats.contributors.total_commits || 0}</p>
+                            </div>
+                            <div className={styles.statColumn}>
+                                <VscGitPullRequest className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Pull Requests</p>
+                                <p className={styles.summaryNumber}>{contributors.total_pull_requests}</p>
+                            </div>
+                        </div>
                     </BaseCard>
                 </div>
             </div>
 
             <div className={styles.contributorsGrid}>
                 {contributors.contributors.map((contributor) => (
-                    <div 
-                        key={contributor.login} 
+                    <div
+                        key={contributor.login}
                         className={styles.contributorCard}
                         onClick={() => handleCardClick(contributor)}
                         role="button"
@@ -78,8 +106,12 @@ export default function Contributors() {
                         </div>
                         <div className={styles.contributorStats}>
                             <div className={styles.statItem}>
-                                <span className={styles.statLabel}>Contributions</span>
-                                <span className={styles.statValue}>{contributor.contributions}</span>
+                                <span className={styles.statLabel}>Commits</span>
+                                <span className={styles.statValue}>{contributor.commits}</span>
+                            </div>
+                            <div className={styles.statItem}>
+                                <span className={styles.statLabel}>PRs</span>
+                                <span className={styles.statValue}>{contributor.pull_requests}</span>
                             </div>
                             <div className={styles.statItem}>
                                 <span className={styles.statLabel}>Repositories</span>
@@ -93,7 +125,7 @@ export default function Contributors() {
                                 .slice(0, 3)
                                 .map((repo) => (
                                     <div key={repo.name} className={styles.repoBreakdown}>
-                                        <div 
+                                        <div
                                             className={styles.repoColor}
                                             style={{ backgroundColor: getRepoColor(repo.name) }}
                                         />
@@ -112,6 +144,8 @@ export default function Contributors() {
                     username={selectedContributor.login}
                     avatar={selectedContributor.avatar_url}
                     totalContributions={selectedContributor.contributions}
+                    totalCommits={selectedContributor.commits}
+                    totalPullRequests={selectedContributor.pull_requests}
                     repositories={selectedContributor.repositories}
                     onClose={() => setSelectedContributor(null)}
                 />

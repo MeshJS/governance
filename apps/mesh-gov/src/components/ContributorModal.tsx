@@ -1,15 +1,16 @@
 import { useEffect, useRef } from 'react';
 import styles from '../styles/ContributorModal.module.css';
 import { ContributorRepository } from '../types';
-import Image from 'next/image';
 import RepoDonutChart from './RepoDonutChart';
 import { IoClose } from 'react-icons/io5';
-import { FaGithub } from 'react-icons/fa';
+import { FaGithub, FaCode, FaCodeBranch, FaCodePullRequest } from 'react-icons/fa6';
 
 interface ContributorModalProps {
     username: string;
     avatar: string;
     totalContributions: number;
+    totalCommits: number;
+    totalPullRequests: number;
     repositories: ContributorRepository[];
     onClose: () => void;
 }
@@ -18,6 +19,8 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
     username,
     avatar,
     totalContributions,
+    totalCommits,
+    totalPullRequests,
     repositories,
     onClose,
 }) => {
@@ -62,7 +65,7 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
             </button>
             <div className={styles.modal} ref={modalRef}>
                 <div className={styles.contributorHeader}>
-                    <Image
+                    <img
                         src={avatar}
                         alt={`${username}'s avatar`}
                         width={80}
@@ -83,12 +86,22 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
 
                 <div className={styles.metadata}>
                     <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Total Contributions</span>
+                        <span className={styles.metaLabel}>
+                            <FaCodeBranch /> Total Contributions
+                        </span>
                         <span className={styles.metaValue}>{totalContributions}</span>
+                        <span className={styles.metaLabel}>Repositories</span>
+                        <span className={styles.metaValue}>{repositories.length}</span>
                     </div>
                     <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Contributed Repositories</span>
-                        <span className={styles.metaValue}>{repositories.length}</span>
+                        <span className={styles.metaLabel}>
+                            <FaCode /> Commits
+                        </span>
+                        <span className={styles.metaValue}>{totalCommits}</span>
+                        <span className={styles.metaLabel}>
+                            <FaCodePullRequest /> Pull Requests
+                        </span>
+                        <span className={styles.metaValue}>{totalPullRequests}</span>
                     </div>
                 </div>
 
@@ -97,8 +110,42 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
                     <div className={styles.donutChartContainer}>
                         <RepoDonutChart repositories={sortedRepos} />
                     </div>
+
+                    <div className={styles.repoDetailList}>
+                        <h3 className={styles.sectionTitle}>Repository Details</h3>
+                        <table className={styles.repoTable}>
+                            <thead>
+                                <tr>
+                                    <th>Repository</th>
+                                    <th>Commits</th>
+                                    <th>PRs</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {sortedRepos.map(repo => (
+                                    <tr key={repo.name}>
+                                        <td>
+                                            <a
+                                                href={`https://github.com/MeshJS/${repo.name}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                {repo.name}
+                                            </a>
+                                        </td>
+                                        <td>{repo.commits}</td>
+                                        <td>{repo.pull_requests}</td>
+                                        <td>{repo.contributions}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
+
+export default ContributorModal;

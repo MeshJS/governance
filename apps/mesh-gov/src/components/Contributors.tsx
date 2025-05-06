@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
 import styles from '../styles/Contributors.module.css';
 import { Contributor } from '../types';
-import { ContributorModal } from './ContributorModal';
+import ContributorModal from './ContributorModal';
 import { FaCrown, FaCodeBranch } from 'react-icons/fa';
+import { FaCode } from 'react-icons/fa6';
 
 interface ContributorsProps {
     contributors: Contributor[];
@@ -12,7 +13,7 @@ export default function Contributors({ contributors }: ContributorsProps) {
     const [showModal, setShowModal] = useState(false);
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
 
-    const totalContributions = useMemo(() => 
+    const totalContributions = useMemo(() =>
         contributors.reduce((sum, c) => sum + c.contributions, 0),
         [contributors]
     );
@@ -20,11 +21,11 @@ export default function Contributors({ contributors }: ContributorsProps) {
     const getContributorStats = (contributor: Contributor) => {
         // Calculate percentage of total contributions
         const contributionPercentage = (contributor.contributions / totalContributions) * 100;
-        
+
         // Sort repositories by contributions
         const sortedRepos = [...contributor.repositories]
             .sort((a, b) => b.contributions - a.contributions);
-        
+
         // Calculate repository percentages
         const repoPercentages = sortedRepos.map(repo => ({
             ...repo,
@@ -62,7 +63,7 @@ export default function Contributors({ contributors }: ContributorsProps) {
         <div className={styles.contributorsGrid}>
             {contributors.map((contributor) => {
                 const stats = getContributorStats(contributor);
-                
+
                 return (
                     <div
                         key={contributor.login}
@@ -85,9 +86,21 @@ export default function Contributors({ contributors }: ContributorsProps) {
                                 </span>
                             </div>
                             <div className={styles.statItem}>
+                                <span className={styles.statValue}>{contributor.commits}</span>
+                                <span className={styles.statLabel}>
+                                    Commits
+                                </span>
+                            </div>
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue}>{contributor.pull_requests}</span>
+                                <span className={styles.statLabel}>
+                                    PRs
+                                </span>
+                            </div>
+                            <div className={styles.statItem}>
                                 <span className={styles.statValue}>{contributor.repositories.length}</span>
                                 <span className={styles.statLabel}>
-                                    Repositories
+                                    Repos
                                 </span>
                             </div>
                         </div>
@@ -105,20 +118,31 @@ export default function Contributors({ contributors }: ContributorsProps) {
                                     Multi-Repo
                                 </span>
                             )}
+                            {contributor.commits > 100 && (
+                                <span className={`${styles.badge} ${styles.highCommits}`}>
+                                    <FaCode size={10} />
+                                    Prolific Committer
+                                </span>
+                            )}
                         </div>
 
                         <div className={styles.topRepos}>
                             {stats.topRepos.map((repo) => (
                                 <div key={repo.name} className={styles.repoBreakdown}>
-                                    <div 
+                                    <div
                                         className={styles.repoColor}
                                         style={{ backgroundColor: getRepoColor(repo.name) }}
                                     />
                                     <div className={styles.repoInfo}>
                                         <span className={styles.repoName}>{repo.name}</span>
-                                        <span className={styles.repoPercentage}>
-                                            {Math.round(repo.percentage)}%
-                                        </span>
+                                        <div className={styles.repoStats}>
+                                            <span className={styles.repoPercentage}>
+                                                {Math.round(repo.percentage)}%
+                                            </span>
+                                            <span className={styles.repoSmallStats}>
+                                                {repo.commits}/{repo.pull_requests}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -132,6 +156,8 @@ export default function Contributors({ contributors }: ContributorsProps) {
                     username={selectedContributor.login}
                     avatar={selectedContributor.avatar_url}
                     totalContributions={selectedContributor.contributions}
+                    totalCommits={selectedContributor.commits}
+                    totalPullRequests={selectedContributor.pull_requests}
                     repositories={selectedContributor.repositories}
                     onClose={() => {
                         setShowModal(false);

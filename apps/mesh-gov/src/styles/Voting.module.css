@@ -885,6 +885,7 @@
     word-break: break-all;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    position: relative;
 }
 
 .drepIdIndicator {
@@ -904,6 +905,14 @@
     word-break: break-all;
 }
 
+.drepIdFull {
+    display: inline-block;
+}
+
+.drepIdShort {
+    display: none;
+}
+
 .copyIcon {
     width: 16px;
     height: 16px;
@@ -912,7 +921,26 @@
     flex-shrink: 0;
 }
 
-.drepId:hover .copyIcon {
+.copied {
+    color: #38E8E1;
+    font-size: 1rem;
+    font-weight: bold;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.drepId:hover .copyIcon:not(.copied) {
     color: rgba(255, 255, 255, 0.9);
     transform: scale(1.1);
 }
@@ -1085,21 +1113,29 @@
         font-size: 0.75rem;
         padding: 0.75rem 1rem;
         gap: 0.5rem;
-        flex-wrap: wrap;
+        align-items: center;
     }
 
     .drepIdText {
-        order: 3;
-        width: 100%;
-        margin-top: 0.5rem;
+        order: unset;
+        width: auto;
+        margin-top: 0;
+    }
+
+    .drepIdFull {
+        display: none;
+    }
+
+    .drepIdShort {
+        display: inline-block;
     }
 
     .drepIdIndicator {
-        order: 1;
+        order: unset;
     }
 
     .copyIcon {
-        order: 2;
+        order: unset;
         margin-left: auto;
     }
 
