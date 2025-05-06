@@ -135,6 +135,7 @@
     gap: 1rem;
     height: 100%;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .contributorHeader {
@@ -160,10 +161,11 @@
 }
 
 .contributorStats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    width: 100%;
     gap: 0.75rem;
     margin-bottom: 0.5rem;
+    box-sizing: border-box;
 }
 
 .statItem {
@@ -175,6 +177,10 @@
     flex-direction: column;
     gap: 0.25rem;
     transition: all 0.3s ease;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .statValue {
@@ -438,6 +444,7 @@
 
     .contributorStats {
         gap: 0.5rem;
+        width: 100%;
     }
 
     .statItem {
@@ -573,15 +580,15 @@
     }
 }
 
-@media (min-width: 360px) {
+@media (min-width: 360px) and (max-width: 767px) {
     .contributorStats {
-        grid-template-columns: repeat(2, 1fr);
+        flex-direction: row;
     }
 }
 
 @media (min-width: 400px) {
     .contributorStats {
-        grid-template-columns: repeat(4, 1fr);
+        flex-direction: row;
     }
 }
 

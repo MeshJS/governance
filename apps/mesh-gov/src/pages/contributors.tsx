@@ -9,6 +9,7 @@ import { Contributor } from '../types';
 import Link from 'next/link';
 import { FaUsers } from 'react-icons/fa';
 import { VscGitCommit, VscGitPullRequest } from 'react-icons/vsc';
+import { VscRepo } from 'react-icons/vsc';
 
 // Generate a consistent color for a repository
 const getRepoColor = (repoName: string) => {
@@ -24,10 +25,15 @@ export default function Contributors() {
     if (!meshData) return <div>No data available</div>;
 
     const { contributors } = meshData.currentStats;
-    const totalContributions = contributors.contributors.reduce(
-        (sum, contributor) => sum + contributor.contributions,
-        0
-    );
+
+    // Calculate total unique repositories
+    const uniqueRepos = new Set();
+    contributors.contributors.forEach(contributor => {
+        contributor.repositories.forEach(repo => {
+            uniqueRepos.add(repo.name);
+        });
+    });
+    const totalUniqueRepos = uniqueRepos.size;
 
     const handleCardClick = (contributor: Contributor) => {
         setSelectedContributor(contributor);
@@ -43,7 +49,6 @@ export default function Contributors() {
             <div className={styles.summaryContainer}>
                 <div className={styles.summaryCards}>
                     <BaseCard className={styles.summaryCard}>
-                        <h2>Contributors & Contributions</h2>
                         <div className={styles.summaryContent}>
                             <div className={styles.statColumn}>
                                 <FaUsers className={styles.summaryIcon} />
@@ -51,15 +56,14 @@ export default function Contributors() {
                                 <p className={styles.summaryNumber}>{contributors.unique_count}</p>
                             </div>
                             <div className={styles.statColumn}>
-                                <VscGitCommit className={styles.summaryIcon} />
-                                <p className={styles.statLabel}>Contributions</p>
-                                <p className={styles.summaryNumber}>{contributors.total_contributions}</p>
+                                <VscRepo className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Repositories</p>
+                                <p className={styles.summaryNumber}>{totalUniqueRepos}</p>
                             </div>
                         </div>
                     </BaseCard>
 
                     <BaseCard className={styles.summaryCard}>
-                        <h2>Activity</h2>
                         <div className={styles.summaryContent}>
                             <div className={styles.statColumn}>
                                 <VscGitCommit className={styles.summaryIcon} />
@@ -102,11 +106,11 @@ export default function Contributors() {
                         </div>
                         <div className={styles.contributorStats}>
                             <div className={styles.statItem}>
-                                <span className={styles.statLabel}>Contributions</span>
-                                <span className={styles.statValue}>{contributor.contributions}</span>
+                                <span className={styles.statLabel}>Commits</span>
+                                <span className={styles.statValue}>{contributor.commits}</span>
                             </div>
                             <div className={styles.statItem}>
-                                <span className={styles.statLabel}>Pull Requests</span>
+                                <span className={styles.statLabel}>PRs</span>
                                 <span className={styles.statValue}>{contributor.pull_requests}</span>
                             </div>
                             <div className={styles.statItem}>
