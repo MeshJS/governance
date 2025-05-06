@@ -257,26 +257,37 @@
 
 .repoInfo {
     display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.repoStats {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    overflow: hidden;
 }
 
 .repoName {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.8);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 70%;
+    display: block;
 }
 
 .repoPercentage {
     font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-variant-numeric: tabular-nums;
+}
+
+.repoSmallStats {
+    font-size: 0.625rem;
     color: rgba(255, 255, 255, 0.5);
-    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
 }
 
 .badges {
@@ -473,6 +484,15 @@
     .topRepos {
         flex-direction: column;
     }
+
+    .summaryContent {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .statColumn {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
@@ -551,4 +571,45 @@
         font-size: 0.5rem;
         padding: 0.15rem 0.3rem;
     }
+}
+
+@media (min-width: 360px) {
+    .contributorStats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 400px) {
+    .contributorStats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.badge.highCommits {
+    background: rgba(139, 92, 246, 0.15);
+    color: rgba(139, 92, 246, 0.9);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.summaryContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+.statColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.summaryIcon {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color, rgba(255, 255, 255, 0.7));
+    opacity: 0.8;
 }

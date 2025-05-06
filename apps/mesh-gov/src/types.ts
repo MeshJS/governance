@@ -74,12 +74,16 @@ export interface YearlyStats {
 
 export interface ContributorRepository {
     name: string;
+    commits: number;
+    pull_requests: number;
     contributions: number;
 }
 
 export interface Contributor {
     login: string;
     avatar_url: string;
+    commits: number;
+    pull_requests: number;
     contributions: number;
     repositories: ContributorRepository[];
 }
@@ -114,6 +118,9 @@ export interface CurrentStats {
     contributors: {
         unique_count: number;
         contributors: Contributor[];
+        total_pull_requests: number;
+        total_commits: number;
+        total_contributions: number;
     };
 }
 
