@@ -252,9 +252,6 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
                         <span className={styles.legendLabel}>{repo.name}</span>
                         <div className={styles.legendValueGroup}>
                             <span className={styles.legendValue}>{repo.value}</span>
-                            <span className={styles.legendMetrics}>
-                                {repo.commits} commits / {repo.pull_requests} PRs
-                            </span>
                         </div>
                     </a>
                 ))}
