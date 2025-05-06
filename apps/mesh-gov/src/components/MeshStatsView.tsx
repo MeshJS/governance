@@ -1,9 +1,10 @@
 import { FC, useMemo } from 'react';
 import styles from '../styles/MeshStats.module.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps, LineChart, Line } from 'recharts';
-import { YearlyStats, PackageData, MeshStatsViewProps } from '../types';
+import { YearlyStats, PackageData, MeshStatsViewProps, DiscordStats } from '../types';
 
-const formatNumber = (num: number): string => {
+const formatNumber = (num: number | undefined): string => {
+    if (num === undefined) return '0';
     return new Intl.NumberFormat('en-US').format(num);
 };
 
@@ -15,6 +16,23 @@ const CustomTooltip = ({ active, payload, label, chartId }: TooltipProps<number,
                 <p className={styles.tooltipValue}>
                     {formatNumber(payload[0].value)} {chartId === 'repositories' ? 'repositories' : 'downloads'}
                 </p>
+            </div>
+        );
+    }
+    return null;
+};
+
+// Add a new custom tooltip for Discord stats
+const CustomDiscordTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className={styles.customTooltip}>
+                <p className={styles.tooltipLabel}>{label}</p>
+                {payload.map((entry, index) => (
+                    <p key={index} className={styles.tooltipValue}>
+                        {entry.name}: <span style={{ color: entry.stroke }}>{formatNumber(entry.value)}</span>
+                    </p>
+                ))}
             </div>
         );
     }
@@ -124,7 +142,69 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => (
     </ResponsiveContainer>
 );
 
-const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats }) => {
+interface CustomMultiLineChartProps {
+    data: Array<{
+        month: string;
+        [key: string]: any;
+    }>;
+    chartId: string;
+    lines: Array<{
+        dataKey: string;
+        name: string;
+        stroke: string;
+    }>;
+}
+
+const CustomMultiLineChart = ({ data, chartId, lines }: CustomMultiLineChartProps) => (
+    <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+            <defs>
+                {lines.map((line, index) => (
+                    <linearGradient key={index} id={`lineGradient-${chartId}-${line.dataKey}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={line.stroke} stopOpacity="1" />
+                        <stop offset="100%" stopColor={line.stroke} stopOpacity="0.5" />
+                    </linearGradient>
+                ))}
+            </defs>
+            <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255, 255, 255, 0.03)"
+                vertical={false}
+            />
+            <XAxis
+                dataKey="month"
+                axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
+                tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                dy={8}
+            />
+            <YAxis
+                axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
+                tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+            />
+            <Tooltip
+                content={<CustomDiscordTooltip />}
+                cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+            />
+            {lines.map((line, index) => (
+                <Line
+                    key={index}
+                    type="monotone"
+                    name={line.name}
+                    dataKey={line.dataKey}
+                    stroke={line.stroke}
+                    strokeWidth={2}
+                    strokeDasharray={index === 1 ? "5 5" : (index === 2 ? "3 3" : undefined)}
+                    dot={{ fill: line.stroke, strokeWidth: 2 }}
+                    activeDot={{ r: 4, fill: line.stroke }}
+                />
+            ))}
+        </LineChart>
+    </ResponsiveContainer>
+);
+
+const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats }) => {
     // Use all package data
     const packageData = currentStats?.npm ? [
         { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
@@ -162,6 +242,33 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats }) =>
             };
         });
     }, [yearlyStats]);
+
+    // Format the Discord stats for the chart
+    const discordStatsData = useMemo(() => {
+        if (!discordStats?.stats) return [];
+
+        // Get sorted months in the format "YYYY-MM"
+        const sortedMonths = Object.keys(discordStats.stats)
+            .sort((a, b) => a.localeCompare(b));
+
+        // Create an array of formatted data for the chart
+        return sortedMonths.map(monthKey => {
+            const stats = discordStats.stats[monthKey];
+            // Extract year and month from the key (format: "YYYY-MM")
+            const [year, month] = monthKey.split('-');
+            // Convert month number to month name
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthName = monthNames[parseInt(month) - 1];
+
+            return {
+                month: `${monthName} ${year}`,
+                memberCount: stats.memberCount,
+                totalMessages: stats.totalMessages,
+                uniquePosters: stats.uniquePosters
+            };
+        });
+    }, [discordStats]);
 
     return (
         <div data-testid="mesh-stats-view">
@@ -209,28 +316,31 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats }) =>
             )}
 
             {packageData.length > 0 && monthlyData.length > 0 && (
-                <div className={styles.chartsGrid}>
-                    <div className={styles.chartSection}>
-                        <h2>Package Downloads (Last 12 Months)</h2>
-                        <div className={styles.chart}>
-                            <CustomBarChart data={packageData} chartId="package" />
+                <>
+                    <div className={styles.chartsGrid}>
+                        <div className={styles.chartSection}>
+                            <h2>Package Downloads (Last 12 Months)</h2>
+                            <div className={styles.chart}>
+                                <CustomBarChart data={packageData} chartId="package" />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className={styles.chartSection}>
-                        <h2>Monthly Downloads ({latestYear})</h2>
-                        <div className={styles.chart}>
-                            <CustomBarChart data={monthlyData} chartId="monthly" />
+                        <div className={styles.chartSection}>
+                            <h2>Monthly Downloads ({latestYear})</h2>
+                            <div className={styles.chart}>
+                                <CustomBarChart data={monthlyData} chartId="monthly" />
+                            </div>
                         </div>
-                    </div>
 
+                    </div>
                     <div className={styles.chartSection}>
                         <h2>Repositories that depend on @meshsdk/core ({new Date().getFullYear()})</h2>
                         <div className={styles.chart}>
                             <CustomLineChart data={repositoriesData} chartId="repositories" />
                         </div>
                     </div>
-                </div>
+                </>
+
             )}
 
             {years.length > 0 && (
@@ -246,6 +356,44 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats }) =>
                         ))}
                     </div>
                 </div>
+            )}
+
+            {/* Add Discord stats summary and chart */}
+            {discordStatsData.length > 0 && (
+                <>
+                    <div className={styles.githubStats}>
+                        <h2>Discord Community</h2>
+                        <div className={styles.statsGrid}>
+                            <div className={styles.stat}>
+                                <h3>Total Members</h3>
+                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].memberCount)}</p>
+                            </div>
+                            <div className={styles.stat}>
+                                <h3>Unique Posters</h3>
+                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].uniquePosters)}</p>
+                            </div>
+                            <div className={styles.stat}>
+                                <h3>Messages Last Month</h3>
+                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].totalMessages)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={styles.chartSection}>
+                        <h2>Discord Community Activity</h2>
+                        <div className={styles.chart}>
+                            <CustomMultiLineChart
+                                data={discordStatsData}
+                                chartId="discord"
+                                lines={[
+                                    { dataKey: 'memberCount', name: 'Members', stroke: '#7289DA' },
+                                    { dataKey: 'totalMessages', name: 'Messages', stroke: '#FFFFFF' },
+                                    { dataKey: 'uniquePosters', name: 'Unique Posters', stroke: '#43B581' }
+                                ]}
+                            />
+                        </div>
+                    </div>
+                </>
             )}
         </div>
     );

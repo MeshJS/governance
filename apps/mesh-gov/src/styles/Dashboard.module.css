@@ -16,12 +16,10 @@
     height: auto;
     filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
     transition: filter 0.3s ease;
-    background: linear-gradient(
-        90deg,
-        rgba(12, 242, 180, 0.9) 0%,
-        rgba(255, 255, 255, 0.95) 50%,
-        rgba(12, 242, 180, 0.9) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(12, 242, 180, 0.9) 0%,
+            rgba(255, 255, 255, 0.95) 50%,
+            rgba(12, 242, 180, 0.9) 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -37,9 +35,11 @@
     0% {
         background-position: 0% center;
     }
+
     50% {
         background-position: 100% center;
     }
+
     100% {
         background-position: 0% center;
     }
@@ -131,12 +131,10 @@
     font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
     margin: 0;
-    background: linear-gradient(
-        90deg,
-        rgba(12, 242, 180, 0.9) 0%,
-        rgba(255, 255, 255, 0.95) 50%,
-        rgba(12, 242, 180, 0.9) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(12, 242, 180, 0.9) 0%,
+            rgba(255, 255, 255, 0.95) 50%,
+            rgba(12, 242, 180, 0.9) 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -307,13 +305,76 @@
 @media (max-width: 1200px) {
     .grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
     }
+
+    .votingActivity {
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+    }
+
+    .proposalsOverview {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+    }
+
+    .downloads {
+        grid-column: 1 / 2;
+        grid-row: 2 / 3;
+    }
+
+    .useCases {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+    }
+
+    .contributors {
+        grid-column: 1 / 3;
+        grid-row: 3 / 4;
+    }
+
     .votingActivity,
     .proposalsOverview,
     .downloads,
     .useCases,
     .contributors {
         min-height: 340px;
+    }
+}
+
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .votingActivity,
+    .proposalsOverview,
+    .downloads,
+    .useCases,
+    .contributors {
+        grid-column: 1;
+        min-height: 300px;
+    }
+
+    .votingActivity {
+        grid-row: 1;
+    }
+
+    .proposalsOverview {
+        grid-row: 2;
+    }
+
+    .downloads {
+        grid-row: 3;
+    }
+
+    .useCases {
+        grid-row: 4;
+    }
+
+    .contributors {
+        grid-row: 5;
     }
 }
 
@@ -324,10 +385,11 @@
 
     .section {
         border-radius: 16px;
+        min-height: 260px;
     }
 
     .sectionHeader {
-        padding: 1.5rem;
+        padding: 1.25rem;
     }
 
     .table th,
@@ -340,22 +402,14 @@
         display: none;
     }
 
-    .grid {
-        grid-template-columns: 1fr;
-    }
-
-    .votingActivity,
-    .proposalsOverview,
-    .downloads,
-    .useCases,
-    .contributors {
-        min-height: 260px;
-    }
-
     .previewImage {
         aspect-ratio: 16/9;
         min-height: 120px;
         max-height: 180px;
+    }
+
+    .container {
+        padding: 1.5rem;
     }
 }
 
@@ -365,17 +419,12 @@
     }
 
     .grid {
-        grid-template-columns: 1fr;
         gap: 1rem;
+        margin: 1.5rem 0;
     }
 
-    .votingActivity,
-    .proposalsOverview,
-    .downloads,
-    .useCases,
-    .contributors {
-        grid-column: 1;
-        min-height: 300px;
+    .section {
+        min-height: 250px;
     }
 
     .title {
@@ -385,6 +434,34 @@
     .table th:nth-child(4),
     .table td:nth-child(4) {
         display: none;
+    }
+
+    .sectionHeader {
+        padding: 1rem;
+    }
+
+    .sectionContent {
+        padding: 1rem;
+    }
+
+    .mainHeader {
+        padding: 2rem 0;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section {
+        min-height: 220px;
+    }
+
+    .previewImage {
+        min-height: 100px;
+        max-height: 150px;
+    }
+
+    .sectionTitle {
+        font-size: 1.1rem;
     }
 }
 

@@ -12,7 +12,7 @@ interface MonthlyDownload {
 }
 
 export default function MeshStatsPage() {
-    const { meshData, isLoading, error } = useData();
+    const { meshData, discordStats, isLoading, error } = useData();
 
     // Create package data array for the filter generator
     const packageData = useMemo(() => {
@@ -75,6 +75,7 @@ export default function MeshStatsPage() {
             <MeshStatsView
                 currentStats={meshData.currentStats}
                 yearlyStats={meshData.yearlyStats}
+                discordStats={discordStats || undefined}
             />
         </div>
     );

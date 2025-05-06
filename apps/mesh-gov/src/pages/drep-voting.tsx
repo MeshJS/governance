@@ -35,45 +35,45 @@ export default function DRepVoting() {
 
     // Process delegation data for the growth chart
     const delegationTimelineData = useMemo(() => {
-        console.log('Raw delegation data:', drepVotingData?.delegationData?.timeline);
-        
+        // console.log('Raw delegation data:', drepVotingData?.delegationData?.timeline);
+
         if (!drepVotingData?.delegationData?.timeline?.epochs) {
-            console.log('No epochs data found');
-            return [];
-        }
-        
-        const currentEpoch = drepVotingData?.delegationData?.timeline?.current_epoch;
-        if (!currentEpoch) {
-            console.log('No current epoch found');
+            // console.log('No epochs data found');
             return [];
         }
 
-        console.log('Current epoch:', currentEpoch);
-        console.log('Available epochs:', Object.keys(drepVotingData.delegationData.timeline.epochs));
+        const currentEpoch = drepVotingData?.delegationData?.timeline?.current_epoch;
+        if (!currentEpoch) {
+            // console.log('No current epoch found');
+            return [];
+        }
+
+        // console.log('Current epoch:', currentEpoch);
+        // console.log('Available epochs:', Object.keys(drepVotingData.delegationData.timeline.epochs));
 
         const EPOCH_LENGTH_DAYS = 5;
         const MS_PER_DAY = 24 * 60 * 60 * 1000;
-        
+
         try {
             // Convert the timeline data into the format needed for the chart
             const timelineData = Object.entries(drepVotingData.delegationData.timeline.epochs)
                 .map(([epochStr, data]) => {
-                    console.log(`Processing epoch ${epochStr}:`, {
-                        rawVotingPower: data.voting_power_lovelace,
-                        rawDelegators: data.total_delegators,
-                        votingPowerInAda: parseFloat(data.voting_power_lovelace) / 1_000_000
-                    });
-                    
+                    // console.log(`Processing epoch ${epochStr}:`, {
+                    //     rawVotingPower: data.voting_power_lovelace,
+                    //     rawDelegators: data.total_delegators,
+                    //     votingPowerInAda: parseFloat(data.voting_power_lovelace) / 1_000_000
+                    // });
+
                     const epochNumber = parseInt(epochStr);
                     if (isNaN(epochNumber)) {
-                        console.log(`Invalid epoch number: ${epochStr}`);
+                        // console.log(`Invalid epoch number: ${epochStr}`);
                         return null;
                     }
 
                     // Calculate date based on epoch difference
                     const epochDiff = currentEpoch - epochNumber;
                     const date = new Date(Date.now() - (epochDiff * EPOCH_LENGTH_DAYS * MS_PER_DAY));
-                    
+
                     // Parse voting power with error handling
                     let totalAdaDelegated = 0;
                     try {
@@ -87,17 +87,17 @@ export default function DRepVoting() {
                         totalAdaDelegated,
                         totalDelegators: data.total_delegators || 0
                     };
-                    console.log(`Processed data point for epoch ${epochStr}:`, result);
+                    // console.log(`Processed data point for epoch ${epochStr}:`, result);
                     return result;
                 })
                 .filter((item): item is NonNullable<typeof item> => item !== null)
                 .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-            console.log('Final timeline data (sorted by date):', timelineData.map(d => ({
-                date: d.date.toISOString(),
-                totalAdaDelegated: d.totalAdaDelegated.toLocaleString(),
-                totalDelegators: d.totalDelegators
-            })));
+            // console.log('Final timeline data (sorted by date):', timelineData.map(d => ({
+            //     date: d.date.toISOString(),
+            //     totalAdaDelegated: d.totalAdaDelegated.toLocaleString(),
+            //     totalDelegators: d.totalDelegators
+            // })));
             return timelineData;
         } catch (error) {
             console.error('Error processing delegation timeline data:', error);
@@ -158,7 +158,8 @@ export default function DRepVoting() {
                 <div className={styles.drepId} onClick={() => {
                     navigator.clipboard.writeText('drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3');
                 }}>
-                    drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3
+                    <span className={styles.drepIdIndicator}></span>
+                    <span className={styles.drepIdText}>drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3</span>
                     <CopyIcon className={styles.copyIcon} />
                 </div>
             </div>

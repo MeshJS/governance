@@ -18,13 +18,13 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
     const [hoveredData, setHoveredData] = useState<DelegationDataPoint | null>(null);
 
     useEffect(() => {
-        console.log('Chart Data:', data);
+        // console.log('Chart Data:', data);
         if (!chartRef.current || !data || data.length === 0) {
-            console.log('Chart not rendering:', {
-                hasRef: !!chartRef.current,
-                hasData: !!data,
-                dataLength: data?.length
-            });
+            // console.log('Chart not rendering:', {
+            //     hasRef: !!chartRef.current,
+            //     hasData: !!data,
+            //     dataLength: data?.length
+            // });
             return;
         }
 
@@ -36,7 +36,7 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
         const width = chartRef.current.clientWidth - margin.left - margin.right;
         const height = 300 - margin.top - margin.bottom;
 
-        console.log('Chart dimensions:', { width, height });
+        // console.log('Chart dimensions:', { width, height });
 
         // Create SVG
         const svg = d3.select(chartRef.current)

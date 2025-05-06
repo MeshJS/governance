@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import fetchData from '../lib/fetchData';
-import { MeshData, CatalystContextData, DRepVotingData, YearlyStats } from '../types';
+import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats } from '../types';
 
 interface DataContextType {
     meshData: MeshData | null;
     catalystData: CatalystContextData | null;
     drepVotingData: DRepVotingData | null;
+    discordStats: DiscordStats | null;
     isLoading: boolean;
     error: string | null;
     refetchData: () => Promise<void>;
@@ -16,10 +17,11 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 // Cache is enabled by default unless explicitly disabled via NEXT_PUBLIC_ENABLE_DEV_CACHE=false
 const CACHE_DURATION = process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE === 'false'
     ? 0
-    : 30 * 60 * 1000;
+    : 5 * 60 * 1000;
 const MESH_STORAGE_KEY = 'meshGovData';
 const CATALYST_STORAGE_KEY = 'catalystData';
 const DREP_VOTING_STORAGE_KEY = 'drepVotingData';
+const DISCORD_STATS_STORAGE_KEY = 'discordStats';
 
 // Utility function to check if localStorage is available
 const isLocalStorageAvailable = (): boolean => {
@@ -59,6 +61,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [meshData, setMeshData] = useState<MeshData | null>(null);
     const [catalystData, setCatalystData] = useState<CatalystContextData | null>(null);
     const [drepVotingData, setDrepVotingData] = useState<DRepVotingData | null>(null);
+    const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -190,6 +193,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const fetchDiscordStats = async () => {
+        try {
+            const data = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/refs/heads/main/mesh-gov-updates/discord-stats/stats.json');
+            const newData = {
+                stats: data,
+                lastFetched: Date.now()
+            };
+            safeSetItem(DISCORD_STATS_STORAGE_KEY, JSON.stringify(newData));
+            setDiscordStats(newData);
+        } catch (err) {
+            console.error('Error fetching Discord stats:', err);
+            setDiscordStats(null);
+        }
+    };
+
     const loadData = async () => {
         setIsLoading(true);
         setError(null);
@@ -199,7 +217,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 // console.log(isLocalStorageAvailable()
                 //     ? 'Cache disabled: Fetching fresh data'
                 //     : 'localStorage not available: Fetching fresh data');
-                await Promise.all([fetchMeshData(), fetchCatalystData(), fetchDRepVotingData()]);
+                await Promise.all([fetchMeshData(), fetchCatalystData(), fetchDRepVotingData(), fetchDiscordStats()]);
                 setIsLoading(false);
                 return;
             }
@@ -208,6 +226,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             const cachedMeshData = safeGetItem(MESH_STORAGE_KEY);
             const cachedCatalystData = safeGetItem(CATALYST_STORAGE_KEY);
             const cachedDRepVotingData = safeGetItem(DREP_VOTING_STORAGE_KEY);
+            const cachedDiscordStats = safeGetItem(DISCORD_STATS_STORAGE_KEY);
 
             if (cachedMeshData) {
                 const parsed = JSON.parse(cachedMeshData);
@@ -242,11 +261,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 }
             }
 
+            if (cachedDiscordStats) {
+                const parsed = JSON.parse(cachedDiscordStats);
+                const cacheAge = Date.now() - parsed.lastFetched;
+                if (cacheAge < CACHE_DURATION) {
+                    // console.log(`Using cached Discord stats (cache age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
+                    setDiscordStats(parsed);
+                } else {
+                    // console.log(`Discord stats cache expired (age: ${Math.round(cacheAge / 1000 / 60)} minutes), fetching fresh data`);
+                }
+            }
+
             // Fetch fresh data if cache is expired or missing
             await Promise.all([
                 (!cachedMeshData || Date.now() - JSON.parse(cachedMeshData).lastFetched >= CACHE_DURATION) && fetchMeshData(),
                 (!cachedCatalystData || Date.now() - JSON.parse(cachedCatalystData).lastFetched >= CACHE_DURATION) && fetchCatalystData(),
-                (!cachedDRepVotingData || Date.now() - JSON.parse(cachedDRepVotingData).lastFetched >= CACHE_DURATION) && fetchDRepVotingData()
+                (!cachedDRepVotingData || Date.now() - JSON.parse(cachedDRepVotingData).lastFetched >= CACHE_DURATION) && fetchDRepVotingData(),
+                (!cachedDiscordStats || Date.now() - JSON.parse(cachedDiscordStats).lastFetched >= CACHE_DURATION) && fetchDiscordStats()
             ]);
         } catch (err) {
             console.error('Error loading data:', err);
@@ -262,12 +293,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     const refetchData = async () => {
         setIsLoading(true);
-        await Promise.all([fetchMeshData(), fetchCatalystData(), fetchDRepVotingData()]);
+        await Promise.all([fetchMeshData(), fetchCatalystData(), fetchDRepVotingData(), fetchDiscordStats()]);
         setIsLoading(false);
     };
 
     return (
-        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, isLoading, error, refetchData }}>
+        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, isLoading, error, refetchData }}>
             {children}
         </DataContext.Provider>
     );

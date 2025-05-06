@@ -56,12 +56,44 @@
         padding: 1rem 0;
     }
 
+    .headerContainer {
+        margin-top: 1rem;
+    }
+
     .titleArea {
         width: 100%;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
     }
 
     .actions {
         width: 100%;
         justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .headerContainer {
+        margin-bottom: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .header {
+        padding: 0.75rem 0;
+    }
+
+    .title {
+        font-size: 1.35rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+        margin-top: 0.15rem;
     }
 }
