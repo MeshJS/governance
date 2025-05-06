@@ -30,6 +30,7 @@ export default function DRepVoting() {
     const { drepVotingData, isLoading, error } = useData();
     const router = useRouter();
     const [lastNavigationTime, setLastNavigationTime] = useState(0);
+    const [copied, setCopied] = useState(false);
 
     const votes = drepVotingData?.votes || [];
 
@@ -127,6 +128,12 @@ export default function DRepVoting() {
         setLastNavigationTime(now);
     };
 
+    const handleCopyDrepId = () => {
+        navigator.clipboard.writeText('drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+    };
+
     if (isLoading) {
         return (
             <div className={styles.container}>
@@ -155,12 +162,16 @@ export default function DRepVoting() {
                 <p className={styles.bioContent}>
                     Mesh is an open-source project focused on building quality developer tools for Web3 builders at the Cardano Ecosystem. The Mesh DRep is operated collectively by core Mesh contributors. Our votes are submitted and signed onchain via a Multisignature account.
                 </p>
-                <div className={styles.drepId} onClick={() => {
-                    navigator.clipboard.writeText('drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3');
-                }}>
+                <div className={styles.drepId} onClick={handleCopyDrepId}>
                     <span className={styles.drepIdIndicator}></span>
-                    <span className={styles.drepIdText}>drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3</span>
-                    <CopyIcon className={styles.copyIcon} />
+                    <span className={styles.drepIdText}>
+                        <span className={styles.drepIdFull}>drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3</span>
+                        <span className={styles.drepIdShort}>drep1yv4ues...naqkpeas3</span>
+                    </span>
+                    {copied ?
+                        <span className={`${styles.copyIcon} ${styles.copied}`}>✓</span> :
+                        <CopyIcon className={styles.copyIcon} />
+                    }
                 </div>
             </div>
 
