@@ -36,7 +36,7 @@
     -webkit-backdrop-filter: blur(12px) saturate(180%);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 
+    box-shadow:
         0 4px 24px -1px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.05) inset;
     position: relative;
@@ -74,7 +74,7 @@
 .summaryCard:hover {
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    box-shadow:
         0 8px 32px -4px rgba(0, 0, 0, 0.3),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     background: linear-gradient(165deg,
@@ -108,18 +108,18 @@
 
 .contributorsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
     padding: 1.5rem;
     max-width: 1400px;
     margin: 0 auto;
+    width: 100%;
 }
 
 .contributorCard {
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
+    background: linear-gradient(165deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 12px;
@@ -133,6 +133,8 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    height: 100%;
+    width: 100%;
 }
 
 .contributorHeader {
@@ -193,7 +195,7 @@
 .contributorCard:hover {
     transform: translateY(-4px);
     border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    box-shadow:
         0 8px 32px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
@@ -227,6 +229,7 @@
     flex-direction: row;
     gap: 0.75rem;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .repoBreakdown {
@@ -239,6 +242,8 @@
     border-radius: 6px;
     transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     min-width: 120px;
+    max-width: 100%;
+    flex: 1 1 auto;
 }
 
 .repoColor {
@@ -251,12 +256,12 @@
 }
 
 .repoInfo {
-    flex: 1;
-    min-width: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
+    width: 100%;
+    overflow: hidden;
 }
 
 .repoName {
@@ -265,6 +270,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 70%;
 }
 
 .repoPercentage {
@@ -295,21 +301,17 @@
 }
 
 .badge.topContributor {
-    background: linear-gradient(
-        45deg,
-        rgba(255, 215, 0, 0.1),
-        rgba(255, 215, 0, 0.05)
-    );
+    background: linear-gradient(45deg,
+            rgba(255, 215, 0, 0.1),
+            rgba(255, 215, 0, 0.05));
     border-color: rgba(255, 215, 0, 0.2);
     color: rgba(255, 215, 0, 0.8);
 }
 
 .badge.multiRepo {
-    background: linear-gradient(
-        45deg,
-        rgba(147, 51, 234, 0.1),
-        rgba(147, 51, 234, 0.05)
-    );
+    background: linear-gradient(45deg,
+            rgba(147, 51, 234, 0.1),
+            rgba(147, 51, 234, 0.05));
     border-color: rgba(147, 51, 234, 0.2);
     color: rgba(147, 51, 234, 0.8);
 }
@@ -324,10 +326,9 @@
     flex-direction: column;
     gap: 1.5rem;
     padding: 2rem;
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
+    background: linear-gradient(165deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 16px;
@@ -371,6 +372,25 @@
     transform: translateY(-1px);
 }
 
+@media (max-width: 1200px) {
+    .contributorsGrid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .summaryCards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .contributorsGrid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
@@ -387,8 +407,8 @@
     }
 
     .contributorsGrid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        padding: 1rem;
+        grid-template-columns: 1fr;
+        padding: 0.75rem;
         gap: 1rem;
     }
 
@@ -423,6 +443,7 @@
 
     .repoBreakdown {
         width: 100%;
+        min-width: unset;
     }
 
     .repoName,
@@ -439,17 +460,95 @@
         width: auto;
         margin: 0 auto;
     }
-    
+
     .summaryCards {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
     .summaryContainer {
         gap: 1rem;
     }
 
     .topRepos {
         flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0.75rem;
+        gap: 1rem;
+    }
+
+    .contributorsGrid {
+        padding: 0.5rem;
+        gap: 0.75rem;
+    }
+
+    .contributorCard {
+        padding: 0.875rem;
+    }
+
+    .statItem {
+        padding: 0.5rem;
+    }
+
+    .contributorHeader {
+        gap: 0.75rem;
+    }
+
+    .avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .summaryNumber {
+        font-size: 2rem;
+    }
+
+    .summaryCard {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .contributorHeader {
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .username {
+        font-size: 0.875rem;
+    }
+
+    .statValue {
+        font-size: 0.875rem;
+    }
+
+    .statLabel {
+        font-size: 0.5625rem;
+    }
+
+    .repoName {
+        font-size: 0.5625rem;
+    }
+
+    .repoPercentage {
+        font-size: 0.5625rem;
+    }
+
+    .badges {
+        gap: 0.25rem;
+    }
+
+    .badge {
+        font-size: 0.5rem;
+        padding: 0.15rem 0.3rem;
     }
 }

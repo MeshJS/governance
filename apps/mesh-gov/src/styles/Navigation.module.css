@@ -3,10 +3,9 @@
     top: 1.5rem;
     left: 1.5rem;
     width: 250px;
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
+    background: linear-gradient(165deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 16px;
@@ -63,9 +62,8 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.03) 0%,
-        rgba(255, 255, 255, 0) 100%
-    );
+            rgba(255, 255, 255, 0.03) 0%,
+            rgba(255, 255, 255, 0) 100%);
     opacity: 0;
     transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
@@ -75,14 +73,12 @@
     content: '';
     position: absolute;
     inset: -100%;
-    background: linear-gradient(
-        45deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.03) 30%,
-        rgba(255, 255, 255, 0.06) 50%,
-        rgba(255, 255, 255, 0.03) 70%,
-        transparent 100%
-    );
+    background: linear-gradient(45deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.03) 30%,
+            rgba(255, 255, 255, 0.06) 50%,
+            rgba(255, 255, 255, 0.03) 70%,
+            transparent 100%);
     transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     transform: translateX(-100%) rotate(45deg);
     pointer-events: none;
@@ -93,12 +89,10 @@
 }
 
 .navItem:hover .label {
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.8) 0%,
-        rgba(12, 242, 180, 0.8) 50%,
-        rgba(255, 255, 255, 0.8) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.8) 0%,
+            rgba(12, 242, 180, 0.8) 50%,
+            rgba(255, 255, 255, 0.8) 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -168,12 +162,10 @@
 }
 
 .navItem.active {
-    background: linear-gradient(
-        90deg,
-        rgba(12, 242, 180, 0.9) 0%,
-        rgba(255, 255, 255, 0.95) 50%,
-        rgba(12, 242, 180, 0.9) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(12, 242, 180, 0.9) 0%,
+            rgba(255, 255, 255, 0.95) 50%,
+            rgba(12, 242, 180, 0.9) 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -194,9 +186,11 @@
     0% {
         transform: translateY(0px);
     }
+
     50% {
         transform: translateY(-2px);
     }
+
     100% {
         transform: translateY(0px);
     }
@@ -206,9 +200,11 @@
     0% {
         background-position: 0% center;
     }
+
     50% {
         background-position: 100% center;
     }
+
     100% {
         background-position: 0% center;
     }
@@ -228,12 +224,10 @@
 .active .label {
     font-weight: 600;
     letter-spacing: 0.02em;
-    background: linear-gradient(
-        90deg,
-        rgba(12, 242, 180, 0.9) 0%,
-        rgba(255, 255, 255, 0.95) 50%,
-        rgba(12, 242, 180, 0.9) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(12, 242, 180, 0.9) 0%,
+            rgba(255, 255, 255, 0.95) 50%,
+            rgba(12, 242, 180, 0.9) 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -248,11 +242,11 @@
     width: 100%;
     margin: 0;
     padding: 1rem;
-    border-radius: 0;
-    border-top: 0;
-    border-left: 0;
-    border-right: 0;
+    height: auto;
     max-height: none;
+    border-radius: 0;
+    position: fixed;
+    z-index: 1010;
 }
 
 /* Mobile responsive styles */
@@ -396,6 +390,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -406,10 +401,12 @@
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.2);
         opacity: 0.8;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;

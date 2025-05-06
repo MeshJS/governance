@@ -158,7 +158,8 @@ export default function DRepVoting() {
                 <div className={styles.drepId} onClick={() => {
                     navigator.clipboard.writeText('drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3');
                 }}>
-                    drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3
+                    <span className={styles.drepIdIndicator}></span>
+                    <span className={styles.drepIdText}>drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3</span>
                     <CopyIcon className={styles.copyIcon} />
                 </div>
             </div>
