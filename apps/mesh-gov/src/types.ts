@@ -77,6 +77,8 @@ export interface ContributorRepository {
     commits: number;
     pull_requests: number;
     contributions: number;
+    commit_timestamps: string[];
+    pr_timestamps: string[];
 }
 
 export interface Contributor {
@@ -116,6 +118,13 @@ export interface CurrentStats {
         npm_stat_compare_url: string;
     };
     contributors: {
+        unique_count: number;
+        contributors: Contributor[];
+        total_pull_requests: number;
+        total_commits: number;
+        total_contributions: number;
+    };
+    contributorsData: {
         unique_count: number;
         contributors: Contributor[];
         total_pull_requests: number;

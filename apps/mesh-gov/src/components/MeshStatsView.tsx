@@ -384,15 +384,15 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                             <p>{formatNumber(currentStats.github.core_in_repositories)}</p>
                         </div>
 
-                        {currentStats.contributors?.unique_count && (
+                        {currentStats.contributorsData?.unique_count && (
                             <div className={styles.stat}>
                                 <h3>GitHub Contributors</h3>
-                                <p>{formatNumber(currentStats.contributors.unique_count)}</p>
+                                <p>{formatNumber(currentStats.contributorsData.unique_count)}</p>
                             </div>
                         )}
                         <div className={styles.stat}>
                             <h3>Total Contributions</h3>
-                            <p>{formatNumber(currentStats.contributors.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
+                            <p>{formatNumber(currentStats.contributorsData.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
                         </div>
                     </div>
                 </div>
