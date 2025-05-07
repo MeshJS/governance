@@ -153,12 +153,7 @@ export default function Contributors({ contributors }: ContributorsProps) {
 
             {showModal && selectedContributor && (
                 <ContributorModal
-                    username={selectedContributor.login}
-                    avatar={selectedContributor.avatar_url}
-                    totalContributions={selectedContributor.contributions}
-                    totalCommits={selectedContributor.commits}
-                    totalPullRequests={selectedContributor.pull_requests}
-                    repositories={selectedContributor.repositories}
+                    contributor={selectedContributor}
                     onClose={() => {
                         setShowModal(false);
                         setSelectedContributor(null);
