@@ -4,8 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Dashboard() {
-    const { meshData, catalystData, drepVotingData, discordStats,isLoading, error } = useData();
-    //console.log(meshData, catalystData, drepVotingData, discordStats, isLoading, error);
+    const { meshData, catalystData, drepVotingData, contributorStats, discordStats, isLoading, error } = useData();
+    console.log(meshData, catalystData, drepVotingData, contributorStats, discordStats, isLoading, error);
     if (isLoading) {
         return (
             <div className={styles.container}>

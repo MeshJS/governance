@@ -1,16 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import fetchData from '../lib/fetchData';
-import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats } from '../types';
-
-interface DataContextType {
-    meshData: MeshData | null;
-    catalystData: CatalystContextData | null;
-    drepVotingData: DRepVotingData | null;
-    discordStats: DiscordStats | null;
-    isLoading: boolean;
-    error: string | null;
-    refetchData: () => Promise<void>;
-}
+import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType } from '../types';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -22,6 +12,7 @@ const MESH_STORAGE_KEY = 'meshGovData';
 const CATALYST_STORAGE_KEY = 'catalystData';
 const DREP_VOTING_STORAGE_KEY = 'drepVotingData';
 const DISCORD_STATS_STORAGE_KEY = 'discordStats';
+const CONTRIBUTOR_STATS_STORAGE_KEY = 'contributorStats';
 
 // Utility function to check if localStorage is available
 const isLocalStorageAvailable = (): boolean => {
@@ -62,6 +53,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [catalystData, setCatalystData] = useState<CatalystContextData | null>(null);
     const [drepVotingData, setDrepVotingData] = useState<DRepVotingData | null>(null);
     const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
+    const [contributorStats, setContributorStats] = useState<Record<number, ContributorStats> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -159,9 +151,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 .sort((a, b) => new Date(b.blockTime).getTime() - new Date(a.blockTime).getTime());
 
             // Fetch delegation data
-            console.log('Fetching delegation data...');
+            //console.log('Fetching delegation data...');
             const delegationData = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/main/mesh-gov-updates/drep-voting/drep-delegation-info.json');
-            console.log('Received delegation data:', delegationData);
+            //console.log('Received delegation data:', delegationData);
 
             const newData: DRepVotingData = {
                 votes: allVotes,
@@ -169,7 +161,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 lastFetched: Date.now()
             };
 
-            console.log('Setting DRep voting data:', newData);
+           // console.log('Setting DRep voting data:', newData);
             safeSetItem(DREP_VOTING_STORAGE_KEY, JSON.stringify(newData));
             setDrepVotingData(newData);
         } catch (err) {
@@ -208,34 +200,72 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const fetchContributorStats = async () => {
+        try {
+            const currentYear = getCurrentYear();
+            const startYear = 2022;
+            const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i);
+
+            // Fetch yearly contributor stats
+            const yearlyStatsPromises = years.map(year =>
+                fetchData(`https://raw.githubusercontent.com/Signius/mesh-automations/refs/heads/main/mesh-gov-updates/mesh-stats/contributions/contributors-${year}.json`)
+                    .catch(error => {
+                        console.warn(`Failed to fetch contributor stats for year ${year}:`, error);
+                        return null;
+                    })
+            );
+
+            const yearlyStatsResults = await Promise.all(yearlyStatsPromises);
+
+            // Create yearlyStats object, filtering out null results
+            const yearlyStats = years.reduce((acc, year, index) => {
+                if (yearlyStatsResults[index] !== null) {
+                    acc[year] = yearlyStatsResults[index];
+                }
+                return acc;
+            }, {} as Record<number, ContributorStats>);
+
+            const newData = {
+                stats: yearlyStats,
+                lastFetched: Date.now()
+            };
+
+            safeSetItem(CONTRIBUTOR_STATS_STORAGE_KEY, JSON.stringify(newData));
+            setContributorStats(yearlyStats);
+        } catch (err) {
+            console.error('Error fetching contributor stats:', err);
+            setContributorStats(null);
+        }
+    };
+
     const loadData = async () => {
         setIsLoading(true);
         setError(null);
 
         try {
             if (process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE === 'false' || !isLocalStorageAvailable()) {
-                // console.log(isLocalStorageAvailable()
-                //     ? 'Cache disabled: Fetching fresh data'
-                //     : 'localStorage not available: Fetching fresh data');
-                await Promise.all([fetchMeshData(), fetchCatalystData(), fetchDRepVotingData(), fetchDiscordStats()]);
+                await Promise.all([
+                    fetchMeshData(),
+                    fetchCatalystData(),
+                    fetchDRepVotingData(),
+                    fetchDiscordStats(),
+                    fetchContributorStats()
+                ]);
                 setIsLoading(false);
                 return;
             }
 
-            // console.log('Cache enabled: Checking cache status...');
             const cachedMeshData = safeGetItem(MESH_STORAGE_KEY);
             const cachedCatalystData = safeGetItem(CATALYST_STORAGE_KEY);
             const cachedDRepVotingData = safeGetItem(DREP_VOTING_STORAGE_KEY);
             const cachedDiscordStats = safeGetItem(DISCORD_STATS_STORAGE_KEY);
+            const cachedContributorStats = safeGetItem(CONTRIBUTOR_STATS_STORAGE_KEY);
 
             if (cachedMeshData) {
                 const parsed = JSON.parse(cachedMeshData);
                 const cacheAge = Date.now() - parsed.lastFetched;
                 if (cacheAge < CACHE_DURATION) {
-                    // console.log(`Using cached mesh data (cache age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
                     setMeshData(parsed);
-                } else {
-                    // console.log(`Mesh data cache expired (age: ${Math.round(cacheAge / 1000 / 60)} minutes), fetching fresh data`);
                 }
             }
 
@@ -243,10 +273,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 const parsed = JSON.parse(cachedCatalystData);
                 const cacheAge = Date.now() - parsed.lastFetched;
                 if (cacheAge < CACHE_DURATION) {
-                    // console.log(`Using cached catalyst data (cache age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
                     setCatalystData(parsed);
-                } else {
-                    // console.log(`Catalyst data cache expired (age: ${Math.round(cacheAge / 1000 / 60)} minutes), fetching fresh data`);
                 }
             }
 
@@ -254,10 +281,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 const parsed = JSON.parse(cachedDRepVotingData);
                 const cacheAge = Date.now() - parsed.lastFetched;
                 if (cacheAge < CACHE_DURATION) {
-                    // console.log(`Using cached DRep voting data (cache age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
                     setDrepVotingData(parsed);
-                } else {
-                    // console.log(`DRep voting data cache expired (age: ${Math.round(cacheAge / 1000 / 60)} minutes), fetching fresh data`);
                 }
             }
 
@@ -265,10 +289,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 const parsed = JSON.parse(cachedDiscordStats);
                 const cacheAge = Date.now() - parsed.lastFetched;
                 if (cacheAge < CACHE_DURATION) {
-                    // console.log(`Using cached Discord stats (cache age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
                     setDiscordStats(parsed);
-                } else {
-                    // console.log(`Discord stats cache expired (age: ${Math.round(cacheAge / 1000 / 60)} minutes), fetching fresh data`);
+                }
+            }
+
+            if (cachedContributorStats) {
+                const parsed = JSON.parse(cachedContributorStats);
+                const cacheAge = Date.now() - parsed.lastFetched;
+                if (cacheAge < CACHE_DURATION) {
+                    setContributorStats(parsed.stats);
                 }
             }
 
@@ -277,7 +306,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 (!cachedMeshData || Date.now() - JSON.parse(cachedMeshData).lastFetched >= CACHE_DURATION) && fetchMeshData(),
                 (!cachedCatalystData || Date.now() - JSON.parse(cachedCatalystData).lastFetched >= CACHE_DURATION) && fetchCatalystData(),
                 (!cachedDRepVotingData || Date.now() - JSON.parse(cachedDRepVotingData).lastFetched >= CACHE_DURATION) && fetchDRepVotingData(),
-                (!cachedDiscordStats || Date.now() - JSON.parse(cachedDiscordStats).lastFetched >= CACHE_DURATION) && fetchDiscordStats()
+                (!cachedDiscordStats || Date.now() - JSON.parse(cachedDiscordStats).lastFetched >= CACHE_DURATION) && fetchDiscordStats(),
+                (!cachedContributorStats || Date.now() - JSON.parse(cachedContributorStats).lastFetched >= CACHE_DURATION) && fetchContributorStats()
             ]);
         } catch (err) {
             console.error('Error loading data:', err);
@@ -293,12 +323,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     const refetchData = async () => {
         setIsLoading(true);
-        await Promise.all([fetchMeshData(), fetchCatalystData(), fetchDRepVotingData(), fetchDiscordStats()]);
+        await Promise.all([
+            fetchMeshData(),
+            fetchCatalystData(),
+            fetchDRepVotingData(),
+            fetchDiscordStats(),
+            fetchContributorStats()
+        ]);
         setIsLoading(false);
     };
 
     return (
-        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, isLoading, error, refetchData }}>
+        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, isLoading, error, refetchData }}>
             {children}
         </DataContext.Provider>
     );
