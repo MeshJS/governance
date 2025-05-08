@@ -8,8 +8,8 @@ import { useState } from 'react';
 import { Contributor } from '../types';
 import Link from 'next/link';
 import { FaUsers } from 'react-icons/fa';
-import { VscGitCommit, VscGitPullRequest } from 'react-icons/vsc';
-import { VscRepo } from 'react-icons/vsc';
+import { VscGitCommit, VscGitPullRequest, VscRepo } from 'react-icons/vsc';
+import ContributionTimeline from '../components/ContributionTimeline';
 
 // Generate a consistent color for a repository
 const getRepoColor = (repoName: string) => {
@@ -114,9 +114,16 @@ export default function Contributors() {
                                 <span className={styles.statValue}>{contributor.pull_requests}</span>
                             </div>
                             <div className={styles.statItem}>
-                                <span className={styles.statLabel}>Repositories</span>
+                                <span className={styles.statLabel}>Repos</span>
                                 <span className={styles.statValue}>{contributor.repositories.length}</span>
                             </div>
+                        </div>
+
+                        <div className={styles.timelineContainer}>
+                            <ContributionTimeline
+                                commitTimestamps={contributor.repositories.flatMap(repo => repo.commit_timestamps)}
+                                prTimestamps={contributor.repositories.flatMap(repo => repo.pr_timestamps)}
+                            />
                         </div>
 
                         <div className={styles.topRepos}>

@@ -4,6 +4,7 @@ import { Contributor } from '../types';
 import RepoDonutChart from './RepoDonutChart';
 import { IoClose } from 'react-icons/io5';
 import { FaGithub, FaCode, FaCodeBranch, FaCodePullRequest } from 'react-icons/fa6';
+import ContributionTimeline from './ContributionTimeline';
 
 interface ContributorModalProps {
     contributor: Contributor;
@@ -96,6 +97,15 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
                 </div>
 
                 <div className={styles.content}>
+                    <div className={styles.timelineContainer}>
+                        <ContributionTimeline
+                            commitTimestamps={contributor.repositories.flatMap(repo => repo.commit_timestamps)}
+                            prTimestamps={contributor.repositories.flatMap(repo => repo.pr_timestamps)}
+                            height={200}
+                            showAxis={false}
+                        />
+                    </div>
+
                     <h3 className={styles.sectionTitle}>Repository Contributions</h3>
                     <div className={styles.donutChartContainer}>
                         <RepoDonutChart repositories={sortedRepos} />
