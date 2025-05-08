@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function Dashboard() {
     const { meshData, catalystData, drepVotingData, contributorStats, discordStats, isLoading, error } = useData();
-    console.log(meshData, catalystData, drepVotingData, contributorStats, discordStats, isLoading, error);
+    //console.log(meshData, catalystData, drepVotingData, contributorStats, discordStats, isLoading, error);
     if (isLoading) {
         return (
             <div className={styles.container}>

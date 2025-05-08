@@ -124,13 +124,15 @@ export interface CurrentStats {
         total_commits: number;
         total_contributions: number;
     };
-    contributorsData: {
-        unique_count: number;
-        contributors: Contributor[];
-        total_pull_requests: number;
-        total_commits: number;
-        total_contributions: number;
-    };
+}
+
+export interface ContributorsData {
+    unique_count: number;
+    contributors: Contributor[];
+    total_pull_requests: number;
+    total_commits: number;
+    total_contributions: number;
+    lastFetched: number;
 }
 
 // Context Types
@@ -235,6 +237,7 @@ export interface DataContextType {
     drepVotingData: DRepVotingData | null;
     discordStats: DiscordStats | null;
     contributorStats: Record<number, ContributorStats> | null;
+    contributorsData: ContributorsData | null;
     isLoading: boolean;
     error: string | null;
     refetchData: () => Promise<void>;
@@ -245,4 +248,5 @@ export interface MeshStatsViewProps {
     yearlyStats: Record<number, YearlyStats>;
     filteredStats?: FilteredStats;
     discordStats?: DiscordStats;
+    contributorsData?: ContributorsData;
 } 

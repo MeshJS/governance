@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 import styles from '../styles/MeshStats.module.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps, LineChart, Line } from 'recharts';
-import { YearlyStats, PackageData, MeshStatsViewProps, DiscordStats } from '../types';
+import { YearlyStats, PackageData, MeshStatsViewProps, DiscordStats, ContributorsData } from '../types';
 
 const formatNumber = (num: number | undefined): string => {
     if (num === undefined) return '0';
@@ -275,7 +275,7 @@ const CustomSingleLineChart = ({ data, chartId, dataKey, name, stroke, yAxisDoma
     </ResponsiveContainer>
 );
 
-const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats }) => {
+const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorsData }) => {
     // Use all package data
     const packageData = currentStats?.npm ? [
         { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
@@ -384,16 +384,18 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                             <p>{formatNumber(currentStats.github.core_in_repositories)}</p>
                         </div>
 
-                        {currentStats.contributorsData?.unique_count && (
+                        {contributorsData && contributorsData.unique_count && (
                             <div className={styles.stat}>
                                 <h3>GitHub Contributors</h3>
-                                <p>{formatNumber(currentStats.contributorsData.unique_count)}</p>
+                                <p>{formatNumber(contributorsData.unique_count)}</p>
                             </div>
                         )}
-                        <div className={styles.stat}>
-                            <h3>Total Contributions</h3>
-                            <p>{formatNumber(currentStats.contributorsData.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
-                        </div>
+                        {contributorsData && contributorsData.contributors && (
+                            <div className={styles.stat}>
+                                <h3>Total Contributions</h3>
+                                <p>{formatNumber(contributorsData.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

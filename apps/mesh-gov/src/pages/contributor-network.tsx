@@ -4,13 +4,11 @@ import ContributorNetwork from '../components/ContributorNetwork';
 import PageHeader from '../components/PageHeader';
 
 export default function ContributorNetworkPage() {
-    const { meshData, isLoading, error } = useData();
+    const { contributorsData, isLoading, error } = useData();
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
-    if (!meshData) return <div>No data available</div>;
-
-    const { contributorsData } = meshData.currentStats;
+    if (!contributorsData) return <div>No contributor data available</div>;
 
     return (
         <div className={styles.pageContainer}>

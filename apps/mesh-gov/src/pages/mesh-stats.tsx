@@ -1,18 +1,11 @@
 import MeshStatsView from '../components/MeshStatsView';
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/MeshStats.module.css';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import PageHeader from '../components/PageHeader';
-import { CurrentStats } from '../types';
-
-interface MonthlyDownload {
-    month: string;
-    downloads: number;
-    trend: string;
-}
 
 export default function MeshStatsPage() {
-    const { meshData, discordStats, isLoading, error } = useData();
+    const { meshData, discordStats, contributorsData, isLoading, error } = useData();
 
     // Create package data array for the filter generator
     const packageData = useMemo(() => {
@@ -76,6 +69,7 @@ export default function MeshStatsPage() {
                 currentStats={meshData.currentStats}
                 yearlyStats={meshData.yearlyStats}
                 discordStats={discordStats || undefined}
+                contributorsData={contributorsData?.unique_count ? contributorsData : undefined}
             />
         </div>
     );

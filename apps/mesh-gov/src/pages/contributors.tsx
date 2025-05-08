@@ -5,7 +5,6 @@ import PageHeader from '../components/PageHeader';
 import ContributorModal from '../components/ContributorModal';
 import { useState } from 'react';
 import { Contributor } from '../types';
-import Link from 'next/link';
 import { FaUsers } from 'react-icons/fa';
 import { VscGitCommit, VscGitPullRequest, VscRepo } from 'react-icons/vsc';
 import ContributionTimeline from '../components/ContributionTimeline';
@@ -16,14 +15,50 @@ const getRepoColor = (repoName: string) => {
 };
 
 export default function Contributors() {
-    const { meshData, isLoading, error } = useData();
+    const { contributorsData, isLoading, error } = useData();
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
-    if (!meshData) return <div>No data available</div>;
+    if (isLoading) {
+        return (
+            <div className={styles.container}>
+                <PageHeader
+                    title={<>Mesh <span>Contributors</span></>}
+                    subtitle="Loading contributor data..."
+                />
+                <div className={styles.loadingContainer}>
+                    <div className={styles.loadingSpinner} />
+                </div>
+            </div>
+        );
+    }
 
-    const { contributorsData } = meshData.currentStats;
+    if (error) {
+        return (
+            <div className={styles.container}>
+                <PageHeader
+                    title={<>Mesh <span>Contributors</span></>}
+                    subtitle="Error loading contributor data"
+                />
+                <div className={styles.errorContainer}>
+                    <p>Error: {error}</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!contributorsData) {
+        return (
+            <div className={styles.container}>
+                <PageHeader
+                    title={<>Mesh <span>Contributors</span></>}
+                    subtitle="No contributor data available"
+                />
+                <div className={styles.errorContainer}>
+                    <p>No contributor data is currently available.</p>
+                </div>
+            </div>
+        );
+    }
 
     // Calculate total unique repositories
     const uniqueRepos = new Set();

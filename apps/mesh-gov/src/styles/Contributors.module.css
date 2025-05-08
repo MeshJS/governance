@@ -149,9 +149,9 @@
 
 .username {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0;
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin: -8px 0 0 0;
+    font-weight: 700;
 }
 
 .contributorStats {
@@ -621,4 +621,42 @@
     padding: 0;
     background: transparent;
     border-radius: 4px;
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    width: 100%;
+}
+
+.loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-left-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.errorContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    width: 100%;
+    color: #ff6b6b;
+    text-align: center;
+    padding: 20px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }

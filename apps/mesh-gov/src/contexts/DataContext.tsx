@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import fetchData from '../lib/fetchData';
-import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType } from '../types';
+import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, ContributorsData } from '../types';
 import { aggregateContributorStats } from '../utils/contributorStats';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -14,6 +14,7 @@ const CATALYST_STORAGE_KEY = 'catalystData';
 const DREP_VOTING_STORAGE_KEY = 'drepVotingData';
 const DISCORD_STATS_STORAGE_KEY = 'discordStats';
 const CONTRIBUTOR_STATS_STORAGE_KEY = 'contributorStats';
+const CONTRIBUTORS_DATA_STORAGE_KEY = 'contributorsData';
 
 // Utility function to check if localStorage is available
 const isLocalStorageAvailable = (): boolean => {
@@ -55,6 +56,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [drepVotingData, setDrepVotingData] = useState<DRepVotingData | null>(null);
     const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
     const [contributorStats, setContributorStats] = useState<Record<number, ContributorStats> | null>(null);
+    const [contributorsData, setContributorsData] = useState<ContributorsData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -152,9 +154,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 .sort((a, b) => new Date(b.blockTime).getTime() - new Date(a.blockTime).getTime());
 
             // Fetch delegation data
-            //console.log('Fetching delegation data...');
+            // console.log('Fetching delegation data...');
             const delegationData = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/main/mesh-gov-updates/drep-voting/drep-delegation-info.json');
-            //console.log('Received delegation data:', delegationData);
+            // console.log('Received delegation data:', delegationData);
 
             const newData: DRepVotingData = {
                 votes: allVotes,
@@ -207,8 +209,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             const startYear = 2022;
             const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i);
 
-            console.log('Fetching contributor stats for years:', years);
-
             // Fetch yearly contributor stats
             const yearlyStatsPromises = years.map(year =>
                 fetchData(`https://raw.githubusercontent.com/Signius/mesh-automations/refs/heads/main/mesh-gov-updates/mesh-stats/contributions/contributors-${year}.json`)
@@ -219,7 +219,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             );
 
             const yearlyStatsResults = await Promise.all(yearlyStatsPromises);
-            console.log('Yearly stats results:', yearlyStatsResults);
 
             // Create yearlyStats object, filtering out null results
             const yearlyStats = years.reduce((acc, year, index) => {
@@ -229,11 +228,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 return acc;
             }, {} as Record<number, ContributorStats>);
 
-            console.log('Processed yearly stats:', yearlyStats);
-
             // Aggregate contributor stats
             const aggregatedContributors = aggregateContributorStats(yearlyStats);
-            console.log('Aggregated contributors:', aggregatedContributors);
 
             // Calculate totals
             const totals = aggregatedContributors.reduce((acc, contributor) => ({
@@ -246,8 +242,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 total_contributions: 0
             });
 
-            console.log('Calculated totals:', totals);
-
             const newData = {
                 stats: yearlyStats,
                 lastFetched: Date.now()
@@ -256,32 +250,20 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             safeSetItem(CONTRIBUTOR_STATS_STORAGE_KEY, JSON.stringify(newData));
             setContributorStats(yearlyStats);
 
-            // Update meshData with aggregated contributors
-            setMeshData(prevMeshData => {
-                if (!prevMeshData) {
-                    console.log('No meshData available to update');
-                    return null;
-                }
+            // Create and store contributors data separately
+            const newContributorsData: ContributorsData = {
+                unique_count: aggregatedContributors.length,
+                contributors: aggregatedContributors,
+                ...totals,
+                lastFetched: Date.now()
+            };
 
-                console.log('Current meshData:', prevMeshData);
-                const updatedMeshData = {
-                    ...prevMeshData,
-                    currentStats: {
-                        ...prevMeshData.currentStats,
-                        contributorsData: {
-                            unique_count: aggregatedContributors.length,
-                            contributors: aggregatedContributors,
-                            ...totals
-                        }
-                    }
-                };
-                console.log('Updated meshData:', updatedMeshData);
-                safeSetItem(MESH_STORAGE_KEY, JSON.stringify(updatedMeshData));
-                return updatedMeshData;
-            });
+            safeSetItem(CONTRIBUTORS_DATA_STORAGE_KEY, JSON.stringify(newContributorsData));
+            setContributorsData(newContributorsData);
         } catch (err) {
             console.error('Error fetching contributor stats:', err);
             setContributorStats(null);
+            setContributorsData(null);
         }
     };
 
@@ -309,6 +291,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             const cachedDRepVotingData = safeGetItem(DREP_VOTING_STORAGE_KEY);
             const cachedDiscordStats = safeGetItem(DISCORD_STATS_STORAGE_KEY);
             const cachedContributorStats = safeGetItem(CONTRIBUTOR_STATS_STORAGE_KEY);
+            const cachedContributorsData = safeGetItem(CONTRIBUTORS_DATA_STORAGE_KEY);
 
             // First handle mesh data
             if (cachedMeshData) {
@@ -349,6 +332,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 const cacheAge = Date.now() - parsed.lastFetched;
                 if (cacheAge < CACHE_DURATION) {
                     setContributorStats(parsed.stats);
+                }
+            }
+
+            if (cachedContributorsData) {
+                const parsed = JSON.parse(cachedContributorsData);
+                const cacheAge = Date.now() - parsed.lastFetched;
+                if (cacheAge < CACHE_DURATION) {
+                    setContributorsData(parsed);
                 }
             }
 
@@ -400,7 +391,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, isLoading, error, refetchData }}>
+        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, contributorsData, isLoading, error, refetchData }}>
             {children}
         </DataContext.Provider>
     );
