@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import Image from 'next/image';
 import styles from '../styles/ContributorModal.module.css';
 import { Contributor } from '../types';
 import RepoDonutChart from './RepoDonutChart';
@@ -56,7 +57,7 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
             </button>
             <div className={styles.modal} ref={modalRef}>
                 <div className={styles.contributorHeader}>
-                    <img
+                    <Image
                         src={contributor.avatar_url}
                         alt={`${contributor.login}'s avatar`}
                         width={80}
