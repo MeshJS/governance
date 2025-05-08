@@ -28,15 +28,13 @@
     padding: 1.5rem;
     text-align: center;
     background: linear-gradient(165deg,
-            rgba(0, 0, 0, 0.3) 0%,
-            rgba(0, 0, 0, 0.2) 100%);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
+            rgba(255, 255, 255, 0.04) 0%,
+            rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow:
-        0 4px 24px -1px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px -1px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
     transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
@@ -70,14 +68,14 @@
 }
 
 .summaryCard:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
     border-color: rgba(255, 255, 255, 0.15);
     box-shadow:
-        0 8px 32px -4px rgba(0, 0, 0, 0.3),
+        0 8px 32px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     background: linear-gradient(165deg,
-            rgba(0, 0, 0, 0.35) 0%,
-            rgba(0, 0, 0, 0.25) 100%);
+            rgba(255, 255, 255, 0.06) 0%,
+            rgba(255, 255, 255, 0.02) 100%);
 }
 
 .summaryCard:hover::before {
@@ -151,9 +149,9 @@
 
 .username {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0;
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin: -8px 0 0 0;
+    font-weight: 700;
 }
 
 .contributorStats {
@@ -614,4 +612,51 @@
     margin-bottom: 0.5rem;
     color: var(--primary-color, rgba(255, 255, 255, 0.7));
     opacity: 0.8;
+}
+
+.timelineContainer {
+    width: 100%;
+    height: 60px;
+    margin: 10px 0;
+    padding: 0;
+    background: transparent;
+    border-radius: 4px;
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    width: 100%;
+}
+
+.loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-left-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.errorContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    width: 100%;
+    color: #ff6b6b;
+    text-align: center;
+    padding: 20px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
