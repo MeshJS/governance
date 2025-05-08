@@ -1,6 +1,5 @@
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/Contributors.module.css';
-import BaseCard from '../components/ContributorCard';
 import Image from 'next/image';
 import PageHeader from '../components/PageHeader';
 import ContributorModal from '../components/ContributorModal';
@@ -48,7 +47,7 @@ export default function Contributors() {
 
             <div className={styles.summaryContainer}>
                 <div className={styles.summaryCards}>
-                    <BaseCard className={styles.summaryCard}>
+                    <div className={`${styles.summaryCard} ${styles.card}`}>
                         <div className={styles.summaryContent}>
                             <div className={styles.statColumn}>
                                 <FaUsers className={styles.summaryIcon} />
@@ -61,9 +60,9 @@ export default function Contributors() {
                                 <p className={styles.summaryNumber}>{totalUniqueRepos}</p>
                             </div>
                         </div>
-                    </BaseCard>
+                    </div>
 
-                    <BaseCard className={styles.summaryCard}>
+                    <div className={`${styles.summaryCard} ${styles.card}`}>
                         <div className={styles.summaryContent}>
                             <div className={styles.statColumn}>
                                 <VscGitCommit className={styles.summaryIcon} />
@@ -76,7 +75,7 @@ export default function Contributors() {
                                 <p className={styles.summaryNumber}>{contributorsData.total_pull_requests}</p>
                             </div>
                         </div>
-                    </BaseCard>
+                    </div>
                 </div>
             </div>
 
