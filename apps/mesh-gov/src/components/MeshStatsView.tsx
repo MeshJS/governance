@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 import styles from '../styles/MeshStats.module.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps, LineChart, Line } from 'recharts';
-import { YearlyStats, PackageData, MeshStatsViewProps, DiscordStats } from '../types';
+import { YearlyStats, PackageData, MeshStatsViewProps, DiscordStats, ContributorsData } from '../types';
 
 const formatNumber = (num: number | undefined): string => {
     if (num === undefined) return '0';
@@ -204,7 +204,78 @@ const CustomMultiLineChart = ({ data, chartId, lines }: CustomMultiLineChartProp
     </ResponsiveContainer>
 );
 
-const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats }) => {
+interface CustomSingleLineChartProps {
+    data: Array<{
+        month: string;
+        [key: string]: any;
+    }>;
+    chartId: string;
+    dataKey: string;
+    name: string;
+    stroke: string;
+    yAxisDomain?: [number | string, number | string];
+}
+
+// Add a custom tooltip specifically for Discord charts
+const CustomDiscordSingleTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length && payload[0].value !== undefined) {
+        return (
+            <div className={styles.customTooltip}>
+                <p className={styles.tooltipLabel}>{label}</p>
+                <p className={styles.tooltipValue}>
+                    {payload[0].name}: <span style={{ color: payload[0].stroke }}>{formatNumber(payload[0].value)}</span>
+                </p>
+            </div>
+        );
+    }
+    return null;
+};
+
+const CustomSingleLineChart = ({ data, chartId, dataKey, name, stroke, yAxisDomain }: CustomSingleLineChartProps) => (
+    <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+            <defs>
+                <linearGradient id={`lineGradient-${chartId}-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={stroke} stopOpacity="1" />
+                    <stop offset="100%" stopColor={stroke} stopOpacity="0.5" />
+                </linearGradient>
+            </defs>
+            <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255, 255, 255, 0.03)"
+                vertical={false}
+            />
+            <XAxis
+                dataKey="month"
+                axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
+                tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                dy={8}
+            />
+            <YAxis
+                axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
+                tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                domain={yAxisDomain || ['auto', 'auto']}
+            />
+            <Tooltip
+                content={<CustomDiscordSingleTooltip />}
+                cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+            />
+            <Line
+                type="monotone"
+                name={name}
+                dataKey={dataKey}
+                stroke={stroke}
+                strokeWidth={2}
+                dot={{ fill: stroke, strokeWidth: 2 }}
+                activeDot={{ r: 4, fill: stroke }}
+            />
+        </LineChart>
+    </ResponsiveContainer>
+);
+
+const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorsData }) => {
     // Use all package data
     const packageData = currentStats?.npm ? [
         { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
@@ -270,6 +341,18 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         });
     }, [discordStats]);
 
+    // Calculate the minimum member count to create a better visualization
+    const memberCountMin = useMemo(() => {
+        if (!discordStatsData.length) return 0;
+
+        // Find minimum member count
+        const min = Math.min(...discordStatsData.map(d => d.memberCount));
+
+        // Calculate a floor that's ~10% below the minimum (to add some space at the bottom)
+        // and round to a nice number
+        return Math.floor(min * 0.9 / 100) * 100;
+    }, [discordStatsData]);
+
     return (
         <div data-testid="mesh-stats-view">
             {currentStats?.npm?.downloads && (
@@ -301,16 +384,18 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                             <p>{formatNumber(currentStats.github.core_in_repositories)}</p>
                         </div>
 
-                        {currentStats.contributors?.unique_count && (
+                        {contributorsData && contributorsData.unique_count && (
                             <div className={styles.stat}>
                                 <h3>GitHub Contributors</h3>
-                                <p>{formatNumber(currentStats.contributors.unique_count)}</p>
+                                <p>{formatNumber(contributorsData.unique_count)}</p>
                             </div>
                         )}
-                        <div className={styles.stat}>
-                            <h3>Total Contributions</h3>
-                            <p>{formatNumber(currentStats.contributors.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
-                        </div>
+                        {contributorsData && contributorsData.contributors && (
+                            <div className={styles.stat}>
+                                <h3>Total Contributions</h3>
+                                <p>{formatNumber(contributorsData.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
@@ -358,7 +443,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                 </div>
             )}
 
-            {/* Add Discord stats summary and chart */}
+            {/* Discord stats summary and charts */}
             {discordStatsData.length > 0 && (
                 <>
                     <div className={styles.githubStats}>
@@ -379,17 +464,44 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                         </div>
                     </div>
 
+                    <div className={styles.chartsGrid}>
+                        <div className={styles.chartSection}>
+                            <h2>Discord Active Users</h2>
+                            <div className={styles.chart}>
+                                <CustomSingleLineChart
+                                    data={discordStatsData}
+                                    chartId="discord-posters"
+                                    dataKey="uniquePosters"
+                                    name="Unique Posters"
+                                    stroke="#43B581"
+                                />
+                            </div>
+                        </div>
+
+                        <div className={styles.chartSection}>
+                            <h2>Discord Messages Activity</h2>
+                            <div className={styles.chart}>
+                                <CustomSingleLineChart
+                                    data={discordStatsData}
+                                    chartId="discord-messages"
+                                    dataKey="totalMessages"
+                                    name="Messages"
+                                    stroke="#FFFFFF"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
                     <div className={styles.chartSection}>
-                        <h2>Discord Community Activity</h2>
+                        <h2>Discord Members Growth</h2>
                         <div className={styles.chart}>
-                            <CustomMultiLineChart
+                            <CustomSingleLineChart
                                 data={discordStatsData}
-                                chartId="discord"
-                                lines={[
-                                    { dataKey: 'memberCount', name: 'Members', stroke: '#7289DA' },
-                                    { dataKey: 'totalMessages', name: 'Messages', stroke: '#FFFFFF' },
-                                    { dataKey: 'uniquePosters', name: 'Unique Posters', stroke: '#43B581' }
-                                ]}
+                                chartId="discord-members"
+                                dataKey="memberCount"
+                                name="Members"
+                                stroke="#7289DA"
+                                yAxisDomain={[memberCountMin, 'auto']}
                             />
                         </div>
                     </div>

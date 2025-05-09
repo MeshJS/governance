@@ -24,20 +24,24 @@
 
 .statsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
 }
 
 .stat {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 1rem;
-    padding: 2rem;
+    padding: 1.5rem;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100px;
 }
 
 .stat::before {
@@ -81,10 +85,12 @@
 }
 
 .stat p {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
     margin: 0;
+    line-height: 1.2;
+    word-break: break-word;
 }
 
 .githubStats,
@@ -180,13 +186,11 @@
 }
 
 .year {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 12px;
-    padding: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
@@ -197,26 +201,30 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 1px;
-    background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.1) 50%,
-            rgba(255, 255, 255, 0) 100%);
+    bottom: 0;
+    background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.06),
+            transparent 40%);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s;
+    z-index: 1;
 }
 
 .year:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow:
-        0 20px 40px -8px rgba(0, 0, 0, 0.4),
-        0 8px 16px -4px rgba(0, 0, 0, 0.2),
+        0 4px 24px -1px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
 
 .year:hover::before {
     opacity: 1;
+}
+
+.year>* {
+    position: relative;
+    z-index: 2;
 }
 
 .year h3 {
@@ -237,6 +245,16 @@
 @media (max-width: 768px) {
     .statsGrid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat {
+        padding: 1.25rem;
+        min-height: 90px;
+    }
+
+    .stat p {
+        font-size: 1.25rem;
     }
 
     .chart {
@@ -266,6 +284,21 @@
     .chart {
         padding: 1rem;
         height: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat {
+        padding: 1rem;
+        min-height: 80px;
+    }
+
+    .stat p {
+        font-size: 1.125rem;
     }
 }
 

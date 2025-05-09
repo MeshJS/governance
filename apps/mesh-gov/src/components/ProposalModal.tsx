@@ -23,6 +23,12 @@ interface ProposalModalProps {
 export default function ProposalModal({ proposal, onClose }: ProposalModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
     const [copiedHash, setCopiedHash] = useState<string | null>(null);
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+    const truncateHash = (hash: string) => {
+        if (!isSmallScreen) return hash;
+        return `${hash.slice(0, 4)}...${hash.slice(-4)}`;
+    };
 
     const handleCopy = async (text: string) => {
         try {
@@ -42,6 +48,19 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
     };
 
     useEffect(() => {
+        const checkScreenSize = () => {
+            setIsSmallScreen(window.innerWidth <= 768);
+        };
+
+        checkScreenSize();
+        window.addEventListener('resize', checkScreenSize);
+
+        return () => {
+            window.removeEventListener('resize', checkScreenSize);
+        };
+    }, []);
+
+    useEffect(() => {
         function handleEscape(e: KeyboardEvent) {
             if (e.key === 'Escape') onClose();
         }
@@ -57,14 +76,14 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
 
     return (
         <div className={styles.overlay} onClick={onClose}>
-            <div 
-                className={styles.modal} 
-                ref={modalRef} 
+            <div
+                className={styles.modal}
+                ref={modalRef}
                 onClick={e => e.stopPropagation()}
                 onMouseMove={handleMouseMove}
             >
-                <button 
-                    className={styles.closeButton} 
+                <button
+                    className={styles.closeButton}
                     onClick={onClose}
                     type="button"
                     aria-label="Close modal"
@@ -122,7 +141,7 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
                     <div className={styles.section}>
                         <h3 className={styles.sectionTitle}>Actions</h3>
                         <div className={styles.actions}>
-                            <a 
+                            <a
                                 href={`https://adastat.net/governances/${proposal.proposalTxHash}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -131,7 +150,7 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
                             >
                                 View Proposal
                             </a>
-                            <a 
+                            <a
                                 href={`https://adastat.net/transactions/${proposal.voteTxHash}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -149,7 +168,7 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
                             <div className={styles.txItem}>
                                 <span className={styles.txLabel}>Proposal Tx</span>
                                 <div className={styles.txCopyWrapper}>
-                                    <code className={styles.txHash}>{proposal.proposalTxHash}</code>
+                                    <code className={styles.txHash}>{truncateHash(proposal.proposalTxHash)}</code>
                                     <button
                                         className={styles.copyButton}
                                         onClick={() => handleCopy(proposal.proposalTxHash)}
@@ -157,12 +176,12 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
                                     >
                                         {copiedHash === proposal.proposalTxHash ? (
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
-                                                <path d="M13.5 4.5l-7 7L3 8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M13.5 4.5l-7 7L3 8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                             </svg>
                                         ) : (
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
-                                                <rect x="4" y="4" width="8" height="8" strokeWidth="1.5"/>
-                                                <path d="M11 4V3H5v1M11 13v1H5v-1" strokeWidth="1.5"/>
+                                                <rect x="4" y="4" width="8" height="8" strokeWidth="1.5" />
+                                                <path d="M11 4V3H5v1M11 13v1H5v-1" strokeWidth="1.5" />
                                             </svg>
                                         )}
                                     </button>
@@ -171,7 +190,7 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
                             <div className={styles.txItem}>
                                 <span className={styles.txLabel}>Vote Tx</span>
                                 <div className={styles.txCopyWrapper}>
-                                    <code className={styles.txHash}>{proposal.voteTxHash}</code>
+                                    <code className={styles.txHash}>{truncateHash(proposal.voteTxHash)}</code>
                                     <button
                                         className={styles.copyButton}
                                         onClick={() => handleCopy(proposal.voteTxHash)}
@@ -179,12 +198,12 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
                                     >
                                         {copiedHash === proposal.voteTxHash ? (
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
-                                                <path d="M13.5 4.5l-7 7L3 8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M13.5 4.5l-7 7L3 8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                             </svg>
                                         ) : (
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
-                                                <rect x="4" y="4" width="8" height="8" strokeWidth="1.5"/>
-                                                <path d="M11 4V3H5v1M11 13v1H5v-1" strokeWidth="1.5"/>
+                                                <rect x="4" y="4" width="8" height="8" strokeWidth="1.5" />
+                                                <path d="M11 4V3H5v1M11 13v1H5v-1" strokeWidth="1.5" />
                                             </svg>
                                         )}
                                     </button>
@@ -196,7 +215,7 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
                     {proposal.metaUrl && (
                         <div className={styles.section}>
                             <h3 className={styles.sectionTitle}>Additional Resources</h3>
-                            <a 
+                            <a
                                 href={proposal.metaUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"

@@ -74,12 +74,18 @@ export interface YearlyStats {
 
 export interface ContributorRepository {
     name: string;
+    commits: number;
+    pull_requests: number;
     contributions: number;
+    commit_timestamps: string[];
+    pr_timestamps: string[];
 }
 
 export interface Contributor {
     login: string;
     avatar_url: string;
+    commits: number;
+    pull_requests: number;
     contributions: number;
     repositories: ContributorRepository[];
 }
@@ -114,7 +120,19 @@ export interface CurrentStats {
     contributors: {
         unique_count: number;
         contributors: Contributor[];
+        total_pull_requests: number;
+        total_commits: number;
+        total_contributions: number;
     };
+}
+
+export interface ContributorsData {
+    unique_count: number;
+    contributors: Contributor[];
+    total_pull_requests: number;
+    total_commits: number;
+    total_contributions: number;
+    lastFetched: number;
 }
 
 // Context Types
@@ -161,16 +179,6 @@ export interface CatalystContextData {
     lastFetched: number;
 }
 
-export interface DataContextType {
-    meshData: MeshData | null;
-    catalystData: CatalystContextData | null;
-    drepVotingData: DRepVotingData | null;
-    discordStats: DiscordStats | null;
-    isLoading: boolean;
-    error: string | null;
-    refetchData: () => Promise<void>;
-}
-
 export interface MonthlyDownload {
     month: string;
     downloads: number;
@@ -200,9 +208,45 @@ export interface DiscordStats {
     lastFetched: number;
 }
 
+export interface ContributorStats {
+    year: number;
+    unique_count: number;
+    contributors: Array<{
+        login: string;
+        avatar_url: string;
+        commits: number;
+        pull_requests: number;
+        contributions: number;
+        repositories: Array<{
+            name: string;
+            commits: number;
+            pull_requests: number;
+            contributions: number;
+            commit_timestamps: string[];
+            pr_timestamps: string[];
+        }>;
+    }>;
+    total_pull_requests: number;
+    total_commits: number;
+    total_contributions: number;
+}
+
+export interface DataContextType {
+    meshData: MeshData | null;
+    catalystData: CatalystContextData | null;
+    drepVotingData: DRepVotingData | null;
+    discordStats: DiscordStats | null;
+    contributorStats: Record<number, ContributorStats> | null;
+    contributorsData: ContributorsData | null;
+    isLoading: boolean;
+    error: string | null;
+    refetchData: () => Promise<void>;
+}
+
 export interface MeshStatsViewProps {
     currentStats: CurrentStats;
     yearlyStats: Record<number, YearlyStats>;
     filteredStats?: FilteredStats;
     discordStats?: DiscordStats;
+    contributorsData?: ContributorsData;
 } 
