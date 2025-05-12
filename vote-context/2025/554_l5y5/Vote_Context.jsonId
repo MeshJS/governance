@@ -49,7 +49,17 @@
     }
   },
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following on the 2025 Cardano NCL
+Yes: 4 votes
+No: 0 votes
+Abstain: 3 votes
+
+When it comes to Cardano Treasury spendings, with Mesh we are surely more on the conservative side.
+We see the first year of Cardano onchain governance and its treasury spendings as a crucial year in which we'd do better to prioritise on how we spend treasury and making sure that spendings are effective and efficient, focusing on high quality spending rather then high quantity spending. Having a smaller NCL sends a clear message to the ecosystem to be careful and more strict in our budget allocations in 2025.
+
+Also worth to keep in mind that in 2025, we are in the periodically recurring bull year, from historical data we can expect a increase of Ada price, meaning that less Ada have to be spend. This is already the case since we see many budget proposals currently calculating their budget requests on 0.50 USD per Ada, yet the last time Ada was globally traded at 0.50 USD/Ada was in late 2024.
+
+Therefore, we support the NCL = 200M ADA."
   },
   "hashAlgorithm": "blake2b-256"
 }
