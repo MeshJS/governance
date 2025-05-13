@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./Sidebar.module.css";
-import { FaPiggyBank, FaChartLine, FaUsers, FaGavel, FaProjectDiagram, FaGithub, FaNpm, FaFileAlt, FaLightbulb, FaUser } from "react-icons/fa";
+import { FaPiggyBank, FaChartLine, FaUsers, FaGavel, FaProjectDiagram, FaGithub, FaNpm, FaFileAlt, FaLightbulb, FaUser, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const navItems = [
     { name: "Treasury", icon: <FaPiggyBank /> },
@@ -16,13 +16,22 @@ const navItems = [
 ];
 
 const Sidebar = () => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
     return (
-        <div className={styles.sidebar}>
+        <div className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+            <button
+                className={styles.toggleButton}
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+                {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
+            </button>
             <ul>
                 {navItems.map((item, index) => (
                     <li key={index} className={styles.navItem}>
                         {item.icon}
-                        <span>{item.name}</span>
+                        {!isCollapsed && <span>{item.name}</span>}
                     </li>
                 ))}
             </ul>
