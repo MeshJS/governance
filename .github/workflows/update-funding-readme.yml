@@ -9,6 +9,8 @@ on:
 
 jobs:
   sync-readme:
+    # Only run in the main MeshJS/governance repository
+    if: github.repository == 'MeshJS/governance'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current repository

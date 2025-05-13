@@ -9,6 +9,7 @@ on:
 
 jobs:
   generate-proposal-context:
+    if: github.repository == 'MeshJS/governance'
     runs-on: ubuntu-latest
     
     steps:
