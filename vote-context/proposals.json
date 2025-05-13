@@ -1,5 +1,25 @@
 [
   {
+    "action_id": "gov_action1u9x73kwufaxa70lfy59g4ynwyrcsaxdcd0gxzzmh67s9fxq4j8hqqk2phgh",
+    "title": "Cardano Blockchain Ecosystem Budget - 275M ada Administered by Intersect"
+  },
+  {
+    "action_id": "gov_action1mmalzkcxpyn33t05hml2hxpwq0ffv6uu4mhe8sv7guz5nmm4afysqlmepzl",
+    "title": "2025 Cardano Blockchain Ecosystem Budget - 7.5M ₳ for community builders"
+  },
+  {
+    "action_id": "gov_action1vdlrcftd48qn2zz8egepr6xyfcmxpfz8r69k769gc5mhg662adesq9yy8pl",
+    "title": "Set a 300 million ADA Net Change Limit for Epochs 563–635"
+  },
+  {
+    "action_id": "gov_action1fpqwxp2kxvnntr8hpkh9q9djm78ccdww7qlhg5safugh4stmcwzqql5lauu",
+    "title": "Cardano Treasury DeFi Liquidity Budget"
+  },
+  {
+    "action_id": "gov_action1h4ygjv0hjfj3lmafcm76rpdzcm8vsvj9k5wejn3npyxwxm3fesnqqw9kxxz",
+    "title": "Cardano Blockchain Ecosystem Budget: Amaru Node Development 2025"
+  },
+  {
     "action_id": "gov_action10k0unljvaej0kd89w7pn0zkgdx59c7xkl0x5q78dzvdtd73u0kmqq5xl5y5",
     "title": "2025 Cardano NCL"
   },
