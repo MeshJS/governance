@@ -1,16 +1,20 @@
 .sidebar {
+    z-index: 1000;
     width: 250px;
     height: calc(100vh - 64px);
     /* Subtract header height */
     background-color: var(--background-secondary);
     color: var(--text-primary);
     padding: 1.5rem 1rem;
-    transition: width 0.3s ease;
+    transition: width 0.3s cubic-bezier(.4, 0, .2, 1), box-shadow 0.3s cubic-bezier(.4, 0, .2, 1);
     position: fixed;
     left: 0;
-    top: 64px;
+    top: 60px;
     /* Add header height */
     border-right: 1px solid var(--border-color);
+    box-shadow: 2px 0 12px 0 rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
 }
 
 .collapsed {
@@ -29,7 +33,7 @@
     justify-content: center;
     width: 100%;
     border-radius: 4px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
 }
 
 .toggleButton:hover {
@@ -44,7 +48,7 @@
 
 .toggleIcon svg {
     font-size: 1rem;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
 }
 
 .collapsed .toggleIcon svg {
@@ -54,13 +58,15 @@
 .navItem {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     padding: 0.75rem;
     margin-bottom: 0.5rem;
     cursor: pointer;
     border-radius: 4px;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(.4, 0, .2, 1);
     color: var(--text-secondary);
     white-space: nowrap;
+    min-height: 2.4rem;
 }
 
 .navItem:hover {
@@ -69,22 +75,54 @@
 }
 
 .navItem svg {
-    margin-right: 1rem;
     font-size: 1.2rem;
     min-width: 1.2rem;
     color: var(--text-secondary);
-    transition: color 0.2s ease;
+    transition: color 0.2s cubic-bezier(.4, 0, .2, 1), transform 0.3s cubic-bezier(.4, 0, .2, 1);
+    display: block;
+    align-self: center;
+    margin-right: 1rem;
 }
 
 .navItem:hover svg {
     color: var(--text-primary);
+    transform: scale(1.08);
 }
 
 .collapsed .navItem {
-    padding: 0.75rem;
     justify-content: center;
 }
 
 .collapsed .navItem svg {
-    margin: 0;
+    margin-right: 0;
+}
+
+.navText {
+    display: inline-block;
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.3s cubic-bezier(.4, 0, .2, 1), transform 0.3s cubic-bezier(.4, 0, .2, 1);
+    vertical-align: middle;
+    line-height: 1.2;
+    width: 120px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.collapsed .navText {
+    display: none;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+}
+
+.navLink:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
 }

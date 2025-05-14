@@ -19,10 +19,6 @@ export default function Header({ title = 'Cardano Dashboard' }: HeaderProps) {
             <header className={styles.header}>
                 <div className={styles.logo}>Cardano Dashboard</div>
 
-                <div className={styles.center}>
-                    <h1 className={styles.title}>{title}</h1>
-                </div>
-
                 <div className={styles.right}>
                     <button className={styles.walletButton}>
                         Connect Wallet
