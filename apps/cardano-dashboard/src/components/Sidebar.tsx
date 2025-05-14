@@ -2,6 +2,7 @@ import React from "react";
 import styles from "../styles/Sidebar.module.css";
 import { FaPiggyBank, FaChartLine, FaUsers, FaGavel, FaProjectDiagram, FaGithub, FaNpm, FaFileAlt, FaLightbulb, FaUser, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const navItems = [
     { name: "Treasury", icon: <FaPiggyBank />, href: "/treasury" },
@@ -22,6 +23,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
+    const router = useRouter();
     return (
         <div className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
             <button
@@ -34,16 +36,24 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                 </span>
             </button>
             <ul>
-                {navItems.map((item, index) => (
-                    <li key={index} className={styles.navItem}>
-                        <Link href={item.href} legacyBehavior>
-                            <a className={styles.navLink} tabIndex={0}>
-                                {item.icon}
-                                {!isCollapsed && <span className={styles.navText}>{item.name}</span>}
-                            </a>
-                        </Link>
-                    </li>
-                ))}
+                {navItems.map((item, index) => {
+                    const isActive = router.pathname === item.href;
+                    return (
+                        <li
+                            key={index}
+                            className={
+                                `${styles.navItem} ${isActive ? styles.activeNavItem : ''}`
+                            }
+                        >
+                            <Link href={item.href} legacyBehavior>
+                                <a className={styles.navLink}>
+                                    {item.icon}
+                                    {!isCollapsed && <span className={styles.navText}>{item.name}</span>}
+                                </a>
+                            </Link>
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );
