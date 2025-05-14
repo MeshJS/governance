@@ -26,5 +26,9 @@
     "gov_action10ueqgzwenxr39le68n0se9peu92r7gm2846xwehh3u0ahc0qd0uqqyljxu5": {
         "title": "Set 2025 Net Change Limit of 300M ADA, 2026 Net Change Limit of 250M ADA",
         "rationale": "We see the alternative '2025 Net-Change-Limit' (gov_action1nd3t833j7v5sz65k3tp9yyvztw60sjcjgcgjr37682s3m7frwrusqmd2k80) proposal as a more robust and clear proposal, since it focuses on 2025 solely instead of 2025+2026, we vote NO on this proposal and YES on the alternative. We see the NCL of 350M Ada for 2025 as a relatively high, yet acceptable metric which is likely to cover all most relevant funding to core operations within the Cardano Ecosystem"
+    },
+    "gov_action10k0unljvaej0kd89w7pn0zkgdx59c7xkl0x5q78dzvdtd73u0kmqq5xl5y5": {
+        "title": "2025 Cardano NCL",
+        "rationale": "Members of the Mesh DRep have voted as following on the 2025 Cardano NCL\nYes: 4 votes\nNo: 0 votes\nAbstain: 3 votes\n\nWhen it comes to Cardano Treasury spendings, with Mesh we are surely more on the conservative side.\nWe see the first year of Cardano onchain governance and its treasury spendings as a crucial year in which we'd do better to prioritise on how we spend treasury and making sure that spendings are effective and efficient, focusing on high quality spending rather then high quantity spending. Having a smaller NCL sends a clear message to the ecosystem to be careful and more strict in our budget allocations in 2025.\n\nAlso worth to keep in mind that in 2025, we are in the periodically recurring bull year, from historical data we can expect a increase of Ada price, meaning that less Ada have to be spend. This is already the case since we see many budget proposals currently calculating their budget requests on 0.50 USD per Ada, yet the last time Ada was globally traded at 0.50 USD/Ada was in late 2024.\n\nTherefore, we support the NCL = 200M ADA."
     }
 }
