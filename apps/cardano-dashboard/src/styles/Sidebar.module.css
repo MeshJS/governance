@@ -1,0 +1,90 @@
+.sidebar {
+    width: 250px;
+    height: calc(100vh - 64px);
+    /* Subtract header height */
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
+    padding: 1.5rem 1rem;
+    transition: width 0.3s ease;
+    position: fixed;
+    left: 0;
+    top: 64px;
+    /* Add header height */
+    border-right: 1px solid var(--border-color);
+}
+
+.collapsed {
+    width: 60px;
+}
+
+.toggleButton {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.toggleButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.toggleIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggleIcon svg {
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.collapsed .toggleIcon svg {
+    font-size: 1rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.navItem:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.navItem svg {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+    min-width: 1.2rem;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.navItem:hover svg {
+    color: var(--text-primary);
+}
+
+.collapsed .navItem {
+    padding: 0.75rem;
+    justify-content: center;
+}
+
+.collapsed .navItem svg {
+    margin: 0;
+}

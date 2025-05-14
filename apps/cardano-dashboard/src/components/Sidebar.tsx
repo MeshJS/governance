@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "./Sidebar.module.css";
+import styles from "../styles/Sidebar.module.css";
 import { FaPiggyBank, FaChartLine, FaUsers, FaGavel, FaProjectDiagram, FaGithub, FaNpm, FaFileAlt, FaLightbulb, FaUser, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const navItems = [
@@ -25,7 +25,9 @@ const Sidebar = () => {
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-                {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
+                <span className={styles.toggleIcon}>
+                    {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
+                </span>
             </button>
             <ul>
                 {navItems.map((item, index) => (

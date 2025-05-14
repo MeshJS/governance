@@ -1,5 +1,5 @@
 import { FaTimes } from 'react-icons/fa';
-import styles from './HelpModal.module.css';
+import styles from '../../styles/HelpModal.module.css';
 
 interface HelpModalProps {
     isOpen: boolean;
