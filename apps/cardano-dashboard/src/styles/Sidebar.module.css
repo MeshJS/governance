@@ -136,3 +136,8 @@
     text-decoration: none;
     text-shadow: 0 0 6px var(--text-primary), 0 0 2px var(--accent-color);
 }
+
+.activeNavItem:hover {
+    background-color: var(--accent-color);
+    color: var(--text-primary) !important;
+}

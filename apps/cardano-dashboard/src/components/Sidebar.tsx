@@ -45,11 +45,9 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                                 `${styles.navItem} ${isActive ? styles.activeNavItem : ''}`
                             }
                         >
-                            <Link href={item.href} legacyBehavior>
-                                <a className={styles.navLink}>
-                                    {item.icon}
-                                    {!isCollapsed && <span className={styles.navText}>{item.name}</span>}
-                                </a>
+                            <Link href={item.href} className={styles.navLink}>
+                                {item.icon}
+                                {!isCollapsed && <span className={styles.navText}>{item.name}</span>}
                             </Link>
                         </li>
                     );
