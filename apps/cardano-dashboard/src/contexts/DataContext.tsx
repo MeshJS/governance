@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { supabase } from './supabaseClient';
-import { WithdrawalRecord, DataContextType } from '../types/datacontext';
+import { DataContextType } from '../types/datacontext';
 import { NetworkTotals, NetworkTotalsResponse } from '../types/network';
 import { GovernanceProposal, GovernanceProposalResponse } from '../types/governance';
 
