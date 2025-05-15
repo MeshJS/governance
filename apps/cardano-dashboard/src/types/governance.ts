@@ -1,3 +1,5 @@
+import { BaseData } from '../data/api/baseApi';
+
 export type ProposalType =
     | 'ParameterChange'
     | 'HardForkInitiation'
@@ -16,7 +18,41 @@ export interface Deposit {
     return_address: string;
 }
 
-export interface GovernanceProposal {
+export interface VotingSummary {
+    drep_yes_votes_cast: number;
+    drep_active_yes_vote_power: string;
+    drep_yes_vote_power: string;
+    drep_yes_pct: number;
+    drep_no_votes_cast: number;
+    drep_active_no_vote_power: string;
+    drep_no_vote_power: string;
+    drep_no_pct: number;
+    drep_abstain_votes_cast: number;
+    drep_active_abstain_vote_power: string;
+    drep_always_no_confidence_vote_power: string;
+    drep_always_abstain_vote_power: string;
+    pool_yes_votes_cast: number;
+    pool_active_yes_vote_power: string;
+    pool_yes_vote_power: string;
+    pool_yes_pct: number;
+    pool_no_votes_cast: number;
+    pool_active_no_vote_power: string;
+    pool_no_vote_power: string;
+    pool_no_pct: number;
+    pool_abstain_votes_cast: number;
+    pool_active_abstain_vote_power: string;
+    pool_passive_always_abstain_votes_assigned: number;
+    pool_passive_always_abstain_vote_power: string;
+    pool_passive_always_no_confidence_votes_assigned: number;
+    pool_passive_always_no_confidence_vote_power: string;
+    committee_yes_votes_cast: number;
+    committee_yes_pct: number;
+    committee_no_votes_cast: number;
+    committee_no_pct: number;
+    committee_abstain_votes_cast: number;
+}
+
+export interface GovernanceProposal extends BaseData {
     proposal_id: string;
     block_time: number;
     proposal_tx_hash: string;
@@ -39,6 +75,48 @@ export interface GovernanceProposal {
     meta_is_valid: boolean | null;
     withdrawal: Withdrawal | null;
     param_proposal: any | null;
+    title: string;
+    description: string;
+    status: string;
+    voting_start_epoch: number;
+    voting_end_epoch: number;
+    voting_power: number;
+    votes_yes: number;
+    votes_no: number;
+    votes_abstain: number;
+    // Voting summary fields
+    drep_yes_votes_cast?: number;
+    drep_active_yes_vote_power?: string;
+    drep_yes_vote_power?: string;
+    drep_yes_pct?: number;
+    drep_no_votes_cast?: number;
+    drep_active_no_vote_power?: string;
+    drep_no_vote_power?: string;
+    drep_no_pct?: number;
+    drep_abstain_votes_cast?: number;
+    drep_active_abstain_vote_power?: string;
+    drep_always_no_confidence_vote_power?: string;
+    drep_always_abstain_vote_power?: string;
+    pool_yes_votes_cast?: number;
+    pool_active_yes_vote_power?: string;
+    pool_yes_vote_power?: string;
+    pool_yes_pct?: number;
+    pool_no_votes_cast?: number;
+    pool_active_no_vote_power?: string;
+    pool_no_vote_power?: string;
+    pool_no_pct?: number;
+    pool_abstain_votes_cast?: number;
+    pool_active_abstain_vote_power?: string;
+    pool_passive_always_abstain_votes_assigned?: number;
+    pool_passive_always_abstain_vote_power?: string;
+    pool_passive_always_no_confidence_votes_assigned?: number;
+    pool_passive_always_no_confidence_vote_power?: string;
+    committee_yes_votes_cast?: number;
+    committee_yes_pct?: number;
+    committee_no_votes_cast?: number;
+    committee_no_pct?: number;
+    committee_abstain_votes_cast?: number;
 }
 
-export interface GovernanceProposalResponse extends Array<GovernanceProposal> { } 
+export type GovernanceProposalResponse = GovernanceProposal[];
+export type VotingSummaryResponse = VotingSummary[]; 
