@@ -1,8 +1,11 @@
+import { NetworkTotals } from './network';
+import { GovernanceProposal } from './governance';
+
 export interface WithdrawalRecord {
-    id: string; // proposal_id
-    submission_date: string;
-    approval_date: string;
-    expiration_date: string;
+    id: string;
+    submission_epoch: number;
+    approval_epoch: number;
+    expiration_epoch: number;
     amount: number;
     proposer_address: string;
     purpose: string;
@@ -10,9 +13,10 @@ export interface WithdrawalRecord {
 }
 
 export interface DataContextType {
-    withdrawals: WithdrawalRecord[];
+    networkTotals?: NetworkTotals;
+    governanceProposals: GovernanceProposal[];
     loading: boolean;
     error: Error | null;
-    lastUpdated: Date | null;
+    lastUpdated: Date;
     refresh: () => Promise<void>;
 } 
