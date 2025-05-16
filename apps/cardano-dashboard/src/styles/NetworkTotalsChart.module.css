@@ -1,0 +1,30 @@
+.x-axis,
+.y-axis {
+    color: #94a3b8;
+}
+
+.x-axis line,
+.y-axis line {
+    stroke: rgba(148, 163, 184, 0.2);
+}
+
+.x-axis path,
+.y-axis path {
+    stroke: rgba(148, 163, 184, 0.2);
+}
+
+.x-axis text,
+.y-axis text {
+    fill: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+}
+
+.focus circle {
+    fill: rgba(255, 255, 255, 0.9);
+    stroke: rgba(0, 0, 0, 0.5);
+    stroke-width: 1;
+}
+
+.overlay {
+    cursor: crosshair;
+}

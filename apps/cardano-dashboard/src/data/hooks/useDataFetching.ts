@@ -13,45 +13,42 @@ const chainTipApi = new ChainTipApi();
 export function useDataFetching() {
     const queryClient = useQueryClient();
 
-    const chainTipQueryOptions: UseQueryOptions<ChainTip, Error> = {
-        queryKey: ['chainTip'],
-        queryFn: () => chainTipApi.fetchAndUpdate(),
-        staleTime: 10 * 60 * 1000, // 10 minutes
-        gcTime: 30 * 60 * 1000, // 30 minutes
-    };
-
+    // Chain Tip Query - Independent
     const {
         data: chainTip,
         isLoading: loadingChainTip,
         error: chainTipError,
-    } = useQuery<ChainTip, Error>(chainTipQueryOptions);
-
-    const networkTotalsQueryOptions: UseQueryOptions<NetworkTotals[], Error> = {
-        queryKey: ['networkTotals'],
-        queryFn: () => networkTotalsApi.fetchAndUpdate(),
+    } = useQuery<ChainTip, Error>({
+        queryKey: ['chainTip'],
+        queryFn: () => chainTipApi.fetchAndUpdate(),
         staleTime: 10 * 60 * 1000, // 10 minutes
         gcTime: 30 * 60 * 1000, // 30 minutes
-    };
+    });
 
-    const governanceProposalsQueryOptions: UseQueryOptions<GovernanceProposal[], Error> = {
-        queryKey: ['governanceProposals'],
-        queryFn: () => governanceProposalsApi.fetchAndUpdate(chainTip as ChainTip),
-        staleTime: 10 * 60 * 1000, // 10 minutes
-        gcTime: 30 * 60 * 1000, // 30 minutes
-        enabled: !!chainTip, // Only run when we have chain tip data
-    };
-
+    // Network Totals Query - Independent
     const {
         data: networkTotals = [],
         isLoading: loadingNetworkTotals,
         error: networkTotalsError,
-    } = useQuery<NetworkTotals[], Error>(networkTotalsQueryOptions);
+    } = useQuery<NetworkTotals[], Error>({
+        queryKey: ['networkTotals'],
+        queryFn: () => networkTotalsApi.fetchAndUpdate(),
+        staleTime: 10 * 60 * 1000, // 10 minutes
+        gcTime: 30 * 60 * 1000, // 30 minutes
+    });
 
+    // Governance Proposals Query - Can use chain tip if available, but doesn't wait for it
     const {
         data: governanceProposals = [],
         isLoading: loadingGovernanceProposals,
         error: governanceProposalsError,
-    } = useQuery<GovernanceProposal[], Error>(governanceProposalsQueryOptions);
+    } = useQuery<GovernanceProposal[], Error>({
+        queryKey: ['governanceProposals', chainTip?.slot_no],
+        queryFn: () => governanceProposalsApi.fetchAndUpdate(chainTip as ChainTip),
+        staleTime: 10 * 60 * 1000, // 10 minutes
+        gcTime: 30 * 60 * 1000, // 30 minutes
+        refetchInterval: 30 * 60 * 1000, // Refetch every 30 seconds to get enriched data
+    });
 
     const refresh = async () => {
         await Promise.all([
@@ -65,7 +62,11 @@ export function useDataFetching() {
         chainTip,
         networkTotals,
         governanceProposals,
-        loading: loadingChainTip || loadingNetworkTotals || loadingGovernanceProposals,
+        loading: {
+            chainTip: loadingChainTip,
+            networkTotals: loadingNetworkTotals,
+            governanceProposals: loadingGovernanceProposals
+        },
         error: (chainTipError || networkTotalsError || governanceProposalsError) as Error | null,
         lastUpdated: new Date(),
         refresh,

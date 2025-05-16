@@ -4,6 +4,8 @@ import type { AppProps } from "next/app";
 import Layout from "@/components/Layout";
 import { DataProvider } from "@/contexts/DataContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+import { persistQueryClient } from '@tanstack/react-query-persist-client';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -16,6 +18,19 @@ const queryClient = new QueryClient({
         },
     },
 });
+
+// Set up cache persistence
+if (typeof window !== 'undefined') {
+    const persister = createSyncStoragePersister({
+        storage: window.localStorage,
+    });
+
+    persistQueryClient({
+        queryClient,
+        persister,
+        maxAge: 30 * 60 * 1000, // 30 minutes
+    });
+}
 
 function App({ Component, pageProps }: AppProps) {
     return (

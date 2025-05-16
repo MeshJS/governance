@@ -89,10 +89,16 @@ export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
             console.log('No data in Supabase, fetching from Koios');
             // If no data in Supabase, fetch all from Koios
             const koiosData = await this.fetchFromKoios();
-            const enrichedData = await this.enrichProposalsWithVotingSummary(koiosData, chainTip.epoch_no);
-            console.log('Upserting enriched data to Supabase');
-            await this.upsertToSupabase(enrichedData);
-            return enrichedData;
+            // Start enrichment process asynchronously
+            this.enrichProposalsWithVotingSummary(koiosData, chainTip.epoch_no)
+                .then(enrichedData => {
+                    console.log('Upserting enriched data to Supabase');
+                    this.upsertToSupabase(enrichedData);
+                })
+                .catch(error => {
+                    console.error('Error enriching proposals:', error);
+                });
+            return koiosData;
         }
 
         // Fetch all proposals from Koios
@@ -114,14 +120,19 @@ export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
         console.log('Found', newOrUpdatedProposals.length, 'new or updated proposals');
 
         if (newOrUpdatedProposals.length > 0) {
-            // Enrich new/updated proposals with voting summaries
-            const enrichedProposals = await this.enrichProposalsWithVotingSummary(newOrUpdatedProposals, chainTip.epoch_no);
-            console.log('Upserting enriched proposals to Supabase');
-            await this.upsertToSupabase(enrichedProposals);
+            // Start enrichment process asynchronously
+            this.enrichProposalsWithVotingSummary(newOrUpdatedProposals, chainTip.epoch_no)
+                .then(enrichedProposals => {
+                    console.log('Upserting enriched proposals to Supabase');
+                    this.upsertToSupabase(enrichedProposals);
+                })
+                .catch(error => {
+                    console.error('Error enriching proposals:', error);
+                });
 
-            // Merge the updated data with existing data
+            // Merge the updated data with existing data and return immediately
             const updatedData = [...supabaseData];
-            enrichedProposals.forEach(proposal => {
+            newOrUpdatedProposals.forEach(proposal => {
                 const index = updatedData.findIndex(p => p.proposal_id === proposal.proposal_id);
                 if (index >= 0) {
                     updatedData[index] = proposal;
@@ -130,28 +141,21 @@ export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
                 }
             });
 
-            const sortedData = updatedData.sort((a, b) => b.proposed_epoch - a.proposed_epoch);
-            console.log('Returning', sortedData.length, 'proposals with voting summaries');
-            return sortedData;
+            return updatedData.sort((a, b) => b.proposed_epoch - a.proposed_epoch);
         }
 
         // Even if no new proposals, we should update voting summaries for active or recently expired proposals
         const proposalsToUpdate = supabaseData.filter(p => this.shouldUpdateVotingSummary(p, chainTip.epoch_no));
         if (proposalsToUpdate.length > 0) {
             console.log('Updating voting summaries for', proposalsToUpdate.length, 'proposals');
-            const enrichedProposals = await this.enrichProposalsWithVotingSummary(proposalsToUpdate, chainTip.epoch_no);
-            await this.upsertToSupabase(enrichedProposals);
-
-            // Merge the updated proposals with the rest of the data
-            const updatedData = [...supabaseData];
-            enrichedProposals.forEach(proposal => {
-                const index = updatedData.findIndex(p => p.proposal_id === proposal.proposal_id);
-                if (index >= 0) {
-                    updatedData[index] = proposal;
-                }
-            });
-
-            return updatedData.sort((a, b) => b.proposed_epoch - a.proposed_epoch);
+            // Start enrichment process asynchronously
+            this.enrichProposalsWithVotingSummary(proposalsToUpdate, chainTip.epoch_no)
+                .then(enrichedProposals => {
+                    this.upsertToSupabase(enrichedProposals);
+                })
+                .catch(error => {
+                    console.error('Error enriching proposals:', error);
+                });
         }
 
         console.log('No updates needed, returning existing data');
