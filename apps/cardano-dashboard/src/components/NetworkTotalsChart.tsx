@@ -244,26 +244,29 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                     <div ref={chartRef} className="w-full h-[400px]" />
                     {hoveredData && (
                         <div
-                            className="fixed z-[9999] p-3 bg-white/10 backdrop-blur-md rounded-lg shadow-lg border border-white/10 pointer-events-none"
+                            className="fixed z-[9999] bg-black/80 backdrop-blur-md shadow-lg border border-white/10 pointer-events-none"
                             style={{
                                 left: `${tooltipPosition.x}px`,
                                 top: `${tooltipPosition.y}px`,
                                 transform: 'translate(10px, -50%)',
                                 maxWidth: '300px',
                                 pointerEvents: 'none',
-                                position: 'fixed'
+                                position: 'fixed',
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: '10px',
+                                borderRadius: '5px'
                             }}
                         >
-                            <div className="text-sm text-white/60">Epoch {hoveredData.epoch_no}</div>
+                            <div className="text-sm text-white/60 mb-3">Epoch {hoveredData.epoch_no}</div>
                             {lineConfigs
                                 .filter(config => config.enabled)
                                 .map(config => {
                                     const currentValue = (hoveredData[config.key] as number) / 1000000;
                                     return (
-                                        <div key={config.key} className="flex justify-between items-center mt-1">
-                                            <span style={{ color: config.color }}>{config.label}</span>
+                                        <div key={config.key} className="flex justify-between items-center mt-3">
+                                            <span style={{ color: config.color }}>{config.label}: </span>
                                             <span className="text-white">
-                                                ₳{d3.format(',.0f')(currentValue)}
+                                                ₳ {d3.format(',.0f')(currentValue)}
                                             </span>
                                         </div>
                                     );
