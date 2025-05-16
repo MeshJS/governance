@@ -21,15 +21,15 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const [isMounted, setIsMounted] = useState(false);
     const [lineConfigs, setLineConfigs] = useState<LineConfig[]>([
-        { key: 'circulation', label: 'Circulation', color: '#38E8E1', enabled: true },
-        { key: 'treasury', label: 'Treasury', color: '#FFD700', enabled: true },
-        { key: 'reward', label: 'Reward', color: '#FF6B6B', enabled: true },
-        { key: 'supply', label: 'Supply', color: '#4ECDC4', enabled: true },
-        { key: 'reserves', label: 'Reserves', color: '#FF9F1C', enabled: true },
-        { key: 'fees', label: 'Fees', color: '#6A0572', enabled: true },
-        { key: 'deposits_stake', label: 'Stake Deposits', color: '#1A535C', enabled: true },
-        { key: 'deposits_drep', label: 'DRep Deposits', color: '#4B0082', enabled: true },
-        { key: 'deposits_proposal', label: 'Proposal Deposits', color: '#FF1493', enabled: true },
+        { key: 'circulation', label: 'Circulation', color: '#4FF5F0', enabled: true },
+        { key: 'treasury', label: 'Treasury', color: '#FFE44D', enabled: true },
+        { key: 'reward', label: 'Reward', color: '#FF8B8B', enabled: true },
+        { key: 'supply', label: 'Supply', color: '#6EFFE8', enabled: true },
+        { key: 'reserves', label: 'Reserves', color: '#FFB74D', enabled: true },
+        { key: 'fees', label: 'Fees', color: '#B388FF', enabled: true },
+        { key: 'deposits_stake', label: 'Stake Deposits', color: '#4DB6AC', enabled: true },
+        { key: 'deposits_drep', label: 'DRep Deposits', color: '#9575CD', enabled: true },
+        { key: 'deposits_proposal', label: 'Proposal Deposits', color: '#FF80AB', enabled: true },
     ]);
 
     useEffect(() => {
@@ -38,6 +38,9 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
 
     useEffect(() => {
         if (!isMounted || !chartRef.current || !data || data.length === 0) return;
+
+        // Sort data by epoch number in ascending order
+        const sortedData = [...data].sort((a, b) => a.epoch_no - b.epoch_no);
 
         // Clear any existing SVG
         d3.select(chartRef.current).selectAll('*').remove();
@@ -57,19 +60,60 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
 
         // Set up scales
         const xScale = d3.scaleLinear()
-            .domain([0, data.length - 1])
+            .domain([0, sortedData.length - 1])
             .range([0, width]);
 
-        const yScale = d3.scaleLinear()
-            .domain([0, d3.max(data, d => Math.max(...lineConfigs.map(config => (d[config.key] as number) / 1000000))) as number])
+        // Calculate percentage changes from initial values
+        const percentageData = sortedData.map((d) => {
+            const percentages: { [key: string]: number } = {};
+            lineConfigs.forEach(config => {
+                const initialValue = (sortedData[0][config.key] as number) / 1000000;
+                const currentValue = (d[config.key] as number) / 1000000;
+
+                // Special handling for metrics that start at 0
+                if (initialValue === 0) {
+                    // Find the first non-zero value for this metric
+                    const firstNonZero = sortedData.find(item => (item[config.key] as number) > 0);
+                    if (firstNonZero) {
+                        const baselineValue = (firstNonZero[config.key] as number) / 1000000;
+                        // Calculate percentage relative to first non-zero value
+                        percentages[config.key] = (currentValue / baselineValue) * 100;
+                    } else {
+                        percentages[config.key] = 0;
+                    }
+                } else {
+                    // Normal percentage calculation for metrics that don't start at 0
+                    percentages[config.key] = (currentValue / initialValue) * 100;
+                }
+            });
+            return {
+                ...d,
+                percentages
+            };
+        });
+
+        // Calculate the maximum percentage value, ensuring it's a valid number
+        const maxPercentage = d3.max(percentageData, d =>
+            Math.max(...lineConfigs.map(config => {
+                const value = d.percentages[config.key];
+                return isFinite(value) ? value : 0;
+            }))
+        ) || 100; // Fallback to 100 if no valid values
+
+        // Use a logarithmic scale for the y-axis to better handle the range
+        const yScale = d3.scaleLog()
+            .domain([1, maxPercentage]) // Start at 1 to avoid log(0)
             .range([height, 0]);
 
         // Create line generators for each enabled line
         const lineGenerators = lineConfigs
             .filter(config => config.enabled)
-            .map(config => d3.line<NetworkTotals>()
+            .map(config => d3.line<any>()
                 .x((_, i) => xScale(i))
-                .y(d => yScale((d[config.key] as number) / 1000000))
+                .y(d => {
+                    const value = Math.max(1, d.percentages[config.key]); // Ensure value is at least 1 for log scale
+                    return yScale(value);
+                })
                 .curve(d3.curveMonotoneX));
 
         // Add axes
@@ -78,20 +122,23 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
             .attr('transform', `translate(0,${height})`)
             .call(d3.axisBottom(xScale)
                 .ticks(5)
-                .tickFormat(i => `Epoch ${data[i as number].epoch_no}`));
+                .tickFormat(i => `Epoch ${sortedData[i as number].epoch_no}`));
+
+        // Custom y-axis formatting to show actual percentages
+        const yAxis = d3.axisLeft(yScale)
+            .ticks(5)
+            .tickFormat(() => ''); // Hide the numbers but keep the grid lines
 
         svg.append('g')
             .attr('class', styles['y-axis'])
-            .call(d3.axisLeft(yScale)
-                .ticks(5)
-                .tickFormat(d => `₳${d3.format(',.0f')(d as number)}`));
+            .call(yAxis);
 
         // Add the lines
         lineConfigs
             .filter(config => config.enabled)
             .forEach((config, i) => {
                 svg.append('path')
-                    .datum(data)
+                    .datum(percentageData)
                     .attr('class', `line-${config.key}`)
                     .attr('d', lineGenerators[i])
                     .style('stroke', config.color)
@@ -121,7 +168,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
             .style('fill', 'none')
             .style('pointer-events', 'all');
 
-        // Hover interaction
+        // Update hover effects
         overlay
             .on('mouseover', () => focus.style('display', null))
             .on('mouseout', () => {
@@ -133,23 +180,23 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                 const [mouseX] = d3.pointer(event);
                 const x0 = xScale.invert(mouseX);
                 const i = Math.round(x0);
-                if (i < 0 || i >= data.length) return;
+                if (i < 0 || i >= sortedData.length) return;
 
-                const d = data[i];
+                const d = sortedData[i];
                 setHoveredData(d);
 
-                // Use pageX/pageY for viewport-relative positioning
                 setTooltipPosition({
                     x: event.pageX,
                     y: event.pageY
                 });
 
-                // Update focus elements
+                // Update focus elements with safety checks
                 lineConfigs
                     .filter(config => config.enabled)
                     .forEach(config => {
+                        const value = Math.max(1, percentageData[i].percentages[config.key]);
                         focus.select(`.focus-circle-${config.key}`)
-                            .attr('transform', `translate(${xScale(i)},${yScale((d[config.key] as number) / 1000000)})`);
+                            .attr('transform', `translate(${xScale(i)},${yScale(value)})`);
                     });
             });
 
@@ -207,14 +254,17 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                             <div className="text-sm text-white/60">Epoch {hoveredData.epoch_no}</div>
                             {lineConfigs
                                 .filter(config => config.enabled)
-                                .map(config => (
-                                    <div key={config.key} className="flex justify-between items-center mt-1">
-                                        <span className="text-white/80">{config.label}</span>
-                                        <span className="text-white">
-                                            ₳{d3.format(',.0f')((hoveredData[config.key] as number) / 1000000)}
-                                        </span>
-                                    </div>
-                                ))}
+                                .map(config => {
+                                    const currentValue = (hoveredData[config.key] as number) / 1000000;
+                                    return (
+                                        <div key={config.key} className="flex justify-between items-center mt-1">
+                                            <span style={{ color: config.color }}>{config.label}</span>
+                                            <span className="text-white">
+                                                ₳{d3.format(',.0f')(currentValue)}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
                         </div>
                     )}
                 </>
