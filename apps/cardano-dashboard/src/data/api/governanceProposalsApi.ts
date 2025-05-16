@@ -4,6 +4,7 @@ import { ChainTip } from '../../types/network';
 
 export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
     private readonly RECENT_EXPIRY_EPOCHS = 5;
+    private readonly UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
     constructor() {
         super({
@@ -79,11 +80,28 @@ export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
         return enrichedProposals;
     }
 
+    private shouldUpdateData(supabaseData: GovernanceProposal[]): boolean {
+        if (supabaseData.length === 0) return true;
+
+        // Find the most recent update time
+        const lastUpdate = new Date(Math.max(...supabaseData
+            .map(proposal => new Date(proposal.updated_at || proposal.created_at || 0).getTime())));
+
+        // Check if it's been more than 24 hours since the last update
+        return Date.now() - lastUpdate.getTime() > this.UPDATE_INTERVAL_MS;
+    }
+
     async fetchAndUpdate(chainTip: ChainTip): Promise<GovernanceProposal[]> {
         console.log('Starting fetchAndUpdate');
         // First, fetch all data from Supabase
         const supabaseData = await this.fetchFromSupabase();
         console.log('Fetched from Supabase:', supabaseData.length, 'proposals');
+
+        // Check if we need to update based on time
+        if (!this.shouldUpdateData(supabaseData)) {
+            console.log('Data was updated within the last 24 hours, skipping update');
+            return supabaseData;
+        }
 
         if (supabaseData.length === 0) {
             console.log('No data in Supabase, fetching from Koios');

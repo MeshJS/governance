@@ -40,22 +40,28 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
         const latestEpoch = supabaseData[0].epoch_no;
         console.log('NetworkTotalsApi - Latest epoch from Supabase:', latestEpoch);
 
-        // Fetch only the latest epoch from Koios to check if we need to update
-        const latestKoiosData = await this.fetchFromKoios(latestEpoch);
-        console.log('NetworkTotalsApi - Latest epoch from Koios:', latestKoiosData);
+        // Fetch the last 5 epochs from Koios
+        const epochsToCheck = Array.from({ length: 5 }, (_, i) => latestEpoch - i);
+        const koiosDataPromises = epochsToCheck.map(epoch => this.fetchFromKoios(epoch));
+        const koiosDataResults = await Promise.all(koiosDataPromises);
+        const latestKoiosData = koiosDataResults.flat().filter(Boolean);
+        console.log('NetworkTotalsApi - Last 5 epochs from Koios:', latestKoiosData);
 
         if (latestKoiosData.length === 0) {
             console.log('NetworkTotalsApi - No new data from Koios, returning Supabase data');
             return supabaseData;
         }
 
-        const latestKoiosTotal = latestKoiosData[0];
+        // Check which epochs need updating
+        const needsUpdate = latestKoiosData.some(koiosTotal => {
+            const supabaseTotal = supabaseData.find(s => s.epoch_no === koiosTotal.epoch_no);
+            if (!supabaseTotal) return true; // New epoch not in Supabase
 
-        // Check if we need to update the latest epoch
-        const needsUpdate = Object.keys(latestKoiosTotal).some(key => {
-            if (key === 'epoch_no') return false;
-            return Number(latestKoiosTotal[key as keyof NetworkTotals]) !==
-                Number(supabaseData[0][key as keyof NetworkTotals]);
+            return Object.keys(koiosTotal).some(key => {
+                if (key === 'epoch_no') return false;
+                return Number(koiosTotal[key as keyof NetworkTotals]) !==
+                    Number(supabaseTotal[key as keyof NetworkTotals]);
+            });
         });
 
         console.log('NetworkTotalsApi - Needs update:', needsUpdate);
@@ -63,7 +69,17 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
         if (needsUpdate) {
             console.log('NetworkTotalsApi - Updating Supabase with new data');
             await this.upsertToSupabase(latestKoiosData);
-            return [latestKoiosTotal, ...supabaseData.slice(1)];
+
+            // Merge the new data with existing Supabase data, removing duplicates
+            const updatedData = [...latestKoiosData];
+            supabaseData.forEach(supabaseTotal => {
+                if (!updatedData.some(k => k.epoch_no === supabaseTotal.epoch_no)) {
+                    updatedData.push(supabaseTotal);
+                }
+            });
+
+            // Sort by epoch_no in descending order
+            return updatedData.sort((a, b) => b.epoch_no - a.epoch_no);
         }
 
         console.log('NetworkTotalsApi - No update needed, returning Supabase data');
