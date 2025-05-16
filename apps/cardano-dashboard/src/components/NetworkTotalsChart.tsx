@@ -18,6 +18,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
     const chartRef = useRef<HTMLDivElement>(null);
     const [hoveredLine, setHoveredLine] = useState<string | null>(null);
     const [hoveredData, setHoveredData] = useState<NetworkTotals | null>(null);
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const [isMounted, setIsMounted] = useState(false);
     const [lineConfigs, setLineConfigs] = useState<LineConfig[]>([
         { key: 'circulation', label: 'Circulation', color: '#38E8E1', enabled: true },
@@ -60,7 +61,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
             .range([0, width]);
 
         const yScale = d3.scaleLinear()
-            .domain([0, d3.max(data, d => Math.max(...lineConfigs.map(config => d[config.key] as number))) as number])
+            .domain([0, d3.max(data, d => Math.max(...lineConfigs.map(config => (d[config.key] as number) / 1000000))) as number])
             .range([height, 0]);
 
         // Create line generators for each enabled line
@@ -68,7 +69,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
             .filter(config => config.enabled)
             .map(config => d3.line<NetworkTotals>()
                 .x((_, i) => xScale(i))
-                .y(d => yScale(d[config.key] as number))
+                .y(d => yScale((d[config.key] as number) / 1000000))
                 .curve(d3.curveMonotoneX));
 
         // Add axes
@@ -83,7 +84,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
             .attr('class', styles['y-axis'])
             .call(d3.axisLeft(yScale)
                 .ticks(5)
-                .tickFormat(d => `₳${d3.format('.2s')(d as number)}`));
+                .tickFormat(d => `₳${d3.format(',.0f')(d as number)}`));
 
         // Add the lines
         lineConfigs
@@ -126,6 +127,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
             .on('mouseout', () => {
                 focus.style('display', 'none');
                 setHoveredLine(null);
+                setHoveredData(null);
             })
             .on('mousemove', (event: MouseEvent) => {
                 const [mouseX] = d3.pointer(event);
@@ -136,12 +138,18 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                 const d = data[i];
                 setHoveredData(d);
 
+                // Use pageX/pageY for viewport-relative positioning
+                setTooltipPosition({
+                    x: event.pageX,
+                    y: event.pageY
+                });
+
                 // Update focus elements
                 lineConfigs
                     .filter(config => config.enabled)
                     .forEach(config => {
                         focus.select(`.focus-circle-${config.key}`)
-                            .attr('transform', `translate(${xScale(i)},${yScale(d[config.key] as number)})`);
+                            .attr('transform', `translate(${xScale(i)},${yScale((d[config.key] as number) / 1000000)})`);
                     });
             });
 
@@ -185,7 +193,17 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                     </div>
                     <div ref={chartRef} className="w-full h-[400px]" />
                     {hoveredData && (
-                        <div className="mt-4 p-3 bg-white/5 rounded-lg">
+                        <div
+                            className="fixed z-[9999] p-3 bg-white/10 backdrop-blur-md rounded-lg shadow-lg border border-white/10 pointer-events-none"
+                            style={{
+                                left: `${tooltipPosition.x}px`,
+                                top: `${tooltipPosition.y}px`,
+                                transform: 'translate(10px, -50%)',
+                                maxWidth: '300px',
+                                pointerEvents: 'none',
+                                position: 'fixed'
+                            }}
+                        >
                             <div className="text-sm text-white/60">Epoch {hoveredData.epoch_no}</div>
                             {lineConfigs
                                 .filter(config => config.enabled)
@@ -193,7 +211,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                                     <div key={config.key} className="flex justify-between items-center mt-1">
                                         <span className="text-white/80">{config.label}</span>
                                         <span className="text-white">
-                                            ₳{d3.format('.2s')(hoveredData[config.key] as number)}
+                                            ₳{d3.format(',.0f')((hoveredData[config.key] as number) / 1000000)}
                                         </span>
                                     </div>
                                 ))}
