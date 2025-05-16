@@ -219,24 +219,27 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                 </div>
             ) : (
                 <>
-                    <div className="flex flex-wrap gap-4 mb-4">
-                        {lineConfigs.map(config => (
-                            <button
-                                key={config.key}
-                                className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm transition-all
-                                    ${config.enabled ? 'bg-white/10' : 'bg-white/5'}
-                                    ${hoveredLine === config.key ? 'ring-2 ring-white/20' : ''}`}
-                                onClick={() => toggleLine(config.key)}
-                                onMouseEnter={() => setHoveredLine(config.key)}
-                                onMouseLeave={() => setHoveredLine(null)}
-                            >
-                                <div
-                                    className="w-3 h-3 rounded-full"
-                                    style={{ backgroundColor: config.color }}
-                                />
-                                <span className="text-white/80">{config.label}</span>
-                            </button>
-                        ))}
+                    <div className="flex justify-center mb-4">
+                        <div className="flex flex-wrap justify-center gap-24">
+                            {lineConfigs.map(config => (
+                                <span
+                                    key={config.key}
+                                    onClick={() => toggleLine(config.key)}
+                                    onMouseEnter={() => setHoveredLine(config.key)}
+                                    onMouseLeave={() => setHoveredLine(null)}
+                                    style={{
+                                        color: config.enabled ? config.color : `${config.color}80`,
+                                        opacity: hoveredLine === config.key ? 1 : 0.8,
+                                        cursor: 'pointer',
+                                        transition: 'opacity 0.2s ease',
+                                        margin: '0 1rem'
+                                    }}
+                                    className="text-sm whitespace-nowrap"
+                                >
+                                    {config.label}
+                                </span>
+                            ))}
+                        </div>
                     </div>
                     <div ref={chartRef} className="w-full h-[400px]" />
                     {hoveredData && (
