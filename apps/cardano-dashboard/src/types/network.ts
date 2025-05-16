@@ -57,6 +57,7 @@ export interface NetworkTotals extends BaseData {
     avg_blk_reward: {
         amount: string;
     } | null;
+    exchange_rate: number | null;
 }
 
 export type NetworkTotalsResponse = NetworkTotals[];

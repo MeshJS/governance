@@ -33,7 +33,7 @@ export function useDataFetching() {
     } = useQuery<NetworkTotals[], Error>({
         queryKey: ['networkTotals'],
         queryFn: () => networkTotalsApi.fetchAndUpdate(),
-        staleTime: 10 * 60 * 1000, // 10 minutes
+        staleTime: 1 * 60 * 1000, // 10 minutes
         gcTime: 30 * 60 * 1000, // 30 minutes
     });
 
@@ -47,7 +47,7 @@ export function useDataFetching() {
         queryFn: () => governanceProposalsApi.fetchAndUpdate(chainTip as ChainTip),
         staleTime: 10 * 60 * 1000, // 10 minutes
         gcTime: 30 * 60 * 1000, // 30 minutes
-        refetchInterval: 30 * 60 * 1000, // Refetch every 30 seconds to get enriched data
+        refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes to get enriched data
     });
 
     const refresh = async () => {

@@ -1,6 +1,36 @@
 import { BaseApi } from './baseApi';
 import { NetworkTotals, NetworkTotalsResponse } from '../../types/network';
 
+class RateLimiter {
+    private calls: number[] = [];
+    private readonly maxCalls: number;
+    private readonly timeWindow: number;
+
+    constructor(maxCalls: number, timeWindow: number) {
+        this.maxCalls = maxCalls;
+        this.timeWindow = timeWindow;
+    }
+
+    async waitForSlot(): Promise<void> {
+        const now = Date.now();
+        this.calls = this.calls.filter(time => now - time < this.timeWindow);
+
+        if (this.calls.length >= this.maxCalls) {
+            const oldestCall = this.calls[0];
+            const waitTime = this.timeWindow - (now - oldestCall);
+            if (waitTime > 0) {
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+            }
+            this.calls = this.calls.filter(time => Date.now() - time < this.timeWindow);
+        }
+
+        this.calls.push(Date.now());
+    }
+}
+
+// CoinGecko free tier allows 10-50 calls per minute
+const exchangeRateLimiter = new RateLimiter(30, 60000); // 30 calls per minute
+
 export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
     constructor() {
         super({
@@ -32,13 +62,26 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
     private async enrichWithEpochInfo(networkTotals: NetworkTotals[]): Promise<NetworkTotals[]> {
         console.log('NetworkTotalsApi - Enriching with epoch info');
         const epochNumbers = networkTotals.map(total => total.epoch_no);
-        const epochInfoPromises = epochNumbers.map(epochNo => this.fetchEpochInfo(epochNo));
-        const epochInfoResults = await Promise.all(epochInfoPromises);
+        const BATCH_SIZE = 5;
         const epochInfoMap = new Map<number, any>();
 
-        epochInfoResults.flat().forEach(info => {
-            epochInfoMap.set(info.epoch_no, info);
-        });
+        // Process epochs in batches
+        for (let i = 0; i < epochNumbers.length; i += BATCH_SIZE) {
+            const batchEpochs = epochNumbers.slice(i, i + BATCH_SIZE);
+            const epochInfoPromises = batchEpochs.map(epochNo => this.fetchEpochInfo(epochNo));
+            const batchResults = await Promise.all(epochInfoPromises);
+
+            batchResults.flat().forEach(info => {
+                if (info) {
+                    epochInfoMap.set(info.epoch_no, info);
+                }
+            });
+
+            // Add delay between batches if not the last batch
+            if (i + BATCH_SIZE < epochNumbers.length) {
+                await this.delay(1000); // 1 second delay between batches
+            }
+        }
 
         return networkTotals.map(total => {
             const epochInfo = epochInfoMap.get(total.epoch_no);
@@ -92,6 +135,126 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
         return needsUpdate;
     }
 
+    private async delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    private async fetchExchangeRate(date: string): Promise<number | null> {
+        try {
+            await exchangeRateLimiter.waitForSlot();
+            const url = `/api/coingecko-price?date=${date}`;
+            console.log('NetworkTotalsApi - Fetching exchange rate for date:', date);
+            const response = await fetch(url);
+
+            if (response.status === 429) {
+                console.warn('NetworkTotalsApi - Rate limit hit, waiting before retry');
+                await this.delay(60000); // Wait 1 minute before retry
+                return this.fetchExchangeRate(date);
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error('NetworkTotalsApi - Exchange rate fetch error:', data);
+                return null;
+            }
+
+            const price = data.market_data?.current_price?.usd;
+            console.log('NetworkTotalsApi - Fetched exchange rate:', price, 'for date:', date);
+            return price || null;
+        } catch (error) {
+            console.error('NetworkTotalsApi - Exchange rate fetch error:', error);
+            return null;
+        }
+    }
+
+    private formatDate(timestamp: number): string {
+        const date = new Date(timestamp * 1000);
+        const formattedDate = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+        console.log('NetworkTotalsApi - Formatted date:', formattedDate, 'from timestamp:', timestamp);
+        return formattedDate;
+    }
+
+    private async updateExchangeRates(networkTotals: NetworkTotals[]): Promise<NetworkTotals[]> {
+        console.log('NetworkTotalsApi - Starting exchange rate update for', networkTotals.length, 'totals');
+        const BATCH_SIZE = 5;
+        const updatedTotals = [...networkTotals];
+        let updatedCount = 0;
+
+        // Process in batches to avoid rate limits
+        for (let i = 0; i < updatedTotals.length; i += BATCH_SIZE) {
+            const batch = updatedTotals.slice(i, i + BATCH_SIZE);
+            console.log('NetworkTotalsApi - Processing batch', Math.floor(i / BATCH_SIZE) + 1, 'of', Math.ceil(updatedTotals.length / BATCH_SIZE));
+
+            const batchPromises = batch.map(async (total) => {
+                if (total.exchange_rate !== null) {
+                    console.log('NetworkTotalsApi - Skipping epoch', total.epoch_no, 'as it already has exchange rate:', total.exchange_rate);
+                    return total;
+                }
+
+                const date = this.formatDate(total.last_block_time);
+                console.log('NetworkTotalsApi - Fetching exchange rate for epoch', total.epoch_no, 'with date', date);
+                const exchangeRate = await this.fetchExchangeRate(date);
+
+                if (exchangeRate !== null) {
+                    updatedCount++;
+                }
+
+                return {
+                    ...total,
+                    exchange_rate: exchangeRate
+                };
+            });
+
+            const updatedBatch = await Promise.all(batchPromises);
+            updatedTotals.splice(i, batch.length, ...updatedBatch);
+
+            // Add delay between batches if not the last batch
+            if (i + BATCH_SIZE < updatedTotals.length) {
+                console.log('NetworkTotalsApi - Adding delay between batches');
+                await this.delay(1000); // 1 second delay between batches
+            }
+        }
+
+        console.log('NetworkTotalsApi - Completed exchange rate update. Updated', updatedCount, 'out of', networkTotals.length, 'totals');
+        return updatedTotals;
+    }
+
+    private async updateAllMissingExchangeRates(): Promise<void> {
+        console.log('NetworkTotalsApi - Starting update of all missing exchange rates');
+
+        // Fetch all data from Supabase
+        const allData = await this.fetchFromSupabase();
+        console.log('NetworkTotalsApi - Fetched', allData.length, 'records from Supabase');
+
+        // Filter records with missing exchange rates
+        const recordsWithMissingRates = allData.filter(total => total.exchange_rate === null);
+        console.log('NetworkTotalsApi - Found', recordsWithMissingRates.length, 'records with missing exchange rates');
+
+        if (recordsWithMissingRates.length === 0) {
+            console.log('NetworkTotalsApi - No missing exchange rates found');
+            return;
+        }
+
+        // Update exchange rates in batches
+        const BATCH_SIZE = 5;
+        for (let i = 0; i < recordsWithMissingRates.length; i += BATCH_SIZE) {
+            const batch = recordsWithMissingRates.slice(i, i + BATCH_SIZE);
+            console.log('NetworkTotalsApi - Processing batch', Math.floor(i / BATCH_SIZE) + 1, 'of', Math.ceil(recordsWithMissingRates.length / BATCH_SIZE));
+
+            const updatedBatch = await this.updateExchangeRates(batch);
+            await this.upsertToSupabase(updatedBatch);
+
+            // Add delay between batches if not the last batch
+            if (i + BATCH_SIZE < recordsWithMissingRates.length) {
+                console.log('NetworkTotalsApi - Adding delay between batches');
+                await this.delay(1000); // 1 second delay between batches
+            }
+        }
+
+        console.log('NetworkTotalsApi - Completed updating all missing exchange rates');
+    }
+
     async fetchAndUpdate(): Promise<NetworkTotals[]> {
         console.log('NetworkTotalsApi - Starting fetchAndUpdate');
         // First, fetch all data from Supabase
@@ -99,13 +262,37 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
         console.log('NetworkTotalsApi - Supabase data:', supabaseData);
 
         if (supabaseData.length === 0) {
-            console.log('NetworkTotalsApi - No data in Supabase, fetching from Koios');
-            // If no data in Supabase, fetch all from Koios
-            const koiosData = await this.fetchFromKoios();
-            console.log('NetworkTotalsApi - Fetched from Koios:', koiosData);
-            const enrichedData = await this.enrichWithEpochInfo(koiosData);
-            await this.upsertToSupabase(enrichedData);
-            return enrichedData;
+            console.log('NetworkTotalsApi - No data in Supabase, fetching from Koios in batches');
+            // If no data in Supabase, fetch in batches of 10 epochs
+            const BATCH_SIZE = 10;
+            const MAX_EPOCHS = 355; // Limit the initial fetch to prevent rate limiting
+            const allData: NetworkTotals[] = [];
+
+            // Start from the latest epoch and work backwards
+            const latestEpoch = await this.fetchFromKoios(0).then(data => data[0]?.epoch_no || 0);
+
+            for (let i = 0; i < MAX_EPOCHS; i += BATCH_SIZE) {
+                const batchPromises = Array.from({ length: BATCH_SIZE }, (_, j) => {
+                    const epochNo = latestEpoch - i - j;
+                    if (epochNo < 0) return null;
+                    return this.fetchFromKoios(epochNo);
+                }).filter(Boolean);
+
+                const batchResults = await Promise.all(batchPromises);
+                const batchData = batchResults.flat().filter((data): data is NetworkTotals => data !== null);
+                allData.push(...batchData);
+
+                // Add a delay between batches to prevent rate limiting
+                if (i + BATCH_SIZE < MAX_EPOCHS) {
+                    await this.delay(1000); // 1 second delay between batches
+                }
+            }
+
+            console.log('NetworkTotalsApi - Fetched from Koios in batches:', allData);
+            const enrichedData = await this.enrichWithEpochInfo(allData);
+            const dataWithExchangeRates = await this.updateExchangeRates(enrichedData);
+            await this.upsertToSupabase(dataWithExchangeRates);
+            return dataWithExchangeRates;
         }
 
         // Get the latest epoch from Supabase
@@ -116,65 +303,50 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
         const epochsToCheck = Array.from({ length: 5 }, (_, i) => latestEpoch - i);
         const koiosDataPromises = epochsToCheck.map(epoch => this.fetchFromKoios(epoch));
         const koiosDataResults = await Promise.all(koiosDataPromises);
-        const latestKoiosData = koiosDataResults.flat().filter(Boolean);
+        const latestKoiosData = koiosDataResults.flat().filter((data): data is NetworkTotals => data !== null);
         console.log('NetworkTotalsApi - Last 5 epochs from Koios:', latestKoiosData);
 
         if (latestKoiosData.length === 0) {
-            console.log('NetworkTotalsApi - No new data from Koios, returning Supabase data');
-            return supabaseData;
-        }
+            console.log('NetworkTotalsApi - No new data from Koios');
+        } else {
+            // Check which epochs need updating
+            const needsUpdate = latestKoiosData.some(koiosTotal => {
+                const supabaseTotal = supabaseData.find(s => s.epoch_no === koiosTotal.epoch_no);
+                if (!supabaseTotal) return true; // New epoch not in Supabase
 
-        // Check which epochs need updating
-        const needsUpdate = latestKoiosData.some(koiosTotal => {
-            const supabaseTotal = supabaseData.find(s => s.epoch_no === koiosTotal.epoch_no);
-            if (!supabaseTotal) return true; // New epoch not in Supabase
-
-            return Object.keys(koiosTotal).some(key => {
-                if (key === 'epoch_no') return false;
-                return Number(koiosTotal[key as keyof NetworkTotals]) !==
-                    Number(supabaseTotal[key as keyof NetworkTotals]);
-            });
-        });
-
-        console.log('NetworkTotalsApi - Needs update:', needsUpdate);
-
-        if (needsUpdate) {
-            console.log('NetworkTotalsApi - Updating Supabase with new data');
-            const enrichedData = await this.enrichWithEpochInfo(latestKoiosData);
-            await this.upsertToSupabase(enrichedData);
-
-            // Merge the new data with existing Supabase data, removing duplicates
-            const updatedData = [...enrichedData];
-            supabaseData.forEach(supabaseTotal => {
-                if (!updatedData.some(k => k.epoch_no === supabaseTotal.epoch_no)) {
-                    updatedData.push(supabaseTotal);
-                }
+                return Object.keys(koiosTotal).some(key => {
+                    if (key === 'epoch_no' || key === 'exchange_rate') return false;
+                    return Number(koiosTotal[key as keyof NetworkTotals]) !==
+                        Number(supabaseTotal[key as keyof NetworkTotals]);
+                });
             });
 
-            // Sort by epoch_no in descending order
-            return updatedData.sort((a, b) => b.epoch_no - a.epoch_no);
+            console.log('NetworkTotalsApi - Needs update:', needsUpdate);
+
+            if (needsUpdate) {
+                console.log('NetworkTotalsApi - Updating Supabase with new data');
+                const enrichedData = await this.enrichWithEpochInfo(latestKoiosData);
+                const dataWithExchangeRates = await this.updateExchangeRates(enrichedData);
+                await this.upsertToSupabase(dataWithExchangeRates);
+
+                // Merge the new data with existing Supabase data, removing duplicates
+                const updatedData = [...dataWithExchangeRates];
+                supabaseData.forEach(supabaseTotal => {
+                    if (!updatedData.some(k => k.epoch_no === supabaseTotal.epoch_no)) {
+                        updatedData.push(supabaseTotal);
+                    }
+                });
+
+                // Sort by epoch_no in descending order
+                supabaseData.splice(0, supabaseData.length, ...updatedData.sort((a, b) => b.epoch_no - a.epoch_no));
+            }
         }
 
-        // Even if no network totals update is needed, check if we should enrich with epoch info
-        const lastFiveEpochs = supabaseData.slice(0, 5);
-        if (this.shouldEnrichEpochs(lastFiveEpochs)) {
-            console.log('NetworkTotalsApi - Enriching existing data with epoch info');
-            const enrichedData = await this.enrichWithEpochInfo(lastFiveEpochs);
-            await this.upsertToSupabase(enrichedData);
+        // Always check for missing exchange rates in ALL records
+        console.log('NetworkTotalsApi - Checking for missing exchange rates in all records');
+        await this.updateAllMissingExchangeRates();
 
-            // Update the enriched epochs in the full dataset
-            const updatedData = [...supabaseData];
-            enrichedData.forEach(enrichedTotal => {
-                const index = updatedData.findIndex(t => t.epoch_no === enrichedTotal.epoch_no);
-                if (index >= 0) {
-                    updatedData[index] = enrichedTotal;
-                }
-            });
-
-            return updatedData;
-        }
-
-        console.log('NetworkTotalsApi - No update needed, returning Supabase data');
-        return supabaseData;
+        // Return fresh data from Supabase
+        return await this.fetchFromSupabase();
     }
 } 
