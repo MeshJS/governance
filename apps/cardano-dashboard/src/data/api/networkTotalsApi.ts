@@ -28,8 +28,8 @@ class RateLimiter {
     }
 }
 
-// CoinGecko free tier allows 10-50 calls per minute
-const exchangeRateLimiter = new RateLimiter(30, 60000); // 30 calls per minute
+// CoinGecko API allows 30 calls per minute
+const exchangeRateLimiter = new RateLimiter(20, 60000); // 20 calls per minute to be safe
 
 export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
     constructor() {
@@ -139,7 +139,22 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    private async fetchExchangeRate(date: string): Promise<number | null> {
+    private formatDate(timestamp: number): string {
+        const date = new Date(timestamp * 1000);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // If the timestamp is in the future, use today's date instead
+        if (date > today) {
+            date.setTime(today.getTime());
+        }
+
+        const formattedDate = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+        console.log('NetworkTotalsApi - Formatted date:', formattedDate, 'from timestamp:', timestamp);
+        return formattedDate;
+    }
+
+    private async fetchExchangeRate(date: string, retryCount = 0): Promise<number | null> {
         try {
             await exchangeRateLimiter.waitForSlot();
             const url = `/api/coingecko-price?date=${date}`;
@@ -147,37 +162,57 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
             const response = await fetch(url);
 
             if (response.status === 429) {
-                console.warn('NetworkTotalsApi - Rate limit hit, waiting before retry');
-                await this.delay(60000); // Wait 1 minute before retry
-                return this.fetchExchangeRate(date);
+                const maxRetries = 3;
+                if (retryCount >= maxRetries) {
+                    console.error('NetworkTotalsApi - Max retries reached for exchange rate fetch');
+                    return null;
+                }
+
+                const errorData = await response.json();
+                const retryAfter = errorData.retryAfter ? parseInt(errorData.retryAfter) * 1000 : Math.pow(2, retryCount) * 60000;
+                const backoffTime = Math.min(retryAfter, 300000); // Max 5 minutes
+
+                console.warn(`NetworkTotalsApi - Rate limit hit, waiting ${backoffTime / 60000} minutes before retry ${retryCount + 1}/${maxRetries}`);
+                await this.delay(backoffTime);
+                return this.fetchExchangeRate(date, retryCount + 1);
             }
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error('NetworkTotalsApi - Exchange rate fetch error:', data);
+            if (response.status === 404) {
+                console.warn('NetworkTotalsApi - No price data available for date:', date);
                 return null;
             }
 
+            if (response.status === 400) {
+                const errorData = await response.json();
+                console.warn('NetworkTotalsApi - Invalid date request:', errorData);
+                return null;
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('NetworkTotalsApi - Exchange rate fetch error:', errorData);
+                return null;
+            }
+
+            const data = await response.json();
             const price = data.market_data?.current_price?.usd;
+
+            if (!price) {
+                console.warn('NetworkTotalsApi - No price data found in response for date:', date);
+                return null;
+            }
+
             console.log('NetworkTotalsApi - Fetched exchange rate:', price, 'for date:', date);
-            return price || null;
+            return price;
         } catch (error) {
             console.error('NetworkTotalsApi - Exchange rate fetch error:', error);
             return null;
         }
     }
 
-    private formatDate(timestamp: number): string {
-        const date = new Date(timestamp * 1000);
-        const formattedDate = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
-        console.log('NetworkTotalsApi - Formatted date:', formattedDate, 'from timestamp:', timestamp);
-        return formattedDate;
-    }
-
     private async updateExchangeRates(networkTotals: NetworkTotals[]): Promise<NetworkTotals[]> {
         console.log('NetworkTotalsApi - Starting exchange rate update for', networkTotals.length, 'totals');
-        const BATCH_SIZE = 5;
+        const BATCH_SIZE = 3; // Reduced batch size to be more conservative
         const updatedTotals = [...networkTotals];
         let updatedCount = 0;
 
@@ -186,10 +221,11 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
             const batch = updatedTotals.slice(i, i + BATCH_SIZE);
             console.log('NetworkTotalsApi - Processing batch', Math.floor(i / BATCH_SIZE) + 1, 'of', Math.ceil(updatedTotals.length / BATCH_SIZE));
 
-            const batchPromises = batch.map(async (total) => {
+            // Process batch sequentially instead of in parallel to better control rate limits
+            for (const total of batch) {
                 if (total.exchange_rate !== null) {
                     console.log('NetworkTotalsApi - Skipping epoch', total.epoch_no, 'as it already has exchange rate:', total.exchange_rate);
-                    return total;
+                    continue;
                 }
 
                 const date = this.formatDate(total.last_block_time);
@@ -198,21 +234,23 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
 
                 if (exchangeRate !== null) {
                     updatedCount++;
+                    const index = updatedTotals.findIndex(t => t.epoch_no === total.epoch_no);
+                    if (index !== -1) {
+                        updatedTotals[index] = {
+                            ...total,
+                            exchange_rate: exchangeRate
+                        };
+                    }
                 }
 
-                return {
-                    ...total,
-                    exchange_rate: exchangeRate
-                };
-            });
+                // Add a small delay between individual requests
+                await this.delay(2000); // 2 second delay between requests
+            }
 
-            const updatedBatch = await Promise.all(batchPromises);
-            updatedTotals.splice(i, batch.length, ...updatedBatch);
-
-            // Add delay between batches if not the last batch
+            // Add longer delay between batches
             if (i + BATCH_SIZE < updatedTotals.length) {
                 console.log('NetworkTotalsApi - Adding delay between batches');
-                await this.delay(1000); // 1 second delay between batches
+                await this.delay(5000); // 5 second delay between batches
             }
         }
 
