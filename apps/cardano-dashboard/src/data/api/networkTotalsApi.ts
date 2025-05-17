@@ -157,7 +157,7 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
     private async fetchExchangeRate(date: string, retryCount = 0): Promise<number | null> {
         try {
             await exchangeRateLimiter.waitForSlot();
-            const url = `/api/coingecko-price?date=${date}`;
+            const url = `/api/exchange-rate?date=${date}`;
             console.log('NetworkTotalsApi - Fetching exchange rate for date:', date);
             const response = await fetch(url);
 
