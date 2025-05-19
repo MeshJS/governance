@@ -337,33 +337,45 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
         const latestEpoch = supabaseData[0].epoch_no;
         console.log('NetworkTotalsApi - Latest epoch from Supabase:', latestEpoch);
 
-        // Fetch the last 5 epochs from Koios
-        const epochsToCheck = Array.from({ length: 5 }, (_, i) => latestEpoch - i);
-        const koiosDataPromises = epochsToCheck.map(epoch => this.fetchFromKoios(epoch));
-        const koiosDataResults = await Promise.all(koiosDataPromises);
-        const latestKoiosData = koiosDataResults.flat().filter((data): data is NetworkTotals => data !== null);
-        console.log('NetworkTotalsApi - Last 5 epochs from Koios:', latestKoiosData);
+        // Get the last 3 epochs from Supabase
+        const lastThreeEpochs = supabaseData.slice(0, 3);
+        const oldestEpochToCheck = lastThreeEpochs[lastThreeEpochs.length - 1].epoch_no;
+        console.log('NetworkTotalsApi - Oldest epoch to check:', oldestEpochToCheck);
 
-        if (latestKoiosData.length === 0) {
-            console.log('NetworkTotalsApi - No new data from Koios');
+        // Fetch the latest epoch from Koios to determine chain tip
+        const latestKoiosEpoch = await this.fetchFromKoios(0).then(data => data[0]?.epoch_no || 0);
+        console.log('NetworkTotalsApi - Latest epoch from Koios (chain tip):', latestKoiosEpoch);
+
+        if (latestKoiosEpoch <= latestEpoch) {
+            console.log('NetworkTotalsApi - No new epochs to fetch');
         } else {
-            // Check which epochs need updating
-            const needsUpdate = latestKoiosData.some(koiosTotal => {
-                const supabaseTotal = supabaseData.find(s => s.epoch_no === koiosTotal.epoch_no);
-                if (!supabaseTotal) return true; // New epoch not in Supabase
+            // Fetch all epochs from oldestEpochToCheck up to chain tip
+            const epochsToFetch = Array.from(
+                { length: latestKoiosEpoch - oldestEpochToCheck + 1 },
+                (_, i) => oldestEpochToCheck + i
+            );
+            console.log('NetworkTotalsApi - Fetching epochs:', epochsToFetch);
 
-                return Object.keys(koiosTotal).some(key => {
-                    if (key === 'epoch_no' || key === 'exchange_rate') return false;
-                    return Number(koiosTotal[key as keyof NetworkTotals]) !==
-                        Number(supabaseTotal[key as keyof NetworkTotals]);
-                });
-            });
+            const BATCH_SIZE = 5;
+            const allNewData: NetworkTotals[] = [];
 
-            console.log('NetworkTotalsApi - Needs update:', needsUpdate);
+            // Fetch in batches to avoid rate limiting
+            for (let i = 0; i < epochsToFetch.length; i += BATCH_SIZE) {
+                const batchEpochs = epochsToFetch.slice(i, i + BATCH_SIZE);
+                const batchPromises = batchEpochs.map(epoch => this.fetchFromKoios(epoch));
+                const batchResults = await Promise.all(batchPromises);
+                const batchData = batchResults.flat().filter((data): data is NetworkTotals => data !== null);
+                allNewData.push(...batchData);
 
-            if (needsUpdate) {
-                console.log('NetworkTotalsApi - Updating Supabase with new data');
-                const enrichedData = await this.enrichWithEpochInfo(latestKoiosData);
+                // Add delay between batches
+                if (i + BATCH_SIZE < epochsToFetch.length) {
+                    await this.delay(1000);
+                }
+            }
+
+            if (allNewData.length > 0) {
+                console.log('NetworkTotalsApi - Fetched new data for epochs:', allNewData.map(d => d.epoch_no));
+                const enrichedData = await this.enrichWithEpochInfo(allNewData);
                 const dataWithExchangeRates = await this.updateExchangeRates(enrichedData);
                 await this.upsertToSupabase(dataWithExchangeRates);
 

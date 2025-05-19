@@ -1,3 +1,4 @@
+// hooks/useDataFetching.ts
 import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { NetworkTotalsApi } from '../api/networkTotalsApi';
 import { GovernanceProposalsApi } from '../api/governanceProposalsApi';
