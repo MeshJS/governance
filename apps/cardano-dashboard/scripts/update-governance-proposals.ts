@@ -88,7 +88,8 @@ async function updateGovernanceProposals() {
                 const votingSummary = await fetchVotingSummary(proposal.proposal_id);
                 return {
                     ...proposal,
-                    ...votingSummary[0]
+                    ...votingSummary[0],
+                    updated_at: new Date().toISOString()
                 };
             })
         );
