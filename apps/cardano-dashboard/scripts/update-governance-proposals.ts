@@ -28,7 +28,7 @@ async function fetchChainTip(): Promise<ChainTipResponse[]> {
     }
     const response = await fetch(url, { headers });
     if (!response.ok) throw new Error('Failed to fetch chain tip');
-    return response.json();
+    return response.json() as Promise<ChainTipResponse[]>;
 }
 
 async function fetchGovernanceProposals(): Promise<GovernanceProposalResponse> {
@@ -41,7 +41,7 @@ async function fetchGovernanceProposals(): Promise<GovernanceProposalResponse> {
     }
     const response = await fetch(url, { headers });
     if (!response.ok) throw new Error('Failed to fetch governance proposals');
-    return response.json();
+    return response.json() as Promise<GovernanceProposalResponse>;
 }
 
 async function fetchVotingSummary(proposalId: string): Promise<VotingSummaryResponse> {
@@ -54,7 +54,7 @@ async function fetchVotingSummary(proposalId: string): Promise<VotingSummaryResp
     }
     const response = await fetch(url, { headers });
     if (!response.ok) throw new Error('Failed to fetch voting summary');
-    return response.json();
+    return response.json() as Promise<VotingSummaryResponse>;
 }
 
 async function updateGovernanceProposals() {
