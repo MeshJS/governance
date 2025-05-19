@@ -9,7 +9,7 @@ const KOIOS_API_URL = 'https://api.koios.rest/api/v1';
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function fetchChainTip() {
-    const url = `${KOIOS_API_URL}/chain/tip`;
+    const url = `${KOIOS_API_URL}/tip`;
     const headers: Record<string, string> = {
         'Accept': 'application/json',
     };
