@@ -17,6 +17,14 @@
     font-size: 1.5rem;
     font-weight: bold;
     color: #ffffff;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.logo:hover {
+    color: #3498db;
+    text-decoration: none !important;
 }
 
 .center {

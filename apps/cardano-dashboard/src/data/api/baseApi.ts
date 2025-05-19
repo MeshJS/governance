@@ -1,10 +1,5 @@
 import { supabase } from '../../contexts/supabaseClient';
-
-export interface BaseData {
-    id?: string | number;
-    created_at?: string;
-    updated_at?: string;
-}
+import { BaseData } from '../../types/base';
 
 export interface ApiConfig<T extends BaseData> {
     tableName: string;
@@ -41,15 +36,23 @@ export class BaseApi<T extends BaseData> {
     async upsertToSupabase(items: T[]): Promise<void> {
         if (!items.length) return;
 
-        const { error } = await supabase
-            .from(this.config.tableName)
-            .upsert(items, {
-                onConflict: this.config.primaryKey as string
-            });
+        const response = await fetch('/api/database', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'upsert',
+                tableName: this.config.tableName,
+                data: items,
+                primaryKey: this.config.primaryKey
+            }),
+        });
 
-        if (error) {
+        if (!response.ok) {
+            const error = await response.json();
             console.error(`Error upserting to ${this.config.tableName}:`, error);
-            throw error;
+            throw new Error(error.message || 'Failed to upsert data');
         }
     }
 

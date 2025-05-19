@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { FaUser, FaQuestionCircle } from 'react-icons/fa';
 import styles from '../../styles/Header.module.css';
 import HelpModal from '../HelpModal/HelpModal';
@@ -17,7 +18,9 @@ export default function Header({ title = 'Cardano Dashboard' }: HeaderProps) {
                 <title>{title}</title>
             </Head>
             <header className={styles.header}>
-                <div className={styles.logo}>Cardano Dashboard</div>
+                <Link href="/" className={styles.logo}>
+                    Cardano Dashboard
+                </Link>
 
                 <div className={styles.right}>
                     <button className={styles.walletButton}>
