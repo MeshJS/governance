@@ -1,0 +1,14 @@
+{
+    "name": "cardano-dashboard-scripts",
+    "version": "1.0.0",
+    "description": "Cron job scripts for Cardano Dashboard",
+    "scripts": {
+        "update-network-totals": "ts-node update-network-totals.ts",
+        "update-governance-proposals": "ts-node update-governance-proposals.ts"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.39.0",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.0.0"
+    }
+}

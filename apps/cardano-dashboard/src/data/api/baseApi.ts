@@ -1,29 +1,38 @@
-import { supabase } from '../../contexts/supabaseClient';
-import { BaseData } from '../../types/base';
+import { createClient } from '@supabase/supabase-js';
 
-export interface ApiConfig<T extends BaseData> {
+export interface BaseApiConfig {
     tableName: string;
-    primaryKey: keyof T;
+    primaryKey: string;
     orderBy?: {
-        column: keyof T;
+        column: string;
         ascending: boolean;
     };
 }
 
-export class BaseApi<T extends BaseData> {
-    protected config: ApiConfig<T>;
+export class BaseApi<T> {
+    protected supabase;
+    protected config: BaseApiConfig;
 
-    constructor(config: ApiConfig<T>) {
+    constructor(config: BaseApiConfig) {
         this.config = config;
+        this.supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
     }
 
-    async fetchFromSupabase(): Promise<T[]> {
-        const { data, error } = await supabase
+    protected async fetchFromSupabase(): Promise<T[]> {
+        let query = this.supabase
             .from(this.config.tableName)
-            .select('*')
-            .order(this.config.orderBy?.column as string, {
-                ascending: this.config.orderBy?.ascending ?? false
+            .select('*');
+
+        if (this.config.orderBy) {
+            query = query.order(this.config.orderBy.column, {
+                ascending: this.config.orderBy.ascending
             });
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             console.error(`Error fetching from ${this.config.tableName}:`, error);
@@ -31,6 +40,10 @@ export class BaseApi<T extends BaseData> {
         }
 
         return data || [];
+    }
+
+    async fetchAndUpdate(): Promise<T[]> {
+        return this.fetchFromSupabase();
     }
 
     async upsertToSupabase(items: T[]): Promise<void> {
