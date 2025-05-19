@@ -8,21 +8,61 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const chainTipApi = new ChainTipApi();
 
-async function fetchFromKoios(epochNo?: number) {
+interface KoiosTotal {
+    epoch_no: number;
+    circulation: string;
+    treasury: string;
+    reward: string;
+    reserves: string;
+    supply: string;
+    utxo: string;
+    stake: string;
+}
+
+interface KoiosEpochInfo {
+    epoch_no: number;
+    start_time: number;
+    end_time: number;
+    first_block_time: number;
+    last_block_time: number;
+    first_block_height: number;
+    last_block_height: number;
+    tx_count: number;
+    output: string;
+    fees: string;
+    active_stake: string;
+}
+
+type BinanceKline = [
+    number, // Open time
+    string, // Open
+    string, // High
+    string, // Low
+    string, // Close
+    string, // Volume
+    number, // Close time
+    string, // Quote asset volume
+    number, // Number of trades
+    string, // Taker buy base asset volume
+    string, // Taker buy quote asset volume
+    string  // Ignore
+];
+
+async function fetchFromKoios(epochNo?: number): Promise<KoiosTotal[]> {
     const url = `https://api.koios.rest/api/v1/totals${epochNo ? `?_epoch_no=${epochNo}` : ''}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch from Koios');
     return response.json();
 }
 
-async function fetchEpochInfo(epochNo?: number) {
+async function fetchEpochInfo(epochNo?: number): Promise<KoiosEpochInfo[]> {
     const url = `https://api.koios.rest/api/v1/epoch/info${epochNo ? `?_epoch_no=${epochNo}&_include_next_epoch=false` : ''}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch epoch info');
     return response.json();
 }
 
-async function fetchExchangeRate(date: string) {
+async function fetchExchangeRate(date: string): Promise<number> {
     // Convert date from DD-MM-YYYY to YYYY-MM-DD for Binance
     const [day, month, year] = date.split('-');
     const formattedDate = `${year}-${month}-${day}`;
@@ -35,7 +75,7 @@ async function fetchExchangeRate(date: string) {
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch exchange rate from Binance');
 
-    const data = await response.json();
+    const data = await response.json() as BinanceKline[];
     if (!data || data.length === 0) {
         throw new Error('No price data available for the specified date');
     }
@@ -82,7 +122,7 @@ async function updateNetworkTotals() {
         }
 
         // Fetch only the missing epochs from Koios
-        const missingEpochs = [];
+        const missingEpochs: KoiosTotal[] = [];
         for (let epoch = latestStoredEpoch + 1; epoch <= currentEpoch; epoch++) {
             const epochData = await fetchFromKoios(epoch);
             if (epochData && epochData.length > 0) {
@@ -97,7 +137,7 @@ async function updateNetworkTotals() {
 
         // Enrich with epoch info
         const enrichedTotals = await Promise.all(
-            missingEpochs.map(async (total: NetworkTotals) => {
+            missingEpochs.map(async (total: KoiosTotal) => {
                 const epochInfo = await fetchEpochInfo(total.epoch_no);
                 if (!epochInfo?.[0]) return total;
 
