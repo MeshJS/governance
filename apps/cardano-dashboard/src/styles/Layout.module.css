@@ -1,0 +1,22 @@
+.layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    display: flex;
+    flex: 1;
+}
+
+.main {
+    flex: 1;
+    padding: 2rem;
+    margin-top: 40px;
+    margin-left: 250px;
+    transition: margin-left 0.3s cubic-bezier(.4, 0, .2, 1);
+}
+
+.main.collapsed {
+    margin-left: 60px;
+}
