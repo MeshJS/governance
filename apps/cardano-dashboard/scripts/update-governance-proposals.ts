@@ -1,5 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
-import { GovernanceProposal } from '../src/types/governance';
+import { GovernanceProposal, GovernanceProposalResponse, VotingSummaryResponse } from '../src/types/governance';
+
+interface ChainTipResponse {
+    abs_slot: number;
+    block_no: number;
+    block_time: number;
+    epoch: number;
+    epoch_slot: number;
+    hash: string;
+    slot_no: number;
+}
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -8,7 +18,7 @@ const KOIOS_API_URL = 'https://api.koios.rest/api/v1';
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-async function fetchChainTip() {
+async function fetchChainTip(): Promise<ChainTipResponse[]> {
     const url = `${KOIOS_API_URL}/tip`;
     const headers: Record<string, string> = {
         'Accept': 'application/json',
@@ -21,7 +31,7 @@ async function fetchChainTip() {
     return response.json();
 }
 
-async function fetchGovernanceProposals() {
+async function fetchGovernanceProposals(): Promise<GovernanceProposalResponse> {
     const url = `${KOIOS_API_URL}/proposal_list`;
     const headers: Record<string, string> = {
         'Accept': 'application/json',
@@ -34,7 +44,7 @@ async function fetchGovernanceProposals() {
     return response.json();
 }
 
-async function fetchVotingSummary(proposalId: string) {
+async function fetchVotingSummary(proposalId: string): Promise<VotingSummaryResponse> {
     const url = `${KOIOS_API_URL}/proposal_voting_summary?_proposal_id=${proposalId}`;
     const headers: Record<string, string> = {
         'Accept': 'application/json',
