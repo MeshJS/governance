@@ -1,12 +1,31 @@
 import { createClient } from '@supabase/supabase-js';
 import { NetworkTotals } from '../src/types/network';
-import { ChainTipApi } from '../src/data/api/chainTipApi';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const koiosApiKey = process.env.KOIOS_API_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-const chainTipApi = new ChainTipApi();
+
+interface ChainTip {
+    epoch_no: number;
+    hash: string;
+    block_time: number;
+    block_height: number;
+    slot_no: number;
+}
+
+async function fetchChainTip(): Promise<ChainTip> {
+    const url = 'https://api.koios.rest/api/v1/tip';
+    const response = await fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${koiosApiKey}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to fetch chain tip');
+    const data = await response.json() as ChainTip[];
+    return data[0];
+}
 
 interface KoiosTotal {
     epoch_no: number;
@@ -50,7 +69,11 @@ type BinanceKline = [
 
 async function fetchFromKoios(epochNo?: number): Promise<KoiosTotal[]> {
     const url = `https://api.koios.rest/api/v1/totals${epochNo ? `?_epoch_no=${epochNo}` : ''}`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${koiosApiKey}`
+        }
+    });
     if (!response.ok) throw new Error('Failed to fetch from Koios');
     const data = await response.json() as KoiosTotal[];
     return data;
@@ -58,7 +81,11 @@ async function fetchFromKoios(epochNo?: number): Promise<KoiosTotal[]> {
 
 async function fetchEpochInfo(epochNo?: number): Promise<KoiosEpochInfo[]> {
     const url = `https://api.koios.rest/api/v1/epoch/info${epochNo ? `?_epoch_no=${epochNo}&_include_next_epoch=false` : ''}`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${koiosApiKey}`
+        }
+    });
     if (!response.ok) throw new Error('Failed to fetch epoch info');
     const data = await response.json() as KoiosEpochInfo[];
     return data;
@@ -114,7 +141,7 @@ async function updateNetworkTotals() {
         const latestStoredEpoch = existingTotals?.[0]?.epoch_no || 0;
 
         // Get current chain tip
-        const chainTip = await chainTipApi.fetchFromKoios();
+        const chainTip = await fetchChainTip();
         const currentEpoch = chainTip.epoch_no;
 
         // If we're up to date, exit early
