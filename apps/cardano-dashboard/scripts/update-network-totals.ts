@@ -52,14 +52,16 @@ async function fetchFromKoios(epochNo?: number): Promise<KoiosTotal[]> {
     const url = `https://api.koios.rest/api/v1/totals${epochNo ? `?_epoch_no=${epochNo}` : ''}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch from Koios');
-    return response.json();
+    const data = await response.json() as KoiosTotal[];
+    return data;
 }
 
 async function fetchEpochInfo(epochNo?: number): Promise<KoiosEpochInfo[]> {
     const url = `https://api.koios.rest/api/v1/epoch/info${epochNo ? `?_epoch_no=${epochNo}&_include_next_epoch=false` : ''}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch epoch info');
-    return response.json();
+    const data = await response.json() as KoiosEpochInfo[];
+    return data;
 }
 
 async function fetchExchangeRate(date: string): Promise<number> {
