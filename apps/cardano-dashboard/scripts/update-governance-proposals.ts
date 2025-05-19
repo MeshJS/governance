@@ -3,12 +3,10 @@ import { GovernanceProposal, GovernanceProposalResponse, VotingSummaryResponse }
 
 interface ChainTipResponse {
     abs_slot: number;
-    block_no: number;
     block_time: number;
-    epoch: number;
+    epoch_no: number;
     epoch_slot: number;
     hash: string;
-    slot_no: number;
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -61,13 +59,13 @@ async function updateGovernanceProposals() {
     try {
         // Fetch chain tip to get current slot
         const chainTip = await fetchChainTip();
-        const currentSlot = chainTip[0].abs_slot;
+        const currentEpoch = chainTip[0].epoch_no;
 
         // First, get active proposals from Supabase
         const { data: activeProposals, error: fetchError } = await supabase
             .from('governance_proposals')
             .select('proposal_id')
-            .gt('expiration', currentSlot);
+            .gt('expiration', currentEpoch);
 
         if (fetchError) throw fetchError;
 
@@ -90,8 +88,7 @@ async function updateGovernanceProposals() {
                 const votingSummary = await fetchVotingSummary(proposal.proposal_id);
                 return {
                     ...proposal,
-                    voting_summary: votingSummary,
-                    last_updated_slot: currentSlot
+                    ...votingSummary[0]
                 };
             })
         );
