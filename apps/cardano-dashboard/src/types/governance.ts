@@ -1,4 +1,4 @@
-import { BaseData } from '../data/api/baseApi';
+import { BaseData } from './base';
 
 export type ProposalType =
     | 'ParameterChange'

@@ -128,11 +128,22 @@ export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
             if (!existingProposal) return true; // New proposal
 
             // Check if any field has changed
-            return Object.keys(koiosProposal).some(key => {
+            const hasChanges = Object.keys(koiosProposal).some(key => {
                 if (key === 'created_at' || key === 'updated_at') return false;
-                return JSON.stringify(koiosProposal[key as keyof GovernanceProposal]) !==
-                    JSON.stringify(existingProposal[key as keyof GovernanceProposal]);
+                const koiosValue = koiosProposal[key as keyof GovernanceProposal];
+                const existingValue = existingProposal[key as keyof GovernanceProposal];
+                const hasChanged = JSON.stringify(koiosValue) !== JSON.stringify(existingValue);
+
+                if (hasChanged) {
+                    console.log(`Change detected in proposal ${koiosProposal.proposal_id}:`);
+                    console.log(`Field: ${key}`);
+                    console.log('Koios value:', koiosValue);
+                    console.log('Existing value:', existingValue);
+                }
+
+                return hasChanged;
             });
+            return hasChanges;
         });
 
         console.log('Found', newOrUpdatedProposals.length, 'new or updated proposals');
