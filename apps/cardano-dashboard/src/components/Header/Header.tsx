@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { FaUser, FaQuestionCircle } from 'react-icons/fa';
+import { FaQuestionCircle } from 'react-icons/fa';
 import styles from '../../styles/Header.module.css';
 import HelpModal from '../HelpModal/HelpModal';
 

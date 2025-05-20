@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 
+interface KoiosResponse {
+    [key: string]: unknown;
+}
+
 export default function TestKoios() {
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<KoiosResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -18,8 +22,8 @@ export default function TestKoios() {
             } else {
                 setResult(data);
             }
-        } catch (err: any) {
-            setError(err.message || 'Fetch error');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Fetch error');
         } finally {
             setLoading(false);
         }
