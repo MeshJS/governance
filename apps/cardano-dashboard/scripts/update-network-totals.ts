@@ -110,80 +110,58 @@ async function fetchEpochInfo(epochNo?: number): Promise<KoiosEpochInfo[]> {
     }
 }
 
-interface CoinGeckoResponse {
-    cardano: {
-        usd: number;
-    };
+interface CoinGeckoHistoryResponse {
+  market_data: {
+    current_price: {
+      usd: number;
+      [currency: string]: number;
+    }
+  }
 }
 
 async function fetchExchangeRate(date: string): Promise<number> {
-    // CoinGecko expects date in dd-mm-yyyy format
-    // Our input date is already in dd-mm-yyyy format, so we can use it directly
-    const maxRetries = 3;
-    let lastError: Error | null = null;
+  const maxRetries = 3;
+  let lastError: Error | null = null;
 
-    console.log(`Attempting to fetch price for date: ${date}`);
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            // Fetch historical price data from CoinGecko
-            const url = `https://api.coingecko.com/api/v3/coins/cardano/history?date=${date}`;
-            const response = await fetch(url, {
-                headers: {
-                    'Accept': 'application/json',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                }
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`CoinGecko API error: ${response.status} ${errorText}`);
-            }
-
-            const data = await response.json() as CoinGeckoResponse;
-            if (!data?.cardano?.usd) {
-                throw new Error('No price data available for the specified date');
-            }
-
-            // Format to 4 decimal places
-            return Number(data.cardano.usd.toFixed(4));
-        } catch (error: unknown) {
-            lastError = error instanceof Error ? error : new Error(String(error));
-            console.warn(`Attempt ${attempt}/${maxRetries} failed: ${lastError.message}`);
-
-            if (attempt < maxRetries) {
-                // Wait for 2 seconds before retrying
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-        }
-    }
-
-    // If all retries failed, try to get current price as fallback
-    console.log('Historical price fetch failed, trying current price as fallback...');
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-        const currentPriceUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd';
-        const response = await fetch(currentPriceUrl, {
-            headers: {
-                'Accept': 'application/json',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
-        });
+      const url = `https://api.coingecko.com/api/v3/coins/cardano/history` +
+                  `?date=${date}&localization=false`;
+      const res = await fetch(url, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`History API ${res.status}: ${text}`);
+      }
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch current price');
-        }
-
-        const data = await response.json() as { cardano: { usd: number } };
-        if (!data?.cardano?.usd) {
-            throw new Error('No current price data available');
-        }
-
-        console.log(`Using current price as fallback: ${data.cardano.usd}`);
-        return Number(data.cardano.usd.toFixed(4));
-    } catch (fallbackError) {
-        throw new Error(`Failed to fetch exchange rate after ${maxRetries} attempts and fallback failed: ${lastError?.message}`);
+      const data = (await res.json()) as CoinGeckoHistoryResponse;
+      const usd = data.market_data?.current_price?.usd;
+      if (typeof usd !== 'number') {
+        throw new Error('No USD price available for ' + date);
+      }
+      return Number(usd.toFixed(4));
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`Attempt ${attempt} failed: ${err.message}`);
+      if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000));
     }
+  }
+
+  // Fallback to current price
+  console.log('Falling back to current price');
+  const fallbackRes = await fetch(
+    'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd'
+  );
+  if (!fallbackRes.ok) throw new Error('Fallback price fetch failed');
+  const fallbackData = await fallbackRes.json() as { cardano: { usd: number } };
+  const usd = fallbackData.cardano?.usd;
+  if (typeof usd !== 'number') {
+    throw new Error(`All retries failed; last error: ${lastError?.message}`);
+  }
+  return Number(usd.toFixed(4));
 }
+
 
 function formatDate(timestamp: number): string {
     const date = new Date(timestamp * 1000);
@@ -195,6 +173,11 @@ function formatDate(timestamp: number): string {
     }
 
     return `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+}
+
+function getCurrentDate(): string {
+    const today = new Date();
+    return `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
 }
 
 async function updateNetworkTotals() {
@@ -221,23 +204,32 @@ async function updateNetworkTotals() {
             return;
         }
 
-        // Fetch only the missing epochs from Koios
-        const missingEpochs: KoiosTotal[] = [];
-        for (let epoch = latestStoredEpoch + 1; epoch <= currentEpoch; epoch++) {
+        // Get the range of epochs to update (last 5 epochs)
+        const startEpoch = Math.max(latestStoredEpoch - 4, 0);
+        const epochsToUpdate = Array.from(
+            { length: Math.min(5, currentEpoch - startEpoch + 1) },
+            (_, i) => startEpoch + i
+        );
+
+        console.log(`Updating epochs: ${epochsToUpdate.join(', ')}`);
+
+        // Fetch data for all epochs in the range
+        const allEpochData: KoiosTotal[] = [];
+        for (const epoch of epochsToUpdate) {
             const epochData = await fetchFromKoios(epoch);
             if (epochData && epochData.length > 0) {
-                missingEpochs.push(epochData[0]);
+                allEpochData.push(epochData[0]);
             }
         }
 
-        if (missingEpochs.length === 0) {
-            console.log('No new epochs to update');
+        if (allEpochData.length === 0) {
+            console.log('No epoch data to update');
             return;
         }
 
         // Enrich with epoch info
         const enrichedTotals = await Promise.all(
-            missingEpochs.map(async (total: KoiosTotal) => {
+            allEpochData.map(async (total: KoiosTotal) => {
                 const epochInfo = await fetchEpochInfo(total.epoch_no);
                 if (!epochInfo?.[0]) return total;
 
@@ -247,10 +239,10 @@ async function updateNetworkTotals() {
                 console.log(`Processing epoch ${total.epoch_no} (current epoch: ${currentEpoch})`);
 
                 if (total.epoch_no === currentEpoch) {
-                    // For current epoch, use start_time as placeholder
-                    const startDate = formatDate(epochInfo[0].start_time);
-                    console.log(`Current epoch - using start_time: ${startDate}`);
-                    exchangeRate = await fetchExchangeRate(startDate);
+                    // For current epoch, use current date instead of start_time
+                    const currentDate = getCurrentDate();
+                    console.log(`Current epoch - using current date: ${currentDate}`);
+                    exchangeRate = await fetchExchangeRate(currentDate);
                 } else if (total.epoch_no === currentEpoch - 1) {
                     // For previous epoch, use end_time to get final price
                     const endDate = formatDate(epochInfo[0].end_time);
@@ -277,7 +269,7 @@ async function updateNetworkTotals() {
             .upsert(enrichedTotals, { onConflict: 'epoch_no' });
 
         if (error) throw error;
-        console.log(`Successfully updated ${enrichedTotals.length} new epochs`);
+        console.log(`Successfully updated ${enrichedTotals.length} epochs`);
     } catch (error) {
         console.error('Error updating network totals:', error);
         process.exit(1);
