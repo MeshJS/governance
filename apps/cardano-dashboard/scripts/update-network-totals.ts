@@ -122,6 +122,8 @@ async function fetchExchangeRate(date: string): Promise<number> {
     const maxRetries = 3;
     let lastError: Error | null = null;
 
+    console.log(`Attempting to fetch price for date: ${date}`);
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
             // Fetch historical price data from CoinGecko
@@ -156,8 +158,31 @@ async function fetchExchangeRate(date: string): Promise<number> {
         }
     }
 
-    // If all retries failed, throw the last error
-    throw new Error(`Failed to fetch exchange rate after ${maxRetries} attempts: ${lastError?.message}`);
+    // If all retries failed, try to get current price as fallback
+    console.log('Historical price fetch failed, trying current price as fallback...');
+    try {
+        const currentPriceUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd';
+        const response = await fetch(currentPriceUrl, {
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch current price');
+        }
+
+        const data = await response.json() as { cardano: { usd: number } };
+        if (!data?.cardano?.usd) {
+            throw new Error('No current price data available');
+        }
+
+        console.log(`Using current price as fallback: ${data.cardano.usd}`);
+        return Number(data.cardano.usd.toFixed(4));
+    } catch (fallbackError) {
+        throw new Error(`Failed to fetch exchange rate after ${maxRetries} attempts and fallback failed: ${lastError?.message}`);
+    }
 }
 
 function formatDate(timestamp: number): string {
@@ -219,17 +244,22 @@ async function updateNetworkTotals() {
                 let exchangeRate: number;
                 const currentEpoch = (await fetchChainTip()).epoch_no;
 
+                console.log(`Processing epoch ${total.epoch_no} (current epoch: ${currentEpoch})`);
+
                 if (total.epoch_no === currentEpoch) {
                     // For current epoch, use start_time as placeholder
                     const startDate = formatDate(epochInfo[0].start_time);
+                    console.log(`Current epoch - using start_time: ${startDate}`);
                     exchangeRate = await fetchExchangeRate(startDate);
                 } else if (total.epoch_no === currentEpoch - 1) {
                     // For previous epoch, use end_time to get final price
                     const endDate = formatDate(epochInfo[0].end_time);
+                    console.log(`Previous epoch - using end_time: ${endDate}`);
                     exchangeRate = await fetchExchangeRate(endDate);
                 } else {
                     // For older epochs, use end_time
                     const endDate = formatDate(epochInfo[0].end_time);
+                    console.log(`Older epoch - using end_time: ${endDate}`);
                     exchangeRate = await fetchExchangeRate(endDate);
                 }
 
