@@ -111,55 +111,55 @@ async function fetchEpochInfo(epochNo?: number): Promise<KoiosEpochInfo[]> {
 }
 
 interface CoinGeckoHistoryResponse {
-  market_data: {
-    current_price: {
-      usd: number;
-      [currency: string]: number;
+    market_data: {
+        current_price: {
+            usd: number;
+            [currency: string]: number;
+        }
     }
-  }
 }
 
 async function fetchExchangeRate(date: string): Promise<number> {
-  const maxRetries = 3;
-  let lastError: Error | null = null;
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const url = `https://api.coingecko.com/api/v3/coins/cardano/history` +
-                  `?date=${date}&localization=false`;
-      const res = await fetch(url, {
-        headers: { 'Accept': 'application/json' }
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`History API ${res.status}: ${text}`);
-      }
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const url = `https://api.coingecko.com/api/v3/coins/cardano/history` +
+                `?date=${date}&localization=false`;
+            const res = await fetch(url, {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`History API ${res.status}: ${text}`);
+            }
 
-      const data = (await res.json()) as CoinGeckoHistoryResponse;
-      const usd = data.market_data?.current_price?.usd;
-      if (typeof usd !== 'number') {
-        throw new Error('No USD price available for ' + date);
-      }
-      return Number(usd.toFixed(4));
-    } catch (err: any) {
-      lastError = err;
-      console.warn(`Attempt ${attempt} failed: ${err.message}`);
-      if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000));
+            const data = (await res.json()) as CoinGeckoHistoryResponse;
+            const usd = data.market_data?.current_price?.usd;
+            if (typeof usd !== 'number') {
+                throw new Error('No USD price available for ' + date);
+            }
+            return Number(usd.toFixed(4));
+        } catch (err: any) {
+            lastError = err;
+            console.warn(`Attempt ${attempt} failed: ${err.message}`);
+            if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000));
+        }
     }
-  }
 
-  // Fallback to current price
-  console.log('Falling back to current price');
-  const fallbackRes = await fetch(
-    'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd'
-  );
-  if (!fallbackRes.ok) throw new Error('Fallback price fetch failed');
-  const fallbackData = await fallbackRes.json() as { cardano: { usd: number } };
-  const usd = fallbackData.cardano?.usd;
-  if (typeof usd !== 'number') {
-    throw new Error(`All retries failed; last error: ${lastError?.message}`);
-  }
-  return Number(usd.toFixed(4));
+    // Fallback to current price
+    console.log('Falling back to current price');
+    const fallbackRes = await fetch(
+        'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd'
+    );
+    if (!fallbackRes.ok) throw new Error('Fallback price fetch failed');
+    const fallbackData = await fallbackRes.json() as { cardano: { usd: number } };
+    const usd = fallbackData.cardano?.usd;
+    if (typeof usd !== 'number') {
+        throw new Error(`All retries failed; last error: ${lastError?.message}`);
+    }
+    return Number(usd.toFixed(4));
 }
 
 
@@ -198,20 +198,18 @@ async function updateNetworkTotals() {
         const chainTip = await fetchChainTip();
         const currentEpoch = chainTip.epoch_no;
 
-        // If we're up to date, exit early
-        if (latestStoredEpoch >= currentEpoch) {
-            console.log('Already up to date with the latest epoch');
-            return;
-        }
+        // Calculate the range of epochs to update
+        // Start from the oldest of the last 5 stored epochs
+        const oldestStoredEpoch = existingTotals?.[existingTotals.length - 1]?.epoch_no || latestStoredEpoch;
+        const startEpoch = Math.max(oldestStoredEpoch, 0);
 
-        // Get the range of epochs to update (last 5 epochs)
-        const startEpoch = Math.max(latestStoredEpoch - 4, 0);
+        // Create array of epochs to update from oldest stored up to current
         const epochsToUpdate = Array.from(
-            { length: Math.min(5, currentEpoch - startEpoch + 1) },
+            { length: currentEpoch - startEpoch + 1 },
             (_, i) => startEpoch + i
         );
 
-        console.log(`Updating epochs: ${epochsToUpdate.join(', ')}`);
+        console.log(`Updating epochs from ${startEpoch} to ${currentEpoch}: ${epochsToUpdate.join(', ')}`);
 
         // Fetch data for all epochs in the range
         const allEpochData: KoiosTotal[] = [];
