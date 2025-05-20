@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { NetworkTotals } from '@/types/network';
+import { NetworkTotals } from '../../types/network';
 import styles from '@/styles/NetworkTotalsChart.module.css';
 
 interface NetworkTotalsChartProps {

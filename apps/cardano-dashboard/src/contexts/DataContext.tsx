@@ -1,6 +1,6 @@
 // contexts/DataContext.tsx
 import React, { createContext, useContext } from 'react';
-import { DataContextType } from '../types/datacontext';
+import { DataContextType } from '../../types/datacontext';
 import { useDataFetching } from '../data/hooks/useDataFetching';
 
 export function useDataContext() {

@@ -1,4 +1,4 @@
-import { BaseData } from '@/types/base';
+import { BaseData } from './base';
 
 export interface ChainTip extends BaseData {
     epoch_no: number;

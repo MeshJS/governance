@@ -1,5 +1,5 @@
 import { BaseApi } from './baseApi';
-import { NetworkTotals } from '../../types/network';
+import { NetworkTotals } from '../../../types/network';
 
 export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
     constructor() {

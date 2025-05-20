@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { GovernanceProposal, GovernanceProposalResponse, VotingSummaryResponse } from '../src/types/governance';
+import { GovernanceProposal, GovernanceProposalResponse, VotingSummaryResponse } from './types/governance';
 
 interface ChainTipResponse {
     abs_slot: number;
