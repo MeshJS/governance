@@ -117,21 +117,15 @@ interface CoinGeckoResponse {
 }
 
 async function fetchExchangeRate(date: string): Promise<number> {
-    // Convert date from DD-MM-YYYY to YYYY-MM-DD for CoinGecko
-    const [day, month, year] = date.split('-');
-    const formattedDate = `${year}-${month}-${day}`;
-
-    // Get timestamp for the start of the day in milliseconds
-    const timestamp = new Date(formattedDate).getTime();
-    const dateStr = new Date(timestamp).toISOString().split('T')[0];
-
+    // CoinGecko expects date in dd-mm-yyyy format
+    // Our input date is already in dd-mm-yyyy format, so we can use it directly
     const maxRetries = 3;
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
             // Fetch historical price data from CoinGecko
-            const url = `https://api.coingecko.com/api/v3/coins/cardano/history?date=${dateStr}`;
+            const url = `https://api.coingecko.com/api/v3/coins/cardano/history?date=${date}`;
             const response = await fetch(url, {
                 headers: {
                     'Accept': 'application/json',
