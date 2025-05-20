@@ -1,4 +1,4 @@
-import { ChainTip, ChainTipResponse } from '../../types/network';
+import { ChainTip, ChainTipResponse } from '../../../types/network';
 
 export class ChainTipApi {
     async fetchFromKoios(): Promise<ChainTip> {

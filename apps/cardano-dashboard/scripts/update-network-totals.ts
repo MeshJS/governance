@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { NetworkTotals } from '../src/types/network';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -40,16 +39,17 @@ interface KoiosTotal {
 
 interface KoiosEpochInfo {
     epoch_no: number;
+    out_sum: string;
+    fees: string;
+    tx_count: number;
+    blk_count: number;
     start_time: number;
     end_time: number;
     first_block_time: number;
     last_block_time: number;
-    first_block_height: number;
-    last_block_height: number;
-    tx_count: number;
-    output: string;
-    fees: string;
     active_stake: string;
+    total_rewards: string;
+    avg_blk_reward: string;
 }
 
 type BinanceKline = [
@@ -80,15 +80,34 @@ async function fetchFromKoios(epochNo?: number): Promise<KoiosTotal[]> {
 }
 
 async function fetchEpochInfo(epochNo?: number): Promise<KoiosEpochInfo[]> {
-    const url = `https://api.koios.rest/api/v1/epoch/info${epochNo ? `?_epoch_no=${epochNo}&_include_next_epoch=false` : ''}`;
-    const response = await fetch(url, {
-        headers: {
-            'Authorization': `Bearer ${koiosApiKey}`
+    const url = `https://api.koios.rest/api/v1/epoch_info${epochNo ? `?_epoch_no=${epochNo}&_include_next_epoch=false` : ''}`;
+    try {
+        console.log(`Fetching epoch info from: ${url}`);
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${koiosApiKey}`,
+                'accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Koios API error: Status ${response.status}`, errorText);
+            throw new Error(`Failed to fetch epoch info: ${response.status} ${errorText}`);
         }
-    });
-    if (!response.ok) throw new Error('Failed to fetch epoch info');
-    const data = await response.json() as KoiosEpochInfo[];
-    return data;
+
+        const data = await response.json() as KoiosEpochInfo[];
+        if (!data || data.length === 0) {
+            console.warn(`No epoch info returned for epoch ${epochNo}`);
+            return [];
+        }
+
+        console.log(`Successfully fetched epoch info for epoch ${epochNo}`);
+        return data;
+    } catch (error) {
+        console.error('Error in fetchEpochInfo:', error);
+        throw error;
+    }
 }
 
 async function fetchExchangeRate(date: string): Promise<number> {

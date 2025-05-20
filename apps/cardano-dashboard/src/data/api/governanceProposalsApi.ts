@@ -1,6 +1,6 @@
 import { BaseApi } from './baseApi';
-import { GovernanceProposal } from '../../types/governance';
-import { ChainTip } from '../../types/network';
+import { GovernanceProposal } from '../../../types/governance';
+import { ChainTip } from '../../../types/network';
 
 export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
     constructor() {
