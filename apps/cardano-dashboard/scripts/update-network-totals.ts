@@ -110,42 +110,46 @@ async function fetchEpochInfo(epochNo?: number): Promise<KoiosEpochInfo[]> {
     }
 }
 
+interface CoinGeckoResponse {
+    cardano: {
+        usd: number;
+    };
+}
+
 async function fetchExchangeRate(date: string): Promise<number> {
-    // Convert date from DD-MM-YYYY to YYYY-MM-DD for Binance
+    // Convert date from DD-MM-YYYY to YYYY-MM-DD for CoinGecko
     const [day, month, year] = date.split('-');
     const formattedDate = `${year}-${month}-${day}`;
 
     // Get timestamp for the start of the day in milliseconds
     const timestamp = new Date(formattedDate).getTime();
+    const dateStr = new Date(timestamp).toISOString().split('T')[0];
 
     const maxRetries = 3;
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            // Fetch 1-day klines/candlestick data from Binance
-            const url = `https://api.binance.com/api/v3/klines?symbol=ADAUSDT&interval=1d&startTime=${timestamp}&limit=1`;
+            // Fetch historical price data from CoinGecko
+            const url = `https://api.coingecko.com/api/v3/coins/cardano/history?date=${dateStr}`;
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                     'Accept': 'application/json',
-                    'Accept-Language': 'en-US,en;q=0.9',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
                 }
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`Binance API error: ${response.status} ${errorText}`);
+                throw new Error(`CoinGecko API error: ${response.status} ${errorText}`);
             }
 
-            const data = await response.json() as BinanceKline[];
-            if (!data || data.length === 0) {
+            const data = await response.json() as CoinGeckoResponse;
+            if (!data?.cardano?.usd) {
                 throw new Error('No price data available for the specified date');
             }
 
-            // Binance klines data format: [timestamp, open, high, low, close, ...]
-            // We'll use the closing price
-            return parseFloat(data[0][4]);
+            return data.cardano.usd;
         } catch (error: unknown) {
             lastError = error instanceof Error ? error : new Error(String(error));
             console.warn(`Attempt ${attempt}/${maxRetries} failed: ${lastError.message}`);
