@@ -14,6 +14,11 @@ export class NetworkTotalsApi extends BaseApi<NetworkTotals> {
     }
 
     async fetchAndUpdate(): Promise<NetworkTotals[]> {
-        return this.fetchFromSupabase();
+        try {
+            return await this.fetchFromSupabase();
+        } catch (error) {
+            console.error('Error in NetworkTotalsApi.fetchAndUpdate:', error);
+            throw error;
+        }
     }
 } 

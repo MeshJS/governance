@@ -108,7 +108,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
         // Create line generators for each enabled line
         const lineGenerators = lineConfigs
             .filter(config => config.enabled)
-            .map(config => d3.line<any>()
+            .map(config => d3.line<{ percentages: Record<string, number> }>()
                 .x((_, i) => xScale(i))
                 .y(d => {
                     const value = Math.max(1, d.percentages[config.key]); // Ensure value is at least 1 for log scale

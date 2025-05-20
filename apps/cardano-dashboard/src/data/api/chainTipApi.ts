@@ -6,6 +6,7 @@ export class ChainTipApi {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch chain tip');
         const data = await response.json() as ChainTipResponse;
+        if (!data || data.length === 0) throw new Error('No chain tip data received');
         return data[0];
     }
 

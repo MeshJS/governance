@@ -1,6 +1,6 @@
 // contexts/DataContext.tsx
-import React, { createContext, useContext } from 'react';
-import { DataContextType } from '../../types/datacontext';
+import React, { createContext, useContext, useEffect } from 'react';
+import { DataContextType } from 'types/datacontext';
 import { useDataFetching } from '../data/hooks/useDataFetching';
 
 export function useDataContext() {
@@ -13,7 +13,20 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const data = useDataFetching();
-    console.log('DataContext', data);
+
+    // Log errors when they occur
+    useEffect(() => {
+        if (data.isError.chainTip) {
+            console.error('Chain tip error:', data.error.chainTip);
+        }
+        if (data.isError.networkTotals) {
+            console.error('Network totals error:', data.error.networkTotals);
+        }
+        if (data.isError.governanceProposals) {
+            console.error('Governance proposals error:', data.error.governanceProposals);
+        }
+    }, [data.isError, data.error]);
+
     return (
         <DataContext.Provider value={data}>
             {children}

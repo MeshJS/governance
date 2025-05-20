@@ -1,6 +1,5 @@
 import { BaseApi } from './baseApi';
 import { GovernanceProposal } from '../../../types/governance';
-import { ChainTip } from '../../../types/network';
 
 export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
     constructor() {
@@ -14,7 +13,7 @@ export class GovernanceProposalsApi extends BaseApi<GovernanceProposal> {
         });
     }
 
-    async fetchAndUpdate(chainTip?: ChainTip): Promise<GovernanceProposal[]> {
+    async fetchAndUpdate(): Promise<GovernanceProposal[]> {
         return this.fetchFromSupabase();
     }
 } 

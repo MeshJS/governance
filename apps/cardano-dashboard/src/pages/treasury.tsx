@@ -3,7 +3,7 @@ import NetworkTotalsChart from "@/components/NetworkTotalsChart";
 import { useDataContext } from "@/contexts/DataContext";
 
 export default function Treasury() {
-    const { networkTotals, loading, error } = useDataContext();
+    const { networkTotals, loading, error, isError } = useDataContext();
 
     return (
         <div>
@@ -20,11 +20,11 @@ export default function Treasury() {
                             <div className="text-white/60">Loading chart...</div>
                         </div>
                     </div>
-                ) : error ? (
+                ) : isError.networkTotals ? (
                     <div className="w-full p-4 bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-xl rounded-2xl border border-white/8 shadow-lg">
                         <h3 className="text-xl text-white mb-6">Network Totals</h3>
                         <div className="w-full h-[400px] flex items-center justify-center">
-                            <div className="text-red-500">Error: {error.message}</div>
+                            <div className="text-red-500">Error: {error.networkTotals?.message || 'Failed to load network totals'}</div>
                         </div>
                     </div>
                 ) : (
