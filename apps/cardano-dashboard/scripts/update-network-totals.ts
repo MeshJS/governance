@@ -143,7 +143,8 @@ async function fetchExchangeRate(date: string): Promise<number> {
                 throw new Error('No price data available for the specified date');
             }
 
-            return data.cardano.usd;
+            // Format to 4 decimal places
+            return Number(data.cardano.usd.toFixed(4));
         } catch (error: unknown) {
             lastError = error instanceof Error ? error : new Error(String(error));
             console.warn(`Attempt ${attempt}/${maxRetries} failed: ${lastError.message}`);
@@ -215,8 +216,22 @@ async function updateNetworkTotals() {
                 const epochInfo = await fetchEpochInfo(total.epoch_no);
                 if (!epochInfo?.[0]) return total;
 
-                const date = formatDate(epochInfo[0].end_time);
-                const exchangeRate = await fetchExchangeRate(date);
+                let exchangeRate: number;
+                const currentEpoch = (await fetchChainTip()).epoch_no;
+
+                if (total.epoch_no === currentEpoch) {
+                    // For current epoch, use start_time as placeholder
+                    const startDate = formatDate(epochInfo[0].start_time);
+                    exchangeRate = await fetchExchangeRate(startDate);
+                } else if (total.epoch_no === currentEpoch - 1) {
+                    // For previous epoch, use end_time to get final price
+                    const endDate = formatDate(epochInfo[0].end_time);
+                    exchangeRate = await fetchExchangeRate(endDate);
+                } else {
+                    // For older epochs, use end_time
+                    const endDate = formatDate(epochInfo[0].end_time);
+                    exchangeRate = await fetchExchangeRate(endDate);
+                }
 
                 return {
                     ...total,
