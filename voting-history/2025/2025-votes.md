@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [2025 Cardano NCL](https://adastat.net/governances/7d9fc9fe4cee64fb34e57783378ac869a85c78d6fbcd4078ed131ab6fa3c7db600) |
+| Hash           | 7d9fc9fe4cee64fb34e57783378ac869a85c78d6fbcd4078ed131ab6fa3c7db600 |
+| Action ID      | gov_action10k0unljvaej0kd89w7pn0zkgdx59c7xkl0x5q78dzvdtd73u0kmqq5xl5y5 |
+| Type           | InfoAction |
+| Proposed Epoch | 554 |
+| Expires Epoch  | 561 |
+| Vote           | ✅Yes |
+| Vote Submitted | 5/13/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following on the 2025 Cardano NCL Yes: 4 votes No: 0 votes Abstain: 3 votes When it comes to Cardano Treasury spendings, with Mesh we are surely more on the conservative side. We see the first year of Cardano onchain governance and its treasury spendings as a crucial year in which we'd do better to prioritise on how we spend treasury and making sure that spendings are effective and efficient, focusing on high quality spending rather then high quantity spending. Having a smaller NCL sends a clear message to the ecosystem to be careful and more strict in our budget allocations in 2025. Also worth to keep in mind that in 2025, we are in the periodically recurring bull year, from historical data we can expect a increase of Ada price, meaning that less Ada have to be spend. This is already the case since we see many budget proposals currently calculating their budget requests on 0.50 USD per Ada, yet the last time Ada was globally traded at 0.50 USD/Ada was in late 2024. Therefore, we support the NCL = 200M ADA. |
+|Link|https://adastat.net/transactions/d7b13ea9b79ef883ea74210583d1a0333e32953e988bbbfc182cbfa69d05e1de |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Set 2025 Net Change Limit of 300M ADA, 2026 Net Change Limit of 250M ADA](https://adastat.net/governances/7f320409d9998712ff3a3cdf0c9439e1543f236a3d746766f78f1fdbe1e06bf800) |
 | Hash           | 7f320409d9998712ff3a3cdf0c9439e1543f236a3d746766f78f1fdbe1e06bf800 |
 | Action ID      | gov_action10ueqgzwenxr39le68n0se9peu92r7gm2846xwehh3u0ahc0qd0uqqyljxu5 |
