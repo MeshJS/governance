@@ -118,19 +118,47 @@ async function fetchExchangeRate(date: string): Promise<number> {
     // Get timestamp for the start of the day in milliseconds
     const timestamp = new Date(formattedDate).getTime();
 
-    // Fetch 1-day klines/candlestick data from Binance
-    const url = `https://api.binance.com/api/v3/klines?symbol=ADAUSDT&interval=1d&startTime=${timestamp}&limit=1`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Failed to fetch exchange rate from Binance');
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-    const data = await response.json() as BinanceKline[];
-    if (!data || data.length === 0) {
-        throw new Error('No price data available for the specified date');
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            // Fetch 1-day klines/candlestick data from Binance
+            const url = `https://api.binance.com/api/v3/klines?symbol=ADAUSDT&interval=1d&startTime=${timestamp}&limit=1`;
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    'Accept': 'application/json',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Binance API error: ${response.status} ${errorText}`);
+            }
+
+            const data = await response.json() as BinanceKline[];
+            if (!data || data.length === 0) {
+                throw new Error('No price data available for the specified date');
+            }
+
+            // Binance klines data format: [timestamp, open, high, low, close, ...]
+            // We'll use the closing price
+            return parseFloat(data[0][4]);
+        } catch (error: unknown) {
+            lastError = error instanceof Error ? error : new Error(String(error));
+            console.warn(`Attempt ${attempt}/${maxRetries} failed: ${lastError.message}`);
+
+            if (attempt < maxRetries) {
+                // Wait for 2 seconds before retrying
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
     }
 
-    // Binance klines data format: [timestamp, open, high, low, close, ...]
-    // We'll use the closing price
-    return parseFloat(data[0][4]);
+    // If all retries failed, throw the last error
+    throw new Error(`Failed to fetch exchange rate after ${maxRetries} attempts: ${lastError?.message}`);
 }
 
 function formatDate(timestamp: number): string {
