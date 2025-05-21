@@ -26,6 +26,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Governance proposals error:', data.error.governanceProposals);
         }
     }, [data.isError, data.error]);
+    console.log(data);
 
     return (
         <DataContext.Provider value={data}>

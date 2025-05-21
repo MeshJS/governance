@@ -38,4 +38,13 @@ jobs:
           KOIOS_API_KEY: ${{ secrets.KOIOS_API_KEY }}
         run: |
           cd apps/cardano-dashboard
-          npx ts-node scripts/update-governance-proposals.ts 
+          npx ts-node scripts/update-governance-proposals.ts
+
+      - name: Update SPO Data
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          KOIOS_API_KEY: ${{ secrets.KOIOS_API_KEY }}
+        run: |
+          cd apps/cardano-dashboard
+          npx ts-node scripts/update-spo-data.ts 
