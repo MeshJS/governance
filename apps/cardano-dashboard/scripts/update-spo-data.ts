@@ -69,7 +69,7 @@ async function fetchSPOData(): Promise<SPOData[]> {
     while (hasMoreData) {
         try {
             // Add filters for pool status and retiring epoch
-            const paginatedUrl = `${url}?offset=${offset}&limit=${limit}&or=(pool_status.eq.registered,and(pool_status.eq.retired,retiring_epoch.gte.${minRetiringEpoch}))`;
+            const paginatedUrl = `${url}?offset=${offset}&limit=${limit}&or=(pool_status.eq.registered,and(pool_status.eq.retired,retiring_epoch.gte.${minRetiringEpoch}),pool_status.eq.retiring)`;
             const response = await fetch(paginatedUrl, {
                 headers: {
                     'Authorization': `Bearer ${koiosApiKey}`,
