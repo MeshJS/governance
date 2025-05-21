@@ -36,21 +36,42 @@ interface SPOData {
 
 async function fetchSPOData(): Promise<SPOData[]> {
     const url = 'https://api.koios.rest/api/v1/pool_list';
-    const response = await fetch(url, {
-        headers: {
-            'Authorization': `Bearer ${koiosApiKey}`,
-            'Accept': 'application/json'
-        }
-    });
+    let allData: SPOData[] = [];
+    let offset = 0;
+    const limit = 1000; // Koios API default limit
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Koios API error: Status ${response.status}`, errorText);
-        throw new Error(`Failed to fetch SPO data: ${response.status} ${errorText}`);
+    while (true) {
+        const paginatedUrl = `${url}?offset=${offset}&limit=${limit}`;
+        const response = await fetch(paginatedUrl, {
+            headers: {
+                'Authorization': `Bearer ${koiosApiKey}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Koios API error: Status ${response.status}`, errorText);
+            throw new Error(`Failed to fetch SPO data: ${response.status} ${errorText}`);
+        }
+
+        const data = await response.json() as SPOData[];
+
+        if (!data || data.length === 0) {
+            break; // No more data to fetch
+        }
+
+        allData = [...allData, ...data];
+        console.log(`Fetched ${data.length} records, total: ${allData.length}`);
+
+        if (data.length < limit) {
+            break; // We've received fewer records than the limit, so we're done
+        }
+
+        offset += limit;
     }
 
-    const data = await response.json() as SPOData[];
-    return data;
+    return allData;
 }
 
 async function updateSPOData() {
