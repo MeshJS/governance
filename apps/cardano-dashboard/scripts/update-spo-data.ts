@@ -34,41 +34,89 @@ interface SPOData {
     retiring_epoch: number;
 }
 
+interface TipData {
+    hash: string;
+    epoch_no: number;
+    abs_slot: number;
+    epoch_slot: number;
+    block_height: number;
+    block_time: number;
+}
+
 async function fetchSPOData(): Promise<SPOData[]> {
+    // First get current epoch to calculate the range
+    const tipResponse = await fetch('https://api.koios.rest/api/v1/tip', {
+        headers: {
+            'Authorization': `Bearer ${koiosApiKey}`,
+            'Accept': 'application/json'
+        }
+    });
+
+    if (!tipResponse.ok) {
+        throw new Error('Failed to fetch current epoch');
+    }
+
+    const tipData = await tipResponse.json() as TipData[];
+    const currentEpoch = tipData[0].epoch_no;
+    const minRetiringEpoch = currentEpoch - 5;
+
     const url = 'https://api.koios.rest/api/v1/pool_list';
     let allData: SPOData[] = [];
     let offset = 0;
-    const limit = 1000; // Koios API default limit
+    const limit = 500; // Reduced from 1000 to 500 for safer pagination
+    let hasMoreData = true;
 
-    while (true) {
-        const paginatedUrl = `${url}?offset=${offset}&limit=${limit}`;
-        const response = await fetch(paginatedUrl, {
-            headers: {
-                'Authorization': `Bearer ${koiosApiKey}`,
-                'Accept': 'application/json'
+    while (hasMoreData) {
+        try {
+            // Add filters for pool status and retiring epoch
+            const paginatedUrl = `${url}?offset=${offset}&limit=${limit}&or=(pool_status.eq.registered,and(pool_status.eq.retired,retiring_epoch.gte.${minRetiringEpoch}))`;
+            const response = await fetch(paginatedUrl, {
+                headers: {
+                    'Authorization': `Bearer ${koiosApiKey}`,
+                    'Accept': 'application/json',
+                    'Prefer': 'count=estimated' // Request estimated count
+                }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Koios API error: Status ${response.status}`, errorText);
+                throw new Error(`Failed to fetch SPO data: ${response.status} ${errorText}`);
             }
-        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Koios API error: Status ${response.status}`, errorText);
-            throw new Error(`Failed to fetch SPO data: ${response.status} ${errorText}`);
+            // Get the Content-Range header to understand pagination
+            const contentRange = response.headers.get('content-range');
+            if (!contentRange) {
+                console.warn('No Content-Range header received from API');
+            } else {
+                console.log(`Content-Range: ${contentRange}`);
+            }
+
+            const data = await response.json() as SPOData[];
+
+            if (!data || data.length === 0) {
+                hasMoreData = false;
+                break;
+            }
+
+            allData = [...allData, ...data];
+            console.log(`Fetched ${data.length} records, total: ${allData.length}`);
+
+            // Check if we've received fewer records than the limit
+            if (data.length < limit) {
+                hasMoreData = false;
+            } else {
+                offset += limit;
+            }
+
+            // Add a small delay between requests to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+            console.error(`Error fetching data at offset ${offset}:`, error);
+            // If we encounter an error, we'll stop pagination
+            hasMoreData = false;
+            throw error;
         }
-
-        const data = await response.json() as SPOData[];
-
-        if (!data || data.length === 0) {
-            break; // No more data to fetch
-        }
-
-        allData = [...allData, ...data];
-        console.log(`Fetched ${data.length} records, total: ${allData.length}`);
-
-        if (data.length < limit) {
-            break; // We've received fewer records than the limit, so we're done
-        }
-
-        offset += limit;
     }
 
     return allData;
