@@ -9,12 +9,11 @@ export interface BaseApiConfig {
     };
 }
 
-export class BaseApi<T> {
-    protected supabase;
-    protected config: BaseApiConfig;
+// Singleton Supabase client
+let supabaseInstance: ReturnType<typeof createClient> | null = null;
 
-    constructor(config: BaseApiConfig) {
-        this.config = config;
+function getSupabaseClient() {
+    if (!supabaseInstance) {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -23,29 +22,69 @@ export class BaseApi<T> {
             throw new Error('Missing Supabase environment variables');
         }
 
-        this.supabase = createClient(supabaseUrl, supabaseKey);
+        supabaseInstance = createClient(supabaseUrl, supabaseKey);
+    }
+    return supabaseInstance;
+}
+
+export class BaseApi<T> {
+    protected supabase;
+    protected config: BaseApiConfig;
+
+    constructor(config: BaseApiConfig) {
+        this.config = config;
+        this.supabase = getSupabaseClient();
     }
 
     protected async fetchFromSupabase(): Promise<T[]> {
         try {
-            let query = this.supabase
-                .from(this.config.tableName)
-                .select('*');
+            const PAGE_SIZE = 1000;
+            let allData: T[] = [];
+            let page = 0;
+            let hasMore = true;
 
-            if (this.config.orderBy) {
-                query = query.order(this.config.orderBy.column, {
-                    ascending: this.config.orderBy.ascending
-                });
+            while (hasMore) {
+                let query = this.supabase
+                    .from(this.config.tableName)
+                    .select('*', { count: 'exact' })
+                    .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+                if (this.config.orderBy) {
+                    query = query.order(this.config.orderBy.column, {
+                        ascending: this.config.orderBy.ascending
+                    });
+                }
+
+                const { data, error, count } = await query;
+
+                if (error) {
+                    console.error(`Error fetching from ${this.config.tableName}:`, error);
+                    throw error;
+                }
+
+                if (!data || data.length === 0) {
+                    hasMore = false;
+                    break;
+                }
+
+                // Cast the data to the correct type
+                const typedData = data as T[];
+                allData = [...allData, ...typedData];
+                console.log(`Fetched ${typedData.length} records from ${this.config.tableName}, total: ${allData.length}, total count: ${count}`);
+
+                // Check if we've received all records
+                if (count !== null && allData.length >= count) {
+                    hasMore = false;
+                } else if (data.length < PAGE_SIZE) {
+                    hasMore = false;
+                } else {
+                    page++;
+                    // Add a small delay between requests to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             }
 
-            const { data, error } = await query;
-
-            if (error) {
-                console.error(`Error fetching from ${this.config.tableName}:`, error);
-                throw error;
-            }
-
-            return data || [];
+            return allData;
         } catch (error) {
             console.error(`Failed to fetch from ${this.config.tableName}:`, error);
             throw error;
