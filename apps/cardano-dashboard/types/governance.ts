@@ -12,10 +12,12 @@ export type ProposalType =
 export interface Withdrawal {
     stake_address: string;
     amount: string;
+    [key: string]: unknown;
 }
 
 export interface Deposit {
     return_address: string;
+    [key: string]: unknown;
 }
 
 export interface VotingSummary {
@@ -50,6 +52,31 @@ export interface VotingSummary {
     committee_no_votes_cast: number;
     committee_no_pct: number;
     committee_abstain_votes_cast: number;
+    [key: string]: unknown;
+}
+
+export interface MetaJsonBody {
+    [key: string]: unknown;
+}
+
+export interface MetaJson {
+    [key: string]: unknown;
+}
+
+export type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+export type JsonObject = { [key: string]: JsonValue };
+export type JsonArray = JsonValue[];
+
+export interface ParameterProposal {
+    parameter_name: string;
+    parameter_value: string | number;
+    explanation: string;
+    [key: string]: unknown;
+}
+
+export interface ProposalDescription {
+    tag: ProposalType;
+    [key: string]: unknown;
 }
 
 export interface GovernanceProposal extends BaseData {
@@ -58,9 +85,9 @@ export interface GovernanceProposal extends BaseData {
     proposal_tx_hash: string;
     proposal_index: number;
     proposal_type: ProposalType;
-    proposal_description: any;
-    deposit: Deposit | null;
-    return_address: string | null;
+    proposal_description: ProposalDescription;
+    deposit: string;
+    return_address: string;
     proposed_epoch: number;
     ratified_epoch: number | null;
     enacted_epoch: number | null;
@@ -69,12 +96,12 @@ export interface GovernanceProposal extends BaseData {
     expiration: number | null;
     meta_url: string | null;
     meta_hash: string | null;
-    meta_json: any | null;
+    meta_json: MetaJson | null;
     meta_comment: string | null;
     meta_language: string | null;
     meta_is_valid: boolean | null;
     withdrawal: Withdrawal | null;
-    param_proposal: any | null;
+    param_proposal: ParameterProposal | null;
     title: string;
     description: string;
     status: string;
@@ -116,6 +143,7 @@ export interface GovernanceProposal extends BaseData {
     committee_no_votes_cast?: number;
     committee_no_pct?: number;
     committee_abstain_votes_cast?: number;
+    [key: string]: unknown;
 }
 
 export type GovernanceProposalResponse = GovernanceProposal[];
