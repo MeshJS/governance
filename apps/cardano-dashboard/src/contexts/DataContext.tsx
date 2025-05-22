@@ -25,6 +25,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (data.isError.governanceProposals) {
             console.error('Governance proposals error:', data.error.governanceProposals);
         }
+        if (data.isError.spoData) {
+            console.error('SPO data error:', data.error.spoData);
+        }
+        if (data.isError.drepData) {
+            console.error('DRep data error:', data.error.drepData);
+        }
+        if (data.isError.committeeData) {
+            console.error('Committee data error:', data.error.committeeData);
+        }
     }, [data.isError, data.error]);
     console.log(data);
 
