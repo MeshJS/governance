@@ -31,11 +31,11 @@ export function useDataFetching() {
 
     // Chain Tip Query
     const {
-        data: chainTip,
+        data: chainTip = [],
         isLoading: loadingChainTip,
         error: chainTipError,
         isError: isChainTipError
-    } = useQuery<ChainTip | undefined, Error>({
+    } = useQuery<ChainTip[], Error>({
         queryKey: ['chainTip'],
         queryFn: async () => {
             try {

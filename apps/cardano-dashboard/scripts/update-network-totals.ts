@@ -7,11 +7,11 @@ const koiosApiKey = process.env.KOIOS_API_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 interface ChainTip {
-    epoch_no: number;
     hash: string;
+    epoch_no: number;
+    abs_slot: number;
+    epoch_slot: number;
     block_time: number;
-    block_height: number;
-    slot_no: number;
 }
 
 async function fetchChainTip(): Promise<ChainTip> {
