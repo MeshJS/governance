@@ -2,7 +2,7 @@ name: Update Cardano Dashboard DRep Data
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Run at midnight UTC every day
+    - cron: '10 0 * * *'  # Run at 10 minutes past midnight UTC every day
   workflow_dispatch:  # Allow manual triggering
 
 jobs:

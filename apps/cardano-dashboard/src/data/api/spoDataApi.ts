@@ -26,6 +26,7 @@ export class SPODataApi extends BaseApi<SPOData> {
                     .select('*', { count: 'exact' })
                     .or('pool_status.eq.registered,pool_status.eq.retiring')
                     .not('active_stake', 'is', null)
+                    .gt('active_stake', 0)
                     .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
                 if (this.config.orderBy) {
