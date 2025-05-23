@@ -1,12 +1,12 @@
-name: Update Cardano Dashboard Data
+name: Update SPO Data
 
 on:
   schedule:
-    - cron: '5 0 * * *'  # Run at 5 minutes past midnight UTC every day
+    - cron: '20 0 * * *'  # Run at 20 minutes past midnight UTC every day
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
-  update-data:
+  update-spo-data:
     runs-on: ubuntu-latest
     
     steps:
@@ -22,7 +22,7 @@ jobs:
           cd apps/cardano-dashboard
           npm install
           
-      - name: Update Network Totals
+      - name: Update SPO Data
         continue-on-error: true
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -30,14 +30,4 @@ jobs:
           KOIOS_API_KEY: ${{ secrets.KOIOS_API_KEY }}
         run: |
           cd apps/cardano-dashboard
-          npx ts-node scripts/update-network-totals.ts
-          
-      - name: Update Governance Proposals
-        continue-on-error: true
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          KOIOS_API_KEY: ${{ secrets.KOIOS_API_KEY }}
-        run: |
-          cd apps/cardano-dashboard
-          npx ts-node scripts/update-governance-proposals.ts 
+          npx ts-node scripts/update-spo-data.ts 

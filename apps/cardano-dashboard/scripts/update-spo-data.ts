@@ -43,6 +43,22 @@ interface TipData {
     block_time: number;
 }
 
+interface DetailedPoolInfo {
+    pool_id_bech32: string;
+    vrf_key_hash: string;
+    reward_addr_delegated_drep: string | null;
+    meta_json: any;
+    op_cert: string;
+    op_cert_counter: number;
+    sigma: number;
+    block_count: number;
+    live_pledge: string;
+    live_stake: string;
+    live_delegators: number;
+    live_saturation: number;
+    voting_power: string;
+}
+
 async function fetchSPOData(): Promise<SPOData[]> {
     // First get current epoch to calculate the range
     const tipResponse = await fetch('https://api.koios.rest/api/v1/tip', {
@@ -122,6 +138,51 @@ async function fetchSPOData(): Promise<SPOData[]> {
     return allData;
 }
 
+async function fetchDetailedPoolInfo(poolIds: string[]): Promise<DetailedPoolInfo[]> {
+    const batchSize = 50; // Process 50 pools at a time
+    const batches = [];
+
+    // Split pool IDs into batches
+    for (let i = 0; i < poolIds.length; i += batchSize) {
+        batches.push(poolIds.slice(i, i + batchSize));
+    }
+
+    let allDetailedInfo: DetailedPoolInfo[] = [];
+
+    for (const batch of batches) {
+        try {
+            const response = await fetch('https://api.koios.rest/api/v1/pool_info', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${koiosApiKey}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    _pool_bech32_ids: batch
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Koios API error: Status ${response.status}`, errorText);
+                throw new Error(`Failed to fetch detailed pool info: ${response.status} ${errorText}`);
+            }
+
+            const data = await response.json() as DetailedPoolInfo[];
+            allDetailedInfo = [...allDetailedInfo, ...data];
+
+            // Add a small delay between batches to respect rate limits
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+            console.error(`Error fetching detailed info for batch:`, error);
+            throw error;
+        }
+    }
+
+    return allDetailedInfo;
+}
+
 async function updateSPOData() {
     try {
         console.log('Fetching SPO data from Koios...');
@@ -134,11 +195,21 @@ async function updateSPOData() {
 
         console.log(`Received ${spoData.length} SPO records`);
 
-        // Add updated_at timestamp to each record
-        const enrichedData = spoData.map(record => ({
-            ...record,
-            updated_at: new Date().toISOString()
-        }));
+        // Fetch detailed pool information
+        console.log('Fetching detailed pool information...');
+        const poolIds = spoData.map(pool => pool.pool_id_bech32);
+        const detailedInfo = await fetchDetailedPoolInfo(poolIds);
+        console.log(`Received detailed info for ${detailedInfo.length} pools`);
+
+        // Merge the data
+        const enrichedData = spoData.map(record => {
+            const detailed = detailedInfo.find(d => d.pool_id_bech32 === record.pool_id_bech32);
+            return {
+                ...record,
+                ...detailed,
+                updated_at: new Date().toISOString()
+            };
+        });
 
         // Update Supabase
         const { error } = await supabase
@@ -153,7 +224,7 @@ async function updateSPOData() {
             throw error;
         }
 
-        console.log(`Successfully updated ${enrichedData.length} SPO records`);
+        console.log(`Successfully updated ${enrichedData.length} SPO records with detailed information`);
     } catch (error) {
         console.error('Error in updateSPOData:', error);
         process.exit(1);
