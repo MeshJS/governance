@@ -74,7 +74,6 @@ async function fetchSPOData(): Promise<SPOData[]> {
 
     const tipData = await tipResponse.json() as TipData[];
     const currentEpoch = tipData[0].epoch_no;
-    const minRetiringEpoch = currentEpoch - 5;
 
     const url = 'https://api.koios.rest/api/v1/pool_list';
     let allData: SPOData[] = [];
@@ -84,8 +83,8 @@ async function fetchSPOData(): Promise<SPOData[]> {
 
     while (hasMoreData) {
         try {
-            // Add filters for pool status and retiring epoch
-            const paginatedUrl = `${url}?offset=${offset}&limit=${limit}&or=(pool_status.eq.registered,and(pool_status.eq.retired,retiring_epoch.gte.${minRetiringEpoch}),pool_status.eq.retiring)`;
+            // Removed status filters to fetch all pools
+            const paginatedUrl = `${url}?offset=${offset}&limit=${limit}`;
             const response = await fetch(paginatedUrl, {
                 headers: {
                     'Authorization': `Bearer ${koiosApiKey}`,
