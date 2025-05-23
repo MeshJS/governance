@@ -5,7 +5,7 @@ import { DRepDetailedData } from './drep';
 import { CommitteeMember } from './committee';
 
 export interface DataContextType {
-    chainTip?: ChainTip;
+    chainTip: ChainTip[];
     networkTotals: NetworkTotals[];
     governanceProposals: GovernanceProposal[];
     spoData: SPOData[];

@@ -1,14 +1,14 @@
-import { BaseData } from './base';
 
-export interface ChainTip extends BaseData {
+export interface ChainTip {
     epoch_no: number;
     hash: string;
+    abs_slot: number;
+    epoch_slot: number;
     block_time: number;
     block_height: number;
-    slot_no: number;
 }
 
-export interface EpochInfo extends BaseData {
+export interface EpochInfo {
     epoch_no: number;
     out_sum: string;
     fees: string;
@@ -29,17 +29,19 @@ export interface EpochInfo extends BaseData {
     } | null;
 }
 
-export interface NetworkTotals extends BaseData {
+export interface NetworkTotals {
     epoch_no: number;
-    circulation: number;
-    treasury: number;
-    reward: number;
-    supply: number;
-    reserves: number;
-    fees: number;
-    deposits_stake: number;
-    deposits_drep: number;
-    deposits_proposal: number;
+    circulation: string;
+    treasury: string;
+    reward: string;
+    supply: string;
+    reserves: string;
+    fees: string;
+    deposits_stake: string;
+    deposits_drep: string;
+    deposits_proposal: string;
+    created_at?: string;
+    updated_at?: string;
     // Epoch information
     out_sum: string;
     tx_count: number;

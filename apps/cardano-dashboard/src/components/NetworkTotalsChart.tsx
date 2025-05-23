@@ -202,7 +202,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
 
     }, [data, lineConfigs, hoveredLine, isMounted]);
 
-    const toggleLine = (key: string) => {
+    const toggleLine = (key: keyof NetworkTotals) => {
         setLineConfigs((configs: LineConfig[]) =>
             configs.map((config: LineConfig) =>
                 config.key === key ? { ...config, enabled: !config.enabled } : config
@@ -225,7 +225,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                                 <span
                                     key={config.key}
                                     onClick={() => toggleLine(config.key)}
-                                    onMouseEnter={() => setHoveredLine(config.key)}
+                                    onMouseEnter={() => setHoveredLine(String(config.key))}
                                     onMouseLeave={() => setHoveredLine(null)}
                                     style={{
                                         color: config.enabled ? config.color : `${config.color}80`,
