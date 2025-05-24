@@ -1,7 +1,9 @@
+// components/NetworkTotalsChart.tsx
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { NetworkTotals } from '../../types/network';
 import styles from '@/styles/NetworkTotalsChart.module.css';
+import dynamic from 'next/dynamic';
 
 interface NetworkTotalsChartProps {
     data: NetworkTotals[];
@@ -14,12 +16,13 @@ interface LineConfig {
     enabled: boolean;
 }
 
-export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
+function NetworkTotalsChartComponent({ data }: NetworkTotalsChartProps) {
     const chartRef = useRef<HTMLDivElement>(null);
     const [hoveredLine, setHoveredLine] = useState<string | null>(null);
     const [hoveredData, setHoveredData] = useState<NetworkTotals | null>(null);
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const [isMounted, setIsMounted] = useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const [lineConfigs, setLineConfigs] = useState<LineConfig[]>([
         { key: 'circulation', label: 'Circulation', color: '#4FF5F0', enabled: true },
         { key: 'treasury', label: 'Treasury', color: '#FFE44D', enabled: true },
@@ -30,10 +33,31 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
         { key: 'deposits_stake', label: 'Stake Deposits', color: '#4DB6AC', enabled: true },
         { key: 'deposits_drep', label: 'DRep Deposits', color: '#9575CD', enabled: true },
         { key: 'deposits_proposal', label: 'Proposal Deposits', color: '#FF80AB', enabled: true },
+        { key: 'exchange_rate', label: 'Exchange Rate', color: '#FF5252', enabled: true },
+        { key: 'active_stake', label: 'Active Stake', color: '#7CB342', enabled: true },
+        { key: 'tx_count', label: 'Transaction Count', color: '#29B6F6', enabled: true },
     ]);
 
     useEffect(() => {
         setIsMounted(true);
+
+        // Check if sidebar is expanded
+        const sidebar = document.querySelector(`.${styles.sidebar}:not(.${styles.collapsed})`);
+        setIsSidebarExpanded(!!sidebar);
+
+        // Create observer to watch for sidebar changes
+        const observer = new MutationObserver(() => {
+            const sidebar = document.querySelector(`.${styles.sidebar}:not(.${styles.collapsed})`);
+            setIsSidebarExpanded(!!sidebar);
+        });
+
+        // Start observing the sidebar
+        const sidebarElement = document.querySelector(`.${styles.sidebar}`);
+        if (sidebarElement) {
+            observer.observe(sidebarElement, { attributes: true });
+        }
+
+        return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
@@ -67,16 +91,60 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
         const percentageData = sortedData.map((d) => {
             const percentages: { [key: string]: number } = {};
             lineConfigs.forEach(config => {
-                const initialValue = (sortedData[0][config.key] as number) / 1000000;
-                const currentValue = (d[config.key] as number) / 1000000;
+                let currentValue: number;
+                let initialValue: number;
+
+                if (config.key === 'active_stake') {
+                    // Handle active_stake which is a direct lovelace string
+                    const currentAmount = d.active_stake;
+                    const initialAmount = sortedData[0].active_stake;
+
+                    // Convert string values to numbers and handle null cases
+                    currentValue = currentAmount ? Number(currentAmount) / 1000000 : 0;
+                    initialValue = initialAmount ? Number(initialAmount) / 1000000 : 0;
+
+                    // Ensure we have valid numbers
+                    if (isNaN(currentValue)) currentValue = 0;
+                    if (isNaN(initialValue)) initialValue = 0;
+                } else if (config.key === 'exchange_rate') {
+                    // Handle exchange_rate which is a direct number
+                    currentValue = d.exchange_rate || 0;
+                    initialValue = sortedData[0].exchange_rate || 0;
+                } else if (config.key === 'tx_count') {
+                    // Handle tx_count which is a direct number
+                    currentValue = d.tx_count;
+                    initialValue = sortedData[0].tx_count;
+                } else {
+                    // Handle other metrics as before
+                    currentValue = (d[config.key] as number) / 1000000;
+                    initialValue = (sortedData[0][config.key] as number) / 1000000;
+                }
 
                 // Special handling for metrics that start at 0
                 if (initialValue === 0) {
                     // Find the first non-zero value for this metric
-                    const firstNonZero = sortedData.find(item => (item[config.key] as number) > 0);
+                    const firstNonZero = sortedData.find(item => {
+                        if (config.key === 'active_stake') {
+                            return item.active_stake && Number(item.active_stake) > 0;
+                        } else if (config.key === 'exchange_rate') {
+                            return item.exchange_rate && item.exchange_rate > 0;
+                        } else if (config.key === 'tx_count') {
+                            return item.tx_count > 0;
+                        }
+                        return (item[config.key] as number) > 0;
+                    });
+
                     if (firstNonZero) {
-                        const baselineValue = (firstNonZero[config.key] as number) / 1000000;
-                        // Calculate percentage relative to first non-zero value
+                        let baselineValue: number;
+                        if (config.key === 'active_stake') {
+                            baselineValue = Number(firstNonZero.active_stake) / 1000000;
+                        } else if (config.key === 'exchange_rate') {
+                            baselineValue = firstNonZero.exchange_rate || 0;
+                        } else if (config.key === 'tx_count') {
+                            baselineValue = firstNonZero.tx_count;
+                        } else {
+                            baselineValue = (firstNonZero[config.key] as number) / 1000000;
+                        }
                         percentages[config.key] = (currentValue / baselineValue) * 100;
                     } else {
                         percentages[config.key] = 0;
@@ -185,9 +253,17 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                 const d = sortedData[i];
                 setHoveredData(d);
 
+                // Get chart container position
+                const chartRect = chartRef.current?.getBoundingClientRect();
+                if (!chartRect) return;
+
+                // Calculate position relative to chart container
+                const tooltipX = event.clientX - chartRect.left;
+                const tooltipY = event.clientY - chartRect.top;
+
                 setTooltipPosition({
-                    x: event.pageX,
-                    y: event.pageY
+                    x: tooltipX,
+                    y: tooltipY
                 });
 
                 // Update focus elements with safety checks
@@ -200,7 +276,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                     });
             });
 
-    }, [data, lineConfigs, hoveredLine, isMounted]);
+    }, [data, lineConfigs, hoveredLine, isMounted, isSidebarExpanded]);
 
     const toggleLine = (key: keyof NetworkTotals) => {
         setLineConfigs((configs: LineConfig[]) =>
@@ -211,16 +287,16 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
     };
 
     return (
-        <div className="w-full p-4 bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-xl rounded-2xl border border-white/8 shadow-lg">
-            <h3 className="text-xl text-white mb-6">Network Totals</h3>
+        <div className={styles.container}>
+            <h3 className={styles.title}>Network Totals</h3>
             {!isMounted ? (
-                <div className="w-full h-[400px] flex items-center justify-center">
-                    <div className="text-white/60">Loading chart...</div>
+                <div className={styles.loadingContainer}>
+                    <div className={styles.loadingText}>Loading chart...</div>
                 </div>
             ) : (
                 <>
-                    <div className="flex justify-center mb-4">
-                        <div className="flex flex-wrap justify-center gap-24">
+                    <div className={styles.legendContainer}>
+                        <div className={styles.legendItems}>
                             {lineConfigs.map(config => (
                                 <span
                                     key={config.key}
@@ -230,43 +306,58 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                                     style={{
                                         color: config.enabled ? config.color : `${config.color}80`,
                                         opacity: hoveredLine === config.key ? 1 : 0.8,
-                                        cursor: 'pointer',
-                                        transition: 'opacity 0.2s ease',
-                                        margin: '0 1rem'
                                     }}
-                                    className="text-sm whitespace-nowrap"
+                                    className={styles.legendItem}
                                 >
                                     {config.label}
                                 </span>
                             ))}
                         </div>
                     </div>
-                    <div ref={chartRef} className="w-full h-[400px]" />
-                    {hoveredData && (
+                    <div ref={chartRef} className={styles.chartContainer} />
+                    {hoveredData && isMounted && (
                         <div
-                            className="fixed z-[9999] bg-black/80 backdrop-blur-md shadow-lg border border-white/10 pointer-events-none"
+                            className={styles.tooltip}
                             style={{
                                 left: `${tooltipPosition.x}px`,
                                 top: `${tooltipPosition.y}px`,
-                                transform: 'translate(10px, -50%)',
-                                maxWidth: '300px',
-                                pointerEvents: 'none',
-                                position: 'fixed',
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: '10px',
-                                borderRadius: '5px'
+                                transform: `translate(${tooltipPosition.x > (chartRef.current?.clientWidth || 0) - 320
+                                    ? '-100%'
+                                    : '10px'
+                                    }, -50%)`,
+                                minWidth: '300px'
                             }}
                         >
-                            <div className="text-sm text-white/60 mb-3">Epoch {hoveredData.epoch_no}</div>
+                            <div className={styles.tooltipEpoch}>Epoch {hoveredData.epoch_no}</div>
                             {lineConfigs
                                 .filter(config => config.enabled)
                                 .map(config => {
-                                    const currentValue = (hoveredData[config.key] as number) / 1000000;
+                                    let displayValue: string;
+                                    if (config.key === 'active_stake') {
+                                        const amount = hoveredData.active_stake;
+                                        const value = amount ? Number(amount) / 1000000 : 0;
+                                        const displayValue = isNaN(value) ? '0' : d3.format(',.0f')(value);
+                                        return (
+                                            <div key={config.key} className={styles.tooltipItem}>
+                                                <span style={{ color: config.color }}>{config.label}: </span>
+                                                <span className={styles.tooltipValue}>
+                                                    ₳ {displayValue}
+                                                </span>
+                                            </div>
+                                        );
+                                    } else if (config.key === 'exchange_rate') {
+                                        displayValue = `${d3.format(',.4f')(hoveredData.exchange_rate || 0)} usd/ada`;
+                                    } else if (config.key === 'tx_count') {
+                                        displayValue = d3.format(',')(hoveredData.tx_count);
+                                    } else {
+                                        const value = (hoveredData[config.key] as number) / 1000000;
+                                        displayValue = `₳ ${d3.format(',.0f')(value)}`;
+                                    }
                                     return (
-                                        <div key={config.key} className="flex justify-between items-center mt-3">
+                                        <div key={config.key} className={styles.tooltipItem}>
                                             <span style={{ color: config.color }}>{config.label}: </span>
-                                            <span className="text-white">
-                                                ₳ {d3.format(',.0f')(currentValue)}
+                                            <span className={styles.tooltipValue}>
+                                                {displayValue}
                                             </span>
                                         </div>
                                     );
@@ -278,3 +369,10 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
         </div>
     );
 }
+
+// Export a client-side only version of the component
+const NetworkTotalsChart = dynamic(() => Promise.resolve(NetworkTotalsChartComponent), {
+    ssr: false
+});
+
+export default NetworkTotalsChart;

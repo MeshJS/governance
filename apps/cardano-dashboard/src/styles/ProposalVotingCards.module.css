@@ -1,0 +1,130 @@
+.cardsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.card {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.cardHeader {
+    margin-bottom: 1.5rem;
+}
+
+.typeBadge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.cardTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.votingGroups {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.votingGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.groupTitle {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+.voteBars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.voteBar {
+    display: flex;
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.barSegment {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.voteCounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.voteCount {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.voteDot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+}
+
+/* Proposal type colors */
+.infoAction {
+    background: linear-gradient(135deg, rgba(56, 232, 225, 0.95) 0%, rgba(8, 74, 67, 0.8) 100%);
+}
+
+.parameterChange {
+    background: linear-gradient(135deg, rgba(255, 120, 203, 0.95) 0%, rgba(88, 16, 48, 0.8) 100%);
+}
+
+.newConstitution {
+    background: linear-gradient(135deg, rgba(226, 232, 240, 0.85) 0%, rgba(30, 41, 59, 0.9) 100%);
+}
+
+.hardFork {
+    background: linear-gradient(135deg, rgba(255, 171, 0, 0.95) 0%, rgba(154, 52, 18, 0.8) 100%);
+}
+
+/* Vote colors */
+.yes {
+    background: linear-gradient(90deg, rgba(56, 232, 225, 0.95) 0%, rgba(20, 184, 166, 0.85) 100%);
+}
+
+.no {
+    background: linear-gradient(90deg, rgba(255, 120, 203, 0.95) 0%, rgba(219, 39, 119, 0.85) 100%);
+}
+
+.abstain {
+    background: linear-gradient(90deg, rgba(226, 232, 240, 0.85) 0%, rgba(148, 163, 184, 0.8) 100%);
+}
