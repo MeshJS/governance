@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { NetworkTotals } from '../../types/network';
 import styles from '@/styles/NetworkTotalsChart.module.css';
+import dynamic from 'next/dynamic';
 
 interface NetworkTotalsChartProps {
     data: NetworkTotals[];
@@ -14,12 +15,13 @@ interface LineConfig {
     enabled: boolean;
 }
 
-export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
+function NetworkTotalsChartComponent({ data }: NetworkTotalsChartProps) {
     const chartRef = useRef<HTMLDivElement>(null);
     const [hoveredLine, setHoveredLine] = useState<string | null>(null);
     const [hoveredData, setHoveredData] = useState<NetworkTotals | null>(null);
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const [isMounted, setIsMounted] = useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const [lineConfigs, setLineConfigs] = useState<LineConfig[]>([
         { key: 'circulation', label: 'Circulation', color: '#4FF5F0', enabled: true },
         { key: 'treasury', label: 'Treasury', color: '#FFE44D', enabled: true },
@@ -37,6 +39,24 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
 
     useEffect(() => {
         setIsMounted(true);
+
+        // Check if sidebar is expanded
+        const sidebar = document.querySelector(`.${styles.sidebar}:not(.${styles.collapsed})`);
+        setIsSidebarExpanded(!!sidebar);
+
+        // Create observer to watch for sidebar changes
+        const observer = new MutationObserver(() => {
+            const sidebar = document.querySelector(`.${styles.sidebar}:not(.${styles.collapsed})`);
+            setIsSidebarExpanded(!!sidebar);
+        });
+
+        // Start observing the sidebar
+        const sidebarElement = document.querySelector(`.${styles.sidebar}`);
+        if (sidebarElement) {
+            observer.observe(sidebarElement, { attributes: true });
+        }
+
+        return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
@@ -232,9 +252,17 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                 const d = sortedData[i];
                 setHoveredData(d);
 
+                // Get chart container position
+                const chartRect = chartRef.current?.getBoundingClientRect();
+                if (!chartRect) return;
+
+                // Calculate position relative to chart container
+                const tooltipX = event.clientX - chartRect.left;
+                const tooltipY = event.clientY - chartRect.top;
+
                 setTooltipPosition({
-                    x: event.pageX,
-                    y: event.pageY
+                    x: tooltipX,
+                    y: tooltipY
                 });
 
                 // Update focus elements with safety checks
@@ -247,7 +275,7 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                     });
             });
 
-    }, [data, lineConfigs, hoveredLine, isMounted]);
+    }, [data, lineConfigs, hoveredLine, isMounted, isSidebarExpanded]);
 
     const toggleLine = (key: keyof NetworkTotals) => {
         setLineConfigs((configs: LineConfig[]) =>
@@ -258,16 +286,16 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
     };
 
     return (
-        <div className="w-full p-4 bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-xl rounded-2xl border border-white/8 shadow-lg">
-            <h3 className="text-xl text-white mb-6">Network Totals</h3>
+        <div className={styles.container}>
+            <h3 className={styles.title}>Network Totals</h3>
             {!isMounted ? (
-                <div className="w-full h-[400px] flex items-center justify-center">
-                    <div className="text-white/60">Loading chart...</div>
+                <div className={styles.loadingContainer}>
+                    <div className={styles.loadingText}>Loading chart...</div>
                 </div>
             ) : (
                 <>
-                    <div className="flex justify-center mb-4">
-                        <div className="flex flex-wrap justify-center gap-24">
+                    <div className={styles.legendContainer}>
+                        <div className={styles.legendItems}>
                             {lineConfigs.map(config => (
                                 <span
                                     key={config.key}
@@ -277,34 +305,28 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                                     style={{
                                         color: config.enabled ? config.color : `${config.color}80`,
                                         opacity: hoveredLine === config.key ? 1 : 0.8,
-                                        cursor: 'pointer',
-                                        transition: 'opacity 0.2s ease',
-                                        margin: '0 1rem'
                                     }}
-                                    className="text-sm whitespace-nowrap"
+                                    className={styles.legendItem}
                                 >
                                     {config.label}
                                 </span>
                             ))}
                         </div>
                     </div>
-                    <div ref={chartRef} className="w-full h-[400px]" />
-                    {hoveredData && (
+                    <div ref={chartRef} className={styles.chartContainer} />
+                    {hoveredData && isMounted && (
                         <div
-                            className="fixed z-[9999] bg-black/80 backdrop-blur-md shadow-lg border border-white/10 pointer-events-none"
+                            className={styles.tooltip}
                             style={{
                                 left: `${tooltipPosition.x}px`,
                                 top: `${tooltipPosition.y}px`,
-                                transform: 'translate(10px, -50%)',
-                                maxWidth: '300px',
-                                pointerEvents: 'none',
-                                position: 'fixed',
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: '10px',
-                                borderRadius: '5px'
+                                transform: `translate(${tooltipPosition.x > (chartRef.current?.clientWidth || 0) - 320
+                                    ? '-100%'
+                                    : '10px'
+                                    }, -50%)`
                             }}
                         >
-                            <div className="text-sm text-white/60 mb-3">Epoch {hoveredData.epoch_no}</div>
+                            <div className={styles.tooltipEpoch}>Epoch {hoveredData.epoch_no}</div>
                             {lineConfigs
                                 .filter(config => config.enabled)
                                 .map(config => {
@@ -312,18 +334,17 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                                     if (config.key === 'active_stake') {
                                         const amount = hoveredData.active_stake;
                                         const value = amount ? Number(amount) / 1000000 : 0;
-                                        // Ensure we have a valid number
                                         const displayValue = isNaN(value) ? '0' : d3.format(',.0f')(value);
                                         return (
-                                            <div key={config.key} className="flex justify-between items-center mt-3">
+                                            <div key={config.key} className={styles.tooltipItem}>
                                                 <span style={{ color: config.color }}>{config.label}: </span>
-                                                <span className="text-white">
+                                                <span className={styles.tooltipValue}>
                                                     ₳ {displayValue}
                                                 </span>
                                             </div>
                                         );
                                     } else if (config.key === 'exchange_rate') {
-                                        displayValue = d3.format(',.4f')(hoveredData.exchange_rate || 0);
+                                        displayValue = `${d3.format(',.4f')(hoveredData.exchange_rate || 0)} usd/ada`;
                                     } else if (config.key === 'tx_count') {
                                         displayValue = d3.format(',')(hoveredData.tx_count);
                                     } else {
@@ -331,9 +352,9 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                                         displayValue = `₳ ${d3.format(',.0f')(value)}`;
                                     }
                                     return (
-                                        <div key={config.key} className="flex justify-between items-center mt-3">
+                                        <div key={config.key} className={styles.tooltipItem}>
                                             <span style={{ color: config.color }}>{config.label}: </span>
-                                            <span className="text-white">
+                                            <span className={styles.tooltipValue}>
                                                 {displayValue}
                                             </span>
                                         </div>
@@ -346,3 +367,10 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
         </div>
     );
 }
+
+// Export a client-side only version of the component
+const NetworkTotalsChart = dynamic(() => Promise.resolve(NetworkTotalsChartComponent), {
+    ssr: false
+});
+
+export default NetworkTotalsChart;

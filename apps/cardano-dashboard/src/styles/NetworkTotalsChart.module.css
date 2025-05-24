@@ -28,3 +28,92 @@
 .overlay {
     cursor: crosshair;
 }
+
+.container {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.title {
+    font-size: 1.25rem;
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.loadingContainer {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loadingText {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.legendContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.legendItems {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.legendItem {
+    font-size: 0.875rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    margin: 0 1rem;
+}
+
+.legendItem:hover {
+    opacity: 1;
+}
+
+.chartContainer {
+    width: 100%;
+    height: 400px;
+    position: relative;
+}
+
+.tooltip {
+    position: absolute;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+    max-width: 300px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.tooltipEpoch {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0.75rem;
+}
+
+.tooltipItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.tooltipValue {
+    color: white;
+}
