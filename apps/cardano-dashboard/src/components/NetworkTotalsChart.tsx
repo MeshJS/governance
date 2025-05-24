@@ -1,3 +1,4 @@
+// components/NetworkTotalsChart.tsx
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { NetworkTotals } from '../../types/network';
@@ -323,7 +324,8 @@ function NetworkTotalsChartComponent({ data }: NetworkTotalsChartProps) {
                                 transform: `translate(${tooltipPosition.x > (chartRef.current?.clientWidth || 0) - 320
                                     ? '-100%'
                                     : '10px'
-                                    }, -50%)`
+                                    }, -50%)`,
+                                minWidth: '300px'
                             }}
                         >
                             <div className={styles.tooltipEpoch}>Epoch {hoveredData.epoch_no}</div>

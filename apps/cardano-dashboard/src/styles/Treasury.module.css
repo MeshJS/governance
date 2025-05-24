@@ -1,38 +1,99 @@
 .container {
-    max-width: 1200px;
+    padding: 2rem;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem 1rem;
 }
 
 .title {
     font-size: 2rem;
-    font-weight: bold;
+    font-weight: 700;
+    color: #ffffff;
     margin-bottom: 2rem;
-    color: #fff;
-}
-
-.sectionTitle {
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
-    color: #fff;
 }
 
 .section {
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
 }
 
 .chartStatusContainer {
-    width: 100%;
-    height: 400px;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 300px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
 }
 
 .loadingText {
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
 }
 
 .errorText {
     color: #ef4444;
-} 
+    font-size: 1rem;
+}
+
+.governanceContent {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    position: relative;
+}
+
+.proposalTypeChart {
+    position: relative;
+    min-height: 400px;
+    margin-bottom: 1rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.proposalVotingCards {
+    position: relative;
+    margin-top: 1rem;
+}
+
+/* Media queries for responsive layout */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .section {
+        padding: 1rem;
+    }
+
+    .governanceContent {
+        gap: 2rem;
+    }
+
+    .proposalTypeChart {
+        min-height: 350px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .sectionTitle {
+        font-size: 1.25rem;
+    }
+
+    .proposalTypeChart {
+        min-height: 300px;
+    }
+}
