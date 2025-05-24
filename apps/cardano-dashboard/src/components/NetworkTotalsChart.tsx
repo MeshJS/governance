@@ -30,6 +30,9 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
         { key: 'deposits_stake', label: 'Stake Deposits', color: '#4DB6AC', enabled: true },
         { key: 'deposits_drep', label: 'DRep Deposits', color: '#9575CD', enabled: true },
         { key: 'deposits_proposal', label: 'Proposal Deposits', color: '#FF80AB', enabled: true },
+        { key: 'exchange_rate', label: 'Exchange Rate', color: '#FF5252', enabled: true },
+        { key: 'active_stake', label: 'Active Stake', color: '#7CB342', enabled: true },
+        { key: 'tx_count', label: 'Transaction Count', color: '#29B6F6', enabled: true },
     ]);
 
     useEffect(() => {
@@ -67,16 +70,60 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
         const percentageData = sortedData.map((d) => {
             const percentages: { [key: string]: number } = {};
             lineConfigs.forEach(config => {
-                const initialValue = (sortedData[0][config.key] as number) / 1000000;
-                const currentValue = (d[config.key] as number) / 1000000;
+                let currentValue: number;
+                let initialValue: number;
+
+                if (config.key === 'active_stake') {
+                    // Handle active_stake which is a direct lovelace string
+                    const currentAmount = d.active_stake;
+                    const initialAmount = sortedData[0].active_stake;
+
+                    // Convert string values to numbers and handle null cases
+                    currentValue = currentAmount ? Number(currentAmount) / 1000000 : 0;
+                    initialValue = initialAmount ? Number(initialAmount) / 1000000 : 0;
+
+                    // Ensure we have valid numbers
+                    if (isNaN(currentValue)) currentValue = 0;
+                    if (isNaN(initialValue)) initialValue = 0;
+                } else if (config.key === 'exchange_rate') {
+                    // Handle exchange_rate which is a direct number
+                    currentValue = d.exchange_rate || 0;
+                    initialValue = sortedData[0].exchange_rate || 0;
+                } else if (config.key === 'tx_count') {
+                    // Handle tx_count which is a direct number
+                    currentValue = d.tx_count;
+                    initialValue = sortedData[0].tx_count;
+                } else {
+                    // Handle other metrics as before
+                    currentValue = (d[config.key] as number) / 1000000;
+                    initialValue = (sortedData[0][config.key] as number) / 1000000;
+                }
 
                 // Special handling for metrics that start at 0
                 if (initialValue === 0) {
                     // Find the first non-zero value for this metric
-                    const firstNonZero = sortedData.find(item => (item[config.key] as number) > 0);
+                    const firstNonZero = sortedData.find(item => {
+                        if (config.key === 'active_stake') {
+                            return item.active_stake && Number(item.active_stake) > 0;
+                        } else if (config.key === 'exchange_rate') {
+                            return item.exchange_rate && item.exchange_rate > 0;
+                        } else if (config.key === 'tx_count') {
+                            return item.tx_count > 0;
+                        }
+                        return (item[config.key] as number) > 0;
+                    });
+
                     if (firstNonZero) {
-                        const baselineValue = (firstNonZero[config.key] as number) / 1000000;
-                        // Calculate percentage relative to first non-zero value
+                        let baselineValue: number;
+                        if (config.key === 'active_stake') {
+                            baselineValue = Number(firstNonZero.active_stake) / 1000000;
+                        } else if (config.key === 'exchange_rate') {
+                            baselineValue = firstNonZero.exchange_rate || 0;
+                        } else if (config.key === 'tx_count') {
+                            baselineValue = firstNonZero.tx_count;
+                        } else {
+                            baselineValue = (firstNonZero[config.key] as number) / 1000000;
+                        }
                         percentages[config.key] = (currentValue / baselineValue) * 100;
                     } else {
                         percentages[config.key] = 0;
@@ -261,12 +308,33 @@ export default function NetworkTotalsChart({ data }: NetworkTotalsChartProps) {
                             {lineConfigs
                                 .filter(config => config.enabled)
                                 .map(config => {
-                                    const currentValue = (hoveredData[config.key] as number) / 1000000;
+                                    let displayValue: string;
+                                    if (config.key === 'active_stake') {
+                                        const amount = hoveredData.active_stake;
+                                        const value = amount ? Number(amount) / 1000000 : 0;
+                                        // Ensure we have a valid number
+                                        const displayValue = isNaN(value) ? '0' : d3.format(',.0f')(value);
+                                        return (
+                                            <div key={config.key} className="flex justify-between items-center mt-3">
+                                                <span style={{ color: config.color }}>{config.label}: </span>
+                                                <span className="text-white">
+                                                    ₳ {displayValue}
+                                                </span>
+                                            </div>
+                                        );
+                                    } else if (config.key === 'exchange_rate') {
+                                        displayValue = d3.format(',.4f')(hoveredData.exchange_rate || 0);
+                                    } else if (config.key === 'tx_count') {
+                                        displayValue = d3.format(',')(hoveredData.tx_count);
+                                    } else {
+                                        const value = (hoveredData[config.key] as number) / 1000000;
+                                        displayValue = `₳ ${d3.format(',.0f')(value)}`;
+                                    }
                                     return (
                                         <div key={config.key} className="flex justify-between items-center mt-3">
                                             <span style={{ color: config.color }}>{config.label}: </span>
                                             <span className="text-white">
-                                                ₳ {d3.format(',.0f')(currentValue)}
+                                                {displayValue}
                                             </span>
                                         </div>
                                     );
