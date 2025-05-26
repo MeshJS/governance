@@ -4,8 +4,18 @@ import NetworkTotalsChart from "@/components/NetworkTotalsChart";
 import { useDataContext } from "@/contexts/DataContext";
 import styles from "@/styles/Treasury.module.css";
 import { useEffect, useState } from "react";
+import type { ProposalVotingCardsProps } from "@/components/ProposalVotingCards";
 
 // Dynamically import client-side only components
+const ProposalTimelineChart = dynamic(() => import("@/components/ProposalTimelineChart"), {
+    ssr: false,
+    loading: () => (
+        <div className={styles.chartStatusContainer}>
+            <div className={styles.loadingText}>Loading timeline...</div>
+        </div>
+    )
+});
+
 const ProposalTypeChart = dynamic(() => import("@/components/ProposalTypeChart"), {
     ssr: false,
     loading: () => (
@@ -84,6 +94,9 @@ export default function Treasury() {
 
         return (
             <div className={styles.governanceContent}>
+                <div className={styles.timelineSection}>
+                    <ProposalTimelineChart proposals={governanceProposals} />
+                </div>
                 <div className={styles.chartsRow}>
                     <div className={styles.proposalTypeChart}>
                         <ProposalTypeChart proposals={governanceProposals} />
@@ -93,7 +106,7 @@ export default function Treasury() {
                     </div>
                 </div>
                 <div className={styles.proposalVotingCards}>
-                    <ProposalVotingCards proposals={governanceProposals} />
+                    <ProposalVotingCards proposals={governanceProposals.filter(p => p.expiration !== null) as ProposalVotingCardsProps['proposals']} />
                 </div>
             </div>
         );
