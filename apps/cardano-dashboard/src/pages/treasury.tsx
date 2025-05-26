@@ -7,6 +7,15 @@ import { useEffect, useState } from "react";
 import type { ProposalVotingCardsProps } from "@/components/ProposalVotingCards";
 
 // Dynamically import client-side only components
+const ProposalTimelineChart = dynamic(() => import("@/components/ProposalTimelineChart"), {
+    ssr: false,
+    loading: () => (
+        <div className={styles.chartStatusContainer}>
+            <div className={styles.loadingText}>Loading timeline...</div>
+        </div>
+    )
+});
+
 const ProposalTypeChart = dynamic(() => import("@/components/ProposalTypeChart"), {
     ssr: false,
     loading: () => (
@@ -85,6 +94,9 @@ export default function Treasury() {
 
         return (
             <div className={styles.governanceContent}>
+                <div className={styles.timelineSection}>
+                    <ProposalTimelineChart proposals={governanceProposals} />
+                </div>
                 <div className={styles.chartsRow}>
                     <div className={styles.proposalTypeChart}>
                         <ProposalTypeChart proposals={governanceProposals} />

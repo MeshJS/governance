@@ -1,0 +1,25 @@
+.timelineChartContainer {
+    background: rgba(26, 32, 44, 0.7);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+.chartTitle {
+    color: #E2E8F0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.timelineChart {
+    width: 100%;
+    height: calc(100% - 40px);
+    cursor: pointer;
+}
