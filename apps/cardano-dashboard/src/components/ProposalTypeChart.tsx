@@ -149,18 +149,36 @@ export default function ProposalTypeChart({ proposals }: ProposalTypeChartProps)
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
 
-        // Calculate angle
-        const angle = Math.atan2(y - centerY, x - centerX);
-        const normalizedAngle = (angle + Math.PI * 2) % (Math.PI * 2);
+        // Calculate distance from center
+        const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const radius = Math.min(centerX, centerY) * 0.8;
+        const innerRadius = radius * 0.6;
 
-        // Find segment
-        const segment = segments.find(seg => {
-            const start = (seg.startAngle + Math.PI * 2) % (Math.PI * 2);
-            const end = (seg.endAngle + Math.PI * 2) % (Math.PI * 2);
-            return normalizedAngle >= start && normalizedAngle <= end;
-        });
+        // Only check segments if point is within the donut area
+        if (distance >= innerRadius && distance <= radius) {
+            // Calculate angle
+            const angle = Math.atan2(y - centerY, x - centerX);
+            const normalizedAngle = (angle + Math.PI * 2) % (Math.PI * 2);
 
-        setActiveSegment(segment?.type || null);
+            // Find segment
+            const segment = segments.find(seg => {
+                const start = (seg.startAngle + Math.PI * 2) % (Math.PI * 2);
+                const end = (seg.endAngle + Math.PI * 2) % (Math.PI * 2);
+
+                // For segments that cross the 0/2π boundary
+                if (end < start) {
+                    // Check if the angle is either in the first part (start to 2π) or second part (0 to end)
+                    return normalizedAngle >= start || normalizedAngle <= end;
+                }
+
+                // For normal segments
+                return normalizedAngle >= start && normalizedAngle <= end;
+            });
+
+            setActiveSegment(segment?.type || null);
+        } else {
+            setActiveSegment(null);
+        }
     };
 
     const handleCanvasMouseLeave = () => {
