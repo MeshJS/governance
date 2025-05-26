@@ -15,6 +15,15 @@ const ProposalTypeChart = dynamic(() => import("@/components/ProposalTypeChart")
     )
 });
 
+const ProposalOutcomeChart = dynamic(() => import("@/components/ProposalOutcomeChart"), {
+    ssr: false,
+    loading: () => (
+        <div className={styles.chartStatusContainer}>
+            <div className={styles.loadingText}>Loading chart...</div>
+        </div>
+    )
+});
+
 const ProposalVotingCards = dynamic(() => import("@/components/ProposalVotingCards"), {
     ssr: false,
     loading: () => (
@@ -75,8 +84,13 @@ export default function Treasury() {
 
         return (
             <div className={styles.governanceContent}>
-                <div className={styles.proposalTypeChart}>
-                    <ProposalTypeChart proposals={governanceProposals} />
+                <div className={styles.chartsRow}>
+                    <div className={styles.proposalTypeChart}>
+                        <ProposalTypeChart proposals={governanceProposals} />
+                    </div>
+                    <div className={styles.proposalOutcomeChart}>
+                        <ProposalOutcomeChart proposals={governanceProposals} />
+                    </div>
                 </div>
                 <div className={styles.proposalVotingCards}>
                     <ProposalVotingCards proposals={governanceProposals} />
