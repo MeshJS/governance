@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from '@/styles/ProposalTimelineChart.module.css';
-import { GovernanceProposal } from '@/types/governance';
+import { GovernanceProposal } from '../../types/governance';
 
 interface ProposalTimelineChartProps {
     proposals: GovernanceProposal[];
@@ -24,16 +24,6 @@ const TYPE_LABELS = {
     TreasuryWithdrawals: 'Treasury Withdrawals',
     NoConfidence: 'No Confidence',
     NewCommittee: 'New Committee'
-};
-
-const TYPE_CLASS = {
-    InfoAction: 'infoAction',
-    ParameterChange: 'parameterChange',
-    NewConstitution: 'newConstitution',
-    HardForkInitiation: 'hardFork',
-    TreasuryWithdrawals: 'treasuryWithdrawals',
-    NoConfidence: 'noConfidence',
-    NewCommittee: 'newCommittee'
 };
 
 export default function ProposalTimelineChart({ proposals }: ProposalTimelineChartProps) {
@@ -235,11 +225,6 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             } else if (proposal.expiration) {
                 ctx.fillText(`Expires: Epoch ${proposal.expiration}`, tooltipX + 15, tooltipY + 105);
             }
-
-            // Draw voting info
-            const drepTotal = proposal.drep_yes_votes_cast + proposal.drep_no_votes_cast + proposal.drep_abstain_votes_cast;
-            const poolTotal = proposal.pool_yes_votes_cast + proposal.pool_no_votes_cast + proposal.pool_abstain_votes_cast;
-            const committeeTotal = proposal.committee_yes_votes_cast + proposal.committee_no_votes_cast + proposal.committee_abstain_votes_cast;
 
             // Column positions for better alignment
             const labelX = tooltipX + 15;
