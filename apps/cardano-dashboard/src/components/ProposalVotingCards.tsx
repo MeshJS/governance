@@ -1,48 +1,37 @@
 // components/ProposalVotingCards.tsx
 import styles from '@/styles/ProposalVotingCards.module.css';
+import { GovernanceProposal, ProposalType, MetaJson } from 'types/governance';
 
-interface MetaJson {
-    body?: {
-        title?: string;
-    };
+export interface ProposalVotingCardsProps {
+    proposals: GovernanceProposal[];
 }
 
-interface ProposalVotingCardsProps {
-    proposals: Array<{
-        proposal_id: string;
-        proposal_type: string;
-        meta_json: MetaJson | null;
-        drep_yes_votes_cast: number;
-        drep_no_votes_cast: number;
-        drep_abstain_votes_cast: number;
-        pool_yes_votes_cast: number;
-        pool_no_votes_cast: number;
-        pool_abstain_votes_cast: number;
-        committee_yes_votes_cast: number;
-        committee_no_votes_cast: number;
-        committee_abstain_votes_cast: number;
-    }>;
-}
-
-const TYPE_LABELS = {
+const TYPE_LABELS: Record<ProposalType, string> = {
     InfoAction: 'Info Action',
     ParameterChange: 'Parameter Change',
     NewConstitution: 'New Constitution',
-    HardForkInitiation: 'Hard Fork'
+    HardForkInitiation: 'Hard Fork',
+    TreasuryWithdrawals: 'Treasury Withdrawals',
+    NoConfidence: 'No Confidence',
+    NewCommittee: 'New Committee'
 };
 
-const TYPE_CLASS = {
+const TYPE_CLASS: Record<ProposalType, string> = {
     InfoAction: 'infoAction',
     ParameterChange: 'parameterChange',
     NewConstitution: 'newConstitution',
-    HardForkInitiation: 'hardFork'
+    HardForkInitiation: 'hardFork',
+    TreasuryWithdrawals: 'treasuryWithdrawals',
+    NoConfidence: 'noConfidence',
+    NewCommittee: 'newCommittee'
 };
 
 export default function ProposalVotingCards({ proposals }: ProposalVotingCardsProps) {
     return (
         <div className={styles.cardsContainer}>
             {proposals.map((proposal) => {
-                const title = proposal.meta_json?.body?.title || 'Untitled Proposal';
+                const metaJson = proposal.meta_json as MetaJson & { body?: { title?: string } };
+                const title = metaJson?.body?.title || 'Untitled Proposal';
                 const type = proposal.proposal_type;
 
                 // Calculate totals for each group
@@ -53,10 +42,15 @@ export default function ProposalVotingCards({ proposals }: ProposalVotingCardsPr
                 return (
                     <div key={proposal.proposal_id} className={styles.card}>
                         <div className={styles.cardHeader}>
-                            <span className={`${styles.typeBadge} ${styles[TYPE_CLASS[type as keyof typeof TYPE_CLASS]]}`}>
-                                {TYPE_LABELS[type as keyof typeof TYPE_LABELS]}
+                            <span className={`${styles.typeBadge} ${styles[TYPE_CLASS[type]]}`}>
+                                {TYPE_LABELS[type]}
                             </span>
                             <h3 className={styles.cardTitle}>{title}</h3>
+                        </div>
+
+                        <div className={styles.epochInfo}>
+                            <span>Proposed: Epoch {proposal.proposed_epoch}</span>
+                            <span>Expires: Epoch {proposal.expiration}</span>
                         </div>
 
                         <div className={styles.votingGroups}>

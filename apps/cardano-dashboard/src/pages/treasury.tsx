@@ -4,6 +4,7 @@ import NetworkTotalsChart from "@/components/NetworkTotalsChart";
 import { useDataContext } from "@/contexts/DataContext";
 import styles from "@/styles/Treasury.module.css";
 import { useEffect, useState } from "react";
+import type { ProposalVotingCardsProps } from "@/components/ProposalVotingCards";
 
 // Dynamically import client-side only components
 const ProposalTypeChart = dynamic(() => import("@/components/ProposalTypeChart"), {
@@ -93,7 +94,7 @@ export default function Treasury() {
                     </div>
                 </div>
                 <div className={styles.proposalVotingCards}>
-                    <ProposalVotingCards proposals={governanceProposals} />
+                    <ProposalVotingCards proposals={governanceProposals.filter(p => p.expiration !== null) as ProposalVotingCardsProps['proposals']} />
                 </div>
             </div>
         );
