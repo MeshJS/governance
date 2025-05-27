@@ -17,7 +17,7 @@ export default function SPOsActivity() {
                 </Head>
                 <main className="container mx-auto px-4 py-8">
                     <h1 className="text-3xl font-bold mb-6">SPOs Activity</h1>
-                    <div className="bg-white rounded-lg shadow-lg p-4">
+                    <div className="bg-white rounded-lg shadow-lg p-4" style={{ minHeight: '600px' }}>
                         <SPOMap />
                     </div>
                 </main>

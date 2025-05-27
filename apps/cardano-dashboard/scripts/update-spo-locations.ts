@@ -118,6 +118,8 @@ async function updateSPOLocations() {
                 if (updateError) {
                     console.error(`Error updating location for pool ${pool.pool_id_bech32}:`, updateError);
                 }
+            } else {
+                console.log(`Could not determine location for pool ${pool.pool_id_bech32} - no valid IPv4 relay found or geolocation failed`);
             }
         }
 
