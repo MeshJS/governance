@@ -2,6 +2,13 @@
     height: 600px;
     width: 100%;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0a0a0a;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 500;
 }
 
 /* Leaflet marker icon styles */
