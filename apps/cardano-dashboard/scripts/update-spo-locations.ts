@@ -1,10 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { SPORelay } from '../types/spo';
+import dns from 'dns';
+import { promisify } from 'util';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const resolve4 = promisify(dns.resolve4);
 
 interface LocationResponse {
     lat: number;
@@ -74,6 +77,16 @@ async function fetchLocation(ip: string): Promise<{ lat: number; lng: number } |
     }
 }
 
+async function resolveDNS(dnsName: string): Promise<string | null> {
+    try {
+        const addresses = await resolve4(dnsName);
+        return addresses[0] || null;
+    } catch (error) {
+        console.error(`Error resolving DNS for ${dnsName}:`, error);
+        return null;
+    }
+}
+
 async function updateSPOLocations() {
     try {
         console.log('Fetching SPO data from Supabase...');
@@ -105,6 +118,15 @@ async function updateSPOLocations() {
                 const relayWithIpv4 = pool.relays.find((relay: SPORelay) => relay.ipv4);
                 if (relayWithIpv4?.ipv4) {
                     location = await fetchLocation(relayWithIpv4.ipv4);
+                } else {
+                    // If no IPv4, try to resolve DNS
+                    const relayWithDNS = pool.relays.find((relay: SPORelay) => relay.dns);
+                    if (relayWithDNS?.dns) {
+                        const ip = await resolveDNS(relayWithDNS.dns);
+                        if (ip) {
+                            location = await fetchLocation(ip);
+                        }
+                    }
                 }
             }
 
