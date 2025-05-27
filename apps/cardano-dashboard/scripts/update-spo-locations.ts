@@ -8,26 +8,36 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const resolve4 = promisify(dns.resolve4);
+const resolve6 = promisify(dns.resolve6);
 
 interface LocationResponse {
     lat: number;
     lon: number;
 }
 
-// Rate limiting helper
+// Rate limiting helper with exponential backoff
 const rateLimiter = {
     queue: [] as (() => Promise<void>)[],
     processing: false,
     lastRequestTime: 0,
-    minDelay: 1000, // Minimum delay between requests in ms
+    minDelay: 2000, // Increased minimum delay between requests in ms
+    backoffTime: 2000, // Initial backoff time in ms
+    maxBackoffTime: 30000, // Maximum backoff time in ms
 
     async add<T>(fn: () => Promise<T>): Promise<T> {
         return new Promise((resolve, reject) => {
             this.queue.push(async () => {
                 try {
                     const result = await fn();
+                    // Reset backoff on success
+                    this.backoffTime = 2000;
                     resolve(result);
                 } catch (error) {
+                    if (error instanceof Error && error.message.includes('429')) {
+                        // Increase backoff time on rate limit
+                        this.backoffTime = Math.min(this.backoffTime * 2, this.maxBackoffTime);
+                        console.log(`Rate limited, increasing backoff to ${this.backoffTime}ms`);
+                    }
                     reject(error);
                 }
             });
@@ -41,8 +51,10 @@ const rateLimiter = {
 
         const now = Date.now();
         const timeSinceLastRequest = now - this.lastRequestTime;
-        if (timeSinceLastRequest < this.minDelay) {
-            await new Promise(resolve => setTimeout(resolve, this.minDelay - timeSinceLastRequest));
+        const delay = Math.max(this.minDelay, this.backoffTime);
+
+        if (timeSinceLastRequest < delay) {
+            await new Promise(resolve => setTimeout(resolve, delay - timeSinceLastRequest));
         }
 
         const nextRequest = this.queue.shift();
@@ -56,6 +68,28 @@ const rateLimiter = {
     }
 };
 
+async function resolveDNS(dnsName: string): Promise<string | null> {
+    try {
+        // Try IPv4 first
+        try {
+            const addresses = await resolve4(dnsName);
+            return addresses[0] || null;
+        } catch (error) {
+            // If IPv4 fails, try IPv6
+            try {
+                const addresses = await resolve6(dnsName);
+                return addresses[0] || null;
+            } catch (error) {
+                console.error(`Error resolving DNS for ${dnsName}:`, error);
+                return null;
+            }
+        }
+    } catch (error) {
+        console.error(`Error resolving DNS for ${dnsName}:`, error);
+        return null;
+    }
+}
+
 async function fetchLocation(ip: string): Promise<{ lat: number; lng: number } | null> {
     try {
         const response = await rateLimiter.add(() =>
@@ -63,6 +97,9 @@ async function fetchLocation(ip: string): Promise<{ lat: number; lng: number } |
         );
 
         if (!response.ok) {
+            if (response.status === 429) {
+                throw new Error('HTTP error! status: 429');
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
@@ -73,16 +110,6 @@ async function fetchLocation(ip: string): Promise<{ lat: number; lng: number } |
         return null;
     } catch (error) {
         console.error(`Error fetching location for IP ${ip}:`, error);
-        return null;
-    }
-}
-
-async function resolveDNS(dnsName: string): Promise<string | null> {
-    try {
-        const addresses = await resolve4(dnsName);
-        return addresses[0] || null;
-    } catch (error) {
-        console.error(`Error resolving DNS for ${dnsName}:`, error);
         return null;
     }
 }
