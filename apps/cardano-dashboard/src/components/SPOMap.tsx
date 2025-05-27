@@ -73,7 +73,7 @@ export const SPOMap: React.FC = () => {
                 }}
                 width={800}
                 height={600}
-                backgroundColor="rgba(0,0,0,1)"
+                backgroundColor="#0a0a0a"
                 atmosphereColor="rgba(255,255,255,0.1)"
                 atmosphereAltitude={0.05}
             />

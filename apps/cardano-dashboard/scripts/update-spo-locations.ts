@@ -6,6 +6,14 @@ import { promisify } from 'util';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+// Configure DNS servers
+dns.setServers([
+    '8.8.8.8',    // Google DNS
+    '1.1.1.1',    // Cloudflare DNS
+    '9.9.9.9',    // Quad9 DNS
+    '208.67.222.222' // OpenDNS
+]);
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const resolve4 = promisify(dns.resolve4);
 const resolve6 = promisify(dns.resolve6);
@@ -71,6 +79,31 @@ const rateLimiter = {
     }
 };
 
+// DNS resolution helper with retries
+const dnsResolver = {
+    maxRetries: 3,
+    baseDelay: 1000,
+    maxDelay: 10000,
+
+    async resolveWithRetry<T>(fn: () => Promise<T>, dnsName: string): Promise<T | null> {
+        let lastError: Error | null = null;
+
+        for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+            try {
+                return await fn();
+            } catch (error) {
+                lastError = error as Error;
+                const delay = Math.min(this.baseDelay * Math.pow(2, attempt - 1), this.maxDelay);
+                console.log(`DNS resolution attempt ${attempt} failed for ${dnsName}, retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        console.log(`All DNS resolution attempts failed for ${dnsName}:`, lastError);
+        return null;
+    }
+};
+
 async function resolveDNS(dnsName: string): Promise<string | null> {
     try {
         // Skip DNS resolution for IP addresses
@@ -82,56 +115,71 @@ async function resolveDNS(dnsName: string): Promise<string | null> {
         dnsName = dnsName.replace(/^(https?:\/\/)/, '');
 
         // Try IPv4 first
-        try {
-            const addresses = await resolve4(dnsName);
-            if (addresses && addresses.length > 0) {
-                console.log(`Successfully resolved IPv4 for ${dnsName}: ${addresses[0]}`);
-                return addresses[0];
-            }
-        } catch (error) {
-            console.log(`IPv4 resolution failed for ${dnsName}, trying IPv6...`);
+        const ipv4Addresses = await dnsResolver.resolveWithRetry(
+            () => resolve4(dnsName),
+            dnsName
+        );
+        if (ipv4Addresses && ipv4Addresses.length > 0) {
+            console.log(`Successfully resolved IPv4 for ${dnsName}: ${ipv4Addresses[0]}`);
+            return ipv4Addresses[0];
         }
 
-        // If IPv4 fails, try IPv6
-        try {
-            const addresses = await resolve6(dnsName);
-            if (addresses && addresses.length > 0) {
-                console.log(`Successfully resolved IPv6 for ${dnsName}: ${addresses[0]}`);
-                return addresses[0];
-            }
-        } catch (error) {
-            console.log(`IPv6 resolution failed for ${dnsName}, trying CNAME...`);
+        // Try IPv6
+        const ipv6Addresses = await dnsResolver.resolveWithRetry(
+            () => resolve6(dnsName),
+            dnsName
+        );
+        if (ipv6Addresses && ipv6Addresses.length > 0) {
+            console.log(`Successfully resolved IPv6 for ${dnsName}: ${ipv6Addresses[0]}`);
+            return ipv6Addresses[0];
         }
 
-        // If both IPv4 and IPv6 fail, try CNAME
-        try {
-            const cnames = await resolveCname(dnsName);
-            if (cnames && cnames.length > 0) {
-                console.log(`Found CNAME for ${dnsName}: ${cnames[0]}, trying to resolve...`);
-                const resolvedIp = await resolveDNS(cnames[0]);
-                if (resolvedIp) {
-                    return resolvedIp;
+        // Try CNAME
+        const cnames = await dnsResolver.resolveWithRetry(
+            () => resolveCname(dnsName),
+            dnsName
+        );
+        if (cnames && cnames.length > 0) {
+            console.log(`Found CNAME for ${dnsName}: ${cnames[0]}, trying to resolve...`);
+            const resolvedIp = await resolveDNS(cnames[0]);
+            if (resolvedIp) {
+                return resolvedIp;
+            }
+        }
+
+        // Try SRV records
+        const srvRecords = await dnsResolver.resolveWithRetry(
+            () => resolveSrv(dnsName),
+            dnsName
+        );
+        if (srvRecords && srvRecords.length > 0) {
+            console.log(`Found SRV record for ${dnsName}: ${srvRecords[0].name}, trying to resolve...`);
+            const resolvedIp = await resolveDNS(srvRecords[0].name);
+            if (resolvedIp) {
+                return resolvedIp;
+            }
+        }
+
+        // Try TXT records
+        const txtRecords = await dnsResolver.resolveWithRetry(
+            () => resolveTxt(dnsName),
+            dnsName
+        );
+        if (txtRecords && txtRecords.length > 0) {
+            for (const record of txtRecords) {
+                // Look for both IPv4 and IPv6 addresses in TXT records
+                const ipv4Match = record[0].match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+                if (ipv4Match) {
+                    console.log(`Found IPv4 in TXT record for ${dnsName}: ${ipv4Match[0]}`);
+                    return ipv4Match[0];
+                }
+
+                const ipv6Match = record[0].match(/\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b/);
+                if (ipv6Match) {
+                    console.log(`Found IPv6 in TXT record for ${dnsName}: ${ipv6Match[0]}`);
+                    return ipv6Match[0];
                 }
             }
-        } catch (error) {
-            console.log(`CNAME resolution failed for ${dnsName}, trying TXT...`);
-        }
-
-        // If CNAME fails, try TXT records
-        try {
-            const txtRecords = await resolveTxt(dnsName);
-            if (txtRecords && txtRecords.length > 0) {
-                for (const record of txtRecords) {
-                    // Look for IP addresses in TXT records
-                    const ipMatch = record[0].match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
-                    if (ipMatch) {
-                        console.log(`Found IP in TXT record for ${dnsName}: ${ipMatch[0]}`);
-                        return ipMatch[0];
-                    }
-                }
-            }
-        } catch (error) {
-            console.log(`TXT resolution failed for ${dnsName}`);
         }
 
         console.log(`Could not resolve any IP address for ${dnsName}`);
