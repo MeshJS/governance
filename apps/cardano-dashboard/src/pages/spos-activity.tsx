@@ -15,9 +15,9 @@ export default function SPOsActivity() {
                 <Head>
                     <title>SPOs Activity | Cardano Dashboard</title>
                 </Head>
-                <main className="container mx-auto px-4 py-8">
-                    <h1 className="text-3xl font-bold mb-6">SPOs Activity</h1>
-                    <div className="bg-white rounded-lg shadow-lg p-4" style={{ minHeight: '600px' }}>
+                <main>
+                    <h1>SPOs Activity</h1>
+                    <div>
                         <SPOMap />
                     </div>
                 </main>
