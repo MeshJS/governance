@@ -120,7 +120,8 @@ async function updateSPOLocations() {
         const { data: spoData, error: fetchError } = await supabase
             .from('spo_data')
             .select('pool_id_bech32, relays, location')
-            .is('location', null);
+            .is('location', null)
+            .in('pool_status', ['registered', 'retiring']);
 
         if (fetchError) {
             throw fetchError;
