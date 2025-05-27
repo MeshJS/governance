@@ -12,7 +12,7 @@ interface NodeLocation {
 
 export const SPOMap: React.FC = () => {
     const { spoData } = useDataContext();
-    const globeRef = useRef<GlobeMethods>(null);
+    const globeRef = useRef<GlobeMethods | undefined>(undefined);
 
     // Memoize the filtered locations to prevent unnecessary recalculations
     const nodeLocations = useMemo(() =>
@@ -57,12 +57,15 @@ export const SPOMap: React.FC = () => {
                 pointColor={() => '#ff0000'}
                 pointRadius={0.1}
                 pointAltitude={0.01}
-                pointLabel={(d: any) => `
-                    <div style="padding: 8px; background: rgba(0,0,0,0.8); color: white; border-radius: 4px;">
-                        <h3 style="margin: 0 0 4px 0; font-size: 14px;">${d.pool.meta_json?.name || 'Unknown Pool'}</h3>
-                        <p style="margin: 0; font-size: 12px;">${d.pool.ticker} - ${(Number(d.pool.live_stake) / 1e6).toFixed(0)} ₳</p>
-                    </div>
-                `}
+                pointLabel={(d) => {
+                    const node = d as NodeLocation;
+                    return `
+                        <div style="padding: 8px; background: rgba(0,0,0,0.8); color: white; border-radius: 4px;">
+                            <h3 style="margin: 0 0 4px 0; font-size: 14px;">${node.pool.meta_json?.name || 'Unknown Pool'}</h3>
+                            <p style="margin: 0; font-size: 12px;">${node.pool.ticker} - ${(Number(node.pool.live_stake) / 1e6).toFixed(0)} ₳</p>
+                        </div>
+                    `;
+                }}
                 rendererConfig={{
                     antialias: false,
                     alpha: false,
