@@ -11,7 +11,7 @@ interface NodeLocation {
 }
 
 export const SPOMap: React.FC = () => {
-    const { spoData } = useDataContext();
+    const { spoData, loading } = useDataContext();
     const globeRef = useRef<GlobeMethods | undefined>(undefined);
 
     // Memoize the filtered locations to prevent unnecessary recalculations
@@ -40,21 +40,25 @@ export const SPOMap: React.FC = () => {
         }
     }, []);
 
+    if (loading.spoData) {
+        return <div className={styles.mapContainer}>Loading SPO data...</div>;
+    }
+
     if (nodeLocations.length === 0) {
-        return <div>No SPO locations available</div>;
+        return <div className={styles.mapContainer}>No SPO locations available</div>;
     }
 
     return (
         <div className={styles.mapContainer} style={{ height: '600px', width: '100%' }}>
             <Globe
                 ref={globeRef}
-                globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
+                globeImageUrl="//unpkg.com/three-globe/example/img/earth-dark.jpg"
                 bumpImageUrl=""
                 backgroundImageUrl=""
                 pointsData={nodeLocations}
                 pointLat="lat"
                 pointLng="lng"
-                pointColor={() => '#ff0000'}
+                pointColor={() => '#00ff00'}
                 pointRadius={0.1}
                 pointAltitude={0.01}
                 pointLabel={(d) => {
