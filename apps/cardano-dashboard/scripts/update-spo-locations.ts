@@ -9,6 +9,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const resolve4 = promisify(dns.resolve4);
 const resolve6 = promisify(dns.resolve6);
+const resolveSrv = promisify(dns.resolveSrv);
 
 interface LocationResponse {
     lat: number;
@@ -70,22 +71,37 @@ const rateLimiter = {
 
 async function resolveDNS(dnsName: string): Promise<string | null> {
     try {
+        // Skip DNS resolution for IP addresses
+        if (/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(dnsName)) {
+            return dnsName;
+        }
+
         // Try IPv4 first
         try {
             const addresses = await resolve4(dnsName);
-            return addresses[0] || null;
-        } catch (error) {
-            // If IPv4 fails, try IPv6
-            try {
-                const addresses = await resolve6(dnsName);
-                return addresses[0] || null;
-            } catch (error) {
-                console.error(`Error resolving DNS for ${dnsName}:`, error);
-                return null;
+            if (addresses && addresses.length > 0) {
+                console.log(`Successfully resolved IPv4 for ${dnsName}: ${addresses[0]}`);
+                return addresses[0];
             }
+        } catch (error) {
+            console.log(`IPv4 resolution failed for ${dnsName}, trying IPv6...`);
         }
+
+        // If IPv4 fails, try IPv6
+        try {
+            const addresses = await resolve6(dnsName);
+            if (addresses && addresses.length > 0) {
+                console.log(`Successfully resolved IPv6 for ${dnsName}: ${addresses[0]}`);
+                return addresses[0];
+            }
+        } catch (error) {
+            console.log(`IPv6 resolution failed for ${dnsName}`);
+        }
+
+        console.log(`Could not resolve any IP address for ${dnsName}`);
+        return null;
     } catch (error) {
-        console.error(`Error resolving DNS for ${dnsName}:`, error);
+        console.log(`Error resolving DNS for ${dnsName}:`, error);
         return null;
     }
 }
@@ -153,6 +169,46 @@ async function updateRetiredPoolLocations() {
     }
 }
 
+async function resolveRelay(relay: SPORelay): Promise<string | null> {
+    // If we have a direct IPv4 address, use it
+    if (relay.ipv4) {
+        return relay.ipv4;
+    }
+
+    // If we have a direct IPv6 address, use it
+    if (relay.ipv6) {
+        return relay.ipv6;
+    }
+
+    // If we have a DNS name, try to resolve it
+    if (relay.dns) {
+        // First try to resolve the DNS name directly
+        const resolvedIp = await resolveDNS(relay.dns);
+        if (resolvedIp) {
+            return resolvedIp;
+        }
+
+        // If direct resolution fails and we have an SRV record, try that
+        if (relay.srv) {
+            try {
+                const srvRecords = await resolveSrv(relay.srv);
+                if (srvRecords && srvRecords.length > 0) {
+                    // Use the first SRV record's target
+                    const target = srvRecords[0].name;
+                    const resolvedIp = await resolveDNS(target);
+                    if (resolvedIp) {
+                        return resolvedIp;
+                    }
+                }
+            } catch (error) {
+                console.log(`SRV resolution failed for ${relay.srv}:`, error);
+            }
+        }
+    }
+
+    return null;
+}
+
 async function updateSPOLocations() {
     try {
         // First handle retired pools
@@ -184,17 +240,13 @@ async function updateSPOLocations() {
 
             let location = null;
             if (pool.relays && pool.relays.length > 0) {
-                // Try to get location from the first relay with an IPv4 address
-                const relayWithIpv4 = pool.relays.find((relay: SPORelay) => relay.ipv4);
-                if (relayWithIpv4?.ipv4) {
-                    location = await fetchLocation(relayWithIpv4.ipv4);
-                } else {
-                    // If no IPv4, try to resolve DNS
-                    const relayWithDNS = pool.relays.find((relay: SPORelay) => relay.dns);
-                    if (relayWithDNS?.dns) {
-                        const ip = await resolveDNS(relayWithDNS.dns);
-                        if (ip) {
-                            location = await fetchLocation(ip);
+                // Try each relay in sequence until we get a location
+                for (const relay of pool.relays) {
+                    const ip = await resolveRelay(relay);
+                    if (ip) {
+                        location = await fetchLocation(ip);
+                        if (location) {
+                            break; // Stop if we got a valid location
                         }
                     }
                 }
@@ -211,7 +263,7 @@ async function updateSPOLocations() {
                     console.error(`Error updating location for pool ${pool.pool_id_bech32}:`, updateError);
                 }
             } else {
-                console.log(`Could not determine location for pool ${pool.pool_id_bech32} - no valid IPv4 relay found or geolocation failed`);
+                console.log(`Could not determine location for pool ${pool.pool_id_bech32} - no valid relay found or geolocation failed`);
             }
         }
 
