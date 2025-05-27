@@ -10,6 +10,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const resolve4 = promisify(dns.resolve4);
 const resolve6 = promisify(dns.resolve6);
 const resolveSrv = promisify(dns.resolveSrv);
+const resolveCname = promisify(dns.resolveCname);
+const resolveTxt = promisify(dns.resolveTxt);
 
 interface LocationResponse {
     lat: number;
@@ -76,6 +78,9 @@ async function resolveDNS(dnsName: string): Promise<string | null> {
             return dnsName;
         }
 
+        // Remove protocol prefix if present
+        dnsName = dnsName.replace(/^(https?:\/\/)/, '');
+
         // Try IPv4 first
         try {
             const addresses = await resolve4(dnsName);
@@ -95,7 +100,38 @@ async function resolveDNS(dnsName: string): Promise<string | null> {
                 return addresses[0];
             }
         } catch (error) {
-            console.log(`IPv6 resolution failed for ${dnsName}`);
+            console.log(`IPv6 resolution failed for ${dnsName}, trying CNAME...`);
+        }
+
+        // If both IPv4 and IPv6 fail, try CNAME
+        try {
+            const cnames = await resolveCname(dnsName);
+            if (cnames && cnames.length > 0) {
+                console.log(`Found CNAME for ${dnsName}: ${cnames[0]}, trying to resolve...`);
+                const resolvedIp = await resolveDNS(cnames[0]);
+                if (resolvedIp) {
+                    return resolvedIp;
+                }
+            }
+        } catch (error) {
+            console.log(`CNAME resolution failed for ${dnsName}, trying TXT...`);
+        }
+
+        // If CNAME fails, try TXT records
+        try {
+            const txtRecords = await resolveTxt(dnsName);
+            if (txtRecords && txtRecords.length > 0) {
+                for (const record of txtRecords) {
+                    // Look for IP addresses in TXT records
+                    const ipMatch = record[0].match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+                    if (ipMatch) {
+                        console.log(`Found IP in TXT record for ${dnsName}: ${ipMatch[0]}`);
+                        return ipMatch[0];
+                    }
+                }
+            }
+        } catch (error) {
+            console.log(`TXT resolution failed for ${dnsName}`);
         }
 
         console.log(`Could not resolve any IP address for ${dnsName}`);
