@@ -1,28 +1,26 @@
 {
     "compilerOptions": {
-        "target": "ES2020",
+        "target": "es2017",
         "module": "commonjs",
         "lib": [
-            "ES2020"
+            "es2017",
+            "dom"
         ],
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "dist",
-        "rootDir": ".",
-        "baseUrl": ".",
+        "outDir": "../dist",
+        "rootDir": "..",
+        "baseUrl": "..",
         "paths": {
             "*": [
-                "../src/*"
+                "*"
             ]
         }
     },
     "include": [
-        "./**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "dist"
+        "./**/*.ts",
+        "../src/types/**/*.ts"
     ]
 }

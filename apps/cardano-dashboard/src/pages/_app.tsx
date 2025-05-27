@@ -6,6 +6,7 @@ import { DataProvider } from "@/contexts/DataContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
+import 'leaflet/dist/leaflet.css';
 
 // Create a client
 const queryClient = new QueryClient({

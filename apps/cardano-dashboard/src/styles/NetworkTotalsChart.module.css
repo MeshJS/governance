@@ -1,27 +1,27 @@
 .x-axis,
 .y-axis {
-    color: #94a3b8;
+    color: var(--text-tertiary);
 }
 
 .x-axis line,
 .y-axis line {
-    stroke: rgba(148, 163, 184, 0.2);
+    stroke: var(--overlay-background);
 }
 
 .x-axis path,
 .y-axis path {
-    stroke: rgba(148, 163, 184, 0.2);
+    stroke: var(--overlay-background);
 }
 
 .x-axis text,
 .y-axis text {
-    fill: rgba(255, 255, 255, 0.6);
+    fill: var(--text-tertiary);
     font-size: 0.75rem;
 }
 
 .focus circle {
-    fill: rgba(255, 255, 255, 0.9);
-    stroke: rgba(0, 0, 0, 0.5);
+    fill: var(--text-primary);
+    stroke: var(--background-primary);
     stroke-width: 1;
 }
 
@@ -32,17 +32,18 @@
 .container {
     width: 100%;
     padding: 1rem;
-    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    background: var(--background-secondary);
     backdrop-filter: blur(12px);
     border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px var(--hover-shadow), 0 2px 4px -1px var(--hover-shadow);
 }
 
 .title {
     font-size: 1.25rem;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .loadingContainer {
@@ -54,7 +55,7 @@
 }
 
 .loadingText {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-tertiary);
 }
 
 .legendContainer {
@@ -91,10 +92,10 @@
 .tooltip {
     position: absolute;
     z-index: 9999;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: var(--background-secondary);
     backdrop-filter: blur(8px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px -1px var(--hover-shadow);
+    border: 1px solid var(--border-color);
     pointer-events: none;
     max-width: 300px;
     padding: 10px;
@@ -103,7 +104,7 @@
 
 .tooltipEpoch {
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-tertiary);
     margin-bottom: 0.75rem;
 }
 
@@ -115,5 +116,5 @@
 }
 
 .tooltipValue {
-    color: white;
+    color: var(--text-primary);
 }

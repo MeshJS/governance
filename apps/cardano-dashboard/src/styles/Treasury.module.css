@@ -5,7 +5,7 @@
 }
 
 .title {
-    color: #E2E8F0;
+    color: var(--text-primary);
     font-size: 2rem;
     font-weight: 600;
     margin-bottom: 2rem;
@@ -17,7 +17,7 @@
 }
 
 .sectionTitle {
-    color: #E2E8F0;
+    color: var(--text-primary);
     font-size: 1.5rem;
     font-weight: 500;
     margin-bottom: 1.5rem;
@@ -43,12 +43,12 @@
 
 .proposalTypeChart,
 .proposalOutcomeChart {
-    background: rgba(26, 32, 44, 0.7);
+    background: var(--background-secondary);
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px var(--hover-shadow);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .proposalVotingCards {
@@ -56,21 +56,21 @@
 }
 
 .chartStatusContainer {
-    background: rgba(26, 32, 44, 0.7);
+    background: var(--background-secondary);
     border-radius: 12px;
     padding: 2rem;
     text-align: center;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .loadingText {
-    color: #A0AEC0;
+    color: var(--text-tertiary);
     font-size: 1.1rem;
 }
 
 .errorText {
-    color: #FC8181;
+    color: var(--gradient-danger);
     font-size: 1.1rem;
 }
 

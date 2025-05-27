@@ -35,7 +35,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Committee data error:', data.error.committeeData);
         }
     }, [data.isError, data.error]);
-    //console.log(data);
+    console.log(data);
 
     return (
         <DataContext.Provider value={data}>

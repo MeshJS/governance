@@ -1,11 +1,63 @@
 /* Moved global styles */
 :root {
+    /* Base colors */
     --background-primary: #121212;
-    --background-secondary: #1a1a1a;
+    --background-secondary: rgba(0, 0, 0, 0.2);
     --text-primary: #ffffff;
-    --text-secondary: #b3b3b3;
-    --accent-color: #3498db;
-    --border-color: #333;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-tertiary: rgba(255, 255, 255, 0.6);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --accent-color: #14b8a6;
+
+    /* Proposal Type Gradients */
+    --gradient-info-action-1: rgba(56, 232, 225, 0.95);
+    --gradient-info-action-2: rgba(20, 184, 166, 0.85);
+    --gradient-info-action-3: rgba(8, 74, 67, 0.8);
+    --gradient-info-action-4: rgba(0, 0, 0, 0.9);
+
+    --gradient-parameter-change-1: rgba(255, 120, 203, 0.95);
+    --gradient-parameter-change-2: rgba(219, 39, 119, 0.85);
+    --gradient-parameter-change-3: rgba(88, 16, 48, 0.8);
+    --gradient-parameter-change-4: rgba(0, 0, 0, 0.9);
+
+    --gradient-new-constitution-1: rgba(226, 232, 240, 0.85);
+    --gradient-new-constitution-2: rgba(148, 163, 184, 0.8);
+    --gradient-new-constitution-3: rgba(71, 85, 105, 0.75);
+    --gradient-new-constitution-4: rgba(30, 41, 59, 0.9);
+
+    --gradient-hard-fork-1: rgba(255, 171, 0, 0.95);
+    --gradient-hard-fork-2: rgba(234, 88, 12, 0.85);
+    --gradient-hard-fork-3: rgba(154, 52, 18, 0.8);
+    --gradient-hard-fork-4: rgba(0, 0, 0, 0.9);
+
+    /* Generic gradient colors */
+    --gradient-teal: linear-gradient(135deg, rgba(56, 232, 225, 0.95) 0%, rgba(8, 74, 67, 0.8) 100%);
+    --gradient-pink: linear-gradient(135deg, rgba(255, 120, 203, 0.95) 0%, rgba(88, 16, 48, 0.8) 100%);
+    --gradient-slate: linear-gradient(135deg, rgba(226, 232, 240, 0.85) 0%, rgba(30, 41, 59, 0.9) 100%);
+    --gradient-orange: linear-gradient(135deg, rgba(255, 171, 0, 0.95) 0%, rgba(154, 52, 18, 0.8) 100%);
+
+    /* Additional gradient colors for charts and components */
+    --gradient-purple: linear-gradient(135deg, rgba(167, 139, 250, 0.95) 0%, rgba(88, 28, 135, 0.8) 100%);
+    --gradient-blue: linear-gradient(135deg, rgba(96, 165, 250, 0.95) 0%, rgba(30, 58, 138, 0.8) 100%);
+    --gradient-green: linear-gradient(135deg, rgba(74, 222, 128, 0.95) 0%, rgba(22, 101, 52, 0.8) 100%);
+    --gradient-red: linear-gradient(135deg, rgba(248, 113, 113, 0.95) 0%, rgba(153, 27, 27, 0.8) 100%);
+    --gradient-yellow: linear-gradient(135deg, rgba(250, 204, 21, 0.95) 0%, rgba(146, 64, 14, 0.8) 100%);
+    --gradient-indigo: linear-gradient(135deg, rgba(129, 140, 248, 0.95) 0%, rgba(55, 48, 163, 0.8) 100%);
+    --gradient-cyan: linear-gradient(135deg, rgba(34, 211, 238, 0.95) 0%, rgba(14, 116, 144, 0.8) 100%);
+    --gradient-emerald: linear-gradient(135deg, rgba(52, 211, 153, 0.95) 0%, rgba(6, 95, 70, 0.8) 100%);
+    --gradient-rose: linear-gradient(135deg, rgba(251, 113, 133, 0.95) 0%, rgba(136, 19, 55, 0.8) 100%);
+    --gradient-violet: linear-gradient(135deg, rgba(216, 180, 254, 0.95) 0%, rgba(107, 33, 168, 0.8) 100%);
+    --gradient-fuchsia: linear-gradient(135deg, rgba(232, 121, 249, 0.95) 0%, rgba(134, 25, 143, 0.8) 100%);
+    --gradient-lime: linear-gradient(135deg, rgba(190, 242, 100, 0.95) 0%, rgba(77, 124, 15, 0.8) 100%);
+
+    /* Vote colors - using the same gradients but with different direction */
+    --gradient-success: linear-gradient(90deg, rgba(56, 232, 225, 0.95) 0%, rgba(20, 184, 166, 0.85) 100%);
+    --gradient-danger: linear-gradient(90deg, rgba(255, 120, 203, 0.95) 0%, rgba(219, 39, 119, 0.85) 100%);
+    --gradient-neutral: linear-gradient(90deg, rgba(226, 232, 240, 0.85) 0%, rgba(148, 163, 184, 0.8) 100%);
+
+    /* Utility colors */
+    --overlay-background: rgba(255, 255, 255, 0.1);
+    --hover-shadow: rgba(0, 0, 0, 0.2);
 }
 
 @media (prefers-color-scheme: dark) {

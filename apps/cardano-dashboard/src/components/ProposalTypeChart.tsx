@@ -8,31 +8,25 @@ interface ProposalTypeChartProps {
     }>;
 }
 
-const TYPE_GRADIENTS = {
-    InfoAction: [
-        'rgba(56, 232, 225, 0.95)', // Bright teal
-        'rgba(20, 184, 166, 0.85)', // Deep teal
-        'rgba(8, 74, 67, 0.8)',     // Very dark teal
-        'rgba(0, 0, 0, 0.9)'        // Black
-    ],
-    ParameterChange: [
-        'rgba(255, 120, 203, 0.95)', // Bright pink
-        'rgba(219, 39, 119, 0.85)',  // Deep pink
-        'rgba(88, 16, 48, 0.8)',     // Very dark pink
-        'rgba(0, 0, 0, 0.9)'         // Black
-    ],
-    NewConstitution: [
-        'rgba(226, 232, 240, 0.85)', // Bright silver
-        'rgba(148, 163, 184, 0.8)',  // Cool slate
-        'rgba(71, 85, 105, 0.75)',   // Deep slate
-        'rgba(30, 41, 59, 0.9)'      // Rich dark slate
-    ],
-    HardForkInitiation: [
-        'rgba(255, 171, 0, 0.95)',   // Bright orange
-        'rgba(234, 88, 12, 0.85)',   // Deep orange
-        'rgba(154, 52, 18, 0.8)',    // Very dark orange
-        'rgba(0, 0, 0, 0.9)'         // Black
-    ]
+const getGradients = (type: string): string[] => {
+    const prefix = type === 'InfoAction' ? 'info-action' :
+        type === 'ParameterChange' ? 'parameter-change' :
+            type === 'NewConstitution' ? 'new-constitution' :
+                'hard-fork';
+
+    // Get computed values from CSS variables
+    const getComputedValue = (varName: string) => {
+        return getComputedStyle(document.documentElement)
+            .getPropertyValue(varName)
+            .trim();
+    };
+
+    return [
+        getComputedValue(`--gradient-${prefix}-1`),
+        getComputedValue(`--gradient-${prefix}-2`),
+        getComputedValue(`--gradient-${prefix}-3`),
+        getComputedValue(`--gradient-${prefix}-4`)
+    ];
 };
 
 const TYPE_LABELS = {
@@ -110,7 +104,7 @@ export default function ProposalTypeChart({ proposals }: ProposalTypeChartProps)
             ctx.closePath();
             // Gradient
             const grad = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
-            const stops = TYPE_GRADIENTS[type as keyof typeof TYPE_GRADIENTS] || TYPE_GRADIENTS.InfoAction;
+            const stops = getGradients(type as keyof typeof TYPE_LABELS) || getGradients('InfoAction');
             grad.addColorStop(0, stops[0]);
             grad.addColorStop(0.4, stops[1]);
             grad.addColorStop(0.8, stops[2]);

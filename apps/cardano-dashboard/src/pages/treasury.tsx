@@ -121,12 +121,10 @@ export default function Treasury() {
                 <h1 className={styles.title}>Treasury Activity</h1>
 
                 <section className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Network Totals</h3>
                     {renderNetworkTotals()}
                 </section>
 
                 <section className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Governance Proposals</h3>
                     {renderGovernanceProposals()}
                 </section>
             </main>
