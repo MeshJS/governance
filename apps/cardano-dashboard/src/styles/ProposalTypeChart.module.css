@@ -6,15 +6,13 @@
     flex-direction: column;
     align-items: center;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.2);
     border-radius: 1rem;
-    backdrop-filter: blur(10px);
 }
 
 .chartTitle {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
     margin-bottom: 1rem;
 }
 
@@ -43,7 +41,7 @@
 
 .legendItem:hover,
 .legendItem.active {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-background);
 }
 
 .legendColor {
@@ -54,29 +52,29 @@
 
 .legendLabel {
     flex: 1;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
 .legendValue {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-tertiary);
     font-size: 0.875rem;
     font-weight: 500;
 }
 
 /* Proposal type colors */
 .infoAction {
-    background: linear-gradient(135deg, rgba(56, 232, 225, 0.95) 0%, rgba(8, 74, 67, 0.8) 100%);
+    background: var(--gradient-teal);
 }
 
 .parameterChange {
-    background: linear-gradient(135deg, rgba(255, 120, 203, 0.95) 0%, rgba(88, 16, 48, 0.8) 100%);
+    background: var(--gradient-pink);
 }
 
 .newConstitution {
-    background: linear-gradient(135deg, rgba(226, 232, 240, 0.85) 0%, rgba(30, 41, 59, 0.9) 100%);
+    background: var(--gradient-slate);
 }
 
 .hardFork {
-    background: linear-gradient(135deg, rgba(255, 171, 0, 0.95) 0%, rgba(154, 52, 18, 0.8) 100%);
+    background: var(--gradient-orange);
 }

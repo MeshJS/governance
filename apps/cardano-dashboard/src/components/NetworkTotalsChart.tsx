@@ -24,18 +24,18 @@ function NetworkTotalsChartComponent({ data }: NetworkTotalsChartProps) {
     const [isMounted, setIsMounted] = useState(false);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const [lineConfigs, setLineConfigs] = useState<LineConfig[]>([
-        { key: 'circulation', label: 'Circulation', color: '#4FF5F0', enabled: true },
-        { key: 'treasury', label: 'Treasury', color: '#FFE44D', enabled: true },
-        { key: 'reward', label: 'Reward', color: '#FF8B8B', enabled: true },
-        { key: 'supply', label: 'Supply', color: '#6EFFE8', enabled: true },
-        { key: 'reserves', label: 'Reserves', color: '#FFB74D', enabled: true },
-        { key: 'fees', label: 'Fees', color: '#B388FF', enabled: true },
-        { key: 'deposits_stake', label: 'Stake Deposits', color: '#4DB6AC', enabled: true },
-        { key: 'deposits_drep', label: 'DRep Deposits', color: '#9575CD', enabled: true },
-        { key: 'deposits_proposal', label: 'Proposal Deposits', color: '#FF80AB', enabled: true },
-        { key: 'exchange_rate', label: 'Exchange Rate', color: '#FF5252', enabled: true },
-        { key: 'active_stake', label: 'Active Stake', color: '#7CB342', enabled: true },
-        { key: 'tx_count', label: 'Transaction Count', color: '#29B6F6', enabled: true },
+        { key: 'circulation', label: 'Circulation', color: '#38E8E1', enabled: true },
+        { key: 'treasury', label: 'Treasury', color: '#FFAB00', enabled: true },
+        { key: 'reward', label: 'Reward', color: '#FF78CB', enabled: true },
+        { key: 'supply', label: 'Supply', color: '#22D3EE', enabled: true },
+        { key: 'reserves', label: 'Reserves', color: '#FACC15', enabled: true },
+        { key: 'fees', label: 'Fees', color: '#A78BFA', enabled: true },
+        { key: 'deposits_stake', label: 'Stake Deposits', color: '#34D399', enabled: true },
+        { key: 'deposits_drep', label: 'DRep Deposits', color: '#D8B4FE', enabled: true },
+        { key: 'deposits_proposal', label: 'Proposal Deposits', color: '#FB7185', enabled: true },
+        { key: 'exchange_rate', label: 'Exchange Rate', color: '#F87171', enabled: true },
+        { key: 'active_stake', label: 'Active Stake', color: '#4ADE80', enabled: true },
+        { key: 'tx_count', label: 'Transaction Count', color: '#60A5FA', enabled: true },
     ]);
 
     useEffect(() => {
