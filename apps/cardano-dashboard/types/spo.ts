@@ -62,4 +62,9 @@ export interface SPOData {
     live_delegators?: number;
     live_saturation?: number;
     voting_power?: string;
+    // Location data
+    location?: {
+        lat: number;
+        lng: number;
+    };
 } 
