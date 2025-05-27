@@ -114,9 +114,51 @@ async function fetchLocation(ip: string): Promise<{ lat: number; lng: number } |
     }
 }
 
+async function updateRetiredPoolLocations() {
+    try {
+        console.log('Fetching retired SPO data from Supabase...');
+        const { data: retiredPools, error: fetchError } = await supabase
+            .from('spo_data')
+            .select('pool_id_bech32')
+            .eq('pool_status', 'retired')
+            .not('location', 'is', null);
+
+        if (fetchError) {
+            throw fetchError;
+        }
+
+        if (!retiredPools || retiredPools.length === 0) {
+            console.log('No retired pools found with locations');
+            return;
+        }
+
+        console.log(`Processing ${retiredPools.length} retired pools`);
+
+        for (const pool of retiredPools) {
+            console.log(`Removing location for retired pool ${pool.pool_id_bech32}`);
+            const { error: updateError } = await supabase
+                .from('spo_data')
+                .update({ location: null })
+                .eq('pool_id_bech32', pool.pool_id_bech32);
+
+            if (updateError) {
+                console.error(`Error updating location for pool ${pool.pool_id_bech32}:`, updateError);
+            }
+        }
+
+        console.log('Finished updating retired pool locations');
+    } catch (error) {
+        console.error('Error in updateRetiredPoolLocations:', error);
+        process.exit(1);
+    }
+}
+
 async function updateSPOLocations() {
     try {
-        console.log('Fetching SPO data from Supabase...');
+        // First handle retired pools
+        await updateRetiredPoolLocations();
+
+        console.log('Fetching active SPO data from Supabase...');
         const { data: spoData, error: fetchError } = await supabase
             .from('spo_data')
             .select('pool_id_bech32, relays, location')
