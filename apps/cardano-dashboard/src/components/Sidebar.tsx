@@ -17,9 +17,7 @@ const navItems = [
     { name: "Profile Pages", icon: <FaUser />, href: "/profile-pages" },
 ];
 
-interface SidebarProps { }
-
-const Sidebar = ({ }: SidebarProps) => {
+const Sidebar = () => {
     const router = useRouter();
     const [isHovered, setIsHovered] = useState(false);
 
