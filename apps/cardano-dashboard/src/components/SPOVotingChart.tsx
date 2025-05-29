@@ -94,7 +94,7 @@ export default function SPOVotingChart({ proposals }: SPOVotingChartProps) {
 
     return (
         <div className={styles.chartContainer} ref={chartRef}>
-            <h2>Pool Voting Activity</h2>
+            <h2>SPO Voting Activity</h2>
             <div className={styles.chart}>
                 {proposals.map((proposal) => {
                     const totalVotes = proposal.pool_yes_votes_cast + proposal.pool_no_votes_cast + proposal.pool_abstain_votes_cast;

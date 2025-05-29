@@ -1,16 +1,14 @@
 .chartContainer {
-    background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     padding: 1.5rem;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 2rem;
     position: relative;
     width: 100%;
 }
 
 .chartContainer h2 {
-    color: #FFFFFF;
+    color: var(--text-primary);
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0 0 1.5rem 0;
@@ -20,8 +18,9 @@
     display: flex;
     align-items: flex-end;
     gap: 2px;
-    height: 300px;
+    height: 400px;
     padding: 1rem 0;
+    margin-top: 3rem;
     width: 100%;
     justify-content: space-between;
 }
@@ -42,7 +41,7 @@
     flex-direction: column-reverse;
     border-radius: 4px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--background-secondary);
 }
 
 .barSegment {
@@ -57,35 +56,35 @@
 }
 
 .barSegment.yes {
-    background: linear-gradient(180deg, #38E8E1 0%, #22D3EE 100%);
+    background: var(--gradient-success);
 }
 
 .barSegment.no {
-    background: linear-gradient(180deg, #FF78CB 0%, #FB7185 100%);
+    background: var(--gradient-danger);
 }
 
 .barSegment.abstain {
-    background: linear-gradient(180deg, #FFAB00 0%, #FACC15 100%);
+    background: var(--gradient-neutral);
 }
 
 .tooltip {
     position: absolute;
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--gradient-info-action-4);
     border-radius: 8px;
     padding: 1rem;
-    color: white;
+    color: var(--text-primary);
     font-size: 0.875rem;
     pointer-events: none;
     z-index: 1000;
     width: 360px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .tooltipTitle {
     font-weight: 600;
     margin-bottom: 0.75rem;
-    color: #FFFFFF;
+    color: var(--text-primary);
     word-wrap: break-word;
     white-space: normal;
     line-height: 1.4;
@@ -109,24 +108,24 @@
 }
 
 .tooltipRow span:nth-child(2) {
-    color: #A0AEC0;
+    color: var(--text-tertiary);
     text-align: right;
 }
 
 .tooltipRow span:last-child {
-    color: #38E8E1;
+    color: var(--gradient-info-action-1);
     min-width: 100px;
     text-align: right;
 }
 
 .tooltipRow .yes {
-    color: #38E8E1;
+    color: var(--gradient-info-action-1);
 }
 
 .tooltipRow .no {
-    color: #FF78CB;
+    color: var(--gradient-parameter-change-1);
 }
 
 .tooltipRow .abstain {
-    color: #FFAB00;
+    color: var(--gradient-hard-fork-1);
 }

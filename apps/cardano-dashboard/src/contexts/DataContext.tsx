@@ -63,7 +63,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             committeeData: !isClient || data.loading.committeeData,
         }
     };
-
+    console.log(contextValue);
     return (
         <DataContext.Provider value={contextValue}>
             {children}

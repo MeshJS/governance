@@ -4,11 +4,13 @@ import { DataProvider } from "../contexts/DataContext";
 import { useDataContext } from "../contexts/DataContext";
 import SPOStats from "../components/SPOStats";
 import SPOVotingChart from "../components/SPOVotingChart";
+import SPOTable from "../components/SPOTable";
+import styles from '../styles/SPOsActivity.module.css';
 
 // Dynamically import the SPOMap component with SSR disabled
 const SPOMap = dynamic(() => import('../components/SPOMap').then(mod => mod.SPOMap), {
     ssr: false,
-    loading: () => <div>Loading map...</div>
+    loading: () => <div className={styles.loadingContainer}>Loading map...</div>
 });
 
 function SPOsActivityContent() {
@@ -17,17 +19,18 @@ function SPOsActivityContent() {
     // Show loading state when data is loading
     if (loading.spoData || loading.governanceProposals) {
         return (
-            <div>
+            <div className={styles.container}>
                 <Head>
                     <title>SPOs Activity | Cardano Dashboard</title>
                 </Head>
                 <main>
-                    <h1>SPOs Activity</h1>
+                    <h1 className={styles.title}>SPOs Activity</h1>
                     <SPOStats spoData={[]} />
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div>Loading...</div>
-                        <div>Loading...</div>
+                    <div className={styles.gridContainer}>
+                        <div className={styles.loadingContainer}>Loading...</div>
+                        <div className={styles.loadingContainer}>Loading...</div>
                     </div>
+                    <div className={styles.loadingContainer}>Loading SPO table...</div>
                 </main>
             </div>
         );
@@ -36,37 +39,41 @@ function SPOsActivityContent() {
     // Show error state when data is not available
     if (!spoData || !governanceProposals) {
         return (
-            <div>
+            <div className={styles.container}>
                 <Head>
                     <title>SPOs Activity | Cardano Dashboard</title>
                 </Head>
                 <main>
-                    <h1>SPOs Activity</h1>
+                    <h1 className={styles.title}>SPOs Activity</h1>
                     <SPOStats spoData={[]} />
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div>No data available</div>
-                        <div>No data available</div>
+                    <div className={styles.gridContainer}>
+                        <div className={styles.errorContainer}>No data available</div>
+                        <div className={styles.errorContainer}>No data available</div>
                     </div>
+                    <div className={styles.errorContainer}>No SPO data available</div>
                 </main>
             </div>
         );
     }
 
     return (
-        <div>
+        <div className={styles.container}>
             <Head>
                 <title>SPOs Activity | Cardano Dashboard</title>
             </Head>
             <main>
-                <h1>SPOs Activity</h1>
+                <h1 className={styles.title}>SPOs Activity</h1>
                 <SPOStats spoData={spoData} />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                        <SPOVotingChart proposals={governanceProposals} />
-                    </div>
-                    <div>
+                <div className={styles.gridContainer}>
+                    <div className={styles.gridItem}>
                         <SPOMap />
                     </div>
+                    <div className={styles.gridItem}>
+                        <SPOVotingChart proposals={governanceProposals} />
+                    </div>
+                </div>
+                <div className={styles.tableSection}>
+                    <SPOTable spoData={spoData} />
                 </div>
             </main>
         </div>
