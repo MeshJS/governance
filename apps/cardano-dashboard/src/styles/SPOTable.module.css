@@ -59,12 +59,12 @@
 
 /* Pool ID */
 .table th:nth-child(2) {
-    width: 8%;
+    width: 9%;
 }
 
 /* Ticker */
 .table th:nth-child(3) {
-    width: 15%;
+    width: 16%;
 }
 
 /* Name */
@@ -74,7 +74,7 @@
 
 /* Live Stake */
 .table th:nth-child(5) {
-    width: 7%;
+    width: 9%;
 }
 
 /* Delegators */
@@ -84,12 +84,12 @@
 
 /* Live Pledge */
 .table th:nth-child(7) {
-    width: 8%;
+    width: 7%;
 }
 
 /* Fixed Cost */
 .table th:nth-child(8) {
-    width: 9%;
+    width: 8%;
 }
 
 /* Block Count */
