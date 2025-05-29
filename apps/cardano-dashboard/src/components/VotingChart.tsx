@@ -1,19 +1,12 @@
 import React, { useState, useRef } from 'react';
 import styles from '@/styles/VotingChart.module.css';
+import { GovernanceProposal } from '../../types/governance';
 
 type VoteType = 'spo' | 'drep';
 
 interface VotingChartProps {
     type: VoteType;
-    proposals: Array<{
-        proposal_id: string;
-        meta_json: {
-            body?: {
-                title?: string;
-            };
-        } | null;
-        [key: string]: any; // For dynamic vote properties
-    }>;
+    proposals: Array<GovernanceProposal>;
 }
 
 interface TooltipData {
@@ -60,7 +53,9 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
 
         setTooltipData({
             proposalId: proposal.proposal_id,
-            title: proposal.meta_json?.body?.title || proposal.proposal_id,
+            title: proposal.meta_json?.body && typeof proposal.meta_json.body === 'object' && 'title' in proposal.meta_json.body
+                ? proposal.meta_json.body.title as string
+                : proposal.proposal_id,
             yesVotes: voteProps.yesVotes,
             noVotes: voteProps.noVotes,
             abstainVotes: voteProps.abstainVotes,
