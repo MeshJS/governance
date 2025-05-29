@@ -13,7 +13,7 @@
     flex: 1;
     padding: 2rem;
     margin-top: 40px;
-    margin-left: 250px;
+    margin-left: 50px;
     transition: margin-left 0.3s cubic-bezier(.4, 0, .2, 1);
 }
 

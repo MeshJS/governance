@@ -73,12 +73,13 @@ export const SPOMap: React.FC = () => {
                 rendererConfig={{
                     antialias: false,
                     alpha: false,
-                    powerPreference: 'high-performance'
+                    powerPreference: 'high-performance',
+                    preserveDrawingBuffer: true
                 }}
                 width={800}
                 height={600}
                 backgroundColor="#0a0a0a"
-                atmosphereColor="rgba(255,255,255,0.1)"
+                atmosphereColor="rgba(255,255,255)"
                 atmosphereAltitude={0.05}
             />
         </div>

@@ -1,5 +1,5 @@
 // contexts/DataContext.tsx
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { DataContextType } from 'types/datacontext';
 import { useDataFetching } from '../data/hooks/useDataFetching';
 
@@ -12,7 +12,13 @@ export function useDataContext() {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [isClient, setIsClient] = useState(false);
     const data = useDataFetching();
+
+    // Set isClient to true after mount
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     // Log errors when they occur
     useEffect(() => {
@@ -35,10 +41,31 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Committee data error:', data.error.committeeData);
         }
     }, [data.isError, data.error]);
-    //console.log(data);
 
+    // Create a consistent initial state
+    const contextValue = {
+        ...data,
+        // Only provide data after client-side hydration
+        spoData: isClient ? data.spoData : [],
+        governanceProposals: isClient ? data.governanceProposals : [],
+        networkTotals: isClient ? data.networkTotals : [],
+        chainTip: isClient ? data.chainTip : [],
+        drepData: isClient ? data.drepData : [],
+        committeeData: isClient ? data.committeeData : [],
+        // Keep loading states consistent
+        loading: {
+            ...data.loading,
+            spoData: !isClient || data.loading.spoData,
+            governanceProposals: !isClient || data.loading.governanceProposals,
+            networkTotals: !isClient || data.loading.networkTotals,
+            chainTip: !isClient || data.loading.chainTip,
+            drepData: !isClient || data.loading.drepData,
+            committeeData: !isClient || data.loading.committeeData,
+        }
+    };
+    console.log(contextValue);
     return (
-        <DataContext.Provider value={data}>
+        <DataContext.Provider value={contextValue}>
             {children}
         </DataContext.Provider>
     );

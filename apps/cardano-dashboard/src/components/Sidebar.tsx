@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "../styles/Sidebar.module.css";
-import { FaPiggyBank, FaChartLine, FaUsers, FaGavel, FaProjectDiagram, FaGithub, FaNpm, FaFileAlt, FaLightbulb, FaUser, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaPiggyBank, FaChartLine, FaUsers, FaGavel, FaProjectDiagram, FaGithub, FaNpm, FaFileAlt, FaLightbulb, FaUser } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -17,37 +17,27 @@ const navItems = [
     { name: "Profile Pages", icon: <FaUser />, href: "/profile-pages" },
 ];
 
-interface SidebarProps {
-    isCollapsed: boolean;
-    onToggle: () => void;
-}
-
-const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
+const Sidebar = () => {
     const router = useRouter();
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
-        <div className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
-            <button
-                className={styles.toggleButton}
-                onClick={onToggle}
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-                <span className={styles.toggleIcon}>
-                    {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
-                </span>
-            </button>
+        <div
+            className={`${styles.sidebar} ${!isHovered ? styles.collapsed : ''}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
             <ul>
                 {navItems.map((item, index) => {
                     const isActive = router.pathname === item.href;
                     return (
                         <li
                             key={index}
-                            className={
-                                `${styles.navItem} ${isActive ? styles.activeNavItem : ''}`
-                            }
+                            className={`${styles.navItem} ${isActive ? styles.activeNavItem : ''}`}
                         >
                             <Link href={item.href} className={styles.navLink}>
                                 {item.icon}
-                                {!isCollapsed && <span className={styles.navText}>{item.name}</span>}
+                                {isHovered && <span className={styles.navText}>{item.name}</span>}
                             </Link>
                         </li>
                     );
