@@ -22,6 +22,14 @@ interface DRepDetailedData extends DRepBasicData {
     meta_hash: string;
 }
 
+interface DRepDelegator {
+    stake_address: string;
+    stake_address_hex: string;
+    script_hash: string | null;
+    epoch_no: number;
+    amount: string;
+}
+
 async function fetchDRepList(): Promise<DRepBasicData[]> {
     const url = 'https://api.koios.rest/api/v1/drep_list';
     let allData: DRepBasicData[] = [];
@@ -110,6 +118,30 @@ async function fetchDRepDetails(drepIds: string[]): Promise<DRepDetailedData[]> 
     }
 }
 
+async function fetchDRepDelegators(drepId: string): Promise<DRepDelegator[]> {
+    const url = `https://api.koios.rest/api/v1/drep_delegators?_drep_id=${drepId}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${koiosApiKey}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Koios API error: Status ${response.status}`, errorText);
+            throw new Error(`Failed to fetch DRep delegators: ${response.status} ${errorText}`);
+        }
+
+        return await response.json() as DRepDelegator[];
+    } catch (error) {
+        console.error(`Error fetching delegators for DRep ${drepId}:`, error);
+        return [];
+    }
+}
+
 async function updateDRepData() {
     try {
         console.log('Fetching DRep list from Koios...');
@@ -138,10 +170,23 @@ async function updateDRepData() {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        // Add updated_at timestamp to each record
-        const enrichedData = allDetailedData.map(record => ({
-            ...record,
-            updated_at: new Date().toISOString()
+        // Fetch delegators for each DRep
+        console.log('Fetching delegators for each DRep...');
+        const enrichedData = await Promise.all(allDetailedData.map(async (record) => {
+            // Add a small delay between requests to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const delegators = await fetchDRepDelegators(record.drep_id);
+            const totalDelegatedAmount = delegators.reduce((sum, delegator) =>
+                sum + BigInt(delegator.amount), BigInt(0)).toString();
+
+            return {
+                ...record,
+                delegators,
+                total_delegators: delegators.length,
+                total_delegated_amount: totalDelegatedAmount,
+                updated_at: new Date().toISOString()
+            };
         }));
 
         // Update Supabase
@@ -157,7 +202,7 @@ async function updateDRepData() {
             throw error;
         }
 
-        console.log(`Successfully updated ${enrichedData.length} DRep records`);
+        console.log(`Successfully updated ${enrichedData.length} DRep records with delegator information`);
     } catch (error) {
         console.error('Error in updateDRepData:', error);
         process.exit(1);
