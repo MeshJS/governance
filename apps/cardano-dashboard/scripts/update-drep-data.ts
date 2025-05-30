@@ -193,26 +193,43 @@ async function updateDRepData() {
             await sleep(RATE_LIMIT_DELAY);
         }
 
-        // Fetch delegators for each DRep with rate limiting
-        console.log('Fetching delegators for each DRep...');
+        // Filter for active DReps
+        const activeDReps = allDetailedData.filter(drep => drep.active);
+        console.log(`Found ${activeDReps.length} active DReps out of ${allDetailedData.length} total DReps`);
+
+        // Fetch delegators for each active DRep with rate limiting
+        console.log('Fetching delegators for active DReps...');
         const enrichedData = [];
 
         for (const record of allDetailedData) {
-            await sleep(RATE_LIMIT_DELAY);
+            // Only fetch delegators for active DReps
+            if (record.active) {
+                await sleep(RATE_LIMIT_DELAY);
 
-            const delegators = await fetchDRepDelegators(record.drep_id);
-            const totalDelegatedAmount = delegators.reduce((sum, delegator) =>
-                sum + BigInt(delegator.amount), BigInt(0)).toString();
+                const delegators = await fetchDRepDelegators(record.drep_id);
+                const totalDelegatedAmount = delegators.reduce((sum, delegator) =>
+                    sum + BigInt(delegator.amount), BigInt(0)).toString();
 
-            enrichedData.push({
-                ...record,
-                delegators,
-                total_delegators: delegators.length,
-                total_delegated_amount: totalDelegatedAmount,
-                updated_at: new Date().toISOString()
-            });
+                enrichedData.push({
+                    ...record,
+                    delegators,
+                    total_delegators: delegators.length,
+                    total_delegated_amount: totalDelegatedAmount,
+                    updated_at: new Date().toISOString()
+                });
 
-            console.log(`Processed delegators for DRep ${record.drep_id}`);
+                console.log(`Processed delegators for active DRep ${record.drep_id}`);
+            } else {
+                // For inactive DReps, just update the record without delegator data
+                enrichedData.push({
+                    ...record,
+                    delegators: [],
+                    total_delegators: 0,
+                    total_delegated_amount: '0',
+                    updated_at: new Date().toISOString()
+                });
+                console.log(`Skipped delegator fetch for inactive DRep ${record.drep_id}`);
+            }
         }
 
         // Update Supabase
