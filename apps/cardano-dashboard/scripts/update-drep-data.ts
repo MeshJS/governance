@@ -10,6 +10,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const RATE_LIMIT_DELAY = 2000; // 2 seconds between requests
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 5000; // 5 seconds before retry
+const DELEGATOR_UPDATE_THRESHOLD_DAYS = 5;
 
 interface DRepBasicData {
     drep_id: string;
@@ -33,6 +34,14 @@ interface DRepDelegator {
     script_hash: string | null;
     epoch_no: number;
     amount: string;
+}
+
+interface DRepCurrentData {
+    drep_id: string;
+    updated_at: string;
+    delegators: DRepDelegator[];
+    total_delegators: number;
+    total_delegated_amount: string;
 }
 
 async function sleep(ms: number) {
@@ -166,6 +175,22 @@ async function fetchDRepDelegators(drepId: string): Promise<DRepDelegator[]> {
     }
 }
 
+function isDelegatorUpdateNeeded(lastUpdateDate: string | null): boolean {
+    if (!lastUpdateDate) return true;
+
+    const lastUpdate = new Date(lastUpdateDate);
+    const today = new Date();
+
+    // Reset time part to compare only dates
+    lastUpdate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = today.getTime() - lastUpdate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays >= DELEGATOR_UPDATE_THRESHOLD_DAYS;
+}
+
 async function updateDRepData() {
     try {
         console.log('Fetching DRep list from Koios...');
@@ -197,13 +222,31 @@ async function updateDRepData() {
         const activeDReps = allDetailedData.filter(drep => drep.active);
         console.log(`Found ${activeDReps.length} active DReps out of ${allDetailedData.length} total DReps`);
 
+        // Fetch current data from Supabase to check last update times
+        const { data: currentData, error: fetchError } = await supabase
+            .from('drep_data')
+            .select('drep_id, updated_at, delegators, total_delegators, total_delegated_amount')
+            .in('drep_id', allDetailedData.map(drep => drep.drep_id));
+
+        if (fetchError) {
+            console.error('Error fetching current DRep data:', fetchError);
+            throw fetchError;
+        }
+
+        const currentDataMap = new Map(
+            (currentData as DRepCurrentData[] | null)?.map(record => [record.drep_id, record]) || []
+        );
+
         // Fetch delegators for each active DRep with rate limiting
         console.log('Fetching delegators for active DReps...');
         const enrichedData = [];
 
         for (const record of allDetailedData) {
-            // Only fetch delegators for active DReps
-            if (record.active) {
+            const currentRecord = currentDataMap.get(record.drep_id);
+            const needsUpdate = isDelegatorUpdateNeeded(currentRecord?.updated_at || null);
+
+            // Only fetch delegators for active DReps that need updating
+            if (record.active && needsUpdate) {
                 await sleep(RATE_LIMIT_DELAY);
 
                 const delegators = await fetchDRepDelegators(record.drep_id);
@@ -218,7 +261,17 @@ async function updateDRepData() {
                     updated_at: new Date().toISOString()
                 });
 
-                console.log(`Processed delegators for active DRep ${record.drep_id}`);
+                console.log(`Processed delegators for active DRep ${record.drep_id} (needed update)`);
+            } else if (record.active) {
+                // For active DReps that don't need updating, keep existing delegator data
+                enrichedData.push({
+                    ...record,
+                    delegators: currentRecord?.delegators || [],
+                    total_delegators: currentRecord?.total_delegators || 0,
+                    total_delegated_amount: currentRecord?.total_delegated_amount || '0',
+                    updated_at: new Date().toISOString()
+                });
+                console.log(`Skipped delegator fetch for active DRep ${record.drep_id} (recently updated)`);
             } else {
                 // For inactive DReps, just update the record without delegator data
                 enrichedData.push({
