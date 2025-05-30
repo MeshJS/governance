@@ -26,7 +26,16 @@ const RETRY_CONFIG = {
     gcTime: 30 * 60 * 1000, // 30 minutes
 };
 
-export function useDataFetching() {
+type DataFetchingOptions = {
+    fetchChainTip?: boolean;
+    fetchNetworkTotals?: boolean;
+    fetchGovernanceProposals?: boolean;
+    fetchSPOData?: boolean;
+    fetchDRepData?: boolean;
+    fetchCommitteeData?: boolean;
+};
+
+export function useDataFetching(options: DataFetchingOptions = {}) {
     const queryClient = useQueryClient();
 
     // Chain Tip Query
@@ -45,7 +54,8 @@ export function useDataFetching() {
                 throw error;
             }
         },
-        ...RETRY_CONFIG
+        ...RETRY_CONFIG,
+        enabled: options.fetchChainTip ?? false
     });
 
     // Network Totals Query
@@ -64,7 +74,8 @@ export function useDataFetching() {
                 throw error;
             }
         },
-        ...RETRY_CONFIG
+        ...RETRY_CONFIG,
+        enabled: options.fetchNetworkTotals ?? false
     });
 
     // Governance Proposals Query
@@ -83,7 +94,8 @@ export function useDataFetching() {
                 throw error;
             }
         },
-        ...RETRY_CONFIG
+        ...RETRY_CONFIG,
+        enabled: options.fetchGovernanceProposals ?? false
     });
 
     // SPO Data Query
@@ -102,7 +114,8 @@ export function useDataFetching() {
                 throw error;
             }
         },
-        ...RETRY_CONFIG
+        ...RETRY_CONFIG,
+        enabled: options.fetchSPOData ?? false
     });
 
     // DRep Data Query
@@ -121,7 +134,8 @@ export function useDataFetching() {
                 throw error;
             }
         },
-        ...RETRY_CONFIG
+        ...RETRY_CONFIG,
+        enabled: options.fetchDRepData ?? false
     });
 
     // Committee Data Query
@@ -140,19 +154,25 @@ export function useDataFetching() {
                 throw error;
             }
         },
-        ...RETRY_CONFIG
+        ...RETRY_CONFIG,
+        enabled: options.fetchCommitteeData ?? false
     });
 
     const refresh = async () => {
         try {
-            await Promise.all([
-                queryClient.invalidateQueries({ queryKey: ['chainTip'] }),
-                queryClient.invalidateQueries({ queryKey: ['networkTotals'] }),
-                queryClient.invalidateQueries({ queryKey: ['governanceProposals'] }),
-                queryClient.invalidateQueries({ queryKey: ['spoData'] }),
-                queryClient.invalidateQueries({ queryKey: ['drepData'] }),
-                queryClient.invalidateQueries({ queryKey: ['committeeData'] })
-            ]);
+            const queriesToInvalidate = [];
+            if (options.fetchChainTip) queriesToInvalidate.push(['chainTip']);
+            if (options.fetchNetworkTotals) queriesToInvalidate.push(['networkTotals']);
+            if (options.fetchGovernanceProposals) queriesToInvalidate.push(['governanceProposals']);
+            if (options.fetchSPOData) queriesToInvalidate.push(['spoData']);
+            if (options.fetchDRepData) queriesToInvalidate.push(['drepData']);
+            if (options.fetchCommitteeData) queriesToInvalidate.push(['committeeData']);
+
+            await Promise.all(
+                queriesToInvalidate.map(queryKey =>
+                    queryClient.invalidateQueries({ queryKey })
+                )
+            );
         } catch (error) {
             console.error('Error refreshing data:', error);
             throw error;

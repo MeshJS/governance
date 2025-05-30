@@ -82,7 +82,7 @@ function SPOsActivityContent() {
 
 export default function SPOsActivity() {
     return (
-        <DataProvider>
+        <DataProvider fetchOptions={{ fetchSPOData: true, fetchGovernanceProposals: true }}>
             <SPOsActivityContent />
         </DataProvider>
     );
