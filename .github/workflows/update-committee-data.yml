@@ -2,7 +2,7 @@ name: Update Cardano Dashboard Committee Data
 
 on:
   schedule:
-    - cron: '15 0 * * *'  # Run at 15 minutes past midnight UTC every day
+    - cron: '10 0 * * *'  # Run at 10 minutes past midnight UTC every day
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
