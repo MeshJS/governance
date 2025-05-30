@@ -2,7 +2,7 @@ name: Update SPO Locations
 
 on:
   schedule:
-    - cron: '40 0 * * *'  # Run at 40 minutes past midnight UTC every day
+    - cron: '25 0 * * *'  # Run at 25 minutes past midnight UTC every day
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
