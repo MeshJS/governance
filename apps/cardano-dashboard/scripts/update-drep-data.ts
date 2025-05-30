@@ -6,6 +6,11 @@ const koiosApiKey = process.env.KOIOS_API_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// Rate limiting configuration
+const RATE_LIMIT_DELAY = 2000; // 2 seconds between requests
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 5000; // 5 seconds before retry
+
 interface DRepBasicData {
     drep_id: string;
     hex: string;
@@ -30,17 +35,44 @@ interface DRepDelegator {
     amount: string;
 }
 
+async function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(url: string, options: RequestInit, retries = MAX_RETRIES): Promise<Response> {
+    try {
+        const response = await fetch(url, options);
+
+        if (response.status === 429) {
+            if (retries > 0) {
+                console.log(`Rate limited, retrying in ${RETRY_DELAY / 1000} seconds... (${retries} retries left)`);
+                await sleep(RETRY_DELAY);
+                return fetchWithRetry(url, options, retries - 1);
+            }
+        }
+
+        return response;
+    } catch (error) {
+        if (retries > 0) {
+            console.log(`Request failed, retrying in ${RETRY_DELAY / 1000} seconds... (${retries} retries left)`);
+            await sleep(RETRY_DELAY);
+            return fetchWithRetry(url, options, retries - 1);
+        }
+        throw error;
+    }
+}
+
 async function fetchDRepList(): Promise<DRepBasicData[]> {
     const url = 'https://api.koios.rest/api/v1/drep_list';
     let allData: DRepBasicData[] = [];
     let offset = 0;
-    const limit = 500; // Using 500 for safer pagination
+    const limit = 500;
     let hasMoreData = true;
 
     while (hasMoreData) {
         try {
             const paginatedUrl = `${url}?offset=${offset}&limit=${limit}`;
-            const response = await fetch(paginatedUrl, {
+            const response = await fetchWithRetry(paginatedUrl, {
                 headers: {
                     'Authorization': `Bearer ${koiosApiKey}`,
                     'Accept': 'application/json',
@@ -52,13 +84,6 @@ async function fetchDRepList(): Promise<DRepBasicData[]> {
                 const errorText = await response.text();
                 console.error(`Koios API error: Status ${response.status}`, errorText);
                 throw new Error(`Failed to fetch DRep list: ${response.status} ${errorText}`);
-            }
-
-            const contentRange = response.headers.get('content-range');
-            if (!contentRange) {
-                console.warn('No Content-Range header received from API');
-            } else {
-                console.log(`Content-Range: ${contentRange}`);
             }
 
             const data = await response.json() as DRepBasicData[];
@@ -77,8 +102,7 @@ async function fetchDRepList(): Promise<DRepBasicData[]> {
                 offset += limit;
             }
 
-            // Add a small delay between requests to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await sleep(RATE_LIMIT_DELAY);
         } catch (error) {
             console.error(`Error fetching DRep list at offset ${offset}:`, error);
             hasMoreData = false;
@@ -93,7 +117,7 @@ async function fetchDRepDetails(drepIds: string[]): Promise<DRepDetailedData[]> 
     const url = 'https://api.koios.rest/api/v1/drep_info';
 
     try {
-        const response = await fetch(url, {
+        const response = await fetchWithRetry(url, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${koiosApiKey}`,
@@ -122,7 +146,7 @@ async function fetchDRepDelegators(drepId: string): Promise<DRepDelegator[]> {
     const url = `https://api.koios.rest/api/v1/drep_delegators?_drep_id=${drepId}`;
 
     try {
-        const response = await fetch(url, {
+        const response = await fetchWithRetry(url, {
             headers: {
                 'Authorization': `Bearer ${koiosApiKey}`,
                 'Accept': 'application/json'
@@ -154,8 +178,8 @@ async function updateDRepData() {
 
         console.log(`Received ${drepList.length} DRep records`);
 
-        // Process DReps in batches of 50 to avoid payload size limits
-        const batchSize = 50;
+        // Process DReps in smaller batches to avoid rate limits
+        const batchSize = 25; // Reduced batch size
         const allDetailedData: DRepDetailedData[] = [];
 
         for (let i = 0; i < drepList.length; i += batchSize) {
@@ -166,28 +190,30 @@ async function updateDRepData() {
             const detailedData = await fetchDRepDetails(batchIds);
             allDetailedData.push(...detailedData);
 
-            // Add a small delay between batches to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await sleep(RATE_LIMIT_DELAY);
         }
 
-        // Fetch delegators for each DRep
+        // Fetch delegators for each DRep with rate limiting
         console.log('Fetching delegators for each DRep...');
-        const enrichedData = await Promise.all(allDetailedData.map(async (record) => {
-            // Add a small delay between requests to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 500));
+        const enrichedData = [];
+
+        for (const record of allDetailedData) {
+            await sleep(RATE_LIMIT_DELAY);
 
             const delegators = await fetchDRepDelegators(record.drep_id);
             const totalDelegatedAmount = delegators.reduce((sum, delegator) =>
                 sum + BigInt(delegator.amount), BigInt(0)).toString();
 
-            return {
+            enrichedData.push({
                 ...record,
                 delegators,
                 total_delegators: delegators.length,
                 total_delegated_amount: totalDelegatedAmount,
                 updated_at: new Date().toISOString()
-            };
-        }));
+            });
+
+            console.log(`Processed delegators for DRep ${record.drep_id}`);
+        }
 
         // Update Supabase
         const { error } = await supabase
