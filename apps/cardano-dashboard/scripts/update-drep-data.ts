@@ -191,6 +191,34 @@ function isDelegatorUpdateNeeded(lastUpdateDate: string | null): boolean {
     return diffDays >= DELEGATOR_UPDATE_THRESHOLD_DAYS;
 }
 
+async function fetchCurrentDRepData(drepIds: string[]): Promise<Map<string, DRepCurrentData>> {
+    const batchSize = 100; // Smaller batch size for URI limits
+    const result = new Map<string, DRepCurrentData>();
+
+    for (let i = 0; i < drepIds.length; i += batchSize) {
+        const batch = drepIds.slice(i, i + batchSize);
+
+        const { data: currentData, error: fetchError } = await supabase
+            .from('drep_data')
+            .select('drep_id, updated_at, delegators, total_delegators, total_delegated_amount')
+            .in('drep_id', batch);
+
+        if (fetchError) {
+            console.error(`Error fetching current DRep data for batch ${i / batchSize + 1}:`, fetchError);
+            throw fetchError;
+        }
+
+        (currentData as DRepCurrentData[] | null)?.forEach(record => {
+            result.set(record.drep_id, record);
+        });
+
+        // Add a small delay between batches
+        await sleep(1000);
+    }
+
+    return result;
+}
+
 async function updateDRepData() {
     try {
         console.log('Fetching DRep list from Koios...');
@@ -222,20 +250,9 @@ async function updateDRepData() {
         const activeDReps = allDetailedData.filter(drep => drep.active);
         console.log(`Found ${activeDReps.length} active DReps out of ${allDetailedData.length} total DReps`);
 
-        // Fetch current data from Supabase to check last update times
-        const { data: currentData, error: fetchError } = await supabase
-            .from('drep_data')
-            .select('drep_id, updated_at, delegators, total_delegators, total_delegated_amount')
-            .in('drep_id', allDetailedData.map(drep => drep.drep_id));
-
-        if (fetchError) {
-            console.error('Error fetching current DRep data:', fetchError);
-            throw fetchError;
-        }
-
-        const currentDataMap = new Map(
-            (currentData as DRepCurrentData[] | null)?.map(record => [record.drep_id, record]) || []
-        );
+        // Fetch current data from Supabase in batches
+        console.log('Fetching current DRep data from Supabase...');
+        const currentDataMap = await fetchCurrentDRepData(allDetailedData.map(drep => drep.drep_id));
 
         // Fetch delegators for each active DRep with rate limiting
         console.log('Fetching delegators for active DReps...');
@@ -285,17 +302,25 @@ async function updateDRepData() {
             }
         }
 
-        // Update Supabase
-        const { error } = await supabase
-            .from('drep_data')
-            .upsert(enrichedData, {
-                onConflict: 'drep_id',
-                ignoreDuplicates: false
-            });
+        // Update Supabase in batches
+        console.log('Updating Supabase with new data...');
+        const updateBatchSize = 100;
+        for (let i = 0; i < enrichedData.length; i += updateBatchSize) {
+            const batch = enrichedData.slice(i, i + updateBatchSize);
+            const { error } = await supabase
+                .from('drep_data')
+                .upsert(batch, {
+                    onConflict: 'drep_id',
+                    ignoreDuplicates: false
+                });
 
-        if (error) {
-            console.error('Error updating DRep data:', error);
-            throw error;
+            if (error) {
+                console.error(`Error updating DRep data batch ${i / updateBatchSize + 1}:`, error);
+                throw error;
+            }
+
+            console.log(`Updated batch ${i / updateBatchSize + 1} of ${Math.ceil(enrichedData.length / updateBatchSize)}`);
+            await sleep(1000); // Add delay between batch updates
         }
 
         console.log(`Successfully updated ${enrichedData.length} DRep records with delegator information`);
