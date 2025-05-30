@@ -11,9 +11,35 @@ export function useDataContext() {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+type DataProviderProps = {
+    children: React.ReactNode;
+    fetchOptions?: {
+        fetchChainTip?: boolean;
+        fetchNetworkTotals?: boolean;
+        fetchGovernanceProposals?: boolean;
+        fetchSPOData?: boolean;
+        fetchDRepData?: boolean;
+        fetchCommitteeData?: boolean;
+    };
+};
+
+export const DataProvider: React.FC<DataProviderProps> = ({ children, fetchOptions = {} }) => {
     const [isClient, setIsClient] = useState(false);
-    const data = useDataFetching();
+    const parentContext = useContext(DataContext);
+
+    // Merge parent context's data with new fetch options
+    const mergedFetchOptions = {
+        ...(parentContext ? {
+            fetchChainTip: parentContext.chainTip.length > 0 || fetchOptions.fetchChainTip,
+            fetchNetworkTotals: parentContext.networkTotals.length > 0 || fetchOptions.fetchNetworkTotals,
+            fetchGovernanceProposals: parentContext.governanceProposals.length > 0 || fetchOptions.fetchGovernanceProposals,
+            fetchSPOData: parentContext.spoData.length > 0 || fetchOptions.fetchSPOData,
+            fetchDRepData: parentContext.drepData.length > 0 || fetchOptions.fetchDRepData,
+            fetchCommitteeData: parentContext.committeeData.length > 0 || fetchOptions.fetchCommitteeData,
+        } : fetchOptions)
+    };
+
+    const data = useDataFetching(mergedFetchOptions);
 
     // Set isClient to true after mount
     useEffect(() => {
@@ -63,7 +89,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             committeeData: !isClient || data.loading.committeeData,
         }
     };
-    console.log(contextValue);
+    //console.log(contextValue);
     return (
         <DataContext.Provider value={contextValue}>
             {children}

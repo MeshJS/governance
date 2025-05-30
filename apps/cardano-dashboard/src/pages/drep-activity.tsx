@@ -2,8 +2,9 @@ import Head from "next/head";
 import { useDataContext } from "@/contexts/DataContext";
 import DRepVotingChart from "@/components/DRepVotingChart";
 import DRepTable from "@/components/DRepTable";
+import { DataProvider } from "@/contexts/DataContext";
 
-export default function DRepActivity() {
+function DRepActivityContent() {
     const { governanceProposals, drepData, loading } = useDataContext();
 
     return (
@@ -31,5 +32,13 @@ export default function DRepActivity() {
                 )}
             </main>
         </div>
+    );
+}
+
+export default function DRepActivity() {
+    return (
+        <DataProvider fetchOptions={{ fetchDRepData: true, fetchGovernanceProposals: true }}>
+            <DRepActivityContent />
+        </DataProvider>
     );
 } 

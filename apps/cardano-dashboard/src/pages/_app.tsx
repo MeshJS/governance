@@ -2,10 +2,10 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Layout from "@/components/Layout";
-import { DataProvider } from "@/contexts/DataContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
+import { DataProvider } from "@/contexts/DataContext";
 import 'leaflet/dist/leaflet.css';
 
 // Create a client
@@ -36,7 +36,7 @@ if (typeof window !== 'undefined') {
 function App({ Component, pageProps }: AppProps) {
     return (
         <QueryClientProvider client={queryClient}>
-            <DataProvider>
+            <DataProvider fetchOptions={{ fetchChainTip: true }}>
                 <Layout>
                     <Component {...pageProps} />
                 </Layout>

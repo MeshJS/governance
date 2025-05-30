@@ -2,6 +2,7 @@ import Head from "next/head";
 import dynamic from 'next/dynamic';
 import NetworkTotalsChart from "@/components/NetworkTotalsChart";
 import { useDataContext } from "@/contexts/DataContext";
+import { DataProvider } from "@/contexts/DataContext";
 import styles from "@/styles/Treasury.module.css";
 import { useEffect, useState } from "react";
 import type { ProposalVotingCardsProps } from "@/components/ProposalVotingCards";
@@ -43,7 +44,7 @@ const ProposalVotingCards = dynamic(() => import("@/components/ProposalVotingCar
     )
 });
 
-export default function Treasury() {
+function TreasuryContent() {
     const { networkTotals, governanceProposals, loading, error, isError } = useDataContext();
     const [isMounted, setIsMounted] = useState(false);
 
@@ -129,5 +130,16 @@ export default function Treasury() {
                 </section>
             </main>
         </div>
+    );
+}
+
+export default function Treasury() {
+    return (
+        <DataProvider fetchOptions={{
+            fetchNetworkTotals: true,
+            fetchGovernanceProposals: true
+        }}>
+            <TreasuryContent />
+        </DataProvider>
     );
 } 
