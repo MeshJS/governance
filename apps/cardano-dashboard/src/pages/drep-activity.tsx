@@ -1,9 +1,10 @@
 import Head from "next/head";
 import { useDataContext } from "@/contexts/DataContext";
 import DRepVotingChart from "@/components/DRepVotingChart";
+import DRepTable from "@/components/DRepTable";
 
 export default function DRepActivity() {
-    const { governanceProposals, loading } = useDataContext();
+    const { governanceProposals, drepData, loading } = useDataContext();
 
     return (
         <div>
@@ -18,6 +19,15 @@ export default function DRepActivity() {
                     <DRepVotingChart proposals={governanceProposals} />
                 ) : (
                     <p>No DRep voting data available</p>
+                )}
+
+                <h2>DRep Directory</h2>
+                {loading.drepData ? (
+                    <p>Loading DRep data...</p>
+                ) : drepData && drepData.length > 0 ? (
+                    <DRepTable drepData={drepData} />
+                ) : (
+                    <p>No DRep data available</p>
                 )}
             </main>
         </div>

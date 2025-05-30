@@ -1,0 +1,88 @@
+.tableContainer {
+    width: 100%;
+    margin: 1rem 0;
+    background: var(--background-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tableHeader {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--background-primary);
+    color: var(--text-primary);
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table th {
+    background: var(--background-secondary);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.sortableHeader {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortableHeader:hover {
+    background: var(--background-hover);
+}
+
+.table tr:hover {
+    background: var(--background-hover);
+}
+
+.drepImage {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.placeholderImage {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--background-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-weight: bold;
+}
+
+.adaAmount {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: monospace;
+}
+
+.adaSymbol {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}

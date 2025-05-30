@@ -11,6 +11,10 @@ const RATE_LIMIT_DELAY = 2000; // 2 seconds between requests
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 5000; // 5 seconds before retry
 const DELEGATOR_UPDATE_THRESHOLD_DAYS = 5;
+const FORCE_UPDATE_DELEGATORS = true; // Set to true to force update all delegators regardless of last update time
+const BATCH_SIZE = 25; // Size for DRep details batch processing
+const DELEGATOR_BATCH_SIZE = 1000; // Size for delegator pagination
+const SUPABASE_BATCH_SIZE = 100; // Size for Supabase updates
 
 interface DRepBasicData {
     drep_id: string;
@@ -124,58 +128,99 @@ async function fetchDRepList(): Promise<DRepBasicData[]> {
 
 async function fetchDRepDetails(drepIds: string[]): Promise<DRepDetailedData[]> {
     const url = 'https://api.koios.rest/api/v1/drep_info';
+    const results: DRepDetailedData[] = [];
 
-    try {
-        const response = await fetchWithRetry(url, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${koiosApiKey}`,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                _drep_ids: drepIds
-            })
-        });
+    // Process in smaller batches to avoid rate limits
+    for (let i = 0; i < drepIds.length; i += BATCH_SIZE) {
+        const batch = drepIds.slice(i, i + BATCH_SIZE);
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Koios API error: Status ${response.status}`, errorText);
-            throw new Error(`Failed to fetch DRep details: ${response.status} ${errorText}`);
+        try {
+            const response = await fetchWithRetry(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${koiosApiKey}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    _drep_ids: batch
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Koios API error: Status ${response.status}`, errorText);
+                throw new Error(`Failed to fetch DRep details: ${response.status} ${errorText}`);
+            }
+
+            const batchResults = await response.json() as DRepDetailedData[];
+            results.push(...batchResults);
+
+            // Add rate limiting delay between batches
+            if (i + BATCH_SIZE < drepIds.length) {
+                await sleep(RATE_LIMIT_DELAY);
+            }
+        } catch (error) {
+            console.error(`Error fetching DRep details for batch ${i / BATCH_SIZE + 1}:`, error);
+            throw error;
         }
-
-        return await response.json() as DRepDetailedData[];
-    } catch (error) {
-        console.error('Error fetching DRep details:', error);
-        throw error;
     }
+
+    return results;
 }
 
 async function fetchDRepDelegators(drepId: string): Promise<DRepDelegator[]> {
-    const url = `https://api.koios.rest/api/v1/drep_delegators?_drep_id=${drepId}`;
+    const baseUrl = 'https://api.koios.rest/api/v1/drep_delegators';
+    let allDelegators: DRepDelegator[] = [];
+    let offset = 0;
+    let hasMoreData = true;
 
-    try {
-        const response = await fetchWithRetry(url, {
-            headers: {
-                'Authorization': `Bearer ${koiosApiKey}`,
-                'Accept': 'application/json'
+    while (hasMoreData) {
+        try {
+            const url = `${baseUrl}?_drep_id=${drepId}&offset=${offset}&limit=${DELEGATOR_BATCH_SIZE}`;
+            const response = await fetchWithRetry(url, {
+                headers: {
+                    'Authorization': `Bearer ${koiosApiKey}`,
+                    'Accept': 'application/json',
+                    'Prefer': 'count=estimated'
+                }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Koios API error: Status ${response.status}`, errorText);
+                throw new Error(`Failed to fetch DRep delegators: ${response.status} ${errorText}`);
             }
-        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Koios API error: Status ${response.status}`, errorText);
-            throw new Error(`Failed to fetch DRep delegators: ${response.status} ${errorText}`);
+            const data = await response.json() as DRepDelegator[];
+
+            if (!data || data.length === 0) {
+                hasMoreData = false;
+                break;
+            }
+
+            allDelegators = [...allDelegators, ...data];
+            console.log(`Fetched ${data.length} delegators for DRep ${drepId}, total: ${allDelegators.length}`);
+
+            if (data.length < DELEGATOR_BATCH_SIZE) {
+                hasMoreData = false;
+            } else {
+                offset += DELEGATOR_BATCH_SIZE;
+                // Add rate limiting delay between batches
+                await sleep(RATE_LIMIT_DELAY);
+            }
+        } catch (error) {
+            console.error(`Error fetching delegators for DRep ${drepId} at offset ${offset}:`, error);
+            hasMoreData = false;
+            throw error;
         }
-
-        return await response.json() as DRepDelegator[];
-    } catch (error) {
-        console.error(`Error fetching delegators for DRep ${drepId}:`, error);
-        return [];
     }
+
+    return allDelegators;
 }
 
 function isDelegatorUpdateNeeded(lastUpdateDate: string | null): boolean {
+    if (FORCE_UPDATE_DELEGATORS) return true;
     if (!lastUpdateDate) return true;
 
     const lastUpdate = new Date(lastUpdateDate);
@@ -232,19 +277,7 @@ async function updateDRepData() {
         console.log(`Received ${drepList.length} DRep records`);
 
         // Process DReps in smaller batches to avoid rate limits
-        const batchSize = 25; // Reduced batch size
-        const allDetailedData: DRepDetailedData[] = [];
-
-        for (let i = 0; i < drepList.length; i += batchSize) {
-            const batch = drepList.slice(i, i + batchSize);
-            const batchIds = batch.map(drep => drep.drep_id);
-
-            console.log(`Fetching details for batch ${i / batchSize + 1} of ${Math.ceil(drepList.length / batchSize)}`);
-            const detailedData = await fetchDRepDetails(batchIds);
-            allDetailedData.push(...detailedData);
-
-            await sleep(RATE_LIMIT_DELAY);
-        }
+        const allDetailedData = await fetchDRepDetails(drepList.map(drep => drep.drep_id));
 
         // Filter for active DReps
         const activeDReps = allDetailedData.filter(drep => drep.active);
@@ -264,8 +297,6 @@ async function updateDRepData() {
 
             // Only fetch delegators for active DReps that need updating
             if (record.active && needsUpdate) {
-                await sleep(RATE_LIMIT_DELAY);
-
                 const delegators = await fetchDRepDelegators(record.drep_id);
                 const totalDelegatedAmount = delegators.reduce((sum, delegator) =>
                     sum + BigInt(delegator.amount), BigInt(0)).toString();
@@ -304,9 +335,8 @@ async function updateDRepData() {
 
         // Update Supabase in batches
         console.log('Updating Supabase with new data...');
-        const updateBatchSize = 100;
-        for (let i = 0; i < enrichedData.length; i += updateBatchSize) {
-            const batch = enrichedData.slice(i, i + updateBatchSize);
+        for (let i = 0; i < enrichedData.length; i += SUPABASE_BATCH_SIZE) {
+            const batch = enrichedData.slice(i, i + SUPABASE_BATCH_SIZE);
             const { error } = await supabase
                 .from('drep_data')
                 .upsert(batch, {
@@ -315,12 +345,15 @@ async function updateDRepData() {
                 });
 
             if (error) {
-                console.error(`Error updating DRep data batch ${i / updateBatchSize + 1}:`, error);
+                console.error(`Error updating DRep data batch ${i / SUPABASE_BATCH_SIZE + 1}:`, error);
                 throw error;
             }
 
-            console.log(`Updated batch ${i / updateBatchSize + 1} of ${Math.ceil(enrichedData.length / updateBatchSize)}`);
-            await sleep(1000); // Add delay between batch updates
+            console.log(`Updated batch ${i / SUPABASE_BATCH_SIZE + 1} of ${Math.ceil(enrichedData.length / SUPABASE_BATCH_SIZE)}`);
+            // Add rate limiting delay between Supabase batches
+            if (i + SUPABASE_BATCH_SIZE < enrichedData.length) {
+                await sleep(RATE_LIMIT_DELAY);
+            }
         }
 
         console.log(`Successfully updated ${enrichedData.length} DRep records with delegator information`);
