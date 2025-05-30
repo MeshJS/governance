@@ -11,7 +11,7 @@ const RATE_LIMIT_DELAY = 2000; // 2 seconds between requests
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 5000; // 5 seconds before retry
 const METADATA_UPDATE_THRESHOLD_DAYS = 5;
-const TEMPORARY_SKIP_DAYS_CHECK = true; // Temporary flag to bypass the 5-day check
+const TEMPORARY_SKIP_DAYS_CHECK = false; // Temporary flag to bypass the 5-day check
 
 interface DRepMetadata {
     drep_id: string;
