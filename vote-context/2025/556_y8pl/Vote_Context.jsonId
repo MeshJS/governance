@@ -50,7 +50,17 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following on the governace action: Set a 300 million ADA Net Change Limit for Epochs 563–635: 
+
+Yes: 0 votes 
+No: 2 votes 
+Abstain: 3 votes
+
+Therefore, we will vote Abstain on the proposal in its current form.
+
+Rationale:
+
+We already voted Yes on the NCL = 200M Ada proposal and vote abstain on the NCL 300M Ada."
   },
   "hashAlgorithm": "blake2b-256"
 }
