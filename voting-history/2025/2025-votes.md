@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Cardano Blockchain Ecosystem Budget - 275M ada Administered by Intersect](https://adastat.net/governances/e14de8d9dc4f4ddf3fe9250a8a926e20f10e99b86bd0610b77d7a054981591ee00) |
+| Hash           | e14de8d9dc4f4ddf3fe9250a8a926e20f10e99b86bd0610b77d7a054981591ee00 |
+| Action ID      | gov_action1u9x73kwufaxa70lfy59g4ynwyrcsaxdcd0gxzzmh67s9fxq4j8hqqk2phgh |
+| Type           | InfoAction |
+| Proposed Epoch | 557 |
+| Expires Epoch  | 564 |
+| Vote           | ❌No |
+| Vote Submitted | 6/1/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following on the governace action: Cardano Blockchain Ecosystem Budget - 275M ada Administered by Intersect: Yes: 3 votes No: 4 votes Abstain: 0 votes Therefore, we will not support the proposal in its current form. Rationale: budget request, since we voted Yes on the NCL 200M Ada, this proposal exceeds the budgets we seem as appropriate for Treasury spendings in 2025, keeping in mind that we are already half-way through the year. Furthermore, we do have doubts of the need of a funding administrator as outlined in the proposal, which itself consumes already several million Ada. Furthermore, even if we may support a large part of the proposals within the package, we identify several budget allocation within the package as highly concerning and dont feel confident to give it a lumb yes vote. We would prefer a more granular approach which allows voters to decide onchain on each proposal and not only on the whole package as one. feasible deliverables, Due to the massive package, including a wide range of proposals as well as a funding administrator from which we saw in the past that many efforts have not been managed as effectively as we would like to, we see large risks in the successful delivery of the proposal. The produced overhead likely introduces many non-essential burocratic processes which will consume time and resources which could be better spend otherwise and which actually introduces many risks since the process introduces a single point of failure with a central funding administrator on which all proposals have to rely on. The new onchain governance system, in our perspective, was set to exactly avoid such single points of failures. Ecosystem value, Summarising all notes already mentioned, we see a high risk in the successful execution of the proposal and therefore have to doubt the value provided to the ecosystem. Team, Many proposals included in the package have awesome teams with highest skill sets and experience, however, this does not account for all proposals, either does it apply to the funding administrator. Lets be clear, we appreciate Intersect and its effort, yet the past has shown that many efforts at Intersect have not been able to stand up and match with the communities expectations. We surely believe that intersect has its place at the ecosystem, and while Intersect matures and gains experience and expertise, we still think that Intersect at its current stage has a high risk on being a effective administrator of such a large budget and scope. Recommendation. Learn from Project Catalyst, start small, build experience and expertise step by step and increase scope and budgets over time to ensure that the actual capacities to effectively manage such large operations are battle proofed and well matured. If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep More about our DRep at: https://gov.meshjs.dev/drep-voting |
+|Link|https://adastat.net/transactions/a77ce4a6648f6693ace082ac212e049b463806699beb212fd301730d67da5f35 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [2025 Cardano NCL](https://adastat.net/governances/7d9fc9fe4cee64fb34e57783378ac869a85c78d6fbcd4078ed131ab6fa3c7db600) |
 | Hash           | 7d9fc9fe4cee64fb34e57783378ac869a85c78d6fbcd4078ed131ab6fa3c7db600 |
 | Action ID      | gov_action10k0unljvaej0kd89w7pn0zkgdx59c7xkl0x5q78dzvdtd73u0kmqq5xl5y5 |
