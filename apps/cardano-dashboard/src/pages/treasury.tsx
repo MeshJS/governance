@@ -3,45 +3,30 @@ import dynamic from 'next/dynamic';
 import NetworkTotalsChart from "@/components/NetworkTotalsChart";
 import { useDataContext } from "@/contexts/DataContext";
 import { DataProvider } from "@/contexts/DataContext";
-import styles from "@/styles/Treasury.module.css";
+import pageStyles from "@/styles/PageLayout.module.css";
+import PageLoading from "@/components/PageLoading";
 import { useEffect, useState } from "react";
 import type { ProposalVotingCardsProps } from "@/components/ProposalVotingCards";
 
 // Dynamically import client-side only components
 const ProposalTimelineChart = dynamic(() => import("@/components/ProposalTimelineChart"), {
     ssr: false,
-    loading: () => (
-        <div className={styles.chartStatusContainer}>
-            <div className={styles.loadingText}>Loading timeline...</div>
-        </div>
-    )
+    loading: () => null
 });
 
 const ProposalTypeChart = dynamic(() => import("@/components/ProposalTypeChart"), {
     ssr: false,
-    loading: () => (
-        <div className={styles.chartStatusContainer}>
-            <div className={styles.loadingText}>Loading chart...</div>
-        </div>
-    )
+    loading: () => null
 });
 
 const ProposalOutcomeChart = dynamic(() => import("@/components/ProposalOutcomeChart"), {
     ssr: false,
-    loading: () => (
-        <div className={styles.chartStatusContainer}>
-            <div className={styles.loadingText}>Loading chart...</div>
-        </div>
-    )
+    loading: () => null
 });
 
 const ProposalVotingCards = dynamic(() => import("@/components/ProposalVotingCards"), {
     ssr: false,
-    loading: () => (
-        <div className={styles.chartStatusContainer}>
-            <div className={styles.loadingText}>Loading cards...</div>
-        </div>
-    )
+    loading: () => null
 });
 
 function TreasuryContent() {
@@ -52,82 +37,59 @@ function TreasuryContent() {
         setIsMounted(true);
     }, []);
 
-    const renderNetworkTotals = () => {
-        if (!isMounted || loading.networkTotals) {
-            return (
-                <div className={styles.chartStatusContainer}>
-                    <div className={styles.loadingText}>Loading chart...</div>
-                </div>
-            );
-        }
-
-        if (isError.networkTotals) {
-            return (
-                <div className={styles.chartStatusContainer}>
-                    <div className={styles.errorText}>Error: {error.networkTotals?.message || 'Failed to load network totals'}</div>
-                </div>
-            );
-        }
-
-        return <NetworkTotalsChart data={networkTotals} />;
-    };
-
-    const renderGovernanceProposals = () => {
-        if (!isMounted || loading.governanceProposals) {
-            return (
-                <div className={styles.chartStatusContainer}>
-                    <div className={styles.loadingText}>Loading proposals...</div>
-                </div>
-            );
-        }
-
-        if (isError.governanceProposals) {
-            return (
-                <div className={styles.chartStatusContainer}>
-                    <div className={styles.errorText}>Error: {error.governanceProposals?.message || 'Failed to load governance proposals'}</div>
-                </div>
-            );
-        }
-
-        if (!governanceProposals) {
-            return null;
-        }
-
+    // Show loading state when any data is loading
+    if (!isMounted || loading.networkTotals || loading.governanceProposals) {
         return (
-            <div className={styles.governanceContent}>
-                <div className={styles.timelineSection}>
-                    <ProposalTimelineChart proposals={governanceProposals} />
-                </div>
-                <div className={styles.chartsRow}>
-                    <div className={styles.proposalTypeChart}>
-                        <ProposalTypeChart proposals={governanceProposals} />
+            <>
+                <Head>
+                    <title>Treasury | Cardano Dashboard</title>
+                </Head>
+                <PageLoading title="Treasury Activity" message="Loading treasury data..." />
+            </>
+        );
+    }
+
+    // Show error state if any data failed to load
+    if (isError.networkTotals || isError.governanceProposals) {
+        return (
+            <div className={pageStyles.pageContainer}>
+                <Head>
+                    <title>Treasury | Cardano Dashboard</title>
+                </Head>
+                <main>
+                    <h1 className={pageStyles.pageTitle}>Treasury Activity</h1>
+                    <div className={pageStyles.emptyState}>
+                        Error: {error.networkTotals?.message || error.governanceProposals?.message || 'Failed to load treasury data'}
                     </div>
-                    <div className={styles.proposalOutcomeChart}>
-                        <ProposalOutcomeChart proposals={governanceProposals} />
-                    </div>
-                </div>
-                <div className={styles.proposalVotingCards}>
-                    <ProposalVotingCards proposals={governanceProposals.filter(p => p.expiration !== null) as ProposalVotingCardsProps['proposals']} />
-                </div>
+                </main>
             </div>
         );
-    };
+    }
 
     return (
-        <div>
+        <div className={pageStyles.pageContainer}>
             <Head>
                 <title>Treasury | Cardano Dashboard</title>
             </Head>
-            <main className={styles.container}>
-                <h1 className={styles.title}>Treasury Activity</h1>
-
-                <section className={styles.section}>
-                    {renderNetworkTotals()}
-                </section>
-
-                <section className={styles.section}>
-                    {renderGovernanceProposals()}
-                </section>
+            <main>
+                <h1 className={pageStyles.pageTitle}>Treasury Activity</h1>
+                    <div className={pageStyles.section}>
+                        <NetworkTotalsChart data={networkTotals} />
+                    </div>
+                    <div className={pageStyles.section}>
+                        <ProposalTimelineChart proposals={governanceProposals} />
+                    </div>
+                    <div className={pageStyles.gridContainer}>
+                        <div className={pageStyles.section}>
+                            <ProposalTypeChart proposals={governanceProposals} />
+                        </div>
+                        <div className={pageStyles.section}>
+                            <ProposalOutcomeChart proposals={governanceProposals} />
+                        </div>
+                    </div>
+                    <div className={pageStyles.section}>
+                        <ProposalVotingCards proposals={governanceProposals.filter(p => p.expiration !== null) as ProposalVotingCardsProps['proposals']} />
+                    </div>
             </main>
         </div>
     );

@@ -5,74 +5,66 @@ import { useDataContext } from "../contexts/DataContext";
 import SPOStats from "../components/SPOStats";
 import SPOVotingChart from "../components/SPOVotingChart";
 import SPOTable from "../components/SPOTable";
-import styles from '../styles/SPOsActivity.module.css';
+import pageStyles from '@/styles/PageLayout.module.css';
+import PageLoading from "@/components/PageLoading";
 
 // Dynamically import the SPOMap component with SSR disabled
 const SPOMap = dynamic(() => import('../components/SPOMap').then(mod => mod.SPOMap), {
     ssr: false,
-    loading: () => <div className={styles.loadingContainer}>Loading map...</div>
+    loading: () => null
 });
 
 function SPOsActivityContent() {
     const { spoData, governanceProposals, loading } = useDataContext();
 
-    // Show loading state when data is loading
+    // Show loading state when any data is loading
     if (loading.spoData || loading.governanceProposals) {
         return (
-            <div className={styles.container}>
+            <>
                 <Head>
                     <title>SPOs Activity | Cardano Dashboard</title>
                 </Head>
-                <main>
-                    <h1 className={styles.title}>SPOs Activity</h1>
-                    <SPOStats spoData={[]} />
-                    <div className={styles.gridContainer}>
-                        <div className={styles.loadingContainer}>Loading...</div>
-                        <div className={styles.loadingContainer}>Loading...</div>
-                    </div>
-                    <div className={styles.loadingContainer}>Loading SPO table...</div>
-                </main>
-            </div>
+                <PageLoading title="SPOs Activity" message="Loading SPO data..." />
+            </>
         );
     }
 
     // Show error state when data is not available
     if (!spoData || !governanceProposals) {
         return (
-            <div className={styles.container}>
+            <div className={pageStyles.pageContainer}>
                 <Head>
                     <title>SPOs Activity | Cardano Dashboard</title>
                 </Head>
                 <main>
-                    <h1 className={styles.title}>SPOs Activity</h1>
-                    <SPOStats spoData={[]} />
-                    <div className={styles.gridContainer}>
-                        <div className={styles.errorContainer}>No data available</div>
-                        <div className={styles.errorContainer}>No data available</div>
+                    <h1 className={pageStyles.pageTitle}>SPOs Activity</h1>
+                    <div className={pageStyles.emptyState}>
+                        No SPO data available
                     </div>
-                    <div className={styles.errorContainer}>No SPO data available</div>
                 </main>
             </div>
         );
     }
 
     return (
-        <div className={styles.container}>
+        <div className={pageStyles.pageContainer}>
             <Head>
                 <title>SPOs Activity | Cardano Dashboard</title>
             </Head>
             <main>
-                <h1 className={styles.title}>SPOs Activity</h1>
-                <SPOStats spoData={spoData} />
-                <div className={styles.gridContainer}>
-                    <div className={styles.gridItem}>
+                <h1 className={pageStyles.pageTitle}>SPOs Activity</h1>
+                <div className={pageStyles.section}>
+                    <SPOStats spoData={spoData} />
+                </div>
+                <div className={pageStyles.chartsContainer}>
+                    <div className={pageStyles.chartSection}>
                         <SPOMap />
                     </div>
-                    <div className={styles.gridItem}>
+                    <div className={pageStyles.chartSection}>
                         <SPOVotingChart proposals={governanceProposals} />
                     </div>
                 </div>
-                <div className={styles.tableSection}>
+                <div className={pageStyles.section}>
                     <SPOTable spoData={spoData} />
                 </div>
             </main>
