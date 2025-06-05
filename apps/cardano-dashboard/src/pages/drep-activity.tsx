@@ -2,9 +2,27 @@ import Head from "next/head";
 import { useDataContext } from "@/contexts/DataContext";
 import DRepVotingChart from "@/components/DRepVotingChart";
 import DRepTable from "@/components/DRepTable";
+import DRepDelegationTreemap from "@/components/DRepDelegationTreemap";
 import { DataProvider } from "@/contexts/DataContext";
 import pageStyles from "@/styles/PageLayout.module.css";
 import PageLoading from "@/components/PageLoading";
+import { DRepDetailedData } from "../../types/drep";
+
+// Type adapter to convert DRepDetailedData to the format expected by DRepDelegationTreemap
+const adaptDRepData = (drepData: DRepDetailedData[]) => {
+    return drepData.map(drep => ({
+        drep_id: drep.drep_id,
+        total_delegated_amount: drep.total_delegated_amount,
+        total_delegators: drep.total_delegators,
+        meta_json: drep.meta_json ? {
+            body: {
+                givenName: typeof drep.meta_json.body.givenName === 'string'
+                    ? drep.meta_json.body.givenName
+                    : drep.meta_json.body.givenName['@value']
+            }
+        } : null
+    }));
+};
 
 function DRepActivityContent() {
     const { governanceProposals, drepData, loading } = useDataContext();
@@ -45,16 +63,21 @@ function DRepActivityContent() {
             </Head>
             <main>
                 <h1 className={pageStyles.pageTitle}>DRep Activity</h1>
-                <div className={pageStyles.section}>
-                    {governanceProposals.length > 0 ? (
-                        <DRepVotingChart proposals={governanceProposals} />
-                    ) : (
-                        <div className={pageStyles.emptyState}>No DRep voting data available</div>
-                    )}
+                <div className={pageStyles.chartsContainer}>
+                    <div className={pageStyles.chartSection}>
+                        <DRepDelegationTreemap drepData={adaptDRepData(drepData)} />
+                    </div>
+                    <div className={pageStyles.chartSection}>
+                        {governanceProposals.length > 0 ? (
+                            <DRepVotingChart proposals={governanceProposals} />
+                        ) : (
+                            <div className={pageStyles.emptyState}>No DRep voting data available</div>
+                        )}
+                    </div>
                 </div>
 
-                <h2 className={pageStyles.pageSubtitle}>DRep Directory</h2>
                 <div className={pageStyles.section}>
+                    <h2 className={pageStyles.pageSubtitle}>DRep Directory</h2>
                     {drepData.length > 0 ? (
                         <DRepTable drepData={drepData} />
                     ) : (

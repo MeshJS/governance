@@ -21,7 +21,25 @@ export default function DRepTable({ drepData }: DRepTableProps) {
     };
 
     const getDRepName = (drep: DRepDetailedData) => {
-        return drep.meta_json?.body?.givenName?.['@value'] || '-';
+        let name = 'Unknown';
+        if (drep.meta_json?.body?.givenName) {
+            if (typeof drep.meta_json.body.givenName === 'string') {
+                name = drep.meta_json.body.givenName;
+            } else if (typeof drep.meta_json.body.givenName === 'object' && drep.meta_json.body.givenName['@value']) {
+                name = drep.meta_json.body.givenName['@value'];
+            }
+        }
+
+        // Handle cases where name might be an object or invalid value
+        if (typeof name !== 'string') {
+            try {
+                name = JSON.stringify(name);
+            } catch {
+                name = 'Unknown';
+            }
+        }
+
+        return name;
     };
 
     const sortedAndFilteredData = useMemo(() => {
