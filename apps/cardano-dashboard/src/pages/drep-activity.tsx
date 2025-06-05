@@ -7,6 +7,7 @@ import { DataProvider } from "@/contexts/DataContext";
 import pageStyles from "@/styles/PageLayout.module.css";
 import PageLoading from "@/components/PageLoading";
 import { DRepDetailedData } from "../../types/drep";
+import DRepStats from "@/components/DRepStats";
 
 // Type adapter to convert DRepDetailedData to the format expected by DRepDelegationTreemap
 const adaptDRepData = (drepData: DRepDetailedData[]) => {
@@ -63,6 +64,9 @@ function DRepActivityContent() {
             </Head>
             <main>
                 <h1 className={pageStyles.pageTitle}>DRep Activity</h1>
+                <div className={pageStyles.section}>
+                    <DRepStats drepData={drepData} />
+                </div>
                 <div className={pageStyles.chartsContainer}>
                     <div className={pageStyles.chartSection}>
                         <DRepDelegationTreemap drepData={adaptDRepData(drepData)} />
