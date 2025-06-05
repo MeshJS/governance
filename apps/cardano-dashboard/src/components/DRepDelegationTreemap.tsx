@@ -38,7 +38,7 @@ const DRepDelegationTreemap: React.FC<DRepDelegationTreemapProps> = ({ drepData 
         d3.select(svgRef.current).selectAll("*").remove();
 
         // Set up dimensions
-        const width = 600;
+        const width = 700;
         const height = 315;
         const margin = { top: 10, right: 10, bottom: 10, left: 10 };
 
@@ -127,8 +127,8 @@ const DRepDelegationTreemap: React.FC<DRepDelegationTreemapProps> = ({ drepData 
 
                 tooltip.html(`
                     <strong>${name}</strong><br/>
-                    Delegated Amount: ${(delegatedAmount / 1000000).toFixed(2)} ₳<br/>
-                    Delegators: ${d.data.total_delegators}
+                    Delegated Amount: ${(delegatedAmount / 1000000).toLocaleString(undefined, { maximumFractionDigits: 0 })} ₳<br/>
+                    Delegators: ${d.data.total_delegators.toLocaleString()}
                 `)
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 28) + 'px');

@@ -12,7 +12,7 @@ import { DRepDetailedData } from "../../types/drep";
 const adaptDRepData = (drepData: DRepDetailedData[]) => {
     return drepData.map(drep => ({
         drep_id: drep.drep_id,
-        total_delegated_amount: drep.total_delegated_amount,
+        total_delegated_amount: parseFloat(drep.amount),
         total_delegators: drep.total_delegators,
         meta_json: drep.meta_json ? {
             body: {

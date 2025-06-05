@@ -3,27 +3,32 @@
     max-width: 1600px;
     margin: 0 auto;
     padding: 1rem;
+    box-sizing: border-box;
 }
 
 .pageTitle {
     font-size: 2rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .pageSubtitle {
     font-size: 1.5rem;
     font-weight: 500;
     color: var(--text-primary);
-    margin: 2rem 0 1rem;
+    margin: 0.125rem 0 0.125rem;
 }
 
 .section {
     border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+    padding: 0;
+    margin-bottom: 0.25rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    box-sizing: border-box;
 }
 
 .loadingState {
@@ -54,14 +59,20 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 0.125rem;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
 }
 
 .chartSection {
-    background: var(--background-secondary);
     border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    min-width: 0;
+    width: 100%;
+    position: relative;
+    box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
@@ -71,16 +82,26 @@
 
     .pageTitle {
         font-size: 1.75rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .pageSubtitle {
         font-size: 1.25rem;
-        margin: 1.5rem 0 1rem;
+        margin: 0.125rem 0 0.0625rem;
     }
 
     .section {
-        padding: 1rem;
-        margin-bottom: 1.5rem;
+        padding: 0;
+        margin-bottom: 0.125rem;
+    }
+
+    .chartsContainer {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 0.0625rem;
+    }
+
+    .chartSection {
+        padding: 0;
     }
 }

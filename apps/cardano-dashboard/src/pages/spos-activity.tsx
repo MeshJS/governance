@@ -56,11 +56,11 @@ function SPOsActivityContent() {
                 <div className={pageStyles.section}>
                     <SPOStats spoData={spoData} />
                 </div>
-                <div className={pageStyles.gridContainer}>
-                    <div className={pageStyles.section}>
+                <div className={pageStyles.chartsContainer}>
+                    <div className={pageStyles.chartSection}>
                         <SPOMap />
                     </div>
-                    <div className={pageStyles.section}>
+                    <div className={pageStyles.chartSection}>
                         <SPOVotingChart proposals={governanceProposals} />
                     </div>
                 </div>

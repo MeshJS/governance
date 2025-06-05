@@ -26,6 +26,7 @@ export class DRepDataApi extends BaseApi<DRepDetailedData> {
                     .select('*', { count: 'exact' })
                     .eq('active', true)
                     .eq('registered', true)
+                    //.eq('meta_json->body->doNotList', false)
                     .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
                 if (this.config.orderBy) {
