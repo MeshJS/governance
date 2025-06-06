@@ -119,11 +119,62 @@ interface CoinGeckoHistoryResponse {
     }
 }
 
-async function fetchExchangeRate(date: string): Promise<number> {
+interface KrakenOHLCResponse {
+    error: string[];
+    result: {
+        [pair: string]: [
+            number, // time
+            string, // open
+            string, // high
+            string, // low
+            string, // close
+            string, // vwap
+            string, // volume
+            number  // count
+        ][];
+    } & {
+        last: number;
+    };
+}
+
+async function fetchKrakenHistoricalPrice(date: string): Promise<number> {
+    // Convert date from DD-MM-YYYY to timestamp
+    const [day, month, year] = date.split('-').map(Number);
+    const timestamp = Math.floor(new Date(year, month - 1, day).getTime() / 1000);
+
+    const url = `https://api.kraken.com/0/public/OHLC?pair=ADAUSD&interval=1440&since=${timestamp}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Kraken API error: ${response.status}`);
+        }
+
+        const data = await response.json() as KrakenOHLCResponse;
+        if (data.error && data.error.length > 0) {
+            throw new Error(`Kraken API error: ${data.error.join(', ')}`);
+        }
+
+        const ohlcData = data.result.ADAUSD;
+        if (!ohlcData || ohlcData.length === 0) {
+            throw new Error('No historical data available from Kraken');
+        }
+
+        // Get the closest price to our target date
+        const closestPrice = ohlcData[0][4]; // Using close price
+        return Number(closestPrice);
+    } catch (error) {
+        console.error('Error fetching from Kraken:', error);
+        throw error;
+    }
+}
+
+async function fetchExchangeRate(date: string, isCurrentEpoch: boolean): Promise<number | null> {
     const maxRetries = 3;
     const baseDelay = 5000; // 5 seconds base delay
     let lastError: Error | null = null;
 
+    // Try CoinGecko first
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
             const url = `https://api.coingecko.com/api/v3/coins/cardano/history` +
@@ -153,7 +204,7 @@ async function fetchExchangeRate(date: string): Promise<number> {
             return Number(usd.toFixed(4));
         } catch (err: any) {
             lastError = err;
-            console.warn(`Attempt ${attempt} failed: ${err.message}`);
+            console.warn(`CoinGecko attempt ${attempt} failed: ${err.message}`);
             if (attempt < maxRetries) {
                 const delay = baseDelay * Math.pow(2, attempt - 1);
                 console.log(`Waiting ${delay}ms before next attempt...`);
@@ -162,47 +213,59 @@ async function fetchExchangeRate(date: string): Promise<number> {
         }
     }
 
-    // Fallback to current price with retries
-    console.log('Falling back to current price');
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            const fallbackRes = await fetch(
-                'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd',
-                {
-                    headers: { 'Accept': 'application/json' }
-                }
-            );
-
-            if (fallbackRes.status === 429) {
-                const delay = baseDelay * Math.pow(2, attempt - 1);
-                console.log(`Fallback rate limit hit, waiting ${delay}ms before retry...`);
-                await new Promise(r => setTimeout(r, delay));
-                continue;
-            }
-
-            if (!fallbackRes.ok) {
-                throw new Error(`Fallback API ${fallbackRes.status}`);
-            }
-
-            const fallbackData = await fallbackRes.json() as { cardano: { usd: number } };
-            const usd = fallbackData.cardano?.usd;
-            if (typeof usd !== 'number') {
-                throw new Error('No USD price in fallback response');
-            }
-            return Number(usd.toFixed(4));
-        } catch (err: any) {
-            console.warn(`Fallback attempt ${attempt} failed: ${err.message}`);
-            if (attempt < maxRetries) {
-                const delay = baseDelay * Math.pow(2, attempt - 1);
-                console.log(`Waiting ${delay}ms before next fallback attempt...`);
-                await new Promise(r => setTimeout(r, delay));
-            }
-        }
+    // Try Kraken as first fallback
+    console.log('Falling back to Kraken historical data');
+    try {
+        const krakenPrice = await fetchKrakenHistoricalPrice(date);
+        return Number(krakenPrice.toFixed(4));
+    } catch (krakenError) {
+        console.warn('Kraken fallback failed:', krakenError);
     }
 
-    throw new Error(`All retries failed; last error: ${lastError?.message}`);
-}
+    // Only use current price fallback for current epoch
+    if (isCurrentEpoch) {
+        console.log('Falling back to current price from CoinGecko for current epoch');
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                const fallbackRes = await fetch(
+                    'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd',
+                    {
+                        headers: { 'Accept': 'application/json' }
+                    }
+                );
 
+                if (fallbackRes.status === 429) {
+                    const delay = baseDelay * Math.pow(2, attempt - 1);
+                    console.log(`Fallback rate limit hit, waiting ${delay}ms before retry...`);
+                    await new Promise(r => setTimeout(r, delay));
+                    continue;
+                }
+
+                if (!fallbackRes.ok) {
+                    throw new Error(`Fallback API ${fallbackRes.status}`);
+                }
+
+                const fallbackData = await fallbackRes.json() as { cardano: { usd: number } };
+                const usd = fallbackData.cardano?.usd;
+                if (typeof usd !== 'number') {
+                    throw new Error('No USD price in fallback response');
+                }
+                return Number(usd.toFixed(4));
+            } catch (err: any) {
+                console.warn(`Fallback attempt ${attempt} failed: ${err.message}`);
+                if (attempt < maxRetries) {
+                    const delay = baseDelay * Math.pow(2, attempt - 1);
+                    console.log(`Waiting ${delay}ms before next fallback attempt...`);
+                    await new Promise(r => setTimeout(r, delay));
+                }
+            }
+        }
+    } else {
+        console.log('Skipping current price fallback for historical epoch');
+    }
+
+    return null;
+}
 
 function formatDate(timestamp: number): string {
     const date = new Date(timestamp * 1000);
@@ -272,26 +335,27 @@ async function updateNetworkTotals() {
                 const epochInfo = await fetchEpochInfo(total.epoch_no);
                 if (!epochInfo?.[0]) return total;
 
-                let exchangeRate: number;
+                let exchangeRate: number | null;
                 const currentEpoch = (await fetchChainTip()).epoch_no;
+                const isCurrentEpoch = total.epoch_no === currentEpoch;
 
                 console.log(`Processing epoch ${total.epoch_no} (current epoch: ${currentEpoch})`);
 
-                if (total.epoch_no === currentEpoch) {
+                if (isCurrentEpoch) {
                     // For current epoch, use current date instead of start_time
                     const currentDate = getCurrentDate();
                     console.log(`Current epoch - using current date: ${currentDate}`);
-                    exchangeRate = await fetchExchangeRate(currentDate);
+                    exchangeRate = await fetchExchangeRate(currentDate, true);
                 } else if (total.epoch_no === currentEpoch - 1) {
                     // For previous epoch, use end_time to get final price
                     const endDate = formatDate(epochInfo[0].end_time);
                     console.log(`Previous epoch - using end_time: ${endDate}`);
-                    exchangeRate = await fetchExchangeRate(endDate);
+                    exchangeRate = await fetchExchangeRate(endDate, false);
                 } else {
                     // For older epochs, use end_time
                     const endDate = formatDate(epochInfo[0].end_time);
                     console.log(`Older epoch - using end_time: ${endDate}`);
-                    exchangeRate = await fetchExchangeRate(endDate);
+                    exchangeRate = await fetchExchangeRate(endDate, false);
                 }
 
                 return {
