@@ -70,9 +70,17 @@ async function fetchMetadataFromUrl(url: string): Promise<any> {
             return null;
         }
 
-        const data = await response.json();
-        console.log(`Successfully fetched metadata from ${url}`);
-        return data;
+        const text = await response.text();
+        console.log(`Raw response from ${url}:`, text.substring(0, 200) + '...'); // Log first 200 chars
+
+        try {
+            const data = JSON.parse(text);
+            console.log(`Successfully parsed JSON from ${url}`);
+            return data;
+        } catch (parseError) {
+            console.error(`Failed to parse JSON from ${url}:`, parseError);
+            return null;
+        }
     } catch (error) {
         console.error(`Error fetching metadata from ${url}:`, error);
         return null;
@@ -88,7 +96,7 @@ async function updateGovernanceProposals() {
         // First, get active proposals from Supabase
         const { data: activeProposals, error: fetchError } = await supabase
             .from('governance_proposals')
-            .select('proposal_id')
+            .select('proposal_id, meta_url, meta_json')
             .gt('expiration', currentEpoch);
 
         if (fetchError) throw fetchError;
@@ -113,10 +121,13 @@ async function updateGovernanceProposals() {
 
                 // If meta_json is null or empty and meta_url exists, fetch metadata
                 if ((!proposal.meta_json || Object.keys(proposal.meta_json).length === 0) && proposal.meta_url) {
-                    console.log(`Proposal ${proposal.proposal_id} has meta_url but no meta_json, fetching metadata...`);
+                    console.log(`Proposal ${proposal.proposal_id} has meta_url: ${proposal.meta_url}`);
+                    console.log(`Current meta_json:`, proposal.meta_json);
+
                     const metadata = await fetchMetadataFromUrl(proposal.meta_url);
                     if (metadata) {
                         console.log(`Successfully fetched metadata for proposal ${proposal.proposal_id}`);
+                        console.log(`Metadata structure:`, JSON.stringify(metadata, null, 2).substring(0, 200) + '...');
                         proposal.meta_json = metadata;
                     } else {
                         console.log(`Failed to fetch metadata for proposal ${proposal.proposal_id}`);
@@ -130,6 +141,9 @@ async function updateGovernanceProposals() {
                 };
             })
         );
+
+        // Log the final data being sent to Supabase
+        console.log('Sample of enriched proposal:', JSON.stringify(enrichedProposals[0], null, 2).substring(0, 200) + '...');
 
         // Update Supabase
         const { error: updateError } = await supabase
