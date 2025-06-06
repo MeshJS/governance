@@ -121,6 +121,7 @@ interface CoinGeckoHistoryResponse {
 
 async function fetchExchangeRate(date: string): Promise<number> {
     const maxRetries = 3;
+    const baseDelay = 5000; // 5 seconds base delay
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -130,6 +131,15 @@ async function fetchExchangeRate(date: string): Promise<number> {
             const res = await fetch(url, {
                 headers: { 'Accept': 'application/json' }
             });
+
+            if (res.status === 429) {
+                // Rate limit hit - wait longer
+                const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
+                console.log(`Rate limit hit, waiting ${delay}ms before retry...`);
+                await new Promise(r => setTimeout(r, delay));
+                continue;
+            }
+
             if (!res.ok) {
                 const text = await res.text();
                 throw new Error(`History API ${res.status}: ${text}`);
@@ -144,22 +154,53 @@ async function fetchExchangeRate(date: string): Promise<number> {
         } catch (err: any) {
             lastError = err;
             console.warn(`Attempt ${attempt} failed: ${err.message}`);
-            if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000));
+            if (attempt < maxRetries) {
+                const delay = baseDelay * Math.pow(2, attempt - 1);
+                console.log(`Waiting ${delay}ms before next attempt...`);
+                await new Promise(r => setTimeout(r, delay));
+            }
         }
     }
 
-    // Fallback to current price
+    // Fallback to current price with retries
     console.log('Falling back to current price');
-    const fallbackRes = await fetch(
-        'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd'
-    );
-    if (!fallbackRes.ok) throw new Error('Fallback price fetch failed');
-    const fallbackData = await fallbackRes.json() as { cardano: { usd: number } };
-    const usd = fallbackData.cardano?.usd;
-    if (typeof usd !== 'number') {
-        throw new Error(`All retries failed; last error: ${lastError?.message}`);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const fallbackRes = await fetch(
+                'https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd',
+                {
+                    headers: { 'Accept': 'application/json' }
+                }
+            );
+
+            if (fallbackRes.status === 429) {
+                const delay = baseDelay * Math.pow(2, attempt - 1);
+                console.log(`Fallback rate limit hit, waiting ${delay}ms before retry...`);
+                await new Promise(r => setTimeout(r, delay));
+                continue;
+            }
+
+            if (!fallbackRes.ok) {
+                throw new Error(`Fallback API ${fallbackRes.status}`);
+            }
+
+            const fallbackData = await fallbackRes.json() as { cardano: { usd: number } };
+            const usd = fallbackData.cardano?.usd;
+            if (typeof usd !== 'number') {
+                throw new Error('No USD price in fallback response');
+            }
+            return Number(usd.toFixed(4));
+        } catch (err: any) {
+            console.warn(`Fallback attempt ${attempt} failed: ${err.message}`);
+            if (attempt < maxRetries) {
+                const delay = baseDelay * Math.pow(2, attempt - 1);
+                console.log(`Waiting ${delay}ms before next fallback attempt...`);
+                await new Promise(r => setTimeout(r, delay));
+            }
+        }
     }
-    return Number(usd.toFixed(4));
+
+    throw new Error(`All retries failed; last error: ${lastError?.message}`);
 }
 
 
