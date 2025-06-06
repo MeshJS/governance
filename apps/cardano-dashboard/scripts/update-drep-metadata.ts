@@ -120,6 +120,32 @@ async function fetchDRepMetadata(drepIds: string[]): Promise<DRepMetadata[]> {
     }
 }
 
+async function fetchMetadataFromUrl(url: string): Promise<any> {
+    try {
+        // Handle IPFS URLs
+        if (url.startsWith('ipfs://')) {
+            const ipfsHash = url.replace('ipfs://', '');
+            url = `https://ipfs.io/ipfs/${ipfsHash}`;
+        }
+
+        const response = await fetchWithRetry(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch metadata from URL: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error(`Error fetching metadata from URL ${url}:`, error);
+        return null;
+    }
+}
+
 async function updateDRepMetadata() {
     try {
         console.log('Fetching active DReps from Supabase...');
@@ -144,6 +170,16 @@ async function updateDRepMetadata() {
 
             console.log(`Fetching metadata for batch ${i / batchSize + 1} of ${Math.ceil(drepsNeedingUpdate.length / batchSize)}`);
             const metadata = await fetchDRepMetadata(batch);
+
+            // Fetch metadata from URLs for entries where meta_json is null but meta_url exists
+            for (const meta of metadata) {
+                if (!meta.meta_json && meta.meta_url) {
+                    console.log(`Fetching metadata from URL for DRep ${meta.drep_id}`);
+                    meta.meta_json = await fetchMetadataFromUrl(meta.meta_url);
+                    await sleep(RATE_LIMIT_DELAY); // Add delay between URL fetches
+                }
+            }
+
             allMetadata.push(...metadata);
 
             await sleep(RATE_LIMIT_DELAY);
