@@ -55,6 +55,23 @@ async function fetchVotingSummary(proposalId: string): Promise<VotingSummaryResp
     return response.json() as Promise<VotingSummaryResponse>;
 }
 
+async function fetchMetadataFromUrl(url: string): Promise<any> {
+    try {
+        // Handle IPFS URLs
+        if (url.startsWith('ipfs://')) {
+            const ipfsHash = url.replace('ipfs://', '');
+            url = `https://ipfs.io/ipfs/${ipfsHash}`;
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Failed to fetch metadata from ${url}`);
+        return response.json();
+    } catch (error) {
+        console.error(`Error fetching metadata from ${url}:`, error);
+        return null;
+    }
+}
+
 async function updateGovernanceProposals() {
     try {
         // Fetch chain tip to get current slot
@@ -82,10 +99,19 @@ async function updateGovernanceProposals() {
             activeProposals.some((active: { proposal_id: string }) => active.proposal_id === proposal.proposal_id)
         );
 
-        // Enrich proposals with voting summaries
+        // Enrich proposals with voting summaries and metadata
         const enrichedProposals = await Promise.all(
             proposalsToUpdate.map(async (proposal: GovernanceProposal) => {
                 const votingSummary = await fetchVotingSummary(proposal.proposal_id);
+
+                // If meta_json is null or empty and meta_url exists, fetch metadata
+                if ((!proposal.meta_json || Object.keys(proposal.meta_json).length === 0) && proposal.meta_url) {
+                    const metadata = await fetchMetadataFromUrl(proposal.meta_url);
+                    if (metadata) {
+                        proposal.meta_json = metadata;
+                    }
+                }
+
                 return {
                     ...proposal,
                     ...votingSummary[0],
