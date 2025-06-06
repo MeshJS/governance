@@ -63,9 +63,16 @@ async function fetchMetadataFromUrl(url: string): Promise<any> {
             url = `https://ipfs.io/ipfs/${ipfsHash}`;
         }
 
+        console.log(`Fetching metadata from: ${url}`);
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`Failed to fetch metadata from ${url}`);
-        return response.json();
+        if (!response.ok) {
+            console.error(`Failed to fetch metadata from ${url}: ${response.status} ${response.statusText}`);
+            return null;
+        }
+
+        const data = await response.json();
+        console.log(`Successfully fetched metadata from ${url}`);
+        return data;
     } catch (error) {
         console.error(`Error fetching metadata from ${url}:`, error);
         return null;
@@ -106,9 +113,13 @@ async function updateGovernanceProposals() {
 
                 // If meta_json is null or empty and meta_url exists, fetch metadata
                 if ((!proposal.meta_json || Object.keys(proposal.meta_json).length === 0) && proposal.meta_url) {
+                    console.log(`Proposal ${proposal.proposal_id} has meta_url but no meta_json, fetching metadata...`);
                     const metadata = await fetchMetadataFromUrl(proposal.meta_url);
                     if (metadata) {
+                        console.log(`Successfully fetched metadata for proposal ${proposal.proposal_id}`);
                         proposal.meta_json = metadata;
+                    } else {
+                        console.log(`Failed to fetch metadata for proposal ${proposal.proposal_id}`);
                     }
                 }
 
@@ -125,7 +136,10 @@ async function updateGovernanceProposals() {
             .from('governance_proposals')
             .upsert(enrichedProposals, { onConflict: 'proposal_id' });
 
-        if (updateError) throw updateError;
+        if (updateError) {
+            console.error('Error updating proposals in Supabase:', updateError);
+            throw updateError;
+        }
         console.log(`Successfully updated ${enrichedProposals.length} active governance proposals`);
     } catch (error) {
         console.error('Error updating governance proposals:', error);

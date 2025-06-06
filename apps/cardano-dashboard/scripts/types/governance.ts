@@ -1,3 +1,9 @@
+interface Reference {
+    "@type": "Other" | "GovernanceMetadata";
+    label: string;
+    uri: string;
+}
+
 interface MetaContext {
     "@language"?: string;
     CIP100?: string;
@@ -51,6 +57,7 @@ interface MetaBody {
     motivation?: string;
     rationale?: string;
     title?: string;
+    references?: Reference[];
 }
 
 interface MetaJson {
