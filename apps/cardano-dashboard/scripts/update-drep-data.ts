@@ -42,7 +42,7 @@ interface DRepDelegator {
 
 interface DRepCurrentData {
     drep_id: string;
-    updated_at: string;
+    delegators_updated_at: string;
     delegators: DRepDelegator[];
     total_delegators: number;
     total_delegated_amount: string;
@@ -245,7 +245,7 @@ async function fetchCurrentDRepData(drepIds: string[]): Promise<Map<string, DRep
 
         const { data: currentData, error: fetchError } = await supabase
             .from('drep_data')
-            .select('drep_id, updated_at, delegators, total_delegators, total_delegated_amount')
+            .select('drep_id, delegators_updated_at, delegators, total_delegators, total_delegated_amount')
             .in('drep_id', batch);
 
         if (fetchError) {
@@ -293,7 +293,7 @@ async function updateDRepData() {
 
         for (const record of allDetailedData) {
             const currentRecord = currentDataMap.get(record.drep_id);
-            const needsUpdate = isDelegatorUpdateNeeded(currentRecord?.updated_at || null);
+            const needsUpdate = isDelegatorUpdateNeeded(currentRecord?.delegators_updated_at || null);
 
             // Only fetch delegators for active DReps that need updating
             if (record.active && needsUpdate) {
@@ -306,7 +306,7 @@ async function updateDRepData() {
                     delegators,
                     total_delegators: delegators.length,
                     total_delegated_amount: totalDelegatedAmount,
-                    updated_at: new Date().toISOString()
+                    delegators_updated_at: new Date().toISOString()
                 });
 
                 console.log(`Processed delegators for active DRep ${record.drep_id} (needed update)`);
@@ -317,7 +317,7 @@ async function updateDRepData() {
                     delegators: currentRecord?.delegators || [],
                     total_delegators: currentRecord?.total_delegators || 0,
                     total_delegated_amount: currentRecord?.total_delegated_amount || '0',
-                    updated_at: new Date().toISOString()
+                    delegators_updated_at: new Date().toISOString()
                 });
                 console.log(`Skipped delegator fetch for active DRep ${record.drep_id} (recently updated)`);
             } else {
@@ -327,7 +327,7 @@ async function updateDRepData() {
                     delegators: [],
                     total_delegators: 0,
                     total_delegated_amount: '0',
-                    updated_at: new Date().toISOString()
+                    delegators_updated_at: new Date().toISOString()
                 });
                 console.log(`Skipped delegator fetch for inactive DRep ${record.drep_id}`);
             }

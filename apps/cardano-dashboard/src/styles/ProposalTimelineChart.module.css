@@ -1,8 +1,8 @@
 .timelineChartContainer {
-    background: var(--background-secondary);
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 6px var(--hover-shadow);
+    box-shadow: 0 4px 6px var(--shadow-color);
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     width: 100%;

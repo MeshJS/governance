@@ -29,7 +29,7 @@ interface DRepMetadata {
 
 interface DRepBasicInfo {
     drep_id: string;
-    updated_at: string | null;
+    metadata_updated_at: string | null;
 }
 
 async function sleep(ms: number) {
@@ -80,7 +80,7 @@ function isMetadataUpdateNeeded(lastUpdateDate: string | null): boolean {
 async function fetchActiveDReps(): Promise<DRepBasicInfo[]> {
     const { data, error } = await supabase
         .from('drep_data')
-        .select('drep_id, updated_at')
+        .select('drep_id, metadata_updated_at')
         .eq('active', true);
 
     if (error) {
@@ -153,7 +153,7 @@ async function updateDRepMetadata() {
         console.log(`Found ${activeDReps.length} active DReps`);
 
         // Filter DReps that need metadata update
-        const drepsNeedingUpdate = activeDReps.filter(drep => isMetadataUpdateNeeded(drep.updated_at));
+        const drepsNeedingUpdate = activeDReps.filter(drep => isMetadataUpdateNeeded(drep.metadata_updated_at));
         console.log(`${drepsNeedingUpdate.length} DReps need metadata update`);
 
         if (drepsNeedingUpdate.length === 0) {
@@ -199,7 +199,7 @@ async function updateDRepMetadata() {
                 meta_language: metadata.language,
                 meta_comment: metadata.comment,
                 meta_is_valid: metadata.is_valid,
-                updated_at: new Date().toISOString()
+                metadata_updated_at: new Date().toISOString()
             }));
 
             const { error } = await supabase

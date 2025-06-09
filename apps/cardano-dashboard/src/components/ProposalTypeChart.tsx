@@ -14,18 +14,29 @@ const getGradients = (type: string): string[] => {
             type === 'NewConstitution' ? 'new-constitution' :
                 'hard-fork';
 
-    // Get computed values from CSS variables
-    const getComputedValue = (varName: string) => {
-        return getComputedStyle(document.documentElement)
+    // Get computed values from CSS variables with fallbacks
+    const getComputedValue = (varName: string, fallback: string) => {
+        const value = getComputedStyle(document.documentElement)
             .getPropertyValue(varName)
             .trim();
+        return value || fallback;
     };
 
+    // Fallback colors for each type
+    const fallbacks = {
+        'info-action': ['#38e8e1', '#20b8a6', '#084a43', '#000000'],
+        'parameter-change': ['#ff78cb', '#db2777', '#580c30', '#000000'],
+        'new-constitution': ['#e2e8f0', '#94a3b8', '#475569', '#1e293b'],
+        'hard-fork': ['#ffab00', '#ea580c', '#9a3412', '#000000']
+    };
+
+    const fallbackColors = fallbacks[prefix as keyof typeof fallbacks] || fallbacks['info-action'];
+
     return [
-        getComputedValue(`--gradient-${prefix}-1`),
-        getComputedValue(`--gradient-${prefix}-2`),
-        getComputedValue(`--gradient-${prefix}-3`),
-        getComputedValue(`--gradient-${prefix}-4`)
+        getComputedValue(`--gradient-${prefix}-1`, fallbackColors[0]),
+        getComputedValue(`--gradient-${prefix}-2`, fallbackColors[1]),
+        getComputedValue(`--gradient-${prefix}-3`, fallbackColors[2]),
+        getComputedValue(`--gradient-${prefix}-4`, fallbackColors[3])
     ];
 };
 

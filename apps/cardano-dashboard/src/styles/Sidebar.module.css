@@ -3,7 +3,7 @@
     width: 250px;
     height: calc(100vh - 64px);
     /* Subtract header height */
-    background-color: var(--background-secondary);
+    background-color: var(--bg-secondary);
     color: var(--text-primary);
     padding: 1rem 0.5rem;
     transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
@@ -12,7 +12,7 @@
     top: 60px;
     /* Add header height */
     border-right: 1px solid var(--border-color);
-    box-shadow: 4px 0 16px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 4px 0 16px 0 var(--shadow-color);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -40,7 +40,7 @@
 }
 
 .toggleButton:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--bg-overlay);
 }
 
 .toggleIcon {
@@ -65,7 +65,7 @@
 }
 
 .navItem:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: var(--bg-overlay);
     border-radius: 4px;
     color: var(--text-primary);
 }
@@ -130,7 +130,7 @@
 }
 
 .activeNavItem {
-    background-color: var(--accent-color);
+    background-color: var(--color-primary);
     border-radius: 4px;
     color: var(--text-primary) !important;
 }
@@ -141,10 +141,10 @@
 
 .navLink:hover {
     text-decoration: none;
-    text-shadow: 0 0 6px var(--text-primary), 0 0 2px var(--accent-color);
+    text-shadow: 0 0 6px var(--text-primary), 0 0 2px var(--color-primary);
 }
 
 .activeNavItem:hover {
-    background-color: var(--accent-color);
+    background-color: var(--color-primary);
     color: var(--text-primary) !important;
 }

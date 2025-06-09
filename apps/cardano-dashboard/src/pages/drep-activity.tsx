@@ -81,7 +81,6 @@ function DRepActivityContent() {
                 </div>
 
                 <div className={pageStyles.section}>
-                    <h2 className={pageStyles.pageSubtitle}>DRep Directory</h2>
                     {drepData.length > 0 ? (
                         <DRepTable drepData={drepData} />
                     ) : (

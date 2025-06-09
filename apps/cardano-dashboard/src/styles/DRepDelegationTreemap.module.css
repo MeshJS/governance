@@ -4,9 +4,8 @@
 }
 
 .title {
-    font-size: 1.2rem;
     color: var(--text-primary);
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .treemap {
@@ -17,7 +16,7 @@
 .tooltip {
     position: absolute;
     padding: 10px;
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--bg-primary);
     color: var(--text-primary);
     border-radius: 4px;
     font-size: 12px;

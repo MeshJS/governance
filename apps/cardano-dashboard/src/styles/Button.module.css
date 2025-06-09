@@ -1,6 +1,6 @@
 .button {
-    background-color: var(--accent-color);
-    color: var(--text-color);
+    background-color: var(--color-primary);
+    color: var(--text-primary);
     border: none;
     padding: 10px 20px;
     cursor: pointer;
@@ -8,5 +8,5 @@
 }
 
 .button:hover {
-    background-color: #005f5f;
+    background-color: var(--color-primary-dark);
 }

@@ -8,8 +8,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 2rem;
-    background-color: var(--background-secondary);
-    box-shadow: 0 2px 4px var(--hover-shadow);
+    background-color: var(--bg-secondary);
+    box-shadow: 0 2px 4px var(--shadow-color);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -23,7 +23,7 @@
 }
 
 .logo:hover {
-    color: var(--accent-color);
+    color: var(--color-primary);
     text-decoration: none !important;
 }
 
@@ -46,7 +46,7 @@
 
 .walletButton {
     padding: 0.5rem 1rem;
-    background-color: var(--accent-color);
+    background-color: var(--color-primary);
     color: var(--text-primary);
     border: none;
     border-radius: 4px;
@@ -55,7 +55,7 @@
 }
 
 .walletButton:hover {
-    background-color: #2980b9;
+    background-color: var(--color-primary-dark);
 }
 
 .userMenu {
@@ -73,16 +73,16 @@
 }
 
 .userButton:hover {
-    color: var(--accent-color);
+    color: var(--color-primary);
 }
 
 .dropdown {
     position: absolute;
     right: 0;
     top: 100%;
-    background-color: var(--background-secondary);
+    background-color: var(--bg-secondary);
     border-radius: 4px;
-    box-shadow: 0 2px 8px var(--hover-shadow);
+    box-shadow: 0 2px 8px var(--shadow-color);
     padding: 0.5rem;
     min-width: 150px;
     border: 1px solid var(--border-color);
@@ -103,5 +103,5 @@
 }
 
 .dropdown button:hover {
-    background-color: #2c2c2c;
+    background-color: var(--bg-overlay);
 }

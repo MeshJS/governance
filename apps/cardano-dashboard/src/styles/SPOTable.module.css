@@ -1,10 +1,10 @@
 .tableContainer {
-    background: var(--background-secondary);
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 1.5rem;
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px var(--hover-shadow);
+    box-shadow: 0 4px 6px var(--shadow-color);
     width: 100%;
 }
 
@@ -18,7 +18,7 @@
     padding: 0.75rem 1rem;
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    background: var(--background-primary);
+    background: var(--bg-primary);
     color: var(--text-primary);
     font-size: 1rem;
     transition: all 0.2s ease;
@@ -26,8 +26,8 @@
 
 .searchInput:focus {
     outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px var(--accent-color-alpha);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
 .tableWrapper {
@@ -104,7 +104,7 @@
 }
 
 .table tbody tr:hover {
-    background-color: var(--hover-background);
+    background-color: var(--bg-overlay);
 }
 
 .sortableHeader {
@@ -114,7 +114,7 @@
 }
 
 .sortableHeader:hover {
-    color: var(--accent-color);
+    color: var(--color-primary);
 }
 
 /* Responsive styles */

@@ -43,7 +43,7 @@ export default function DRepTable({ drepData }: DRepTableProps) {
     };
 
     const sortedAndFilteredData = useMemo(() => {
-        let filtered = drepData.filter(drep => drep.meta_json?.body?.givenName);
+        let filtered = drepData;
 
         // Apply search filter
         if (searchTerm) {
