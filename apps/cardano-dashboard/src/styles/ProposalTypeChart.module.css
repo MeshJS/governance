@@ -41,7 +41,7 @@
 
 .legendItem:hover,
 .legendItem.active {
-    background: var(--overlay-background);
+    background: var(--bg-overlay);
 }
 
 .legendColor {
@@ -64,17 +64,17 @@
 
 /* Proposal type colors */
 .infoAction {
-    background: var(--gradient-teal);
+    background: var(--gradient-proposal-info);
 }
 
 .parameterChange {
-    background: var(--gradient-pink);
+    background: var(--gradient-proposal-parameter);
 }
 
 .newConstitution {
-    background: var(--gradient-slate);
+    background: var(--gradient-proposal-constitution);
 }
 
 .hardFork {
-    background: var(--gradient-orange);
+    background: var(--gradient-proposal-fork);
 }

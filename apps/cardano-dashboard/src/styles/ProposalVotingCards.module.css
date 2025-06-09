@@ -5,12 +5,12 @@
 }
 
 .card {
-    background: var(--background-secondary);
+    background: var(--bg-secondary);
     border-radius: 0.75rem;
     padding: 1rem;
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px var(--hover-shadow);
+    box-shadow: 0 4px 6px var(--shadow-color);
     transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
@@ -20,7 +20,7 @@
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px var(--hover-shadow);
+    box-shadow: 0 4px 20px var(--shadow-color);
 }
 
 .cardHeader {
@@ -38,7 +38,7 @@
     font-size: 0.7rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
 }
 
 .cardTitle {
@@ -87,7 +87,7 @@
     height: 0.4rem;
     border-radius: 0.2rem;
     overflow: hidden;
-    background: var(--overlay-background);
+    background: var(--bg-overlay);
 }
 
 .barSegment {
@@ -117,19 +117,19 @@
 
 /* Proposal type colors */
 .infoAction {
-    background: var(--gradient-teal);
+    background: var(--gradient-proposal-info);
 }
 
 .parameterChange {
-    background: var(--gradient-pink);
+    background: var(--gradient-proposal-parameter);
 }
 
 .newConstitution {
-    background: var(--gradient-slate);
+    background: var(--gradient-proposal-constitution);
 }
 
 .hardFork {
-    background: var(--gradient-orange);
+    background: var(--gradient-proposal-fork);
 }
 
 /* Vote colors */
@@ -142,7 +142,7 @@
 }
 
 .abstain {
-    background: var(--gradient-neutral);
+    background: var(--gradient-info);
 }
 
 .epochInfo {

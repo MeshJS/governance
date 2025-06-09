@@ -305,9 +305,11 @@ function NetworkTotalsChartComponent({ data }: NetworkTotalsChartProps) {
                                     onMouseLeave={() => setHoveredLine(null)}
                                     style={{
                                         color: config.enabled ? config.color : `${config.color}80`,
-                                        opacity: hoveredLine === config.key ? 1 : 0.8,
+                                        opacity: hoveredLine === config.key ? 1 : config.enabled ? 0.9 : 0.5,
+                                        background: config.enabled ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                                     }}
                                     className={styles.legendItem}
+                                    title={`${config.enabled ? 'Hide' : 'Show'} ${config.label}`}
                                 >
                                     {config.label}
                                 </span>

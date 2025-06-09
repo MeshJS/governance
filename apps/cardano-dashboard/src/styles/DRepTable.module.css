@@ -1,58 +1,79 @@
 .tableContainer {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px var(--shadow-color);
     width: 100%;
-    margin: 1rem 0;
-    border-radius: 8px;
-    overflow: hidden;
 }
 
 .tableHeader {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    width: 100%;
 }
 
 .searchInput {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
     border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--background-primary);
+    background: var(--bg-primary);
     color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
 .tableWrapper {
-    overflow-x: auto;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .table {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-}
-
-.table th,
-.table td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--text-primary);
+    table-layout: fixed;
 }
 
 .table th {
-    background: var(--background-secondary);
-    font-weight: 600;
+    text-align: left;
+    padding: 1rem;
+    font-weight: 500;
     color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--background-secondary);
+    z-index: 1;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table tbody tr:hover {
+    background-color: var(--bg-overlay);
 }
 
 .sortableHeader {
     cursor: pointer;
     user-select: none;
+    transition: color 0.2s ease;
 }
 
 .sortableHeader:hover {
-    background: var(--background-hover);
-}
-
-.table tr:hover {
-    background: var(--background-hover);
+    color: var(--color-primary);
 }
 
 .drepImage {
@@ -78,10 +99,32 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    font-family: monospace;
+    justify-content: flex-end;
 }
 
 .adaSymbol {
-    color: var(--text-secondary);
     font-size: 0.9em;
+    line-height: 1;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .tableContainer {
+        padding: 1rem;
+    }
+
+    .tableHeader {
+        margin-bottom: 1rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .searchInput {
+        font-size: 0.9rem;
+        padding: 0.6rem 0.8rem;
+    }
 }

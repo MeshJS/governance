@@ -17,7 +17,7 @@
 .navButton {
     text-decoration: none;
     color: var(--text-primary);
-    background: var(--background-secondary);
+    background: var(--bg-secondary);
     border-radius: 8px;
     padding: 1rem;
     transition: all 0.3s ease;
@@ -31,9 +31,9 @@
 
 .navButton:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--hover-shadow);
-    background: var(--overlay-background);
-    border-color: var(--accent-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    background: var(--bg-overlay);
+    border-color: var(--color-primary);
     text-decoration: none;
 }
 
@@ -45,7 +45,7 @@
 
 .buttonContent svg {
     font-size: 1.25rem;
-    color: var(--accent-color);
+    color: var(--color-primary);
 }
 
 .buttonContent span {

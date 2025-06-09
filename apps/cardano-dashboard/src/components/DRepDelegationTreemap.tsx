@@ -186,7 +186,7 @@ const DRepDelegationTreemap: React.FC<DRepDelegationTreemapProps> = ({ drepData 
 
     return (
         <div className={styles.container}>
-            <h3 className={styles.title}>DRep Delegation Distribution</h3>
+            <h2 className={styles.title}>DRep Delegation Distribution</h2>
             <svg ref={svgRef} className={styles.treemap}></svg>
         </div>
     );

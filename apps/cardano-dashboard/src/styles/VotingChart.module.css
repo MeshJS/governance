@@ -2,9 +2,9 @@
     position: relative;
     width: 100%;
     padding: 20px;
-    background: var(--background-secondary);
+    background: var(--bg-secondary);
     border-radius: 8px;
-    box-shadow: 0 2px 4px var(--hover-shadow);
+    box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .chart {
@@ -49,17 +49,17 @@
 }
 
 .abstain {
-    background: var(--gradient-neutral);
+    background: var(--gradient-info);
 }
 
 .tooltip {
     position: absolute;
-    background: var(--background-primary);
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 12px;
     min-width: 300px;
-    box-shadow: 0 4px 6px var(--hover-shadow);
+    box-shadow: 0 4px 6px var(--shadow-color);
     z-index: 1000;
     pointer-events: none;
 }
