@@ -52,7 +52,7 @@
 
     /* Vote colors - using the same gradients but with different direction */
     --gradient-success: linear-gradient(90deg, rgba(56, 232, 225, 0.95) 0%, rgba(20, 184, 166, 0.85) 100%);
-    --gradient-danger: linear-gradient(90deg, rgba(255, 120, 203, 0.95) 0%, rgba(219, 39, 119, 0.85) 100%);
+    --gradient-danger: linear-gradient(135deg, rgba(255, 120, 203, 0.95) 0%, rgba(88, 16, 48, 0.8) 100%);
     --gradient-neutral: linear-gradient(90deg, rgba(226, 232, 240, 0.85) 0%, rgba(148, 163, 184, 0.8) 100%);
 
     /* Utility colors */
