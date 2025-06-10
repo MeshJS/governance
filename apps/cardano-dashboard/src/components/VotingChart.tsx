@@ -55,16 +55,18 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
             proposalId: proposal.proposal_id,
             title: proposal.meta_json?.body && typeof proposal.meta_json.body === 'object' && 'title' in proposal.meta_json.body
                 ? proposal.meta_json.body.title as string
-                : proposal.proposal_id,
+                : proposal.proposal_id.length > 20
+                    ? `${proposal.proposal_id.slice(0, 10)}...${proposal.proposal_id.slice(-10)}`
+                    : proposal.proposal_id,
             yesVotes: voteProps.yesVotes,
             noVotes: voteProps.noVotes,
             abstainVotes: voteProps.abstainVotes,
             yesPower: parseVotePower(voteProps.yesPower),
             noPower: parseVotePower(voteProps.noPower),
             abstainPower: parseVotePower(voteProps.abstainPower),
-            yesPercentage: (voteProps.yesVotes / totalVotes) * 100,
-            noPercentage: (voteProps.noVotes / totalVotes) * 100,
-            abstainPercentage: (voteProps.abstainVotes / totalVotes) * 100
+            yesPercentage: totalVotes > 0 ? (voteProps.yesVotes / totalVotes) * 100 : 0,
+            noPercentage: totalVotes > 0 ? (voteProps.noVotes / totalVotes) * 100 : 0,
+            abstainPercentage: totalVotes > 0 ? (voteProps.abstainVotes / totalVotes) * 100 : 0
         });
 
         // Calculate tooltip position
@@ -105,9 +107,9 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
                 {proposals.map((proposal) => {
                     const voteProps = getVoteProperties(proposal);
                     const totalVotes = voteProps.yesVotes + voteProps.noVotes + voteProps.abstainVotes;
-                    const yesPercentage = (voteProps.yesVotes / totalVotes) * 100;
-                    const noPercentage = (voteProps.noVotes / totalVotes) * 100;
-                    const abstainPercentage = (voteProps.abstainVotes / totalVotes) * 100;
+                    const yesPercentage = totalVotes > 0 ? (voteProps.yesVotes / totalVotes) * 100 : 0;
+                    const noPercentage = totalVotes > 0 ? (voteProps.noVotes / totalVotes) * 100 : 0;
+                    const abstainPercentage = totalVotes > 0 ? (voteProps.abstainVotes / totalVotes) * 100 : 0;
 
                     return (
                         <div
