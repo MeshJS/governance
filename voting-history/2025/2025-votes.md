@@ -2,6 +2,86 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Set a 300 million ADA Net Change Limit for Epochs 563–635](https://adastat.net/governances/637e3c256da9c1350847ca3211e8c44e3660a4471e8b6f68a8c537746b4aeb7300) |
+| Hash           | 637e3c256da9c1350847ca3211e8c44e3660a4471e8b6f68a8c537746b4aeb7300 |
+| Action ID      | gov_action1vdlrcftd48qn2zz8egepr6xyfcmxpfz8r69k769gc5mhg662adesq9yy8pl |
+| Type           | InfoAction |
+| Proposed Epoch | 556 |
+| Expires Epoch  | 563 |
+| Vote           | ⚪Abstain |
+| Vote Submitted | 6/7/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/3413a2fb941005dd7bf9f682f36a2b3c64a6c8f8d2e8040a993855eeccbc4d12 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
+| Proposal Title | [Cardano Blockchain Ecosystem Budget: Amaru Node Development 2025](https://adastat.net/governances/bd488931f792651fefa9c6fda185a2c6cec83245b51d994e33090ce36e29cc2600) |
+| Hash           | bd488931f792651fefa9c6fda185a2c6cec83245b51d994e33090ce36e29cc2600 |
+| Action ID      | gov_action1h4ygjv0hjfj3lmafcm76rpdzcm8vsvj9k5wejn3npyxwxm3fesnqqw9kxxz |
+| Type           | InfoAction |
+| Proposed Epoch | 556 |
+| Expires Epoch  | 563 |
+| Vote           | ✅Yes |
+| Vote Submitted | 6/6/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/5394deadeda08098a34dd08dc438a027972ed46018373fb1adc20f85ca520748 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
+| Proposal Title | [2025 Cardano Blockchain Ecosystem Budget - 7.5M ₳ for community builders](https://adastat.net/governances/defbf15b06092718adf4befeab982e03d2966b9caeef93c19e470549ef75ea4900) |
+| Hash           | defbf15b06092718adf4befeab982e03d2966b9caeef93c19e470549ef75ea4900 |
+| Action ID      | gov_action1mmalzkcxpyn33t05hml2hxpwq0ffv6uu4mhe8sv7guz5nmm4afysqlmepzl |
+| Type           | InfoAction |
+| Proposed Epoch | 556 |
+| Expires Epoch  | 563 |
+| Vote           | ✅Yes |
+| Vote Submitted | 6/6/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/5b29ba2a4512e1df0c5e44fe6f474e85499ef5e9d881db3255b847420f7dee7c |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
+| Proposal Title | [Unknown Proposal](https://adastat.net/governances/4840e305563327358cf70dae5015b2df8f8c35cef03f74521d4f117ac17bc38400) |
+| Hash           | 4840e305563327358cf70dae5015b2df8f8c35cef03f74521d4f117ac17bc38400 |
+| Action ID      | gov_action1fpqwxp2kxvnntr8hpkh9q9djm78ccdww7qlhg5safugh4stmcwzqql5lauu |
+| Type           | InfoAction |
+| Proposed Epoch | 556 |
+| Expires Epoch  | 563 |
+| Vote           | ❌No |
+| Vote Submitted | 6/5/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/f582dae8ecb62f09fe005405b607e5323b08066685493ce0918777d8b4191c96 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
+| Proposal Title | [Set a 300 million ADA Net Change Limit for Epochs 563–635](https://adastat.net/governances/637e3c256da9c1350847ca3211e8c44e3660a4471e8b6f68a8c537746b4aeb7300) |
+| Hash           | 637e3c256da9c1350847ca3211e8c44e3660a4471e8b6f68a8c537746b4aeb7300 |
+| Action ID      | gov_action1vdlrcftd48qn2zz8egepr6xyfcmxpfz8r69k769gc5mhg662adesq9yy8pl |
+| Type           | InfoAction |
+| Proposed Epoch | 556 |
+| Expires Epoch  | 563 |
+| Vote           | ✅Yes |
+| Vote Submitted | 6/4/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/6c64b6b54aca658afc154dedb3d5f72f4ca8baa66f01f5d44edc7451c027b970 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Cardano Blockchain Ecosystem Budget - 275M ada Administered by Intersect](https://adastat.net/governances/e14de8d9dc4f4ddf3fe9250a8a926e20f10e99b86bd0610b77d7a054981591ee00) |
 | Hash           | e14de8d9dc4f4ddf3fe9250a8a926e20f10e99b86bd0610b77d7a054981591ee00 |
 | Action ID      | gov_action1u9x73kwufaxa70lfy59g4ynwyrcsaxdcd0gxzzmh67s9fxq4j8hqqk2phgh |
