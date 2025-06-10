@@ -6,16 +6,6 @@ interface ProposalTimelineChartProps {
     proposals: GovernanceProposal[];
 }
 
-const TYPE_COLORS = {
-    InfoAction: '#38E8E1',
-    ParameterChange: '#FF78CB',
-    NewConstitution: '#E2E8F0',
-    HardForkInitiation: '#FFAB00',
-    TreasuryWithdrawals: '#FF8B8B',
-    NoConfidence: '#B388FF',
-    NewCommittee: '#4DB6AC'
-};
-
 const TYPE_LABELS = {
     InfoAction: 'Info Action',
     ParameterChange: 'Parameter Change',
@@ -25,6 +15,29 @@ const TYPE_LABELS = {
     NoConfidence: 'No Confidence',
     NewCommittee: 'New Committee'
 };
+
+function getThemeColors() {
+    const style = getComputedStyle(document.documentElement);
+    return {
+        InfoAction: style.getPropertyValue('--gradient-info-action-1').trim() || '#38e8e1',
+        ParameterChange: style.getPropertyValue('--gradient-parameter-change-1').trim() || '#ff4d94',
+        NewConstitution: style.getPropertyValue('--gradient-new-constitution-1').trim() || '#e2e8f0',
+        HardForkInitiation: style.getPropertyValue('--gradient-hard-fork-1').trim() || '#ffab00',
+        TreasuryWithdrawals: style.getPropertyValue('--chart-color-8').trim() || '#f87171',
+        NoConfidence: style.getPropertyValue('--chart-color-5').trim() || '#a78bfa',
+        NewCommittee: style.getPropertyValue('--chart-color-7').trim() || '#4ade80',
+        textPrimary: style.getPropertyValue('--text-primary').trim() || '#fff',
+        textSecondary: style.getPropertyValue('--text-secondary').trim() || 'rgba(255,255,255,0.7)',
+        textTertiary: style.getPropertyValue('--text-tertiary').trim() || 'rgba(255,255,255,0.6)',
+        bgPrimary: style.getPropertyValue('--bg-primary').trim() || '#0a0a0a',
+        bgSecondary: style.getPropertyValue('--bg-secondary').trim() || 'rgba(0,0,0,0.2)',
+        bgOverlay: style.getPropertyValue('--bg-overlay').trim() || 'rgba(255,255,255,0.1)',
+        borderColor: style.getPropertyValue('--border-color').trim() || 'rgba(255,255,255,0.1)',
+        colorSuccess: style.getPropertyValue('--color-success').trim() || '#38e8e1',
+        colorDanger: style.getPropertyValue('--color-danger').trim() || '#ff4d94',
+        colorWarning: style.getPropertyValue('--color-warning').trim() || '#ffab00',
+    };
+}
 
 export default function ProposalTimelineChart({ proposals }: ProposalTimelineChartProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -43,6 +56,8 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        const theme = getThemeColors();
+
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.getBoundingClientRect();
         canvas.width = rect.width * dpr;
@@ -53,13 +68,13 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Set up chart area
-        const padding = 40;
+        const padding = 70;
         const chartWidth = rect.width - (padding * 2);
         const chartHeight = rect.height - (padding * 2);
 
         // Draw axes
         ctx.beginPath();
-        ctx.strokeStyle = '#4A5568';
+        ctx.strokeStyle = theme.textSecondary;
         ctx.lineWidth = 1;
         ctx.moveTo(padding, padding);
         ctx.lineTo(padding, rect.height - padding);
@@ -67,7 +82,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
         ctx.stroke();
 
         // Draw grid lines
-        ctx.strokeStyle = '#2D3748';
+        ctx.strokeStyle = theme.borderColor;
         ctx.lineWidth = 0.5;
         const numGridLines = 5;
         for (let i = 0; i <= numGridLines; i++) {
@@ -79,10 +94,10 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
 
             // Draw epoch labels
             const epoch = Math.round(minEpoch + (maxEpoch - minEpoch) * (i / numGridLines));
-            ctx.fillStyle = '#A0AEC0';
+            ctx.fillStyle = theme.textTertiary;
             ctx.font = '12px Inter';
             ctx.textAlign = 'right';
-            ctx.fillText(`Epoch ${epoch}`, padding - 10, y + 4);
+            ctx.fillText(`Epoch ${epoch}`, padding - 15, y + 4);
         }
 
         // Draw proposal points and lines
@@ -97,7 +112,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
                 const nextY = padding + (chartHeight * (1 - (index + 1) / (sortedProposals.length - 1)));
 
                 ctx.beginPath();
-                ctx.strokeStyle = TYPE_COLORS[proposal.proposal_type] || '#38E8E1';
+                ctx.strokeStyle = theme[proposal.proposal_type as keyof typeof theme] || theme.InfoAction;
                 ctx.lineWidth = 2;
                 ctx.moveTo(x, y);
                 ctx.lineTo(nextX, nextY);
@@ -106,13 +121,13 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
 
             // Draw point
             ctx.beginPath();
-            ctx.fillStyle = TYPE_COLORS[proposal.proposal_type] || '#38E8E1';
+            ctx.fillStyle = theme[proposal.proposal_type as keyof typeof theme] || theme.InfoAction;
             ctx.arc(x, y, 4, 0, Math.PI * 2);
             ctx.fill();
 
             // Draw point border
             ctx.beginPath();
-            ctx.strokeStyle = '#1A202C';
+            ctx.strokeStyle = theme.bgPrimary;
             ctx.lineWidth = 1;
             ctx.arc(x, y, 4, 0, Math.PI * 2);
             ctx.stroke();
@@ -120,13 +135,14 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
 
         // Draw hovered point info
         if (hoveredPoint) {
-            const { x, y, proposal } = hoveredPoint;
+            const { x, proposal } = hoveredPoint;
             const tooltipWidth = 400;
-            const tooltipHeight = 200;
+            const tooltipHeight = 207;
 
-            // Calculate tooltip position to keep it centered vertically
+            // Tooltip Y is fixed
+            let tooltipY = 40;
+            // Tooltip X is dynamic, based on hovered point
             let tooltipX = x + 10;
-            let tooltipY = y - (tooltipHeight / 2);
 
             // Adjust horizontal position if tooltip would go off the right edge
             if (tooltipX + tooltipWidth > rect.width - 10) {
@@ -134,30 +150,32 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             }
 
             // Adjust vertical position if tooltip would go off the top or bottom
+            // (not needed for fixed Y, but keep for safety)
             if (tooltipY < 10) {
+                // Shouldn't happen, but clamp
                 tooltipY = 10;
             } else if (tooltipY + tooltipHeight > rect.height - 10) {
                 tooltipY = rect.height - tooltipHeight - 10;
             }
 
             // Draw tooltip background
-            ctx.fillStyle = 'rgba(26, 32, 44, 0.95)';
+            ctx.fillStyle = theme.bgSecondary;
             ctx.beginPath();
             ctx.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 8);
             ctx.fill();
 
             // Draw tooltip border
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.strokeStyle = theme.borderColor;
             ctx.lineWidth = 1;
             ctx.stroke();
 
             // Draw proposal type badge
             const typeLabel = TYPE_LABELS[proposal.proposal_type] || proposal.proposal_type;
-            ctx.fillStyle = TYPE_COLORS[proposal.proposal_type] || '#38E8E1';
+            ctx.fillStyle = theme[proposal.proposal_type as keyof typeof theme] || theme.InfoAction;
             ctx.beginPath();
             ctx.roundRect(tooltipX + 15, tooltipY + 15, 120, 24, 4);
             ctx.fill();
-            ctx.fillStyle = '#1A202C';
+            ctx.fillStyle = theme.bgPrimary;
             ctx.font = '12px Inter';
             ctx.textAlign = 'center';
             ctx.fillText(typeLabel, tooltipX + 75, tooltipY + 31);
@@ -167,15 +185,15 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             let statusColor = '';
             if (proposal.enacted_epoch) {
                 statusText = 'Enacted';
-                statusColor = '#48BB78'; // Green
+                statusColor = theme.colorSuccess;
             } else if (proposal.dropped_epoch) {
                 statusText = 'Dropped';
-                statusColor = '#F56565'; // Red
+                statusColor = theme.colorDanger;
             } else {
                 statusText = 'Pending';
-                statusColor = '#ED8936'; // Orange
+                statusColor = theme.colorWarning;
             }
-            ctx.fillStyle = '#2D3748';
+            ctx.fillStyle = theme.bgOverlay;
             ctx.beginPath();
             ctx.roundRect(tooltipX + tooltipWidth - 135, tooltipY + 15, 120, 24, 4);
             ctx.fill();
@@ -186,14 +204,14 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             ctx.arc(tooltipX + tooltipWidth - 125, tooltipY + 27, 4, 0, Math.PI * 2);
             ctx.fill();
 
-            ctx.fillStyle = '#A0AEC0';
+            ctx.fillStyle = theme.textSecondary;
             ctx.textAlign = 'left';
             ctx.fillText(statusText, tooltipX + tooltipWidth - 115, tooltipY + 31);
 
             // Draw proposal title
             const metaJson = proposal.meta_json as { body?: { title?: string } };
             const title = metaJson?.body?.title || 'Untitled Proposal';
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = theme.textPrimary;
             ctx.font = '14px Inter';
             ctx.textAlign = 'left';
 
@@ -213,7 +231,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             ctx.fillText(displayTitle, tooltipX + 15, tooltipY + 60);
 
             // Draw epoch info
-            ctx.fillStyle = '#A0AEC0';
+            ctx.fillStyle = theme.textSecondary;
             ctx.font = '12px Inter';
 
             // Always show proposed epoch at the top
@@ -233,37 +251,37 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             const abstainX = tooltipX + 360;
 
             // Draw column headers
-            ctx.fillStyle = '#A0AEC0';
+            ctx.fillStyle = theme.textSecondary;
             ctx.font = '12px Inter';
             ctx.textAlign = 'left';
-            ctx.fillText('Group', labelX, tooltipY + 145);
-            ctx.fillText('Yes', yesX, tooltipY + 145);
-            ctx.fillText('No', noX, tooltipY + 145);
-            ctx.fillText('Abstain', abstainX, tooltipY + 145);
+            ctx.fillText('Group', labelX, tooltipY + 135);
+            ctx.fillText('Yes', yesX, tooltipY + 135);
+            ctx.fillText('No', noX, tooltipY + 135);
+            ctx.fillText('Abstain', abstainX, tooltipY + 135);
 
             // DRep votes
-            ctx.fillStyle = '#38E8E1';
-            ctx.fillText('DRep', labelX, tooltipY + 165);
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(`${proposal.drep_yes_votes_cast} (${proposal.drep_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 165);
-            ctx.fillText(`${proposal.drep_no_votes_cast} (${proposal.drep_no_pct.toFixed(1)}%)`, noX, tooltipY + 165);
-            ctx.fillText(`${proposal.drep_abstain_votes_cast}`, abstainX, tooltipY + 165);
+            ctx.fillStyle = theme.InfoAction;
+            ctx.fillText('DRep', labelX, tooltipY + 155);
+            ctx.fillStyle = theme.textPrimary;
+            ctx.fillText(`${proposal.drep_yes_votes_cast} (${proposal.drep_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 155);
+            ctx.fillText(`${proposal.drep_no_votes_cast} (${proposal.drep_no_pct.toFixed(1)}%)`, noX, tooltipY + 155);
+            ctx.fillText(`${proposal.drep_abstain_votes_cast}`, abstainX, tooltipY + 155);
 
             // Pool votes
-            ctx.fillStyle = '#FF78CB';
-            ctx.fillText('Pool', labelX, tooltipY + 185);
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(`${proposal.pool_yes_votes_cast} (${proposal.pool_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 185);
-            ctx.fillText(`${proposal.pool_no_votes_cast} (${proposal.pool_no_pct.toFixed(1)}%)`, noX, tooltipY + 185);
-            ctx.fillText(`${proposal.pool_abstain_votes_cast}`, abstainX, tooltipY + 185);
+            ctx.fillStyle = theme.ParameterChange;
+            ctx.fillText('Pool', labelX, tooltipY + 175);
+            ctx.fillStyle = theme.textPrimary;
+            ctx.fillText(`${proposal.pool_yes_votes_cast} (${proposal.pool_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 175);
+            ctx.fillText(`${proposal.pool_no_votes_cast} (${proposal.pool_no_pct.toFixed(1)}%)`, noX, tooltipY + 175);
+            ctx.fillText(`${proposal.pool_abstain_votes_cast}`, abstainX, tooltipY + 175);
 
             // Committee votes
-            ctx.fillStyle = '#FFAB00';
-            ctx.fillText('Committee', labelX, tooltipY + 205);
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(`${proposal.committee_yes_votes_cast} (${proposal.committee_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 205);
-            ctx.fillText(`${proposal.committee_no_votes_cast} (${proposal.committee_no_pct.toFixed(1)}%)`, noX, tooltipY + 205);
-            ctx.fillText(`${proposal.committee_abstain_votes_cast}`, abstainX, tooltipY + 205);
+            ctx.fillStyle = theme.HardForkInitiation;
+            ctx.fillText('Committee', labelX, tooltipY + 195);
+            ctx.fillStyle = theme.textPrimary;
+            ctx.fillText(`${proposal.committee_yes_votes_cast} (${proposal.committee_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 195);
+            ctx.fillText(`${proposal.committee_no_votes_cast} (${proposal.committee_no_pct.toFixed(1)}%)`, noX, tooltipY + 195);
+            ctx.fillText(`${proposal.committee_abstain_votes_cast}`, abstainX, tooltipY + 195);
         }
     };
 
@@ -279,7 +297,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        const padding = 40;
+        const padding = 70;
         const chartWidth = rect.width - (padding * 2);
         const chartHeight = rect.height - (padding * 2);
 

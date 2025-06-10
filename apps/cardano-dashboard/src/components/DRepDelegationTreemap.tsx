@@ -30,12 +30,27 @@ interface DRepDelegationTreemapProps {
 
 const DRepDelegationTreemap: React.FC<DRepDelegationTreemapProps> = ({ drepData }) => {
     const svgRef = useRef<SVGSVGElement>(null);
+    const tooltipRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (!drepData || !svgRef.current) return;
 
         // Clear previous content
         d3.select(svgRef.current).selectAll("*").remove();
+
+        // Remove any existing tooltips
+        d3.selectAll(`.${styles.tooltip}`).remove();
+
+        // Create tooltip if it doesn't exist
+        if (!tooltipRef.current) {
+            tooltipRef.current = d3.select('body')
+                .append('div')
+                .attr('class', styles.tooltip)
+                .style('opacity', 0)
+                .node() as HTMLDivElement;
+        }
+
+        const tooltip = d3.select(tooltipRef.current);
 
         // Set up dimensions
         const width = 700;
@@ -74,12 +89,6 @@ const DRepDelegationTreemap: React.FC<DRepDelegationTreemapProps> = ({ drepData 
                     : d.total_delegated_amount
             ) || 0])
             .interpolator(d3.interpolateRgbBasis(['#0033AD', '#1FC7D4']));
-
-        // Create tooltip
-        const tooltip = d3.select('body')
-            .append('div')
-            .attr('class', styles.tooltip)
-            .style('opacity', 0);
 
         // Draw rectangles
         svg.selectAll('rect')
@@ -182,6 +191,13 @@ const DRepDelegationTreemap: React.FC<DRepDelegationTreemapProps> = ({ drepData 
             .attr('font-size', '10px')
             .attr('fill', 'var(--text-primary)');
 
+        // Cleanup function
+        return () => {
+            if (tooltipRef.current) {
+                d3.select(tooltipRef.current).remove();
+                tooltipRef.current = null;
+            }
+        };
     }, [drepData]);
 
     return (

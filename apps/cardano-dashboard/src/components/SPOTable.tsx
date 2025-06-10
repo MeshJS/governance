@@ -6,7 +6,7 @@ interface SPOTableProps {
     spoData: SPOData[];
 }
 
-type SortField = 'pool_id_bech32' | 'ticker' | 'live_stake' | 'live_delegators' | 'live_pledge' | 'fixed_cost' | 'block_count';
+type SortField = 'pool_id_bech32' | 'ticker' | 'name' | 'live_stake' | 'live_delegators' | 'live_pledge' | 'fixed_cost' | 'block_count';
 type SortDirection = 'asc' | 'desc';
 
 export default function SPOTable({ spoData }: SPOTableProps) {
@@ -40,6 +40,14 @@ export default function SPOTable({ spoData }: SPOTableProps) {
                 return sortDirection === 'asc'
                     ? aTicker.localeCompare(bTicker)
                     : bTicker.localeCompare(aTicker);
+            }
+
+            if (sortField === 'name') {
+                const aName = a.meta_json?.name || '';
+                const bName = b.meta_json?.name || '';
+                return sortDirection === 'asc'
+                    ? aName.localeCompare(bName)
+                    : bName.localeCompare(aName);
             }
 
             if (sortField === 'block_count') {
@@ -108,7 +116,9 @@ export default function SPOTable({ spoData }: SPOTableProps) {
                             <th onClick={() => handleSort('ticker')} className={styles.sortableHeader}>
                                 Ticker {sortField === 'ticker' && (sortDirection === 'asc' ? '↑' : '↓')}
                             </th>
-                            <th>Name</th>
+                            <th onClick={() => handleSort('name')} className={styles.sortableHeader}>
+                                Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+                            </th>
                             <th onClick={() => handleSort('live_stake')} className={styles.sortableHeader}>
                                 Live Stake {sortField === 'live_stake' && (sortDirection === 'asc' ? '↑' : '↓')}
                             </th>
