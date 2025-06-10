@@ -1,0 +1,146 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+You are an expert developer in TypeScript, Node.js, Next.js 14 App Router, React, Supabase.
+
+Key Principles
+    - Write concise, technical responses with accurate TypeScript examples.
+    - Use functional, declarative programming. Avoid classes.
+    - Prefer iteration and modularization over duplication.
+    - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+    - Use lowercase with dashes for directories (e.g., components/auth-wizard).
+    - Favor named exports for components.
+    - Use the Receive an Object, Return an Object (RORO) pattern.
+
+Monorepo Structure
+- This is a monorepo containing multiple Next.js applications located in the apps directory.
+- Root: The root of the repository contains configuration files and shared scripts. It is not an application itself.
+- apps/: This directory contains the individual Next.js applications.
+    - apps/cardano-dashboard/: The Cardano Dashboard application.
+    - apps/mesh-gov/: The Mesh Governance application.
+- .github/: This directory contains GitHub Actions workflows for CI/CD and data updates.
+
+Application Directory Structure
+Both applications follow a similar Next.js-based structure with some key differences:
+
+Common Directory Structure
+src/
+├── components/     # React components
+├── pages/          # Next.js pages and API routes
+├── styles/         # Global styles and CSS modules
+├── contexts/       # React context providers
+├── utils/          # Utility functions
+
+cardano-dashboard Specific
+src/
+├── data/          # Data fetching and transformation
+├── hooks/         # Custom React hooks
+supabase/
+└── migrations/    # Supabase database migrations
+
+mesh-gov Specific
+src/
+├── config/        # Application configuration
+├── lib/           # Core business logic
+├── types/         # TypeScript type definitions
+types.ts           # Shared type definitions
+
+General Rules
+1. Identify the Target Application: Before making any changes, confirm which application you are working on (cardano-dashboard or mesh-gov).
+2. Scope Changes Correctly: All file edits, new file creations, and package installations should be made within the directory of the target application. Do not modify files in other applications or the root directory unless explicitly asked.
+3. Default to the Correct Directory: When a user asks to perform an action (e.g., "install a package" or "create a new page"), assume the action should be performed within the context of the application being discussed. If the context is unclear, ask for clarification.
+4. Follow Directory Structure: Place new files in the appropriate directory based on their purpose:
+    - React components go in src/components/
+    - Pages go in src/pages/
+    - Utility functions go in src/utils/
+    - Global state management goes in src/contexts/
+    - Database migrations (cardano-dashboard) go in supabase/migrations/
+
+Package Management
+When installing or removing NPM packages, it is crucial to do so in the correct application's directory.
+- DO NOT run npm install <package> in the root of the repository.
+- ALWAYS navigate to the correct application's directory first.
+- Check Existing Dependencies: Before adding new packages, check if they're already installed in package.json.
+Example: Installing a package in cardano-dashboard
+    cd apps/cardano-dashboard
+    npm install <package-name>
+Example: Installing a package in mesh-gov
+    cd apps/mesh-gov
+    npm install <package-name>
+
+Styling
+For styling components in both applications:
+1. Always use CSS Modules: Create a .module.css file alongside your component.
+2. File Naming: Name the CSS module file to match its component:
+    MyComponent.tsx
+    MyComponent.module.css
+3. Import Convention:
+    import styles from './MyComponent.module.css'
+4. Global Styles: Place global styles in src/styles/ directory.
+
+Technology Stacks
+The applications have different technology stacks. Be mindful of these differences when making changes.
+
+apps/cardano-dashboard
+- Framework: Next.js
+- Language: TypeScript
+- UI: React
+- Backend/Database:
+    - Supabase for database and authentication
+    - Database migrations in supabase/migrations/
+    - Environment variables must include Supabase configuration
+- Data Visualization: recharts, d3, leaflet, react-globe.gl
+- Data Management: React Query with storage persistence
+
+apps/mesh-gov
+- Framework: Next.js
+- Language: TypeScript
+- UI: React
+- Backend/Database: No direct database connection
+- Data Visualization: recharts, d3, @xyflow/react
+- Type Management: Centralized types in src/types/ and types.ts
+
+State Management
+1. cardano-dashboard:
+    - Uses React Query for server state
+    - React Context for global UI state
+    - Supabase real-time subscriptions where applicable
+2. mesh-gov:
+    - React Context for global state
+    - Local state for component-specific data
+
+GitHub Actions
+The .github/workflows directory contains several YAML files that define automated jobs. These jobs primarily handle:
+- Updating data for the dashboards
+- Context for proposals
+- DRep voting information
+When working with these workflows, be aware that they are critical for keeping the applications' data up-to-date.
+
+Best Practices
+1. Type Safety:
+    - Always use TypeScript types/interfaces
+    - Avoid using any type
+    - Define shared types in appropriate locations
+2. Component Organization:
+    - One component per file
+    - Place shared components in src/components/
+    - Group related components in subdirectories
+3. Data Fetching:
+    - Use React Query in cardano-dashboard
+    - Keep API calls in separate utility functions
+    - Handle loading and error states appropriately
+4. Code Style:
+    - Follow existing patterns in the codebase
+    - Use ESLint and Prettier configurations
+    - Write self-documenting code with clear variable names
+
+
+
+
+
+
+
+
+
