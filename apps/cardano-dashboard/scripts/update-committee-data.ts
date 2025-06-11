@@ -48,6 +48,40 @@ interface ChainTip {
     block_time: number;
 }
 
+// Add IPFS gateways
+const IPFS_GATEWAYS = [
+    'https://ipfs.io/ipfs/',
+    'https://gateway.pinata.cloud/ipfs/',
+    'https://cloudflare-ipfs.com/ipfs/',
+    'https://dweb.link/ipfs/'
+];
+
+async function fetchWithRetry(url: string, retries = 3, delay = 1000): Promise<Response> {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                return response;
+            }
+            // If we get a 504, try the next gateway or retry
+            if (response.status === 504 && url.includes('ipfs.io')) {
+                const ipfsHash = url.split('/ipfs/')[1];
+                // Try next gateway
+                const nextGatewayIndex = (IPFS_GATEWAYS.indexOf(url.split('/ipfs/')[0] + '/ipfs/') + 1) % IPFS_GATEWAYS.length;
+                const nextGateway = IPFS_GATEWAYS[nextGatewayIndex];
+                url = `${nextGateway}${ipfsHash}`;
+                continue;
+            }
+            // For other errors, wait and retry
+            await new Promise(resolve => setTimeout(resolve, delay));
+        } catch (error) {
+            if (i === retries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+    throw new Error(`Failed to fetch after ${retries} retries`);
+}
+
 async function fetchCurrentEpoch(): Promise<number> {
     const url = 'https://api.koios.rest/api/v1/tip';
 
@@ -134,17 +168,29 @@ async function fetchMetaJson(url: string): Promise<any> {
         let fetchUrl = cleanUrl;
         if (cleanUrl.startsWith('ipfs://')) {
             const ipfsHash = cleanUrl.replace('ipfs://', '');
-            // Using ipfs.io gateway, but you can use other gateways as well
-            fetchUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
+            // Start with the first gateway
+            fetchUrl = `${IPFS_GATEWAYS[0]}${ipfsHash}`;
         }
 
         console.log(`Fetching meta JSON from cleaned URL: ${fetchUrl}`);
-        const response = await fetch(fetchUrl);
-        if (!response.ok) {
-            console.error(`Failed to fetch meta JSON from ${cleanUrl}: ${response.status}`);
+        const response = await fetchWithRetry(fetchUrl);
+
+        // Try to parse the response as JSON
+        try {
+            const text = await response.text();
+            // Try to clean the text if it's not valid JSON
+            const cleanedText = text
+                .replace(/,\s*}/g, '}')  // Remove trailing commas in objects
+                .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
+                .replace(/\n/g, ' ')     // Remove newlines
+                .replace(/\r/g, '')      // Remove carriage returns
+                .replace(/\t/g, ' ');    // Replace tabs with spaces
+
+            return JSON.parse(cleanedText);
+        } catch (parseError) {
+            console.error(`Failed to parse JSON from ${cleanUrl}:`, parseError);
             return null;
         }
-        return await response.json();
     } catch (error) {
         console.error(`Error fetching meta JSON from ${url}:`, error);
         return null;
