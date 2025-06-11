@@ -122,23 +122,83 @@ async function fetchCommitteeVotes(ccHotId: string): Promise<CommitteeVote[]> {
 }
 
 async function fetchMetaJson(url: string): Promise<any> {
-    try {
-        // Handle IPFS URLs
-        let fetchUrl = url;
-        if (url.startsWith('ipfs://')) {
-            const ipfsHash = url.replace('ipfs://', '');
-            // Using ipfs.io gateway, but you can use other gateways as well
-            fetchUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
-        }
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1000; // 1 second
+    const IPFS_GATEWAYS = [
+        'https://ipfs.io/ipfs/',
+        'https://gateway.pinata.cloud/ipfs/',
+        'https://cloudflare-ipfs.com/ipfs/',
+        'https://dweb.link/ipfs/'
+    ];
 
-        const response = await fetch(fetchUrl);
-        if (!response.ok) {
-            console.error(`Failed to fetch meta JSON from ${url}: ${response.status}`);
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const tryFetch = async (fetchUrl: string, retryCount = 0): Promise<any> => {
+        try {
+            const response = await fetch(fetchUrl, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 404 || response.status === 410) {
+                    console.log(`Resource not found at ${fetchUrl}`);
+                    return null;
+                }
+                if (response.status === 504 && retryCount < MAX_RETRIES) {
+                    console.log(`Gateway timeout for ${fetchUrl}, retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+                    await sleep(RETRY_DELAY);
+                    return tryFetch(fetchUrl, retryCount + 1);
+                }
+                console.error(`Failed to fetch meta JSON from ${fetchUrl}: ${response.status}`);
+                return null;
+            }
+
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (parseError: unknown) {
+                console.error(`Invalid JSON from ${fetchUrl}: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+                return null;
+            }
+        } catch (error) {
+            if (retryCount < MAX_RETRIES) {
+                console.log(`Error fetching ${fetchUrl}, retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+                await sleep(RETRY_DELAY);
+                return tryFetch(fetchUrl, retryCount + 1);
+            }
+            console.error(`Error fetching meta JSON from ${fetchUrl}:`, error);
             return null;
         }
-        return await response.json();
+    };
+
+    try {
+        // Handle IPFS URLs
+        if (url.startsWith('ipfs://')) {
+            const ipfsHash = url.replace('ipfs://', '');
+
+            // Try each IPFS gateway in sequence
+            for (const gateway of IPFS_GATEWAYS) {
+                const result = await tryFetch(`${gateway}${ipfsHash}`);
+                if (result !== null) {
+                    return result;
+                }
+            }
+            return null;
+        }
+
+        // Handle GitHub raw content URLs
+        if (url.includes('raw.githubusercontent.com')) {
+            // Remove any 'refs/heads/' from the URL as it's not needed for raw content
+            const cleanUrl = url.replace('refs/heads/', '');
+            return await tryFetch(cleanUrl);
+        }
+
+        // Handle other URLs
+        return await tryFetch(url);
     } catch (error) {
-        console.error(`Error fetching meta JSON from ${url}:`, error);
+        console.error(`Error processing meta JSON from ${url}:`, error);
         return null;
     }
 }
