@@ -123,8 +123,12 @@ async function fetchCommitteeVotes(ccHotId: string): Promise<CommitteeVote[]> {
 
 async function fetchMetaJson(url: string): Promise<any> {
     try {
-        // Clean up the URL by removing trailing colons
-        const cleanUrl = url.replace(/:$/, '');
+        // Clean up the URL
+        let cleanUrl = url.trim();
+        // Remove trailing colons
+        cleanUrl = cleanUrl.replace(/:$/, '');
+        // Remove any trailing slashes
+        cleanUrl = cleanUrl.replace(/\/$/, '');
 
         // Handle IPFS URLs
         let fetchUrl = cleanUrl;
@@ -134,12 +138,12 @@ async function fetchMetaJson(url: string): Promise<any> {
             fetchUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
         }
 
+        console.log(`Fetching meta JSON from cleaned URL: ${fetchUrl}`);
         const response = await fetch(fetchUrl);
         if (!response.ok) {
             console.error(`Failed to fetch meta JSON from ${cleanUrl}: ${response.status}`);
             return null;
         }
-
         return await response.json();
     } catch (error) {
         console.error(`Error fetching meta JSON from ${url}:`, error);
