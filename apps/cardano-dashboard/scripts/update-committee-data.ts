@@ -15,6 +15,7 @@ interface CommitteeMember {
     expiration_epoch: number;
     cc_hot_has_script: boolean;
     cc_cold_has_script: boolean;
+    name?: string;
 }
 
 interface CommitteeInfo {
@@ -35,6 +36,8 @@ interface CommitteeVote {
     vote: 'Yes' | 'No' | 'Abstain';
     meta_url: string | null;
     meta_hash: string | null;
+    meta_json?: any;
+    committee_name?: string;
 }
 
 async function fetchCommitteeInfo(): Promise<CommitteeInfo[]> {
@@ -85,6 +88,28 @@ async function fetchCommitteeVotes(ccHotId: string): Promise<CommitteeVote[]> {
     }
 }
 
+async function fetchMetaJson(url: string): Promise<any> {
+    try {
+        // Handle IPFS URLs
+        let fetchUrl = url;
+        if (url.startsWith('ipfs://')) {
+            const ipfsHash = url.replace('ipfs://', '');
+            // Using ipfs.io gateway, but you can use other gateways as well
+            fetchUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
+        }
+
+        const response = await fetch(fetchUrl);
+        if (!response.ok) {
+            console.error(`Failed to fetch meta JSON from ${url}: ${response.status}`);
+            return null;
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Error fetching meta JSON from ${url}:`, error);
+        return null;
+    }
+}
+
 async function updateCommitteeData() {
     try {
         console.log('Fetching committee information from Koios...');
@@ -104,8 +129,28 @@ async function updateCommitteeData() {
                 console.log(`Fetching votes for committee member ${member.cc_hot_id}`);
                 const votes = await fetchCommitteeVotes(member.cc_hot_id);
 
+                // Process meta JSON for each vote
+                const processedVotes = await Promise.all(
+                    votes.map(async (vote) => {
+                        if (vote.meta_url) {
+                            const metaJson = await fetchMetaJson(vote.meta_url);
+                            if (metaJson && metaJson.authors && metaJson.authors.length > 0) {
+                                return {
+                                    ...vote,
+                                    meta_json: metaJson,
+                                    committee_name: metaJson.authors[0].name
+                                };
+                            }
+                        }
+                        return vote;
+                    })
+                );
+
                 // Add a small delay between requests to avoid rate limiting
                 await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Get the committee name from the first vote with meta JSON
+                const committeeName = processedVotes.find(v => v.committee_name)?.committee_name;
 
                 return {
                     ...member,
@@ -115,7 +160,8 @@ async function updateCommitteeData() {
                     proposal_index: committeeData.proposal_index,
                     quorum_numerator: committeeData.quorum_numerator,
                     quorum_denominator: committeeData.quorum_denominator,
-                    votes: votes,
+                    votes: processedVotes,
+                    name: committeeName, // Only use name from meta JSON
                     updated_at: new Date().toISOString()
                 };
             })
