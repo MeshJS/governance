@@ -89,7 +89,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, fetchOptio
             committeeData: !isClient || data.loading.committeeData,
         }
     };
-    console.log(contextValue);
+    //console.log(contextValue);
     return (
         <DataContext.Provider value={contextValue}>
             {children}
