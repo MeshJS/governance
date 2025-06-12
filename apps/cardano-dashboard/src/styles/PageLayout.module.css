@@ -24,7 +24,6 @@
     border-radius: 8px;
     padding: 0;
     margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%;
     position: relative;
     z-index: 2;
@@ -64,6 +63,7 @@
     position: relative;
     z-index: 1;
     box-sizing: border-box;
+    align-items: flex-start;
 }
 
 .chartSection {
@@ -73,6 +73,8 @@
     width: 100%;
     position: relative;
     box-sizing: border-box;
+    display: flex;
+    justify-content: flex-start;
 }
 
 @media (max-width: 768px) {

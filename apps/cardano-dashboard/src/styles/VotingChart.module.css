@@ -2,9 +2,7 @@
     position: relative;
     width: 100%;
     padding: 20px;
-    background: var(--bg-secondary);
     border-radius: 8px;
-    box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .chart {
@@ -13,6 +11,7 @@
     gap: 4px;
     height: 300px;
     margin-top: 20px;
+    width: 100%;
 }
 
 .proposalBar {
@@ -21,6 +20,37 @@
     min-width: 20px;
     cursor: pointer;
     transition: transform 0.2s ease;
+}
+
+/* Responsive adjustments for different screen sizes */
+@media screen and (max-width: 1200px) {
+    .proposalBar {
+        min-width: 16px;
+    }
+
+    .chart {
+        gap: 3px;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .proposalBar {
+        min-width: 12px;
+    }
+
+    .chart {
+        gap: 2px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .proposalBar {
+        min-width: 8px;
+    }
+
+    .chart {
+        gap: 1px;
+    }
 }
 
 .proposalBar:hover {
