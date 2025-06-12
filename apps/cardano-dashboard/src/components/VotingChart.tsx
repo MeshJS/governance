@@ -112,22 +112,30 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
 
         const tooltipWidth = 300; // Minimum width from CSS
         const tooltipHeight = 150; // Approximate height
+        const padding = 20; // Padding from container edges
 
         // Calculate position relative to the container
         let x = rect.left - containerRect.left + (rect.width / 2);
         let y = rect.top - containerRect.top;
 
         // Adjust horizontal position if tooltip would go off container
-        if (x + (tooltipWidth / 2) > containerRect.width) {
-            x = containerRect.width - (tooltipWidth / 2);
-        } else if (x - (tooltipWidth / 2) < 0) {
-            x = tooltipWidth / 2;
+        if (x + (tooltipWidth / 2) > containerRect.width - padding) {
+            x = containerRect.width - (tooltipWidth / 2) - padding;
+        } else if (x - (tooltipWidth / 2) < padding) {
+            x = (tooltipWidth / 2) + padding;
         }
 
         // Adjust vertical position if tooltip would go off container
-        if (y - tooltipHeight < 0) {
-            y = rect.bottom - containerRect.top;
+        if (y - tooltipHeight < padding) {
+            // Position below the bar if not enough space above
+            y = rect.bottom - containerRect.top + padding;
+        } else {
+            // Position above the bar
+            y = y - tooltipHeight - padding;
         }
+
+        // Ensure tooltip stays within container bounds
+        y = Math.max(padding, Math.min(y, containerRect.height - tooltipHeight - padding));
 
         setTooltipPosition({ x, y });
     };
