@@ -14,6 +14,7 @@ export interface CommitteeMember {
     quorum_denominator?: number;
     votes?: CommitteeVote[];
     updated_at?: string;
+    name?: string;
 }
 
 export interface CommitteeVote {

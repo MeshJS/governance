@@ -1,0 +1,85 @@
+.chartContainer {
+    position: relative;
+    width: 100%;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.chart {
+    height: 300px;
+    margin-top: 20px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.chart svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+.chart :global(text) {
+    fill: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.chart :global(.domain),
+.chart :global(.tick line) {
+    stroke: var(--border-color);
+}
+
+.chart :global(.tick text) {
+    fill: var(--text-secondary);
+    font-size: 12px;
+}
+
+.yes {
+    fill: url(#gradient-success);
+}
+
+.no {
+    fill: url(#gradient-danger);
+}
+
+.abstain {
+    fill: url(#gradient-info);
+}
+
+.barLabel {
+    fill: var(--text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    text-shadow: 0 0 2px var(--bg-primary);
+}
+
+.barLabel tspan {
+    fill: var(--text-primary);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.legendColor {
+    width: 15px;
+    height: 15px;
+    border-radius: 2px;
+}
+
+.legendText {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.chartTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0;
+    text-align: left;
+}

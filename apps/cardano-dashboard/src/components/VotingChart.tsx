@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import styles from '@/styles/VotingChart.module.css';
 import { GovernanceProposal } from '../../types/governance';
 
-type VoteType = 'spo' | 'drep';
+type VoteType = 'spo' | 'drep' | 'committee';
 
 interface VotingChartProps {
     type: VoteType;
@@ -15,9 +15,9 @@ interface TooltipData {
     yesVotes: number;
     noVotes: number;
     abstainVotes: number;
-    yesPower: number;
-    noPower: number;
-    abstainPower: number;
+    yesPower?: number;
+    noPower?: number;
+    abstainPower?: number;
     yesPercentage: number;
     noPercentage: number;
     abstainPercentage: number;
@@ -29,6 +29,16 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
     const chartRef = useRef<HTMLDivElement>(null);
 
     const getVoteProperties = (proposal: VotingChartProps['proposals'][0]) => {
+        if (type === 'committee') {
+            return {
+                yesVotes: proposal.committee_yes_votes_cast,
+                noVotes: proposal.committee_no_votes_cast,
+                abstainVotes: proposal.committee_abstain_votes_cast,
+                yesPercentage: proposal.committee_yes_pct || 0,
+                noPercentage: proposal.committee_no_pct || 0
+            } as const;
+        }
+
         const prefix = type === 'spo' ? 'pool' : 'drep';
         return {
             yesVotes: proposal[`${prefix}_yes_votes_cast`] as number,
@@ -37,12 +47,13 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
             yesPower: proposal[`${prefix}_yes_vote_power`] as string | number,
             noPower: proposal[`${prefix}_no_vote_power`] as string | number,
             abstainPower: proposal[`${prefix}_active_abstain_vote_power`] as string | number,
+            yesPercentage: proposal[`${prefix}_yes_pct`] || 0,
+            noPercentage: proposal[`${prefix}_no_pct`] || 0
         };
     };
 
     const handleBarHover = (e: React.MouseEvent, proposal: VotingChartProps['proposals'][0]) => {
         const voteProps = getVoteProperties(proposal);
-        const totalVotes = voteProps.yesVotes + voteProps.noVotes + voteProps.abstainVotes;
 
         const parseVotePower = (power: string | number) => {
             if (typeof power === 'string') {
@@ -51,7 +62,26 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
             return power || 0;
         };
 
-        setTooltipData({
+        const calculatePercentages = () => {
+            if (type === 'committee') {
+                const committeeProps = voteProps as { yesPercentage: number; noPercentage: number };
+                return {
+                    yesPercentage: committeeProps.yesPercentage,
+                    noPercentage: committeeProps.noPercentage,
+                    abstainPercentage: 0
+                };
+            }
+            const powerProps = voteProps as typeof voteProps & { yesPercentage: number; noPercentage: number };
+            return {
+                yesPercentage: powerProps.yesPercentage,
+                noPercentage: powerProps.noPercentage,
+                abstainPercentage: 0
+            };
+        };
+
+        const percentages = calculatePercentages();
+
+        const tooltipData: TooltipData = {
             proposalId: proposal.proposal_id,
             title: proposal.meta_json?.body && typeof proposal.meta_json.body === 'object' && 'title' in proposal.meta_json.body
                 ? proposal.meta_json.body.title as string
@@ -61,13 +91,19 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
             yesVotes: voteProps.yesVotes,
             noVotes: voteProps.noVotes,
             abstainVotes: voteProps.abstainVotes,
-            yesPower: parseVotePower(voteProps.yesPower),
-            noPower: parseVotePower(voteProps.noPower),
-            abstainPower: parseVotePower(voteProps.abstainPower),
-            yesPercentage: totalVotes > 0 ? (voteProps.yesVotes / totalVotes) * 100 : 0,
-            noPercentage: totalVotes > 0 ? (voteProps.noVotes / totalVotes) * 100 : 0,
-            abstainPercentage: totalVotes > 0 ? (voteProps.abstainVotes / totalVotes) * 100 : 0
-        });
+            yesPercentage: percentages.yesPercentage,
+            noPercentage: percentages.noPercentage,
+            abstainPercentage: percentages.abstainPercentage
+        };
+
+        if (type !== 'committee' && 'yesPower' in voteProps) {
+            const powerProps = voteProps as typeof voteProps & { yesPower: string | number; noPower: string | number; abstainPower: string | number };
+            tooltipData.yesPower = parseVotePower(powerProps.yesPower);
+            tooltipData.noPower = parseVotePower(powerProps.noPower);
+            tooltipData.abstainPower = parseVotePower(powerProps.abstainPower);
+        }
+
+        setTooltipData(tooltipData);
 
         // Calculate tooltip position
         const rect = e.currentTarget.getBoundingClientRect();
@@ -100,16 +136,26 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
         setTooltipData(null);
     };
 
+    const getChartTitle = () => {
+        switch (type) {
+            case 'spo':
+                return 'SPO Voting Activity';
+            case 'drep':
+                return 'DRep Voting Activity';
+            case 'committee':
+                return 'CC Voting Activity';
+        }
+    };
+
     return (
         <div className={styles.chartContainer} ref={chartRef}>
-            <h2>{type === 'spo' ? 'SPO' : 'DRep'} Voting Activity</h2>
+            <h2>{getChartTitle()}</h2>
             <div className={styles.chart}>
                 {proposals.map((proposal) => {
                     const voteProps = getVoteProperties(proposal);
-                    const totalVotes = voteProps.yesVotes + voteProps.noVotes + voteProps.abstainVotes;
-                    const yesPercentage = totalVotes > 0 ? (voteProps.yesVotes / totalVotes) * 100 : 0;
-                    const noPercentage = totalVotes > 0 ? (voteProps.noVotes / totalVotes) * 100 : 0;
-                    const abstainPercentage = totalVotes > 0 ? (voteProps.abstainVotes / totalVotes) * 100 : 0;
+                    const percentages = type === 'committee'
+                        ? { yesPercentage: voteProps.yesPercentage, noPercentage: voteProps.noPercentage, abstainPercentage: 0 }
+                        : { yesPercentage: (voteProps as { yesPercentage: number; noPercentage: number }).yesPercentage, noPercentage: (voteProps as { yesPercentage: number; noPercentage: number }).noPercentage, abstainPercentage: 0 };
 
                     return (
                         <div
@@ -122,21 +168,21 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
                                 <div
                                     className={`${styles.barSegment} ${styles.yes}`}
                                     style={{
-                                        height: `${yesPercentage}%`,
+                                        height: `${percentages.yesPercentage}%`,
                                         minHeight: '4px'
                                     }}
                                 />
                                 <div
                                     className={`${styles.barSegment} ${styles.no}`}
                                     style={{
-                                        height: `${noPercentage}%`,
+                                        height: `${percentages.noPercentage}%`,
                                         minHeight: '4px'
                                     }}
                                 />
                                 <div
                                     className={`${styles.barSegment} ${styles.abstain}`}
                                     style={{
-                                        height: `${abstainPercentage}%`,
+                                        height: `${percentages.abstainPercentage}%`,
                                         minHeight: '4px'
                                     }}
                                 />
@@ -159,17 +205,23 @@ export default function VotingChart({ type, proposals }: VotingChartProps) {
                         <div className={styles.tooltipRow}>
                             <span className={styles.yes}>Yes</span>
                             <span>{tooltipData.yesVotes} votes ({tooltipData.yesPercentage.toFixed(1)}%)</span>
-                            <span>₳ {(tooltipData.yesPower / 1000000).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            {type !== 'committee' && tooltipData.yesPower !== undefined && (
+                                <span>₳ {(tooltipData.yesPower / 1000000).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            )}
                         </div>
                         <div className={styles.tooltipRow}>
                             <span className={styles.no}>No</span>
                             <span>{tooltipData.noVotes} votes ({tooltipData.noPercentage.toFixed(1)}%)</span>
-                            <span>₳ {(tooltipData.noPower / 1000000).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            {type !== 'committee' && tooltipData.noPower !== undefined && (
+                                <span>₳ {(tooltipData.noPower / 1000000).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            )}
                         </div>
                         <div className={styles.tooltipRow}>
                             <span className={styles.abstain}>Abstain</span>
-                            <span>{tooltipData.abstainVotes} votes ({tooltipData.abstainPercentage.toFixed(1)}%)</span>
-                            <span>₳ {(tooltipData.abstainPower / 1000000).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            <span>{tooltipData.abstainVotes} votes</span>
+                            {type !== 'committee' && tooltipData.abstainPower !== undefined && (
+                                <span>₳ {(tooltipData.abstainPower / 1000000).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            )}
                         </div>
                     </div>
                 </div>
