@@ -1,0 +1,107 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 2rem;
+    background-color: var(--bg-secondary);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.logo:hover {
+    color: var(--color-primary);
+    text-decoration: none !important;
+}
+
+.center {
+    flex: 1;
+    text-align: center;
+}
+
+.title {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.walletButton {
+    padding: 0.5rem 1rem;
+    background-color: var(--color-primary);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.walletButton:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.userMenu {
+    position: relative;
+}
+
+.userButton {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 1.25rem;
+    transition: color 0.2s;
+}
+
+.userButton:hover {
+    color: var(--color-primary);
+}
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--bg-secondary);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 0.5rem;
+    min-width: 150px;
+    border: 1px solid var(--border-color);
+}
+
+.dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+    text-align: left;
+    transition: background-color 0.2s;
+}
+
+.dropdown button:hover {
+    background-color: var(--bg-overlay);
+}

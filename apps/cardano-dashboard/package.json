@@ -1,0 +1,42 @@
+{
+  "name": "cardano-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "@tanstack/query-sync-storage-persister": "^5.76.1",
+    "@tanstack/react-query": "^5.76.1",
+    "@tanstack/react-query-persist-client": "^5.76.1",
+    "@types/d3": "^7.4.3",
+    "@types/leaflet": "^1.9.18",
+    "d3": "^7.9.0",
+    "date-fns": "^4.1.0",
+    "leaflet": "^1.9.4",
+    "next": "15.3.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-globe.gl": "^2.33.2",
+    "react-icons": "^5.5.0",
+    "react-leaflet": "^5.0.0",
+    "three": "^0.176.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.0.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.176.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "15.3.2",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

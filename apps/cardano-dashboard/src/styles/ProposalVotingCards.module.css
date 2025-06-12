@@ -1,0 +1,165 @@
+.cardsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    background: var(--bg-secondary);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px var(--shadow-color);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.cardHeader {
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.2rem;
+}
+
+.typeBadge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.cardTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 2.6em;
+    /* Ensures consistent height for 2 lines */
+}
+
+.votingGroups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
+.votingGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.groupTitle {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.voteBars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.voteBar {
+    display: flex;
+    height: 0.4rem;
+    border-radius: 0.2rem;
+    overflow: hidden;
+    background: var(--bg-overlay);
+}
+
+.barSegment {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.voteCounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.voteCount {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+}
+
+.voteDot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+}
+
+/* Proposal type colors */
+.infoAction {
+    background: var(--gradient-proposal-info);
+}
+
+.parameterChange {
+    background: var(--gradient-proposal-parameter);
+}
+
+.newConstitution {
+    background: var(--gradient-proposal-constitution);
+}
+
+.hardFork {
+    background: var(--gradient-proposal-fork);
+}
+
+/* Vote colors */
+.yes {
+    background: var(--gradient-success);
+}
+
+.no {
+    background: var(--gradient-danger);
+}
+
+.abstain {
+    background: var(--gradient-info);
+}
+
+.epochInfo {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin: 0;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    height: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.epochInfo span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}

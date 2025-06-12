@@ -1,0 +1,26 @@
+.mapContainer {
+    height: 600px;
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0a0a0a;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-top: -5.6rem;
+}
+
+/* Leaflet marker icon styles */
+.leafletContainer :global(.leaflet-default-icon-path) {
+    background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png);
+}
+
+.leafletContainer :global(.leaflet-default-icon-shadow) {
+    background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png);
+}
+
+.leafletContainer :global(.leaflet-default-icon) {
+    background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png);
+}

@@ -1,0 +1,33 @@
+name: Update SPO Locations
+
+on:
+  schedule:
+    - cron: '25 0 * * *'  # Run at 25 minutes past midnight UTC every day
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  update-spo-locations:
+    if: github.repository == 'MeshJS/governance'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: |
+          cd apps/cardano-dashboard
+          npm install
+          
+      - name: Update SPO Locations
+        continue-on-error: true
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          cd apps/cardano-dashboard
+          npx ts-node scripts/update-spo-locations.ts 

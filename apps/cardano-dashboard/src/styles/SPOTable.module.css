@@ -1,0 +1,258 @@
+.tableContainer {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px var(--shadow-color);
+    width: 100%;
+}
+
+.tableHeader {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--text-primary);
+    table-layout: fixed;
+}
+
+.table th {
+    text-align: left;
+    padding: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--background-secondary);
+    z-index: 1;
+}
+
+.table th:nth-child(1) {
+    width: 10%;
+}
+
+/* Pool ID */
+.table th:nth-child(2) {
+    width: 9%;
+}
+
+/* Ticker */
+.table th:nth-child(3) {
+    width: 16%;
+}
+
+/* Name */
+.table th:nth-child(4) {
+    width: 12%;
+}
+
+/* Live Stake */
+.table th:nth-child(5) {
+    width: 9%;
+}
+
+/* Delegators */
+.table th:nth-child(6) {
+    width: 12%;
+}
+
+/* Live Pledge */
+.table th:nth-child(7) {
+    width: 7%;
+}
+
+/* Fixed Cost */
+.table th:nth-child(8) {
+    width: 8%;
+}
+
+/* Block Count */
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table tbody tr:hover {
+    background-color: var(--bg-overlay);
+}
+
+.sortableHeader {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.sortableHeader:hover {
+    color: var(--color-primary);
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .table th:nth-child(1) {
+        width: 12%;
+    }
+
+    /* Pool ID */
+    .table th:nth-child(2) {
+        width: 8%;
+    }
+
+    /* Ticker */
+    .table th:nth-child(3) {
+        width: 18%;
+    }
+
+    /* Name */
+    .table th:nth-child(4) {
+        width: 15%;
+    }
+
+    /* Live Stake */
+    .table th:nth-child(5) {
+        width: 12%;
+    }
+
+    /* Delegators */
+    .table th:nth-child(6) {
+        width: 15%;
+    }
+
+    /* Live Pledge */
+    .table th:nth-child(7) {
+        width: 12%;
+    }
+
+    /* Fixed Cost */
+    .table th:nth-child(8) {
+        width: 8%;
+    }
+
+    /* Block Count */
+}
+
+@media (max-width: 768px) {
+    .tableContainer {
+        padding: 1rem;
+    }
+
+    .tableHeader {
+        margin-bottom: 1rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .searchInput {
+        font-size: 0.9rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    .table th:nth-child(1) {
+        width: 10%;
+    }
+
+    /* Pool ID */
+    .table th:nth-child(2) {
+        width: 8%;
+    }
+
+    /* Ticker */
+    .table th:nth-child(3) {
+        width: 20%;
+    }
+
+    /* Name */
+    .table th:nth-child(4) {
+        width: 15%;
+    }
+
+    /* Live Stake */
+    .table th:nth-child(5) {
+        width: 12%;
+    }
+
+    /* Delegators */
+    .table th:nth-child(6) {
+        width: 15%;
+    }
+
+    /* Live Pledge */
+    .table th:nth-child(7) {
+        width: 12%;
+    }
+
+    /* Fixed Cost */
+    .table th:nth-child(8) {
+        width: 8%;
+    }
+
+    /* Block Count */
+}
+
+.centerAlign {
+    text-align: center;
+}
+
+.adaAmount {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    justify-content: flex-end;
+}
+
+.adaSymbol {
+    font-size: 0.9em;
+    line-height: 1;
+}
+
+/* Center align delegators column */
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    text-align: center;
+}
+
+/* Right align numeric columns */
+.table th:nth-child(4),
+.table td:nth-child(4),
+.table th:nth-child(6),
+.table td:nth-child(6),
+.table th:nth-child(7),
+.table td:nth-child(7),
+.table th:nth-child(8),
+.table td:nth-child(8) {
+    text-align: right;
+}

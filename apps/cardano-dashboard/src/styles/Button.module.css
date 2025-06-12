@@ -1,0 +1,12 @@
+.button {
+    background-color: var(--color-primary);
+    color: var(--text-primary);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: var(--color-primary-dark);
+}

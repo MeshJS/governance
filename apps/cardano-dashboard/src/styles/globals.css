@@ -1,0 +1,137 @@
+/* Theme System */
+:root {
+    /* Base Colors */
+    --color-black: #0a0a0a;
+    --color-white: #ffffff;
+
+    /* Brand Colors */
+    --color-primary: #14b8a6;
+    --color-primary-light: #38e8e1;
+    --color-primary-dark: #084a43;
+
+    /* Semantic Colors */
+    --color-success: #38e8e1;
+    --color-success-dark: #084a43;
+    --color-danger: #ff4d94;
+    --color-danger-dark: #7e1f4d;
+    --color-warning: #ffab00;
+    --color-warning-dark: #9a3412;
+    --color-info: #e2e8f0;
+    --color-info-dark: #1e293b;
+
+    /* Background Colors */
+    --bg-primary: var(--color-black);
+    --bg-secondary: rgba(0, 0, 0, 0.2);
+    --bg-overlay: rgba(255, 255, 255, 0.1);
+
+    /* Text Colors */
+    --text-primary: var(--color-white);
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-tertiary: rgba(255, 255, 255, 0.6);
+
+    /* Border Colors */
+    --border-color: rgba(255, 255, 255, 0.1);
+
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.2);
+
+    /* Proposal Type Gradients */
+    --gradient-info-action-1: #38e8e1;
+    --gradient-info-action-2: #20b8a6;
+    --gradient-info-action-3: #084a43;
+    --gradient-info-action-4: #000000;
+
+    --gradient-parameter-change-1: #ff4d94;
+    --gradient-parameter-change-2: #db2777;
+    --gradient-parameter-change-3: #7e1f4d;
+    --gradient-parameter-change-4: #000000;
+
+    --gradient-new-constitution-1: #e2e8f0;
+    --gradient-new-constitution-2: #94a3b8;
+    --gradient-new-constitution-3: #475569;
+    --gradient-new-constitution-4: #1e293b;
+
+    --gradient-hard-fork-1: #ffab00;
+    --gradient-hard-fork-2: #ea580c;
+    --gradient-hard-fork-3: #9a3412;
+    --gradient-hard-fork-4: #000000;
+
+    /* Generic Gradients */
+    --gradient-primary: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-dark) 100%);
+    --gradient-success: linear-gradient(90deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+    --gradient-danger: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%);
+    --gradient-warning: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%);
+    --gradient-info: linear-gradient(90deg, var(--color-info) 0%, var(--color-info-dark) 100%);
+
+    /* Component-specific Gradients */
+    --gradient-proposal-info: var(--gradient-primary);
+    --gradient-proposal-parameter: var(--gradient-danger);
+    --gradient-proposal-constitution: var(--gradient-info);
+    --gradient-proposal-fork: var(--gradient-warning);
+
+    /* Chart Colors */
+    --chart-color-1: var(--color-primary);
+    --chart-color-2: var(--color-danger);
+    --chart-color-3: var(--color-warning);
+    --chart-color-4: var(--color-info);
+    --chart-color-5: #a78bfa;
+    --chart-color-6: #60a5fa;
+    --chart-color-7: #4ade80;
+    --chart-color-8: #f87171;
+    --chart-color-9: #facc15;
+    --chart-color-10: #818cf8;
+}
+
+/* Base Styles */
+html,
+body {
+    max-width: 100vw;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    font-family: inherit;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+@media (prefers-color-scheme: dark) {
+    html {
+        color-scheme: dark;
+    }
+}

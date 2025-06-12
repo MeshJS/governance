@@ -1,0 +1,150 @@
+.sidebar {
+    z-index: 1000;
+    width: 250px;
+    height: calc(100vh - 64px);
+    /* Subtract header height */
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 1rem 0.5rem;
+    transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
+    position: fixed;
+    left: 0;
+    top: 60px;
+    /* Add header height */
+    border-right: 1px solid var(--border-color);
+    box-shadow: 4px 0 16px 0 var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.collapsed {
+    width: 60px;
+}
+
+.toggleButton {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
+}
+
+.toggleButton:hover {
+    background-color: var(--bg-overlay);
+}
+
+.toggleIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggleIcon svg {
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
+}
+
+.collapsed .toggleIcon svg {
+    font-size: 1rem;
+}
+
+.navItem {
+    color: var(--text-secondary);
+    white-space: nowrap;
+    min-height: 2.4rem;
+}
+
+.navItem:hover {
+    background-color: var(--bg-overlay);
+    border-radius: 4px;
+    color: var(--text-primary);
+}
+
+.navItem svg {
+    font-size: 1.2rem;
+    min-width: 1.2rem;
+    color: var(--text-secondary);
+    transition: color 0.2s cubic-bezier(.4, 0, .2, 1), transform 0.3s cubic-bezier(.4, 0, .2, 1);
+    display: block;
+    align-self: center;
+    margin-right: 1rem;
+}
+
+.navItem:hover svg {
+    color: var(--text-primary);
+    transform: scale(1.08);
+}
+
+.collapsed .navItem {
+    justify-content: center;
+}
+
+.collapsed .navItem svg {
+    margin-right: 0;
+}
+
+.navText {
+    display: inline-block;
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.2s cubic-bezier(.4, 0, .2, 1), transform 0.2s cubic-bezier(.4, 0, .2, 1);
+    vertical-align: middle;
+    line-height: 1.2;
+    width: 170px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.collapsed .navText {
+    opacity: 0;
+    transform: translateX(-10px);
+    width: 0;
+    margin-left: 0;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s cubic-bezier(.4, 0, .2, 1);
+    box-sizing: border-box;
+}
+
+.activeNavItem {
+    background-color: var(--color-primary);
+    border-radius: 4px;
+    color: var(--text-primary) !important;
+}
+
+.activeNavItem svg {
+    color: var(--text-primary) !important;
+}
+
+.navLink:hover {
+    text-decoration: none;
+    text-shadow: 0 0 6px var(--text-primary), 0 0 2px var(--color-primary);
+}
+
+.activeNavItem:hover {
+    background-color: var(--color-primary);
+    color: var(--text-primary) !important;
+}

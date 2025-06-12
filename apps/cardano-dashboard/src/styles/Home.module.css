@@ -1,0 +1,53 @@
+.introText {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    max-width: 800px;
+}
+
+.navGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem 0;
+    justify-content: center;
+}
+
+.navButton {
+    text-decoration: none;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    width: 300px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.navButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    background: var(--bg-overlay);
+    border-color: var(--color-primary);
+    text-decoration: none;
+}
+
+.buttonContent {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.buttonContent svg {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+}
+
+.buttonContent span {
+    font-weight: 500;
+}
