@@ -10,11 +10,14 @@ const formatNumber = (num: number | undefined): string => {
 
 const CustomTooltip = ({ active, payload, label, chartId }: TooltipProps<number, string> & { chartId?: string }) => {
     if (active && payload && payload.length && payload[0].value !== undefined) {
+        const unit = chartId === 'repositories' ? 'repositories' : 
+                    chartId === 'contributions' ? 'contributions' : 
+                    chartId === 'contributors' ? 'contributors' : 'downloads';
         return (
             <div className={styles.customTooltip}>
                 <p className={styles.tooltipLabel}>{label}</p>
                 <p className={styles.tooltipValue}>
-                    {formatNumber(payload[0].value)} {chartId === 'repositories' ? 'repositories' : 'downloads'}
+                    {formatNumber(payload[0].value)} {unit}
                 </p>
             </div>
         );
@@ -72,7 +75,7 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => (
                 tickFormatter={(value) => value >= 1000 ? `${value / 1000}k` : value}
             />
             <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip chartId={chartId} />}
                 cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
             />
             <Bar
@@ -108,6 +111,13 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => (
                     <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
                     <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.5" />
                 </linearGradient>
+                <filter id={`glow-${chartId}`}>
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
             </defs>
             <CartesianGrid
                 strokeDasharray="3 3"
@@ -127,16 +137,17 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => (
                 tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
             />
             <Tooltip
-                content={<CustomTooltip chartId="repositories" />}
+                content={<CustomTooltip chartId={chartId} />}
                 cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
             />
             <Line
                 type="monotone"
                 dataKey="repositories"
                 stroke={`url(#lineGradient-${chartId})`}
-                strokeWidth={2}
-                dot={{ fill: '#FFFFFF', strokeWidth: 2 }}
+                strokeWidth={1.5}
+                dot={{ fill: '#FFFFFF', strokeWidth: 1.5, r: 3 }}
                 activeDot={{ r: 4, fill: '#FFFFFF' }}
+                filter={`url(#glow-${chartId})`}
             />
         </LineChart>
     </ResponsiveContainer>
@@ -275,7 +286,7 @@ const CustomSingleLineChart = ({ data, chartId, dataKey, name, stroke, yAxisDoma
     </ResponsiveContainer>
 );
 
-const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorsData }) => {
+const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorsData, contributorStats }) => {
     // Use all package data
     const packageData = currentStats?.npm ? [
         { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
@@ -313,6 +324,101 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
             };
         });
     }, [yearlyStats]);
+
+    // Generate monthly contribution data from timestamp arrays
+    const contributionsData = useMemo(() => {
+        if (!contributorsData?.contributors) return [];
+        
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        // Initialize monthly data for current year up to current month
+        const monthlyContributions = months.slice(0, currentMonth + 1).map(month => ({
+            month,
+            contributions: 0
+        }));
+        
+        // Process all contributors' timestamps
+        contributorsData.contributors.forEach(contributor => {
+            contributor.repositories.forEach(repo => {
+                // Process commit timestamps
+                repo.commit_timestamps?.forEach(timestamp => {
+                    const date = new Date(timestamp);
+                    if (date.getFullYear() === currentYear) {
+                        const monthIndex = date.getMonth();
+                        if (monthIndex <= currentMonth) {
+                            monthlyContributions[monthIndex].contributions += 1;
+                        }
+                    }
+                });
+                
+                // Process PR timestamps
+                repo.pr_timestamps?.forEach(timestamp => {
+                    const date = new Date(timestamp);
+                    if (date.getFullYear() === currentYear) {
+                        const monthIndex = date.getMonth();
+                        if (monthIndex <= currentMonth) {
+                            monthlyContributions[monthIndex].contributions += 1;
+                        }
+                    }
+                });
+            });
+        });
+        
+        return monthlyContributions;
+    }, [contributorsData]);
+
+    // Generate monthly contributor growth data
+    const contributorsGrowthData = useMemo(() => {
+        if (!contributorsData?.contributors) return [];
+        
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        // Calculate cumulative contributors per month (including previously existing ones)
+        const monthlyGrowth = months.slice(0, currentMonth + 1).map((month, index) => {
+            const activeContributors = new Set<string>();
+            
+            contributorsData.contributors.forEach(contributor => {
+                let hasContributedByThisMonth = false;
+                
+                contributor.repositories.forEach(repo => {
+                    // Check commit timestamps up to this month
+                    repo.commit_timestamps?.forEach(timestamp => {
+                        const date = new Date(timestamp);
+                        // Include contributions from any year, but only up to the current month in current year
+                        if (date.getFullYear() < currentYear || 
+                            (date.getFullYear() === currentYear && date.getMonth() <= index)) {
+                            hasContributedByThisMonth = true;
+                        }
+                    });
+                    
+                    // Check PR timestamps up to this month
+                    repo.pr_timestamps?.forEach(timestamp => {
+                        const date = new Date(timestamp);
+                        // Include contributions from any year, but only up to the current month in current year
+                        if (date.getFullYear() < currentYear || 
+                            (date.getFullYear() === currentYear && date.getMonth() <= index)) {
+                            hasContributedByThisMonth = true;
+                        }
+                    });
+                });
+                
+                if (hasContributedByThisMonth) {
+                    activeContributors.add(contributor.login);
+                }
+            });
+            
+            return {
+                month,
+                contributors: activeContributors.size
+            };
+        });
+        
+        return monthlyGrowth;
+    }, [contributorsData]);
 
     // Format the Discord stats for the chart
     const discordStatsData = useMemo(() => {
@@ -375,6 +481,28 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                 </>
             )}
 
+            {packageData.length > 0 && monthlyData.length > 0 && (
+                <>
+                    <div className={styles.chartsGrid}>
+                        <div className={styles.chartSection}>
+                            <h2>Package Downloads (Last 12 Months)</h2>
+                            <div className={styles.chart}>
+                                <CustomBarChart data={packageData} chartId="package" />
+                            </div>
+                        </div>
+
+                        <div className={styles.chartSection}>
+                            <h2>Monthly Downloads ({latestYear})</h2>
+                            <div className={styles.chart}>
+                                <CustomBarChart data={monthlyData} chartId="monthly" />
+                            </div>
+                        </div>
+
+                    </div>
+                </>
+
+            )}
+
             {currentStats?.github && (
                 <div className={styles.githubStats}>
                     <h2>GitHub Usage</h2>
@@ -401,45 +529,45 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
             )}
 
             {packageData.length > 0 && monthlyData.length > 0 && (
-                <>
-                    <div className={styles.chartsGrid}>
-                        <div className={styles.chartSection}>
-                            <h2>Package Downloads (Last 12 Months)</h2>
-                            <div className={styles.chart}>
-                                <CustomBarChart data={packageData} chartId="package" />
-                            </div>
-                        </div>
-
-                        <div className={styles.chartSection}>
-                            <h2>Monthly Downloads ({latestYear})</h2>
-                            <div className={styles.chart}>
-                                <CustomBarChart data={monthlyData} chartId="monthly" />
-                            </div>
-                        </div>
-
+                <div className={styles.chartSection}>
+                    <h2>Repositories that depend on @meshsdk/core ({new Date().getFullYear()})</h2>
+                    <div className={styles.chart}>
+                        <CustomLineChart data={repositoriesData} chartId="repositories" />
                     </div>
-                    <div className={styles.chartSection}>
-                        <h2>Repositories that depend on @meshsdk/core ({new Date().getFullYear()})</h2>
-                        <div className={styles.chart}>
-                            <CustomLineChart data={repositoriesData} chartId="repositories" />
-                        </div>
-                    </div>
-                </>
-
+                </div>
             )}
 
-            {years.length > 0 && (
-                <div className={styles.chartSection}>
-                    <h2>Yearly Comparison</h2>
-                    <div className={styles.yearGrid}>
-                        {years.map(year => (
-                            <div key={year} className={styles.year}>
-                                <h3>{year}</h3>
-                                <p>Total Core Downloads: {formatNumber(yearlyStats[year].yearlyTotals.core)}</p>
-                                <p>Peak Month: {yearlyStats[year].peakMonth.name} ({formatNumber(yearlyStats[year].peakMonth.downloads)})</p>
+            {(contributionsData.length > 0 || contributorsGrowthData.length > 0) && (
+                <div className={styles.chartsGrid}>
+                    {contributionsData.length > 0 && (
+                        <div className={styles.chartSection}>
+                            <h2>Monthly Contributions ({new Date().getFullYear()})</h2>
+                            <div className={styles.chart}>
+                                <CustomLineChart 
+                                    data={contributionsData.map(item => ({ 
+                                        month: item.month, 
+                                        repositories: item.contributions 
+                                    }))} 
+                                    chartId="contributions" 
+                                />
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    )}
+                    
+                    {contributorsGrowthData.length > 0 && (
+                        <div className={styles.chartSection}>
+                            <h2>Contributors Growth ({new Date().getFullYear()})</h2>
+                            <div className={styles.chart}>
+                                <CustomLineChart 
+                                    data={contributorsGrowthData.map(item => ({ 
+                                        month: item.month, 
+                                        repositories: item.contributors 
+                                    }))} 
+                                    chartId="contributors" 
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -473,7 +601,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                                     chartId="discord-posters"
                                     dataKey="uniquePosters"
                                     name="Unique Posters"
-                                    stroke="#43B581"
+                                    stroke="#FFFFFF"
                                 />
                             </div>
                         </div>
@@ -500,7 +628,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                                 chartId="discord-members"
                                 dataKey="memberCount"
                                 name="Members"
-                                stroke="#7289DA"
+                                stroke="#FFFFFF"
                                 yAxisDomain={[memberCountMin, 'auto']}
                             />
                         </div>

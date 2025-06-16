@@ -42,11 +42,11 @@ const REPO_COLORS: { [key: string]: number } = {
 // Default hue for unknown repositories
 const DEFAULT_HUE = 100;
 
-// Use the same teal gradient as the main donut charts
+// Use white gradient for the donut charts
 const GRADIENT_STOPS = [
-    { stop: 0, color: '#38E8E1' },   // Teal
-    { stop: 0.4, color: '#14B8A6' }, // Deep teal
-    { stop: 0.8, color: '#084A43' }, // Very dark teal
+    { stop: 0, color: '#FFFFFF' },   // White
+    { stop: 0.4, color: '#E6E6E6' }, // Light gray
+    { stop: 0.8, color: '#CCCCCC' }, // Medium gray
     { stop: 1, color: '#000' }       // Black
 ];
 
@@ -56,7 +56,7 @@ function getCanvasGradient(ctx: CanvasRenderingContext2D, width: number, height:
     GRADIENT_STOPS.forEach(({ stop, color }) => grad.addColorStop(stop, color));
     return grad;
 }
-const LEGEND_GRADIENT = `linear-gradient(135deg, #38E8E1 0%, #14B8A6 40%, #084A43 80%, #000 100%)`;
+const LEGEND_GRADIENT = `linear-gradient(135deg, #FFFFFF 0%, #E6E6E6 40%, #CCCCCC 80%, #000 100%)`;
 
 const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
