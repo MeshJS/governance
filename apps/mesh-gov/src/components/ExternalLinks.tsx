@@ -16,7 +16,7 @@ export function ExternalLinks({ projectLink, milestonesLink }: Props) {
                     rel="noopener noreferrer"
                     className={styles.link}
                 >
-                    View Full Project Details →
+                    View full Proposal on Catalyst Website →
                 </a>
                 <a 
                     href={milestonesLink}
@@ -24,7 +24,7 @@ export function ExternalLinks({ projectLink, milestonesLink }: Props) {
                     rel="noopener noreferrer"
                     className={styles.link}
                 >
-                    View on Project Catalyst →
+                    View Milestones on Catalyst Platform →
                 </a>
             </div>
         </div>

@@ -1,5 +1,7 @@
-import { ProposalDetails as ProposalDetailsType } from '../utils/proposals';
+import { useState } from 'react';
+import { ProposalDetails as ProposalDetailsType, PROPOSAL_OBJECTIVES } from '../utils/proposals';
 import styles from './ProposalDetails.module.css';
+import { ProposalFullContentModal } from './ProposalFullContentModal';
 
 interface Props {
     details: ProposalDetailsType;
@@ -11,8 +13,8 @@ interface Props {
     totalMilestones: number;
 }
 
-const formatAda = (amount: number): string => {
-    return new Intl.NumberFormat('en-US').format(amount);
+const formatAda = (num: number): string => {
+    return new Intl.NumberFormat('en-US').format(num);
 };
 
 export function ProposalDetails({ 
@@ -24,13 +26,26 @@ export function ProposalDetails({
     milestonesCompleted,
     totalMilestones
 }: Props) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const objective = PROPOSAL_OBJECTIVES[details.projectId];
+
     return (
         <div className={styles.proposalDetails}>
             <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>About this Proposal</h2>
-                <div className={styles.fundingCategory}>
-                    <span className={styles.label}>Category:</span>
-                    <span className={styles.value}>{details.fundingCategory}</span>
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>About this Proposal</h2>
+                    <div className={styles.projectId}>
+                        Project ID: {details.projectId}
+                    </div>
+                </div>
+
+                <div className={styles.statusAndCategory}>
+                    <div className={`${styles.status} ${styles[details.status.toLowerCase().replace(' ', '')]}`}>
+                        {details.status}
+                    </div>
+                    <div className={styles.categoryTag}>
+                        {details.fundingCategory}
+                    </div>
                 </div>
 
                 <div className={styles.statsGrid}>
@@ -60,6 +75,23 @@ export function ProposalDetails({
                 )}
             </div>
 
+            {objective && (
+                <div className={styles.section}>
+                    <div className={styles.objectiveHeader}>
+                        <h2 className={styles.sectionTitle}>Objective</h2>
+                        <button 
+                            className={styles.readFullProposalButton}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Read Full Proposal
+                        </button>
+                    </div>
+                    <div className={styles.objectiveContent}>
+                        <p>{objective}</p>
+                    </div>
+                </div>
+            )}
+
             {details.description && (
                 <div className={styles.section}>
                     <h2 className={styles.sectionTitle}>Description</h2>
@@ -68,6 +100,12 @@ export function ProposalDetails({
                     </div>
                 </div>
             )}
+
+            <ProposalFullContentModal 
+                projectId={details.projectId}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
         </div>
     );
 } 

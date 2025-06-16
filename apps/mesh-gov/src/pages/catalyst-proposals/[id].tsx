@@ -5,7 +5,6 @@ import PageHeader from '../../components/PageHeader';
 import { useEffect, useState } from 'react';
 import { CatalystProject } from '../../types';
 import Link from 'next/link';
-import { MilestoneList } from '../../components/MilestoneList';
 import { MilestoneData } from '../../utils/milestones';
 import { ProposalDetails } from '../../components/ProposalDetails';
 import { ExternalLinks } from '../../components/ExternalLinks';
@@ -97,15 +96,6 @@ export default function ProposalDetail() {
 
             <div className={styles.content}>
                 <div className={styles.mainInfo}>
-                    <div className={styles.statusBar}>
-                        <span className={`${styles.status} ${styles[proposal.projectDetails.status.toLowerCase().replace(' ', '')]}`}>
-                            {proposal.projectDetails.status}
-                        </span>
-                        <div className={styles.projectId}>
-                            Project ID: {proposal.projectDetails.project_id}
-                        </div>
-                    </div>
-
                     {proposal && (
                         <ProposalDetails 
                             details={{
@@ -169,10 +159,6 @@ export default function ProposalDetail() {
                                 projectTitle={proposal.projectDetails.title}
                                 fundingRound={getFundingRound(proposal.projectDetails.category)}
                                 totalMilestones={proposal.projectDetails.milestones_qty}
-                            />
-                            <MilestoneList 
-                                milestones={milestones} 
-                                completedCount={proposal.milestonesCompleted} 
                             />
                         </>
                     ) : (

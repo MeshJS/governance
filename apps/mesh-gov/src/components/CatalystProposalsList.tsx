@@ -67,9 +67,6 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                         return (
                             <a
                                 key={project.projectDetails.id}
-                                href={`https://milestones.projectcatalyst.io/projects/${project.projectDetails.project_id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 className={styles.milestoneRow}
                                 onClick={() => handleCardClick(project.projectDetails.project_id)}
                                 style={{ cursor: 'pointer' }}
@@ -180,24 +177,15 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                                 </div>
 
                                 <div className={styles.cardActions}>
-                                    <a
-                                        href={`https://milestones.projectcatalyst.io/projects/${project.projectDetails.project_id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
                                         className={styles.actionButton}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        View Milestones
-                                    </a>
-                                    <a
-                                        href={`https://projectcatalyst.io/funds/13/${formatTitleForUrl(project.projectDetails.category)}/${formatTitleForUrl(project.projectDetails.title)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={styles.actionButton}
-                                        onClick={(e) => e.stopPropagation()}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleCardClick(project.projectDetails.project_id);
+                                        }}
                                     >
                                         View Details
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </li>

@@ -1,12 +1,12 @@
+import { useState } from 'react';
 import styles from './MilestoneProgressBars.module.css';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import type { Components } from 'react-markdown';
+import { MilestoneData } from '../utils/milestones';
 
 interface Props {
-    milestones: {
-        number: number;
-        budget: string;
-        delivered: string;
-        isCloseOut?: boolean;
-    }[];
+    milestones: MilestoneData[];
     completedCount: number;
     projectTitle: string;
     fundingRound: string;
@@ -14,6 +14,8 @@ interface Props {
 }
 
 export function MilestoneProgressBars({ milestones, completedCount, projectTitle, fundingRound, totalMilestones }: Props) {
+    const [expandedMilestone, setExpandedMilestone] = useState<number | null>(null);
+
     // Create an array of all milestone numbers
     const allMilestoneNumbers = Array.from({ length: totalMilestones }, (_, i) => i + 1);
 
@@ -22,6 +24,19 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
 
     // Sort milestones by number, putting close-out report at the end
     const closeOutReport = milestones.find(m => m.isCloseOut);
+
+    const markdownComponents: Components = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        a: ({ children, ...props }: any) => (
+            <a 
+                {...props} 
+                target="_blank" 
+                rel="noopener noreferrer"
+            >
+                {children}
+            </a>
+        )
+    };
 
     return (
         <div className={styles.milestoneOverview}>
@@ -42,10 +57,13 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                         {allMilestoneNumbers.map((number) => {
                             const milestone = milestoneMap.get(number);
                             const isCompleted = number <= completedCount;
+                            const isExpanded = expandedMilestone === number;
+
                             return (
                                 <div 
                                     key={number} 
-                                    className={`${styles.milestoneBarItem} ${isCompleted ? styles.completed : ''}`}
+                                    className={`${styles.milestoneBarItem} ${isCompleted ? styles.completed : ''} ${isExpanded ? styles.expanded : ''}`}
+                                    onClick={() => setExpandedMilestone(isExpanded ? null : number)}
                                 >
                                     <div className={styles.milestoneBarHeader}>
                                         <span className={styles.milestoneBarTitle}>
@@ -61,6 +79,24 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                                 Delivered: {milestone.delivered}
                                             </span>
                                         )}
+                                        <button 
+                                            className={`${styles.expandButton} ${isExpanded ? styles.expanded : ''}`}
+                                            aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setExpandedMilestone(isExpanded ? null : number);
+                                            }}
+                                        >
+                                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                                <path 
+                                                    fill="currentColor" 
+                                                    d={isExpanded 
+                                                        ? "M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"
+                                                        : "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"
+                                                    }
+                                                />
+                                            </svg>
+                                        </button>
                                     </div>
                                     <div className={styles.milestoneProgressBar}>
                                         <div
@@ -73,6 +109,34 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                             }}
                                         />
                                     </div>
+                                    {isExpanded && milestone && (
+                                        <div className={styles.milestoneContent}>
+                                            {milestone.challenge && (
+                                                <div className={styles.challenge}>
+                                                    <strong>Challenge:</strong> {milestone.challenge}
+                                                </div>
+                                            )}
+                                            <div className={styles.description}>
+                                                <ReactMarkdown 
+                                                    remarkPlugins={[remarkGfm]}
+                                                    components={markdownComponents}
+                                                >
+                                                    {milestone.content}
+                                                </ReactMarkdown>
+                                            </div>
+                                            {milestone.link && (
+                                                <a 
+                                                    href={milestone.link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={styles.link}
+                                                    onClick={e => e.stopPropagation()}
+                                                >
+                                                    View on Project Catalyst →
+                                                </a>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
@@ -80,7 +144,8 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                         {closeOutReport && (
                             <div 
                                 key="close-out" 
-                                className={`${styles.milestoneBarItem} ${styles.closeOut} ${completedCount >= totalMilestones ? styles.completed : ''}`}
+                                className={`${styles.milestoneBarItem} ${styles.closeOut} ${completedCount >= totalMilestones ? styles.completed : ''} ${expandedMilestone === -1 ? styles.expanded : ''}`}
+                                onClick={() => setExpandedMilestone(expandedMilestone === -1 ? null : -1)}
                             >
                                 <div className={styles.milestoneBarHeader}>
                                     <span className={styles.milestoneBarTitle}>
@@ -92,6 +157,24 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                     <span className={styles.milestoneBarDelivered}>
                                         Delivered: {closeOutReport.delivered}
                                     </span>
+                                    <button 
+                                        className={`${styles.expandButton} ${expandedMilestone === -1 ? styles.expanded : ''}`}
+                                        aria-label={expandedMilestone === -1 ? 'Collapse details' : 'Expand details'}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setExpandedMilestone(expandedMilestone === -1 ? null : -1);
+                                        }}
+                                    >
+                                        <svg viewBox="0 0 24 24" width="24" height="24">
+                                            <path 
+                                                fill="currentColor" 
+                                                d={expandedMilestone === -1
+                                                    ? "M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"
+                                                    : "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"
+                                                }
+                                            />
+                                        </svg>
+                                    </button>
                                 </div>
                                 <div className={styles.milestoneProgressBar}>
                                     <div
@@ -104,6 +187,34 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                         }}
                                     />
                                 </div>
+                                {expandedMilestone === -1 && (
+                                    <div className={styles.milestoneContent}>
+                                        {closeOutReport.challenge && (
+                                            <div className={styles.challenge}>
+                                                <strong>Challenge:</strong> {closeOutReport.challenge}
+                                            </div>
+                                        )}
+                                        <div className={styles.description}>
+                                            <ReactMarkdown 
+                                                remarkPlugins={[remarkGfm]}
+                                                components={markdownComponents}
+                                            >
+                                                {closeOutReport.content}
+                                            </ReactMarkdown>
+                                        </div>
+                                        {closeOutReport.link && (
+                                            <a 
+                                                href={closeOutReport.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={styles.link}
+                                                onClick={e => e.stopPropagation()}
+                                            >
+                                                View on Project Catalyst →
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
