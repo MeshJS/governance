@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import styles from '../styles/Proposals.module.css';
 import { CatalystData } from '../types';
+import { useRouter } from 'next/router';
 
 // Simple number formatting function that doesn't rely on locale settings
 const formatNumber = (num: number): string => {
@@ -13,10 +14,8 @@ const formatAda = (amount: number): string => {
 };
 
 // Calculate progress percentage safely
-const calculateProgress = (completed: number | undefined, total: number): number => {
-    if (completed === undefined || total === 0) {
-        return 0;
-    }
+const calculateProgress = (completed: number, total: number): number => {
+    if (!total) return 0;
     return Math.round((completed / total) * 100);
 };
 
@@ -24,24 +23,22 @@ const calculateProgress = (completed: number | undefined, total: number): number
 const formatTitleForUrl = (title: string): string => {
     return title
         .toLowerCase()
-        .replace(/&/g, 'and') // Replace & with 'and'
-        .replace(/,/g, '') // Remove commas
-        .replace(/[^\w\s-]/g, '') // Remove other special characters
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-'); // Replace multiple hyphens with single hyphen
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 };
 
 // Get funding round from category (first 3 characters)
 const getFundingRound = (category: string): string => {
-    return category.trim().substring(0, 3);
+    const match = category.match(/Fund \d+/i);
+    return match ? match[0] : category;
 };
 
 interface CatalystProposalsListProps {
     data: CatalystData;
-    onRowClick?: (projectId: number) => void;
 }
 
-const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClick }) => {
+const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
+    const router = useRouter();
 
     // Format the timestamp consistently using UTC to avoid timezone issues
     const formatDate = (timestamp: string): string => {
@@ -56,6 +53,10 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClic
         return `${month}/${day}/${year}, ${hours}:${minutes} ${ampm} UTC`;
     };
 
+    const handleCardClick = (projectId: number) => {
+        router.push(`/catalyst-proposals/${projectId}`);
+    };
+
     return (
         <>
             <div className={styles.milestoneOverview}>
@@ -66,10 +67,9 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClic
                         return (
                             <a
                                 key={project.projectDetails.id}
-                                href={`https://milestones.projectcatalyst.io/projects/${project.projectDetails.project_id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 className={styles.milestoneRow}
+                                onClick={() => handleCardClick(project.projectDetails.project_id)}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <div className={styles.milestoneInfo}>
                                     <div className={styles.milestoneTitle}>
@@ -101,20 +101,14 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClic
 
             <ul className={styles.list}>
                 {data.projects.map((project) => {
-                    // Calculate progress safely
                     const progressPercent = calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty);
-
-                    // Format category for URL
-                    const formattedCategory = formatTitleForUrl(project.projectDetails.category);
-                    // Format title for URL
-                    const formattedTitle = formatTitleForUrl(project.projectDetails.title);
 
                     return (
                         <li
                             key={project.projectDetails.id}
-                            className={`${styles.card} ${onRowClick ? styles.clickable : ''}`}
+                            className={`${styles.card} ${styles.clickable}`}
                             data-testid="proposal-item"
-                            onClick={() => onRowClick && onRowClick(project.projectDetails.project_id)}
+                            onClick={() => handleCardClick(project.projectDetails.project_id)}
                         >
                             <div className={styles.cardInner}>
                                 <div className={styles.cardHeader}>
@@ -183,24 +177,15 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data, onRowClic
                                 </div>
 
                                 <div className={styles.cardActions}>
-                                    <a
-                                        href={`https://milestones.projectcatalyst.io/projects/${project.projectDetails.project_id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
                                         className={styles.actionButton}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        View Milestones
-                                    </a>
-                                    <a
-                                        href={`https://projectcatalyst.io/funds/13/${formattedCategory}/${formattedTitle}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={styles.actionButton}
-                                        onClick={(e) => e.stopPropagation()}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleCardClick(project.projectDetails.project_id);
+                                        }}
                                     >
                                         View Details
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </li>

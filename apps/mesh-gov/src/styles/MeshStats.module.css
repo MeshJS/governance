@@ -30,10 +30,15 @@
 }
 
 .stat {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 1rem;
-    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.75rem;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -41,7 +46,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 100px;
+    min-height: 120px;
 }
 
 .stat::before {
@@ -60,10 +65,10 @@
 }
 
 .stat:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow:
-        0 4px 24px -1px rgba(0, 0, 0, 0.2),
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 8px 32px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
 
@@ -79,18 +84,27 @@
 .stat h3 {
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.7);
     margin: 0 0 0.75rem 0;
-    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stat p {
-    font-size: 1.5rem;
+    font-size: 2.25rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.85) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin: 0;
     line-height: 1.2;
     word-break: break-word;
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
 }
 
 .githubStats,
@@ -112,9 +126,28 @@
 
 .chartSection h2 {
     font-size: 1.125rem;
-    font-weight: 600;
-    color: #fff;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
     margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+    transition: color 0.3s ease;
+}
+
+.chartSection:hover h2 {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.githubStats h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+    transition: color 0.3s ease;
+}
+
+.githubStats:hover h2 {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .chartsGrid {
@@ -133,6 +166,9 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    animation: chartFadeIn 0.6s ease-out;
+    opacity: 0;
+    animation-fill-mode: forwards;
 }
 
 .chart:hover {
@@ -168,10 +204,16 @@
 }
 
 .chartTitle {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
     margin-bottom: 2rem;
+    letter-spacing: 0.02em;
+    transition: color 0.3s ease;
+}
+
+.chart:hover .chartTitle {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .chartSection {
@@ -249,12 +291,12 @@
     }
 
     .stat {
-        padding: 1.25rem;
-        min-height: 90px;
+        padding: 1.5rem;
+        min-height: 110px;
     }
 
     .stat p {
-        font-size: 1.25rem;
+        font-size: 1.75rem;
     }
 
     .chart {
@@ -293,12 +335,12 @@
     }
 
     .stat {
-        padding: 1rem;
-        min-height: 80px;
+        padding: 1.25rem;
+        min-height: 100px;
     }
 
     .stat p {
-        font-size: 1.125rem;
+        font-size: 1.5rem;
     }
 }
 
@@ -361,16 +403,128 @@
     margin: 0;
 }
 
-.chart :global(.recharts-bar-rectangles) path {
-    fill: #FFFFFF !important;
-    opacity: 0.8;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+.chart :global(.recharts-line-curve) {
+    stroke-width: 1.5px;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: lineGlow 3s ease-in-out infinite;
+    animation-delay: 0.6s;
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    animation: lineGlow 3s ease-in-out infinite, drawLine 1.5s ease-out forwards;
 }
 
-.chart :global(.recharts-bar-rectangles) path:hover {
-    opacity: 1;
-    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+.chart:hover :global(.recharts-line-curve) {
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
+    stroke-width: 2px;
+}
+
+.chart :global(.recharts-line-dots circle) {
+    fill: #FFFFFF;
+    stroke: rgba(0, 0, 0, 0.3);
+    stroke-width: 1.5px;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+    transition: all 0.3s ease;
+    r: 3;
+    opacity: 0;
+    animation: dotsFadeIn 0.3s ease-out forwards;
+    animation-delay: 1s;
+}
+
+.chart :global(.recharts-line-dots circle:hover) {
+    r: 4;
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+@keyframes lineGlow {
+    0% {
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
+    }
+    100% {
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    }
+}
+
+.chart :global(.recharts-bar-rectangles) path {
+    fill: #FFFFFF !important;
+    opacity: 0;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+    animation: barFadeIn 0.5s ease-out forwards;
+    animation-delay: 0.3s;
+    transform-origin: bottom;
+}
+
+@keyframes barFadeIn {
+    0% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+    100% {
+        opacity: 0.8;
+        transform: scaleY(1);
+    }
+}
+
+.chart :global(.recharts-cartesian-axis-line),
+.chart :global(.recharts-cartesian-axis-tick-line) {
+    stroke: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    animation: gridFadeIn 0.3s ease-out forwards;
+}
+
+.chart :global(.recharts-cartesian-grid-horizontal) line,
+.chart :global(.recharts-cartesian-grid-vertical) line {
+    stroke: rgba(255, 255, 255, 0.05);
+}
+
+.chart :global(.recharts-text) {
+    fill: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+    opacity: 0;
+    animation: textFadeIn 0.3s ease-out forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes drawLine {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes dotsFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes gridFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes textFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .statsGrid {
@@ -433,4 +587,15 @@
     font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
     margin: 0;
+}
+
+@keyframes chartFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

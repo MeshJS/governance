@@ -8,6 +8,8 @@ import VotingDonutChart from '../components/VotingDonutChart';
 import DelegationGrowthChart from '../components/DelegationGrowthChart';
 import VotingTypeDonut from '../components/VotingTypeDonut';
 import VotingParticipationDonut from '../components/VotingParticipationDonut';
+import DRepMetricsSection from '../components/DRepMetricsSection';
+import DRepImageSection from '../components/DRepImageSection';
 import { CopyIcon } from '../components/Icons';
 
 interface VoteData {
@@ -33,6 +35,25 @@ export default function DRepVoting() {
     const [copied, setCopied] = useState(false);
 
     const votes = drepVotingData?.votes || [];
+
+    // Calculate metrics for the overview section
+    const drepMetrics = useMemo(() => {
+        const delegationData = drepVotingData?.delegationData?.timeline;
+        const totalDelegators = delegationData?.total_delegators || 0;
+        const totalAdaDelegated = delegationData?.total_amount_ada || 0;
+        const totalVotedProposals = votes.length;
+        
+        // For voting participation, we'll show 100% since we only have data for voted proposals
+        // In a real scenario, this would be calculated against total available proposals
+        const votingParticipationRate = totalVotedProposals > 0 ? 100 : 0;
+
+        return {
+            totalDelegators,
+            totalAdaDelegated,
+            totalVotedProposals,
+            votingParticipationRate
+        };
+    }, [drepVotingData, votes.length]);
 
     // Process delegation data for the growth chart
     const delegationTimelineData = useMemo(() => {
@@ -122,7 +143,7 @@ export default function DRepVoting() {
     // Handle row click
     const handleRowClick = (proposalId: string) => {
         const now = Date.now();
-        if (now - lastNavigationTime < 1000) return; // Prevent clicks within 1 second
+        if (now - lastNavigationTime < 1000) return; 
 
         router.push(`/drep-voting/${proposalId}`);
         setLastNavigationTime(now);
@@ -131,7 +152,7 @@ export default function DRepVoting() {
     const handleCopyDrepId = () => {
         navigator.clipboard.writeText('drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3');
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+        setTimeout(() => setCopied(false), 2000); 
     };
 
     if (isLoading) {
@@ -155,6 +176,15 @@ export default function DRepVoting() {
             <PageHeader
                 title="Mesh DRep Dashboard"
                 subtitle="Overview and Insights on Mesh DRep voting activities at Cardano onchain Governance"
+            />
+
+            <DRepImageSection />
+
+            <DRepMetricsSection
+                totalDelegators={drepMetrics.totalDelegators}
+                totalAdaDelegated={drepMetrics.totalAdaDelegated}
+                totalVotedProposals={drepMetrics.totalVotedProposals}
+                votingParticipationRate={drepMetrics.votingParticipationRate}
             />
 
             <div className={styles.bioSection}>

@@ -249,4 +249,5 @@ export interface MeshStatsViewProps {
     filteredStats?: FilteredStats;
     discordStats?: DiscordStats;
     contributorsData?: ContributorsData;
+    contributorStats?: Record<number, ContributorStats>;
 } 

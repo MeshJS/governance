@@ -1,3 +1,11 @@
+|Project ID|1200147|
+|-----------|-------------|
+|Link|[Open full project](https://projectcatalyst.io/funds/12/f12-cardano-open-developers/mesh-new-features-to-improve-developer-experience-and-cardano-adoption)|
+|Milestone|[Milestone 3](https://milestones.projectcatalyst.io/projects/1200147/milestones/3)
+|Challenge|F12: Cardano Open: Developers|
+|Milestone Budget|ADA 30,000.00|
+|Milestone Delivered|November 30, 2024|
+
 # Milestone 3 Report
 
 Hey there Milestone reviewers, voters and everyone following our proposal progress.

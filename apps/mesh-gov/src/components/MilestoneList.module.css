@@ -1,0 +1,335 @@
+.milestoneList {
+    margin-top: 2rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.25rem;
+}
+
+.milestone {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    height: fit-content;
+    position: relative;
+    overflow: hidden;
+}
+
+.milestone:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.milestone.completed {
+    border-color: rgba(56, 232, 225, 0.2);
+    background: linear-gradient(
+        135deg,
+        rgba(56, 232, 225, 0.03) 0%,
+        rgba(255, 255, 255, 0.03) 100%
+    );
+}
+
+.milestone.completed:hover {
+    border-color: rgba(56, 232, 225, 0.3);
+    background: linear-gradient(
+        135deg,
+        rgba(56, 232, 225, 0.05) 0%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+}
+
+.milestone.closeOut {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(56, 232, 225, 0.03) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.milestone.expanded {
+    grid-column: 1 / -1;
+    transform: none;
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.5rem;
+    gap: 1rem;
+}
+
+.milestoneInfo {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.number {
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 1rem;
+}
+
+.completed .circle {
+    background: rgba(56, 232, 225, 0.1);
+    border-color: rgba(56, 232, 225, 0.3);
+    color: rgba(56, 232, 225, 0.9);
+}
+
+.closeOut .circle {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(56, 232, 225, 0.1) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 1);
+}
+
+.details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.details h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.4;
+}
+
+.metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.metadata > span {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.metadata > span:not(:last-child)::after {
+    content: "•";
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.expandButton {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin: -0.5rem;
+    border-radius: 8px;
+}
+
+.expandButton:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.expandButton.expanded {
+    transform: rotate(180deg);
+}
+
+.content {
+    padding: 0 1.5rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 0.5rem;
+    padding-top: 1.5rem;
+}
+
+.challenge {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.description {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.description :global(h1),
+.description :global(h2),
+.description :global(h3),
+.description :global(h4),
+.description :global(h5),
+.description :global(h6) {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 1.5rem 0 1rem;
+    font-weight: 600;
+}
+
+.description :global(h1) {
+    font-size: 1.5rem;
+}
+
+.description :global(h2) {
+    font-size: 1.3rem;
+}
+
+.description :global(h3) {
+    font-size: 1.1rem;
+}
+
+.description :global(p) {
+    margin: 1rem 0;
+}
+
+.description :global(ul),
+.description :global(ol) {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.description :global(li) {
+    margin: 0.5rem 0;
+}
+
+.description :global(a) {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+.description :global(a:hover) {
+    color: #fff;
+    text-decoration-color: rgba(255, 255, 255, 0.6);
+}
+
+.description :global(code) {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.description :global(pre) {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.description :global(pre code) {
+    background: none;
+    padding: 0;
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.description :global(blockquote) {
+    border-left: 3px solid rgba(255, 255, 255, 0.2);
+    margin: 1rem 0;
+    padding-left: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.description :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.description :global(th),
+.description :global(td) {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.description :global(th) {
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+}
+
+.description :global(tr:nth-child(even)) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.description :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.description :global(hr) {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 2rem 0;
+}
+
+.link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-top: 1rem;
+}
+
+.link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .milestone {
+        margin-bottom: 1rem;
+    }
+} 

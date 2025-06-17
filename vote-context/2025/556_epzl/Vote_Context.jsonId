@@ -50,7 +50,24 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following on the governace action: 2025 Cardano Blockchain Ecosystem Budget - 7.5M ₳ for community builders: 
+
+Yes: 6 votes 
+No: 1 votes 
+Abstain: 0 votes
+
+Therefore, we support the proposal.
+
+Rationale:
+
+We see the proposal as a serious effort from cardano builders to enable funds for important development which further improves the Cardano ecosystem.
+
+While we generally act careful with package proposals like this, which include multiple projects and funding allocations under one proposal, we think that the total of 7 projects within this package have a high likelyhood of a successful execution. Most teams in this proposal have a strong track record and have proven to have all required skills and expertise to ensure a successful implementation.
+
+That being sad, we still have some doubts on the administrations of the proposal and hope that the effectivity and efficiency wont be impacted by too much bureaucratic overhead which naturally comes with large collaborative proposals. 
+
+If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep
+More about our DRep at: https://gov.meshjs.dev/drep-voting"
   },
   "hashAlgorithm": "blake2b-256"
 }

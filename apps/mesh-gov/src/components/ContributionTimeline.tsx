@@ -46,12 +46,22 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
     return (
         <ResponsiveContainer width="100%" height={height}>
             <LineChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
                 <Line
                     type="monotone"
                     dataKey="total"
-                    stroke="#8884d8"
-                    strokeWidth={2}
+                    stroke="#FFFFFF"
+                    strokeWidth={1.5}
                     dot={false}
+                    filter="url(#glow)"
                 />
                 <Tooltip
                     content={({ active, payload }) => {
@@ -70,9 +80,9 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
                                     fontFamily: 'system-ui, -apple-system, sans-serif'
                                 }}>
                                     <p style={{ margin: '0 0 8px 0', color: 'rgba(255, 255, 255, 0.7)' }}>Date: {data.date}</p>
-                                    <p style={{ margin: '0 0 4px 0' }}>Commits: <span style={{ color: '#8884d8' }}>{data.commits}</span></p>
-                                    <p style={{ margin: '0 0 4px 0' }}>PRs: <span style={{ color: '#8884d8' }}>{data.prs}</span></p>
-                                    <p style={{ margin: '0', fontWeight: '600' }}>Total: <span style={{ color: '#8884d8' }}>{data.total}</span></p>
+                                    <p style={{ margin: '0 0 4px 0' }}>Commits: <span style={{ color: '#FFFFFF' }}>{data.commits}</span></p>
+                                    <p style={{ margin: '0 0 4px 0' }}>PRs: <span style={{ color: '#FFFFFF' }}>{data.prs}</span></p>
+                                    <p style={{ margin: '0', fontWeight: '600' }}>Total: <span style={{ color: '#FFFFFF' }}>{data.total}</span></p>
                                 </div>
                             );
                         }

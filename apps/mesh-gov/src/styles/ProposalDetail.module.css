@@ -1,0 +1,266 @@
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+    transition: all 0.2s ease;
+}
+
+.backLink:hover {
+    color: rgba(255, 255, 255, 0.9);
+    transform: translateX(-4px);
+}
+
+.content {
+    margin-top: 2rem;
+}
+
+.mainInfo {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.statusBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.status {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.completed {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.inprogress {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.pending {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.projectId {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.statCard {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.statCard h3 {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-weight: 500;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+.milestoneProgress {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.milestoneHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.milestoneHeader h3 {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    font-weight: 500;
+}
+
+.milestoneCount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.externalLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.externalLink:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.error {
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    color: rgba(255, 59, 48, 0.9);
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.retryButton {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.retryButton:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.noMilestones {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .mainInfo {
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .statCard {
+        padding: 0.875rem;
+    }
+
+    .statValue {
+        font-size: 1.25rem;
+    }
+
+    .milestoneProgress {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0.75rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .links {
+        flex-direction: column;
+    }
+
+    .externalLink {
+        width: 100%;
+        justify-content: center;
+    }
+} 

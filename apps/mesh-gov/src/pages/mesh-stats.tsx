@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import PageHeader from '../components/PageHeader';
 
 export default function MeshStatsPage() {
-    const { meshData, discordStats, contributorsData, isLoading, error } = useData();
+    const { meshData, discordStats, contributorsData, contributorStats, isLoading, error } = useData();
 
     // Create package data array for the filter generator
     const packageData = useMemo(() => {
@@ -70,6 +70,7 @@ export default function MeshStatsPage() {
                 yearlyStats={meshData.yearlyStats}
                 discordStats={discordStats || undefined}
                 contributorsData={contributorsData?.unique_count ? contributorsData : undefined}
+                contributorStats={contributorStats || undefined}
             />
         </div>
     );

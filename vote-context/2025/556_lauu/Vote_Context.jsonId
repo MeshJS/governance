@@ -50,7 +50,20 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep Collective have voted as following on the info action Cardano Treasury DeFi Liquidity Budget : 
+Yes: 0 votes 
+No: 4 votes 
+Abstain: 1 vote
+
+Therefore, we will not support the Proposal in its current form.
+
+Our rationale:
+We are actually not forcefully against the proposal itself but can not support the proposal since it does not provide the correct onchain data, the stored data from the proposer does not matches anymore the data at the time the proposal was initially created, hence why many explorers are not able to display content correctly, leading to quite some confusion for DReps. 
+
+We encourage the proposer to resubmit the proposal with the correct data.
+
+If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep
+More about our DRep at: https://gov.meshjs.dev/drep-voting"
   },
   "hashAlgorithm": "blake2b-256"
 }

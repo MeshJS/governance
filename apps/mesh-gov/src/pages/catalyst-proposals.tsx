@@ -4,12 +4,13 @@ import styles from '../styles/Proposals.module.css';
 import PageHeader from '../components/PageHeader';
 import SearchFilterBar, { SearchFilterConfig } from '../components/SearchFilterBar';
 import { filterProposals, generateCatalystProposalsFilterConfig } from '../config/filterConfig';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { CatalystProject } from '../types';
 import { useRouter } from 'next/router';
 import CatalystMilestonesDonut from '../components/CatalystMilestonesDonut';
 import CatalystBudgetDonut from '../components/CatalystBudgetDonut';
 import VotesDonutChart from '../components/VotesDonutChart';
+import { useScrollRestoration } from '../hooks/useScrollRestoration';
 
 // Simple number formatting function that doesn't rely on locale settings
 const formatNumber = (num: number): string => {
@@ -21,25 +22,78 @@ const formatAda = (amount: number): string => {
     return `₳ ${formatNumber(amount)}`;
 };
 
+// Store scroll position in sessionStorage to persist across page navigations
+const SCROLL_POSITION_KEY = 'catalyst-proposals-scroll';
+
+// Helper functions
+const calculateProgress = (completed: number, total: number): number => {
+    if (!total) return 0;
+    return Math.round((completed / total) * 100);
+};
+
+const getFundingRound = (category: string): string => {
+    const match = category.match(/Fund \d+/i);
+    return match ? match[0] : category;
+};
+
+const formatDate = (timestamp: string): string => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
+
 export default function CatalystProposals() {
+    const router = useRouter();
     const { catalystData, isLoading, error } = useData();
     const [filteredProjects, setFilteredProjects] = useState<CatalystProject[]>([]);
     const [isSearching, setIsSearching] = useState<boolean>(false);
-    const router = useRouter();
-    const [lastNavigationTime, setLastNavigationTime] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+    const [filterConfig, setFilterConfig] = useState<SearchFilterConfig>({
+        placeholder: "Search proposals...",
+        filters: []
+    });
+    const shouldRestoreScroll = useRef(false);
+
+    // Enable scroll restoration
+    useScrollRestoration();
+
+    useEffect(() => {
+        // Check if we're returning from a proposal page
+        if (router.asPath === '/catalyst-proposals' && shouldRestoreScroll.current) {
+            const scrollY = sessionStorage.getItem('scrollPosition');
+            if (scrollY) {
+                // Delay the scroll restoration slightly to ensure the page is fully rendered
+                setTimeout(() => {
+                    window.scrollTo(0, parseInt(scrollY));
+                    sessionStorage.removeItem('scrollPosition');
+                }, 100);
+            }
+            shouldRestoreScroll.current = false;
+        }
+    }, [router.asPath]);
+
+    useEffect(() => {
+        if (catalystData?.catalystData) {
+            setFilterConfig(generateCatalystProposalsFilterConfig(catalystData.catalystData.projects));
+        }
+    }, [catalystData]);
+
+    const handleCardClick = (projectId: number) => {
+        // Save the current scroll position
+        sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+        shouldRestoreScroll.current = true;
+        router.push(`/catalyst-proposals/${projectId}`);
+    };
 
     // Get data early to avoid conditional access
     const data = catalystData?.catalystData;
     const allProjects = data?.projects || [];
-
-    // Generate dynamic filter config based on available data
-    const dynamicFilterConfig = useMemo(() => {
-        if (!data) return {
-            placeholder: "Search proposals...",
-            filters: [],
-        } as SearchFilterConfig;
-        return generateCatalystProposalsFilterConfig(data.projects);
-    }, [data]);
 
     // Calculate stats based on all projects
     const stats = useMemo(() => ({
@@ -87,15 +141,6 @@ export default function CatalystProposals() {
         const filtered = filterProposals(allProjects, searchTerm, activeFilters);
         setFilteredProjects(filtered);
     }, [allProjects]);
-
-    // Handle row click
-    const handleRowClick = useCallback((projectId: number) => {
-        const now = Date.now();
-        if (now - lastNavigationTime < 1000) return; // Prevent clicks within 1 second
-
-        router.push(`/catalyst-proposals?search=${projectId}`);
-        setLastNavigationTime(now);
-    }, [router, lastNavigationTime]);
 
     // Handle URL search parameter
     useEffect(() => {
@@ -145,7 +190,7 @@ export default function CatalystProposals() {
             />
 
             <SearchFilterBar
-                config={dynamicFilterConfig}
+                config={filterConfig}
                 onSearch={handleSearch}
                 initialSearchTerm={router.query.search as string}
             />
@@ -174,7 +219,63 @@ export default function CatalystProposals() {
                 </div>
             )}
 
-            <CatalystProposalsList data={displayData} onRowClick={handleRowClick} />
+            <CatalystProposalsList data={displayData} />
+
+            <div className={styles.milestoneOverview}>
+                <h3 className={styles.milestoneOverviewTitle}>Project Milestones Progress</h3>
+                <div className={styles.milestoneGrid}>
+                    {filteredProjects.map((project) => (
+                        <a
+                            key={project.projectDetails.id}
+                            className={styles.milestoneRow}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleCardClick(project.projectDetails.project_id);
+                            }}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <div className={styles.milestoneInfo}>
+                                <div className={styles.milestoneTitle}>
+                                    <span className={styles.fundTag}>{getFundingRound(project.projectDetails.category)}</span>
+                                    <span className={styles.projectTitle}>{project.projectDetails.title}</span>
+                                </div>
+                                <div className={styles.milestoneCount}>
+                                    {project.milestonesCompleted ?? 0}/{project.projectDetails.milestones_qty}
+                                </div>
+                            </div>
+                            <div className={styles.milestoneProgressBar}>
+                                <div
+                                    className={styles.milestoneProgressFill}
+                                    style={{
+                                        width: `${calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty)}%`,
+                                        background: calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty) === 100
+                                            ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.35))'
+                                            : calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty) > 50
+                                                ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
+                                                : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
+                                    }}
+                                />
+                            </div>
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            <ul className={styles.list}>
+                {filteredProjects.map((project) => (
+                    <li
+                        key={project.projectDetails.id}
+                        className={`${styles.card} ${styles.clickable}`}
+                        data-testid="proposal-item"
+                        onClick={() => handleCardClick(project.projectDetails.project_id)}
+                    >
+                        {/* ... existing card content ... */}
+                    </li>
+                ))}
+            </ul>
+            <div className={styles.timestamp}>
+                Last updated: {formatDate(data.timestamp)}
+            </div>
         </div>
     );
 } 
