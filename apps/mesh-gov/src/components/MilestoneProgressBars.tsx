@@ -26,11 +26,10 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
     const closeOutReport = milestones.find(m => m.isCloseOut);
 
     const markdownComponents: Components = {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        a: ({ children, ...props }: any) => (
-            <a 
-                {...props} 
-                target="_blank" 
+        a: ({ node, children, ...props }) => (
+            <a
+                {...props}
+                target="_blank"
                 rel="noopener noreferrer"
             >
                 {children}
@@ -60,8 +59,8 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                             const isExpanded = expandedMilestone === number;
 
                             return (
-                                <div 
-                                    key={number} 
+                                <div
+                                    key={number}
                                     className={`${styles.milestoneBarItem} ${isCompleted ? styles.completed : ''} ${isExpanded ? styles.expanded : ''}`}
                                     onClick={() => setExpandedMilestone(isExpanded ? null : number)}
                                 >
@@ -79,7 +78,7 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                                 Delivered: {milestone.delivered}
                                             </span>
                                         )}
-                                        <button 
+                                        <button
                                             className={`${styles.expandButton} ${isExpanded ? styles.expanded : ''}`}
                                             aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
                                             onClick={(e) => {
@@ -88,9 +87,9 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                             }}
                                         >
                                             <svg viewBox="0 0 24 24" width="24" height="24">
-                                                <path 
-                                                    fill="currentColor" 
-                                                    d={isExpanded 
+                                                <path
+                                                    fill="currentColor"
+                                                    d={isExpanded
                                                         ? "M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"
                                                         : "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"
                                                     }
@@ -117,7 +116,7 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                                 </div>
                                             )}
                                             <div className={styles.description}>
-                                                <ReactMarkdown 
+                                                <ReactMarkdown
                                                     remarkPlugins={[remarkGfm]}
                                                     components={markdownComponents}
                                                 >
@@ -125,7 +124,7 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                                 </ReactMarkdown>
                                             </div>
                                             {milestone.link && (
-                                                <a 
+                                                <a
                                                     href={milestone.link}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
@@ -142,8 +141,8 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                         })}
                         {/* Close-out report if exists */}
                         {closeOutReport && (
-                            <div 
-                                key="close-out" 
+                            <div
+                                key="close-out"
                                 className={`${styles.milestoneBarItem} ${styles.closeOut} ${completedCount >= totalMilestones ? styles.completed : ''} ${expandedMilestone === -1 ? styles.expanded : ''}`}
                                 onClick={() => setExpandedMilestone(expandedMilestone === -1 ? null : -1)}
                             >
@@ -157,7 +156,7 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                     <span className={styles.milestoneBarDelivered}>
                                         Delivered: {closeOutReport.delivered}
                                     </span>
-                                    <button 
+                                    <button
                                         className={`${styles.expandButton} ${expandedMilestone === -1 ? styles.expanded : ''}`}
                                         aria-label={expandedMilestone === -1 ? 'Collapse details' : 'Expand details'}
                                         onClick={(e) => {
@@ -166,8 +165,8 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                         }}
                                     >
                                         <svg viewBox="0 0 24 24" width="24" height="24">
-                                            <path 
-                                                fill="currentColor" 
+                                            <path
+                                                fill="currentColor"
                                                 d={expandedMilestone === -1
                                                     ? "M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"
                                                     : "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"
@@ -195,7 +194,7 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                             </div>
                                         )}
                                         <div className={styles.description}>
-                                            <ReactMarkdown 
+                                            <ReactMarkdown
                                                 remarkPlugins={[remarkGfm]}
                                                 components={markdownComponents}
                                             >
@@ -203,7 +202,7 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                                             </ReactMarkdown>
                                         </div>
                                         {closeOutReport.link && (
-                                            <a 
+                                            <a
                                                 href={closeOutReport.link}
                                                 target="_blank"
                                                 rel="noopener noreferrer"

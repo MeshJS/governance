@@ -4,6 +4,7 @@ import { MilestoneData } from '../utils/milestones';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Components } from 'react-markdown';
+import type { AnchorHTMLAttributes } from 'react';
 
 interface MilestoneListProps {
     milestones: MilestoneData[];
@@ -21,11 +22,10 @@ export function MilestoneList({ milestones, completedCount }: MilestoneListProps
     });
 
     const markdownComponents: Components = {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        a: ({ children, ...props }: any) => (
-            <a 
-                {...props} 
-                target="_blank" 
+        a: ({ children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) => (
+            <a
+                {...props}
+                target="_blank"
                 rel="noopener noreferrer"
             >
                 {children}
@@ -42,7 +42,7 @@ export function MilestoneList({ milestones, completedCount }: MilestoneListProps
                     const isExpanded = expandedMilestone === milestone.number;
 
                     return (
-                        <div 
+                        <div
                             key={milestone.number}
                             className={`${styles.milestone} ${isCompleted ? styles.completed : ''} ${milestone.isCloseOut ? styles.closeOut : ''} ${isExpanded ? styles.expanded : ''}`}
                             onClick={() => setExpandedMilestone(isExpanded ? null : milestone.number)}
@@ -70,14 +70,14 @@ export function MilestoneList({ milestones, completedCount }: MilestoneListProps
                                         </div>
                                     </div>
                                 </div>
-                                <button 
+                                <button
                                     className={`${styles.expandButton} ${isExpanded ? styles.expanded : ''}`}
                                     aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
                                 >
                                     <svg viewBox="0 0 24 24" width="24" height="24">
-                                        <path 
-                                            fill="currentColor" 
-                                            d={isExpanded 
+                                        <path
+                                            fill="currentColor"
+                                            d={isExpanded
                                                 ? "M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"
                                                 : "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"
                                             }
@@ -93,7 +93,7 @@ export function MilestoneList({ milestones, completedCount }: MilestoneListProps
                                         </div>
                                     )}
                                     <div className={styles.description}>
-                                        <ReactMarkdown 
+                                        <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             components={markdownComponents}
                                         >
@@ -101,7 +101,7 @@ export function MilestoneList({ milestones, completedCount }: MilestoneListProps
                                         </ReactMarkdown>
                                     </div>
                                     {milestone.link && (
-                                        <a 
+                                        <a
                                             href={milestone.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
