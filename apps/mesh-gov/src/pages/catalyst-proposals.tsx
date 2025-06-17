@@ -227,9 +227,6 @@ export default function CatalystProposals() {
                     {filteredProjects.map((project) => (
                         <a
                             key={project.projectDetails.id}
-                            href={`https://milestones.projectcatalyst.io/projects/${project.projectDetails.project_id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
                             className={styles.milestoneRow}
                             onClick={(e) => {
                                 e.preventDefault();

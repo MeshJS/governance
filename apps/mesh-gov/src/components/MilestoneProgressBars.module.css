@@ -87,6 +87,7 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .milestoneBarItem:hover {
@@ -110,6 +111,11 @@
         rgba(56, 232, 225, 0.03) 100%
     );
     border-color: rgba(255, 255, 255, 0.2);
+}
+
+.milestoneBarItem.expanded {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .milestoneBarHeader {
@@ -194,6 +200,161 @@
 .milestoneBarDelivered {
     font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.6);
+}
+
+.expandButton {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin-left: auto;
+}
+
+.expandButton:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.expandButton.expanded {
+    transform: rotate(180deg);
+}
+
+.milestoneContent {
+    margin-top: 1rem;
+    padding: 1.25rem;
+    background: rgba(45, 212, 191, 0.02);
+    border: 1px solid rgba(45, 212, 191, 0.08);
+    border-radius: 8px;
+}
+
+.challenge {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background: rgba(45, 212, 191, 0.03);
+    border: 1px solid rgba(45, 212, 191, 0.1);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.challenge strong {
+    color: rgb(45, 212, 191);
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.description {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.description p {
+    margin: 0.75rem 0;
+}
+
+.description p:first-child {
+    margin-top: 0;
+}
+
+.description p:last-child {
+    margin-bottom: 0;
+}
+
+.description ul, .description ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.description li {
+    margin: 0.5rem 0;
+}
+
+.description a {
+    color: rgb(45, 212, 191);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.description a:hover {
+    color: rgb(56, 232, 225);
+    text-decoration: underline;
+}
+
+.description code {
+    background: rgba(45, 212, 191, 0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.875em;
+    font-family: monospace;
+}
+
+.description pre {
+    background: rgba(45, 212, 191, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(45, 212, 191, 0.1);
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.description pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+.description blockquote {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    border-left: 3px solid rgba(45, 212, 191, 0.3);
+    background: rgba(45, 212, 191, 0.03);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+}
+
+.description h1, .description h2, .description h3,
+.description h4, .description h5, .description h6 {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 1.5rem 0 1rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.description h1 { font-size: 1.5rem; }
+.description h2 { font-size: 1.25rem; }
+.description h3 { font-size: 1.125rem; }
+.description h4, .description h5, .description h6 { font-size: 1rem; }
+
+.link {
+    display: inline-block;
+    margin-top: 1.25rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(45, 212, 191, 0.1);
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    border-radius: 8px;
+    color: rgb(45, 212, 191);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.link:hover {
+    background: rgba(45, 212, 191, 0.15);
+    border-color: rgba(45, 212, 191, 0.3);
+    transform: translateY(-1px);
+}
+
+.link:active {
+    transform: translateY(0);
 }
 
 @keyframes shimmer {
