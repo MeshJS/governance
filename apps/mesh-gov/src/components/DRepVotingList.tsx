@@ -26,16 +26,30 @@ interface DRepVotingListProps {
 
 const truncateText = (text: string, maxLength: number = 100) => {
     if (text.length <= maxLength) return text;
-    
+
     // Find the last space before maxLength
     const lastSpace = text.lastIndexOf(' ', maxLength);
     if (lastSpace === -1) return text.substring(0, maxLength) + '...';
-    
+
     return text.substring(0, lastSpace) + '...';
+};
+
+const getLatestVotes = (votes: VoteData[]): VoteData[] => {
+    const voteMap = new Map<string, VoteData>();
+
+    votes.forEach(vote => {
+        const existingVote = voteMap.get(vote.proposalId);
+        if (!existingVote || new Date(vote.blockTime) > new Date(existingVote.blockTime)) {
+            voteMap.set(vote.proposalId, vote);
+        }
+    });
+
+    return Array.from(voteMap.values());
 };
 
 export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProps) {
     const [selectedProposal, setSelectedProposal] = useState<VoteData | null>(null);
+    const latestVotes = getLatestVotes(votes);
 
     const handleCardClick = (vote: VoteData, e: React.MouseEvent) => {
         e.preventDefault();
@@ -47,7 +61,7 @@ export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProp
         <>
             <div className={styles.listContainer}>
                 <div className={styles.list}>
-                    {votes.map((vote) => (
+                    {latestVotes.map((vote) => (
                         <div
                             key={vote.proposalId}
                             className={styles.item}
