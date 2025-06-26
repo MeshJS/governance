@@ -31,6 +31,14 @@ const calculateProgress = (completed: number, total: number): number => {
     return Math.round((completed / total) * 100);
 };
 
+// Determine project status based on milestone completion
+const getProjectStatus = (milestonesCompleted: number, totalMilestones: number): 'Completed' | 'In Progress' => {
+    if (milestonesCompleted >= totalMilestones && totalMilestones > 0) {
+        return 'Completed';
+    }
+    return 'In Progress';
+};
+
 const getFundingRound = (category: string): string => {
     const match = category.match(/Fund \d+/i);
     return match ? match[0] : category;
@@ -98,7 +106,7 @@ export default function CatalystProposals() {
     // Calculate stats based on all projects
     const stats = useMemo(() => ({
         totalBudget: allProjects.reduce((sum: number, p: CatalystProject) => sum + p.projectDetails.budget, 0),
-        completedProjects: allProjects.filter((p: CatalystProject) => p.projectDetails.status === 'Completed').length,
+        completedProjects: allProjects.filter((p: CatalystProject) => getProjectStatus(p.milestonesCompleted, p.projectDetails.milestones_qty) === 'Completed').length,
         totalProjects: allProjects.length,
         totalVotes: allProjects.reduce((sum: number, p: CatalystProject) => sum + (p.projectDetails.voting.yes_votes_count || 0), 0)
     }), [allProjects]);
@@ -249,7 +257,7 @@ export default function CatalystProposals() {
                                     style={{
                                         width: `${calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty)}%`,
                                         background: calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty) === 100
-                                            ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.35))'
+                                            ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
                                             : calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty) > 50
                                                 ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
                                                 : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
