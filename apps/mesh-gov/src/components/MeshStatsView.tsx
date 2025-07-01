@@ -316,13 +316,28 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         const currentMonth = new Date().getMonth();
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-        return months.slice(0, currentMonth + 1).map(month => {
+        const result = [];
+        let lastKnownValue = 0;
+        
+        // Process months in chronological order from January to current month
+        for (let i = 0; i <= currentMonth; i++) {
+            const month = months[i];
             const yearData = yearlyStats[currentYear]?.githubStats.find(stat => stat.month === month);
-            return {
+            
+            // If we have data for this month with a positive value, update the last known value
+            // Repository counts are cumulative and should never drop to 0
+            if (yearData?.repositories !== undefined && yearData.repositories > 0) {
+                lastKnownValue = yearData.repositories;
+            }
+            // Use the last known value (either from this month or carried forward)
+            
+            result.push({
                 month,
-                repositories: yearData?.repositories || 0
-            };
-        });
+                repositories: lastKnownValue
+            });
+        }
+        
+        return result;
     }, [yearlyStats]);
 
     // Generate monthly contribution data from timestamp arrays
