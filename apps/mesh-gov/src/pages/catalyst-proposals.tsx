@@ -11,6 +11,8 @@ import CatalystMilestonesDonut from '../components/CatalystMilestonesDonut';
 import CatalystBudgetDonut from '../components/CatalystBudgetDonut';
 import VotesDonutChart from '../components/VotesDonutChart';
 import { useScrollRestoration } from '../hooks/useScrollRestoration';
+import MilestoneDeliveryChart from '../components/MilestoneDeliveryChart';
+import { MilestoneData } from '../utils/milestones';
 
 // Simple number formatting function that doesn't rely on locale settings
 const formatNumber = (num: number): string => {
@@ -67,6 +69,9 @@ export default function CatalystProposals() {
         filters: []
     });
     const shouldRestoreScroll = useRef(false);
+    const [milestones, setMilestones] = useState<MilestoneData[]>([]);
+    const [milestonesLoading, setMilestonesLoading] = useState<boolean>(false);
+    const [milestonesError, setMilestonesError] = useState<string | null>(null);
 
     // Enable scroll restoration
     useScrollRestoration();
@@ -91,6 +96,32 @@ export default function CatalystProposals() {
             setFilterConfig(generateCatalystProposalsFilterConfig(catalystData.catalystData.projects));
         }
     }, [catalystData]);
+
+    // Fetch all milestone data
+    const fetchAllMilestones = useCallback(async () => {
+        setMilestonesLoading(true);
+        setMilestonesError(null);
+        
+        try {
+            const response = await fetch('/api/milestones/all');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch milestones: ${response.status}`);
+            }
+            const data = await response.json();
+            setMilestones(data);
+        } catch (err) {
+            console.error('Error fetching milestones:', err);
+            setMilestonesError('Failed to load milestone data');
+            setMilestones([]);
+        } finally {
+            setMilestonesLoading(false);
+        }
+    }, []);
+
+    // Fetch milestones when component mounts
+    useEffect(() => {
+        fetchAllMilestones();
+    }, [fetchAllMilestones]);
 
     const handleCardClick = (projectId: number) => {
         // Save the current scroll position
@@ -220,6 +251,9 @@ export default function CatalystProposals() {
                     <VotesDonutChart proposals={allProjects} />
                 </div>
             </div>
+
+            {/* Milestone Delivery Timeline Chart */}
+            <MilestoneDeliveryChart milestones={milestones} />
 
             {isSearching && (
                 <div className={styles.searchResults}>
