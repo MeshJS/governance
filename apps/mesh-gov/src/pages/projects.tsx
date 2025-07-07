@@ -58,6 +58,14 @@ const projects: Project[] = [
         icon: '/wallet.png',
         url: 'https://github.com/MeshJS/multisig',
         category: 'Development Tool'
+    },
+    {
+        id: '4',
+        name: 'Mesh Web3 Services',
+        description: 'Streamline user onboarding and Web3 integration, accelerating your app\'s time to market.',
+        icon: '/logo-mesh-white-512x512.png',
+        url: 'https://web3.meshjs.dev/',
+        category: 'Development Tool'
     }
 ];
 
