@@ -1,183 +1,148 @@
-# Close-out Report
+# Milestone Report
 
-## Project Information
+Hey there Milestone reviewers :)
 
-**Name of project and Project URL on IdeaScale/Fund:**  
-Maintain Mesh and Build Developer Community  
-https://cardano.ideascale.com/c/cardano/idea/131363
+Here we are for the last time for this proposal, reporting on the successful completion of our last and final Milestone covering MeshJS maintenance for the month of June 2025.
 
-**Your Project Number:** 1300130
+---
 
-**Name of project manager:** Jingles (Mesh)
+## Milestone Outcomes and Acceptance Criteria
 
-**Date project started:** February 2025
+Our milestone outcomes and acceptance criteria have been stated as:
 
-**Date project completed:** June 2025
+Monthly report on MeshJS GitHub and Discord activities to prove the maintenance and activities of MeshJS. The report includes metrics such as:
 
-## Challenge KPIs
-
-### List of challenge KPIs and how the project addressed them
-
-This proposal was submitted in the **"Cardano Open: Developers"** funding category which had the objective to enable funding to support developers and engineers to contribute to or develop open source technology centered around enabling and improving the Cardano developer experience.
-
-We addressed this objective through:
-
-**Maintaining and updating the MeshSDK**, a well known and widely used open source stack for developers building on Cardano. Mesh provides developers with a wide range of tools and solutions which help them to build easier, faster and safer apps, products and services on the Cardano blockchain.
-
-### Mesh improves Dev experience mainly via:
-
-- **Well maintained open source stack** of a wide range of useful tools & libraries such as tx builder, wallets, smart contracts, providers, etc.
-- **Developer support on Discord**, where we support and help developers through their builder journey, ensuring that devs have the help and support needed to successfully build their projects
-
-## Project KPIs
-
-### List of project KPIs and how the project addressed them
-
-The project KPIs had been stated uniformly throughout all milestones and measured:
-
-**Monthly report on MeshJS github and Discord activities** to prove the maintenance and activities of MeshJS. The report includes metrics such as:
 - Number of active GitHub repositories on MeshJS GitHub
 - Number of active open source licences on MeshJS repository
+- Monthly summary of GitHub repository activities:
+  - [Number of] authors have pushed [Number of] commits to main and [Number of] commits to all branches.
+  - On main, [Number of] files have changed and there have been [Number of] additions and [Number of] deletions
+- Active Discord Server
+  - Number of active public channels on MeshJS Discord server
+  - Number of private support channels on MeshJS Discord server
 
-**Monthly summary of GitHub repository activities:**
-[Number of] authors have pushed [Number of] commits to main and [Number of] commits to all branches. On main, [Number of] files have changed and there have been [Number of] additions and [Number of] deletions
+---
 
-**Active Discord Server**
-- Number of active public channels on MeshJS Discord server
-- Number of private support channels on MeshJS Discord server
+## Reports on Each Item
 
-## Key Achievements
+### MeshJS GitHub Repositories & Activity
 
-### Key achievements (in particular around collaboration and engagement)
+#### meshjs/mesh
 
-This proposal surely was a great success for us and the Cardano developer ecosystem. Key achievements have been particularly around:
+Our core repository at meshjs/mesh is as usual very active and well maintained and we see a healthy increase of projects using our open source code stack to build their own projects. Here our core repo in numbers:
 
-### Projects building on Mesh evolution
+https://github.com/MeshJS/mesh
 
-**A total increase of 218 new projects** building on Mesh in the timeframe of this proposal.
+In June 2025, excluding merges, 9 authors have pushed 60 commits to main and 71 commits to all branches. On main, 103 files have changed and there have been 2,667 additions and 820 deletions.
 
-| Month | Projects Building on Mesh |
-|-------|---------------------------|
+---
 
-| February | 626 |
-| March | 671 |
-| April | 735 |
-| May | 800 |
-| June | 809 |
+### Dependencies
 
-### Monthly downloads of meshsdk npm
+On the date of writing this report, June 30, 2025, we have a total of 809 dependencies on MeshJS/mesh repository which marks an increase of 9 new projects in June 2025, compared to 800 dependencies last month in May 2025. The lowest monthly growth of new projects since the proposal execution started.
 
-**A total of 52,036 downloads** of mesh code in the timeframe of this proposal.
+Continuing to reflect monthly growth we see that we have a constant and stable growth of builders using Mesh for their projects. These numbers are a nice indicator to prove the usefulness of our core repo and we are pretty proud of seeing that much active and constant use of Mesh code in the Cardano open source developer ecosystem.
 
-| Month | Downloads |
-|-------|-----------|
+Projects building on Mesh:
 
-| February | 7,458 |
-| March | 10,635 |
-| April | 8,551 |
-| May | 8,649 |
-| June | 10,831 |
+- February: 626
+- March: 671
+- April: 735
+- May: 800
+- June: 809
 
-### Monthly contributions on meshsdk github repository
+You can find all dependencies at: https://github.com/MeshJS/mesh/network/dependents
 
-**474 Commits, 45,291 additions, 749 file changes**
+Find more information at our new Dashboard which helps to track and display insights at:  
+https://gov.meshjs.dev/projects
 
-| Month | Commits to Main | Commits to All Branches | Files Changed | Additions | Deletions |
-|-------|-----------------|-------------------------|---------------|-----------|-----------|
-| February | 78 | 90 | 128 | 5,055 | 2,571 |
-| March | 93 | 119 | 245 | 8,771 | 2,212 |
-| April | 103 | 124 | 161 | 14,862 | 2,771 |
-| May | 60 | 71 | 103 | 2,667 | 820 |
-| June | 44 | 70 | 112 | 13,936 | 4,012 |
+---
 
-### Github Contributors
+### Downloads
 
-During the proposal timeframe, the number of contributors which contribute to the mesh open source stack **increased from 37 to 53**.
+Continuing to track new metrics to measure success, we start to track weekly and monthly downloads of our code via https://www.npmjs.com/package/@meshsdk/core where we see a total amount of 7,829 downloads in June 2025. Another indicator which shows a strong usage of our code.
 
-| Month | Contributors |
-|-------|-------------|
-| February | 37 |
-| March | 44 |
-| April | 47 |
-| May | 49 |
-| June | 53 |
+When reflecting on monthly downloads since January this year, we see a stable number of downloads.
 
-### Discord activity, messages sent per month
+- February: 7,458
+- March: 10,635
+- April: 8,551
+- May: 8,649
+- June: 10,831
 
-Closing this proposal with a **total of 9,892 discord messages** during the proposal execution.
+Find more information at our new Dashboard which helps to track and display insights at:  
+https://gov.meshjs.dev/mesh-stats
 
-| Month | Messages |
-|-------|----------|
-| February | 1,854 |
-| March | 2,146 |
-| April | 2,192 |
-| May | 2,703 |
-| June | 3,700 |
+---
 
-### Summary
+### Mesh Open Source Repositories
 
-So, summing up everything, Mesh has:
-- ✅ **Relatively high turnout** of produced code for the received Ada
-- ✅ **Strong number and progress** of projects building on Mesh
-- ✅ **Highly active dev community**
+At the date of June 30, 2025, MeshJS hosts a total of 43 repositories on the MeshJS GitHub from which currently 33 are public open source repositories.
 
-## Key Learnings
+You can find all public Mesh GitHub repositories under:  
+https://github.com/orgs/MeshJS/repositories
 
-Looking at the achieved success so far, we can definitely draw some relevant learnings. In particular our simple, yet effective setup which enables strong and active contributions to our open-source stack.
+Wrapping everything up on the code side, Mesh is actually doing pretty well. We constantly increase the quality and active use of our open source stack. Our stack is constantly improving and maturing.
 
-### Our Effective Setup:
-1. **Github open source repositories**
-2. **Public Discord support channels for devs**
+---
 
-While Github is a commonly used platform for devs to collaborate on projects and its stacks, Discord allows additional topic-focused chats and discussions. Together, **Github + Discord** provides a simple and effective way to allow developers to contribute while also being able to support builders through their builder journey.
+## Mesh Discord Server
 
-The funds from this proposal definitely play an important role, since the funding increases motivation and commitments.
+Same as our GitHub repos, our Discord server is kept well active and maintained and we see a constant engagement from developers and our crew who are quick in responding to questions and issues.
 
-Last but not least, this proposal eventually led to the creation of our **first Dashboard**, which, in addition to our website and docs provides overview and insights on our doings at Cardano. Since the first Maintain-mesh proposal in Fund10, and its successor proposals in Fund 11, 12 and 13, we were able to identify KPIs and OKRs we should focus on, these learnings provided the initial foundation for the dashboard.
+Here the server activity for June 2025 in numbers:
 
-## Next Steps
+- Total Number of messages: 3,700 (last month = 2,703)
+- Total Number of visitors: 166 (last month = 161)
+- Total Number of members: 754 (last month = 732)
 
-### Next steps for the product or service developed
+Our main public channel, the #ask-team forum stays the main channel to answer questions to developers.  
+The forum activities for the #ask-team forum in June 2025:
 
-This proposal definitely helped and motivated to further maintain and enhance our open source stack.
+- Readers: 64 (last month = 63)
+- Chatters: 16 (last month = 30)
+- Messages: 230 (last month = 452)
 
-As of next steps, we are still planning to move the maintain-mesh proposals away from Project Catalyst to alternative funding sources, especially since the budget allocations for projects like this had been **halved from previously 200K Ada available proposal budgets to 100K max budgets** a single proposal can request, eventually eliminating our possibility to further fund mesh maintenance via project catalyst.
+Since the Milestone reviewers of the previous maintain-mesh proposal milestones stated their appreciation on Mesh sharing Discord server insight screenshot-videos, we continue providing that since it helps you to assess and audit.
 
-This is not forcefully a bad thing, since it is a common challenge for open source projects to explore and establish funding sources which enable projects to maintain their open source stack.
+Here the screenshot video:  
+https://drive.google.com/file/d/18yRrYLco9ATEfb47Z7XxR-n2FyT7EJB6/view?usp=sharing
 
-## Final Thoughts
+Public link to our Discord Server:  
+https://discord.gg/hCbuZGwr2B
 
-### Final thoughts/comments
+---
 
-Final thoughts are definitely around two things:
+## Close Out Report
 
-### The Challenges Forward
+A detailed close out video in which we summarise and reflect the overall proposal performance and outcomes can be found at:
+- add link
 
-As mentioned above, it will be a challenge for us to figure out how we can enable funding to continue the maintenance of our open source projects which we don't want to monetise or put behind a pay wall. We see the **Mesh tooling as critical infrastructure** which should be open and free for anyone to use. Our strong metrics of projects building on mesh is the best indicator for making the point.
+### Close Out Video
 
-### Big Thanks to Everyone
+The respective close out video has been uploaded at:  
+- add link
 
-This proposal would not have been possible without all the heads and hands which helped to make the proposal a success, from voters to reviewers, builders to Catalyst Admin team. A **big thanks for everyone** who participated in the successful close out of this project.
+---
 
-## Links and Resources
+## Thanks
 
-### Links to other relevant project sources or documents
+And that's it…
 
-**More about Mesh:**
-- **Website:** https://meshjs.dev/
-- **Dashboard:** https://gov.meshjs.dev/
-- **Docs:** https://docs.meshjs.dev/
-- **Github:** https://github.com/MeshJS
-- **Email Contact:** hello@meshjs.dev
-- **Twitter:** https://x.com/meshsdk
+We deeply thank everyone who helped to make this proposal happen, from voters to builders, Milestone Reviewers and the Catalyst Admin Team. Thanks to everyone for this smooth and straightforward proposal journey and to help Mesh becoming step-by-step, one of the most successful and used open source projects in the Cardano ecosystem, where a few are able to support and empower the many.
 
-### Link to Close-out video - must be either YouTube or Vimeo link only
+---
 
-The close-out video can be found at:
+## More About Mesh
 
-**YouTube:** [To be updated with video link]
+- Website: https://meshjs.dev/
+- GitHub: https://github.com/MeshJS
+- Email Contact: hello@meshjs.dev
+- Dashboard: https://gov.meshjs.dev/
+- Twitter: https://x.com/meshsdk
 
+---
 
+## Milestone Report on GitHub
 
-
-
+https://github.com/MeshJS/governance/blob/main/funding/catalyst-fund13/maintain-mesh/milestone5.md
