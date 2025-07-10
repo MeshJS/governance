@@ -23,7 +23,7 @@ And here the evidence of the completion on all objectives:
 
 Close Out Report
 The Close out report has been completed accessible at:
-- https://drive.google.com/file/d/1lBMv2P7f3t4SOXxQqFyxFfQuPm3pS6B_/view?usp=sharing 
+- https://drive.google.com/file/d/14g7b2WqJMsiRlRrZWiPXQOKtDOEP5F3Y/view?usp=sharing
 
 ---
 
@@ -33,7 +33,9 @@ The close out video has been completed and is accessible at
 
 ---
 
-Finalised detailed report on what has been done has been merged with the close-out report
+Finalised detailed report 
+A more detailed report on the context and challenges can be found at:
+- https://docs.google.com/document/d/1697XL0wNih4u2NlI_xc_qeKw2HBrIp5_R2kd8PFoluA/edit?usp=sharing 
 
 ---
 
