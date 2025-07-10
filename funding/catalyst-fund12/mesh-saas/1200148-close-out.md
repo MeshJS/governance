@@ -21,7 +21,7 @@ Proposal on Project Catalyst website: https://projectcatalyst.io/funds/12/cardan
 
 ## Date project completed
 
-**May 2025**
+**June 2025**
 
 ## List of challenge KPIs and how the project addressed them
 
