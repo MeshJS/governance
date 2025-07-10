@@ -124,12 +124,12 @@ https://discord.gg/hCbuZGwr2B
 ## Close Out Report
 
 A detailed close out video in which we summarise and reflect the overall proposal performance and outcomes can be found at:
-- add link
+- https://drive.google.com/file/d/1bF335DTnrm9FIItEVekUY1aQ8iXRCWbR/view?usp=sharing
 
 ### Close Out Video
 
 The respective close out video has been uploaded at:  
-- add link
+- https://youtu.be/ErNmljGFqGI 
 
 ---
 
