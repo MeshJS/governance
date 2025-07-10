@@ -1,3 +1,11 @@
+|Project ID|1300130|
+|-----------|-------------|
+|Link|[Open full project](https://projectcatalyst.io/funds/10/f13-cardano-open-developers/maintain-mesh-and-build-developer-community)|
+|Milestone|[Milestone 5](https://milestones.projectcatalyst.io/projects/1300130/milestones/5)
+|Challenge|F13: Cardano Open: Developer|
+|Milestone Budget|ADA 40,000 Ada|
+|Delivered|July 1, 2025|
+
 # Milestone Report
 
 Hey there Milestone reviewers :)
