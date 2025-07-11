@@ -1,0 +1,14 @@
+{
+  "name": "catalyst-stats-action",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.6",
+    "typescript": "^5.0.0"
+  }
+}
