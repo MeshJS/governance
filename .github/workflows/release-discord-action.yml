@@ -1,0 +1,60 @@
+name: Release Discord Stats Action
+
+on:
+  push:
+    tags:
+      - 'discord-stats-action@*'
+    paths:
+      - 'apps/shared-backend/github-actions/discord-stats-action/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Discord Stats Action ${{ github.ref_name }}
+          body: |
+            Release of Discord Stats Action
+            
+            Changes in this release:
+            - See commit history for details
+          draft: false
+          prerelease: false
+
+      - name: Upload Action Artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./apps/shared-backend/github-actions/discord-stats-action/action.yml
+          asset_name: action.yml
+          asset_content_type: application/x-yaml
+
+      - name: Upload Script
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./apps/shared-backend/github-actions/discord-stats-action/getStats.js
+          asset_name: getStats.js
+          asset_content_type: application/javascript
+
+      - name: Upload Package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./apps/shared-backend/github-actions/discord-stats-action/package.json
+          asset_name: package.json
+          asset_content_type: application/json 

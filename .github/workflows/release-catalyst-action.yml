@@ -1,0 +1,55 @@
+name: Release Catalyst Stats Action
+
+on:
+  push:
+    tags:
+      - 'catalyst-stats-action@*'
+    paths:
+      - 'apps/shared-backend/github-actions/catalyst-stats-action/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'apps/shared-backend/github-actions/catalyst-stats-action/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd apps/shared-backend/github-actions/catalyst-stats-action
+          npm ci
+
+      - name: Build action
+        run: |
+          cd apps/shared-backend/github-actions/catalyst-stats-action
+          npm run build
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release:
+            ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./apps/shared-backend/github-actions/catalyst-stats-action/dist/index.js
+          asset_name: index.js
+          asset_content_type: application/javascript 
