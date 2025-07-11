@@ -310,19 +310,34 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         }))
         : [];
 
-    // Get the current year's repositories data up to current month
+    // Get the current year's repositories data up to previous month (excluding current month)
     const repositoriesData = useMemo(() => {
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth();
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-        return months.slice(0, currentMonth + 1).map(month => {
+        const result = [];
+        let lastKnownValue = 0;
+        
+        // Process months in chronological order from January to previous month
+        for (let i = 0; i < currentMonth; i++) {
+            const month = months[i];
             const yearData = yearlyStats[currentYear]?.githubStats.find(stat => stat.month === month);
-            return {
+            
+            // If we have data for this month with a positive value, update the last known value
+            // Repository counts are cumulative and should never drop to 0
+            if (yearData?.repositories !== undefined && yearData.repositories > 0) {
+                lastKnownValue = yearData.repositories;
+            }
+            // Use the last known value (either from this month or carried forward)
+            
+            result.push({
                 month,
-                repositories: yearData?.repositories || 0
-            };
-        });
+                repositories: lastKnownValue
+            });
+        }
+        
+        return result;
     }, [yearlyStats]);
 
     // Generate monthly contribution data from timestamp arrays
@@ -333,8 +348,8 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         const currentMonth = new Date().getMonth();
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         
-        // Initialize monthly data for current year up to current month
-        const monthlyContributions = months.slice(0, currentMonth + 1).map(month => ({
+        // Initialize monthly data for current year up to previous month (excluding current month)
+        const monthlyContributions = months.slice(0, currentMonth).map(month => ({
             month,
             contributions: 0
         }));
@@ -347,7 +362,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                     const date = new Date(timestamp);
                     if (date.getFullYear() === currentYear) {
                         const monthIndex = date.getMonth();
-                        if (monthIndex <= currentMonth) {
+                        if (monthIndex < currentMonth) {
                             monthlyContributions[monthIndex].contributions += 1;
                         }
                     }
@@ -358,7 +373,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                     const date = new Date(timestamp);
                     if (date.getFullYear() === currentYear) {
                         const monthIndex = date.getMonth();
-                        if (monthIndex <= currentMonth) {
+                        if (monthIndex < currentMonth) {
                             monthlyContributions[monthIndex].contributions += 1;
                         }
                     }
@@ -378,7 +393,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         
         // Calculate cumulative contributors per month (including previously existing ones)
-        const monthlyGrowth = months.slice(0, currentMonth + 1).map((month, index) => {
+        const monthlyGrowth = months.slice(0, currentMonth).map((month, index) => {
             const activeContributors = new Set<string>();
             
             contributorsData.contributors.forEach(contributor => {
@@ -388,7 +403,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                     // Check commit timestamps up to this month
                     repo.commit_timestamps?.forEach(timestamp => {
                         const date = new Date(timestamp);
-                        // Include contributions from any year, but only up to the current month in current year
+                        // Include contributions from any year, but only up to the previous month in current year
                         if (date.getFullYear() < currentYear || 
                             (date.getFullYear() === currentYear && date.getMonth() <= index)) {
                             hasContributedByThisMonth = true;
@@ -398,7 +413,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                     // Check PR timestamps up to this month
                     repo.pr_timestamps?.forEach(timestamp => {
                         const date = new Date(timestamp);
-                        // Include contributions from any year, but only up to the current month in current year
+                        // Include contributions from any year, but only up to the previous month in current year
                         if (date.getFullYear() < currentYear || 
                             (date.getFullYear() === currentYear && date.getMonth() <= index)) {
                             hasContributedByThisMonth = true;

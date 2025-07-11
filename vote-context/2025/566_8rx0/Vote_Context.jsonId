@@ -1,0 +1,87 @@
+{
+  "@context": {
+    "CIP100": "https://github.com/cardano-foundation/CIPs/blob/master/CIP-0100/README.md#",
+    "hashAlgorithm": "CIP100:hashAlgorithm",
+    "body": {
+      "@id": "CIP100:body",
+      "@context": {
+        "references": {
+          "@id": "CIP100:references",
+          "@container": "@set",
+          "@context": {
+            "GovernanceMetadata": "CIP100:GovernanceMetadataReference",
+            "Other": "CIP100:OtherReference",
+            "label": "CIP100:reference-label",
+            "uri": "CIP100:reference-uri",
+            "referenceHash": {
+              "@id": "CIP100:referenceHash",
+              "@context": {
+                "hashDigest": "CIP100:hashDigest",
+                "hashAlgorithm": "CIP100:hashAlgorithm"
+              }
+            }
+          }
+        },
+        "comment": "CIP100:comment",
+        "externalUpdates": {
+          "@id": "CIP100:externalUpdates",
+          "@context": {
+            "title": "CIP100:update-title",
+            "uri": "CIP100:uri"
+          }
+        }
+      }
+    },
+    "authors": {
+      "@id": "CIP100:authors",
+      "@container": "@set",
+      "@context": {
+        "name": "http://xmlns.com/foaf/0.1/name",
+        "witness": {
+          "@id": "CIP100:witness",
+          "@context": {
+            "witnessAlgorithm": "CIP100:witnessAlgorithm",
+            "publicKey": "CIP100:publicKey",
+            "signature": "CIP100:signature"
+          }
+        }
+      }
+    }
+  },
+  "authors": [],
+  "body": {
+    "comment": "Title: Amaru Treasury Withdrawal 2025
+Type: Treasury Withdrawal
+
+Members of the Mesh DRep have voted as following on the governace action Amaru Treasury Withdrawal 2025
+
+Yes: 4 votes 
+No: 0 votes 
+Abstain: 0 votes  
+
+Therefore, we YES on the Amaru Treasury Withdrawal 2025.
+
+Our rationale 
+We mainly apply and extend our rationale to the previous Amaru info action which has been approved since then and enabled this follow up Treasury Withdrawal proposal. 
+
+- modest budget request.
+Amaru requests a total of 1.5M Ada, which is a reasonable amount for the outlined work, furthermore, we appreciate the well outlined budget allocations of the proposal. However, it is important to keep in mind that the 1.5M Ada requested from Amaru are not the full budget which will be required to fully build and implement the Node, further funding requests will surely come. Therefore, it would be great to get a at least rough estimation of the total budget required ahead and beyond the initial 1.5M Ada.
+
+- feasible deliverables
+The proposal is well scoped, the envisioned deliverables are very likely to be achieved, one of the most solid proposal we have seen so far indeed and a great first treasury withdrawal gov action.
+
+- Ecosystem value
+Amaru, supporting cardano node diversity definitely adds great value to the cardano ecosystem and we fully support serious projects working on that front. The
+
+- All-star Team
+We have no doubt on the team, sort of a finest all-star crew at Amaru with all the needed skills, expertise and experience to successfully execute and complete the proposal
+
+We see the Amaru treasury-withdrawal proposal similar to their initial info-action as really well written proposals which introduces a gold standard and a high quality for governance actions from which we hope that other proposers will draw from. Furthermore, we see Pragma as a highly competent organisation which does not only manages its operations in a highly desirable way but also ensures that projects like Amaru have a highest likelyhood in a cost-effective development and further maintenance. 
+
+
+If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep
+More about our DRep at: https://gov.meshjs.dev/drep-voting
+"
+  },
+  "hashAlgorithm": "blake2b-256"
+}

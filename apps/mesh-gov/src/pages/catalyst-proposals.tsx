@@ -11,6 +11,8 @@ import CatalystMilestonesDonut from '../components/CatalystMilestonesDonut';
 import CatalystBudgetDonut from '../components/CatalystBudgetDonut';
 import VotesDonutChart from '../components/VotesDonutChart';
 import { useScrollRestoration } from '../hooks/useScrollRestoration';
+import MilestoneDeliveryChart from '../components/MilestoneDeliveryChart';
+import { MilestoneData } from '../utils/milestones';
 
 // Simple number formatting function that doesn't rely on locale settings
 const formatNumber = (num: number): string => {
@@ -29,6 +31,14 @@ const SCROLL_POSITION_KEY = 'catalyst-proposals-scroll';
 const calculateProgress = (completed: number, total: number): number => {
     if (!total) return 0;
     return Math.round((completed / total) * 100);
+};
+
+// Determine project status based on milestone completion
+const getProjectStatus = (milestonesCompleted: number, totalMilestones: number): 'Completed' | 'In Progress' => {
+    if (milestonesCompleted >= totalMilestones && totalMilestones > 0) {
+        return 'Completed';
+    }
+    return 'In Progress';
 };
 
 const getFundingRound = (category: string): string => {
@@ -59,6 +69,9 @@ export default function CatalystProposals() {
         filters: []
     });
     const shouldRestoreScroll = useRef(false);
+    const [milestones, setMilestones] = useState<MilestoneData[]>([]);
+    const [milestonesLoading, setMilestonesLoading] = useState<boolean>(false);
+    const [milestonesError, setMilestonesError] = useState<string | null>(null);
 
     // Enable scroll restoration
     useScrollRestoration();
@@ -84,6 +97,32 @@ export default function CatalystProposals() {
         }
     }, [catalystData]);
 
+    // Fetch all milestone data
+    const fetchAllMilestones = useCallback(async () => {
+        setMilestonesLoading(true);
+        setMilestonesError(null);
+        
+        try {
+            const response = await fetch('/api/milestones/all');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch milestones: ${response.status}`);
+            }
+            const data = await response.json();
+            setMilestones(data);
+        } catch (err) {
+            console.error('Error fetching milestones:', err);
+            setMilestonesError('Failed to load milestone data');
+            setMilestones([]);
+        } finally {
+            setMilestonesLoading(false);
+        }
+    }, []);
+
+    // Fetch milestones when component mounts
+    useEffect(() => {
+        fetchAllMilestones();
+    }, [fetchAllMilestones]);
+
     const handleCardClick = (projectId: number) => {
         // Save the current scroll position
         sessionStorage.setItem('scrollPosition', window.scrollY.toString());
@@ -98,7 +137,7 @@ export default function CatalystProposals() {
     // Calculate stats based on all projects
     const stats = useMemo(() => ({
         totalBudget: allProjects.reduce((sum: number, p: CatalystProject) => sum + p.projectDetails.budget, 0),
-        completedProjects: allProjects.filter((p: CatalystProject) => p.projectDetails.status === 'Completed').length,
+        completedProjects: allProjects.filter((p: CatalystProject) => getProjectStatus(p.milestonesCompleted, p.projectDetails.milestones_qty) === 'Completed').length,
         totalProjects: allProjects.length,
         totalVotes: allProjects.reduce((sum: number, p: CatalystProject) => sum + (p.projectDetails.voting.yes_votes_count || 0), 0)
     }), [allProjects]);
@@ -213,6 +252,9 @@ export default function CatalystProposals() {
                 </div>
             </div>
 
+            {/* Milestone Delivery Timeline Chart */}
+            <MilestoneDeliveryChart milestones={milestones} />
+
             {isSearching && (
                 <div className={styles.searchResults}>
                     <h2>Search Results ({filteredProjects.length} projects found)</h2>
@@ -249,7 +291,7 @@ export default function CatalystProposals() {
                                     style={{
                                         width: `${calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty)}%`,
                                         background: calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty) === 100
-                                            ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.35))'
+                                            ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
                                             : calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty) > 50
                                                 ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
                                                 : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
