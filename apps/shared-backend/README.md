@@ -1,317 +1,160 @@
-# API Machine 🚀
+# Shared Backend API
 
-A comprehensive API testing and development platform for hosting API routes, Netlify functions, and background functions. Built with Next.js, this platform provides a clean interface for testing Discord and GitHub integrations, along with reusable scripts for GitHub Actions.
+This Next.js application provides API routes and Netlify functions that serve as a shared backend for the dashboard applications in this monorepo. It handles data fetching, processing, and storage for Catalyst proposals and Discord statistics.
 
-## 🏗️ Project Structure
+## Overview
 
-```
-api-machine/
-├── 📁 pages/                      # Next.js pages and API routes
-│   ├── 📁 api/                    # Next.js API endpoints
-│   │   ├── 📁 discord/            # Discord API routes
-│   │   │   ├── stats.ts           # Discord stats endpoint
-│   │   │   └── webhook.ts         # Discord webhook handler
-│   │   ├── 📁 github/             # GitHub API routes
-│   │   │   ├── repos.ts           # GitHub repos endpoint
-│   │   │   └── actions.ts         # GitHub actions endpoint
-│   │   └── 📁 utils/              # Utility API endpoints
-│   │       ├── auth.ts            # Authentication utilities
-│   │       └── validation.ts      # Validation utilities
-│   ├── 📁 api-test/               # Frontend testing interface
-│   │   ├── index.tsx              # Main testing dashboard
-│   │   ├── discord.tsx            # Discord API tests
-│   │   └── github.tsx             # GitHub API tests
-│   ├── _app.tsx                   # Next.js app wrapper
-│   └── index.tsx                  # Home page
-│
-├── 📁 components/                 # Reusable React components
-│   ├── 📁 ui/                     # Basic UI components
-│   ├── 📁 api-test/               # API testing components
-│   └── 📁 layout/                 # Layout components
-│
-├── 📁 lib/                        # Shared utilities and services
-│   ├── 📁 services/               # External service integrations
-│   │   ├── discord.ts             # Discord service functions
-│   │   └── github.ts              # GitHub service functions
-│   ├── 📁 utils/                  # Utility functions
-│   │   └── api.ts                 # API helpers
-│   └── 📁 types/                  # TypeScript type definitions
-│       ├── common.ts              # Common types
-│       ├── discord.ts             # Discord types
-│       └── github.ts              # GitHub types
-│
-├── 📁 netlify/                    # Netlify serverless functions
-│   └── 📁 functions/
-│       ├── 📁 discord/            # Discord Netlify functions
-│       ├── 📁 github/             # GitHub Netlify functions
-│       └── 📁 utils/              # Utility Netlify functions
-│
-├── 📁 scripts/                    # Development and GitHub Actions scripts
-│   ├── 📁 github-actions/         # Working scripts for other projects
-│   │   ├── discord-stats.js       # Discord stats collection
-│   │   └── github-repo-stats.js   # GitHub repo stats collection
-│   ├── 📁 templates/              # Reusable templates
-│   │   ├── basic-discord-stats.js # Discord stats template
-│   │   └── github-action.yml      # GitHub Actions workflow template
-│   └── 📁 testing/                # Test utilities
-│       ├── test-discord-api.js    # Discord API tests
-│       └── test-github-api.js     # GitHub API tests
-│
-├── 📁 styles/                     # CSS and styling
-├── package.json                   # Dependencies and scripts
-├── next.config.js                 # Next.js configuration
-├── netlify.toml                   # Netlify configuration
-└── README.md                      # This file
-```
+The shared-backend serves as a centralized API layer that:
+- Provides RESTful API endpoints for dashboard applications
+- Runs background functions to fetch and update data
+- Manages data storage in Supabase
+- Handles authentication and data processing
 
-## 🚀 Quick Start
+## Architecture
 
-### Prerequisites
+### API Routes (`pages/api/`)
 
-- Node.js 18+ 
-- npm or yarn
-- Discord Bot Token (for Discord features)
-- GitHub Personal Access Token (for GitHub features)
+#### Catalyst API (`/api/catalyst/`)
 
-### Installation
+- **`/api/catalyst/proposals`** - Fetches Catalyst proposal data
+  - Query parameters: `projectIds` (comma-separated), `since` (optional timestamp)
+  - Returns proposal details with freshness indicators
+  - Status: `completed`, `partial`, or `stale`
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd api-machine
-   ```
+- **`/api/catalyst/status`** - Checks status of Catalyst proposal data
+  - Query parameters: `projectIds` (comma-separated), `since` (optional timestamp)
+  - Returns data freshness and availability status
+  - Useful for monitoring data updates
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+#### Discord API (`/api/discord/`)
 
-3. **Set up environment variables**
-   Create a `.env.local` file:
-   ```env
-   DISCORD_TOKEN=your_discord_bot_token
-   GITHUB_TOKEN=your_github_personal_access_token
-   NEXT_PUBLIC_DISCORD_GUILD_ID=your_discord_guild_id
-   ```
+- **`/api/discord/status`** - Checks Discord statistics status
+  - Query parameters: `guildId`, `since` (optional timestamp)
+  - Returns Discord server statistics and freshness status
+  - Status: `completed`, `stale`, or `pending`
 
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+### Netlify Functions (`netlify/functions/`)
 
-5. **Open your browser**
-   Navigate to `http://localhost:3000`
+#### Background Functions
 
-## 🧪 Testing Interface
+- **`catalyst-proposals-background.mts`** - Fetches and updates Catalyst proposal data
+  - Integrates with Lido Nation API to get voting metrics
+  - Updates Supabase with proposal details and voting statistics
+  - Handles multiple Catalyst funds and proposal matching
+  - Runtime: Node.js 18.x
 
-The platform includes a comprehensive testing interface at `/api-test`:
+- **`discord-stats-background.mts`** - Fetches and updates Discord server statistics
+  - Uses Discord API to collect server member statistics
+  - Supports backfill functionality for historical data
+  - Updates Supabase with Discord statistics
+  - Runtime: Node.js 18.x
 
-### Discord Testing (`/api-test/discord`)
-- 📊 Get Discord Stats
-- 🔄 Get Stats with Backfill
-- 🔗 Test Webhook
-- ✅ Validate Guild ID
+## Data Sources
 
-### GitHub Testing (`/api-test/github`)
-- 📦 Get Repository Info
-- 🚀 Trigger GitHub Action
-- ✅ Validate Repository Format
-- 🔐 Test GitHub Auth
+### Catalyst Proposals
+- **Lido Nation API**: Primary source for Catalyst proposal data and voting metrics
+- **Supabase**: Storage for processed proposal data and voting statistics
+- **Authentication**: Uses CSRF tokens for Lido Nation API access
 
-## 📡 API Endpoints
+### Discord Statistics
+- **Discord API**: Source for server member statistics and activity data
+- **Supabase**: Storage for processed Discord statistics
+- **Authentication**: Uses Discord bot tokens for API access
 
-### Discord APIs
+## Environment Variables
 
-#### `GET /api/discord/stats`
-Fetch Discord server statistics.
+### Required Variables
 
-**Query Parameters:**
-- `guildId` (required): Discord server ID
-- `backfill` (optional): Set to 'true' for historical data
-- `year` (optional): Year to backfill from (default: 2025)
+```env
+# Supabase Configuration
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_PUBLIC=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_key
 
-**Response:**
-```json
-{
-  "memberCount": 150,
-  "totalMessages": 1250,
-  "uniquePosters": 45,
-  "timestamp": "2025-01-15T10:30:00.000Z"
-}
+# Catalyst Database (separate from main Supabase)
+CATALYST_SUPABASE_URL=your_catalyst_supabase_url
+CATALYST_SUPABASE_ANON_KEY=your_catalyst_supabase_key
+
+# Lido Nation API
+LIDO_CSRF_TOKEN=your_lido_csrf_token
+
+# Discord API
+DISCORD_TOKEN=your_discord_bot_token
 ```
 
-#### `POST /api/discord/webhook`
-Handle Discord webhook events.
+## Development
 
-### GitHub APIs
-
-#### `GET /api/github/repos`
-Fetch GitHub repository information.
-
-**Query Parameters:**
-- `owner` (required): Repository owner
-- `repo` (required): Repository name
-
-#### `POST /api/github/actions`
-Trigger GitHub Actions workflows.
-
-**Body:**
-```json
-{
-  "owner": "username",
-  "repo": "repository-name",
-  "workflow_id": "ci.yml",
-  "ref": "main"
-}
-```
-
-### Utility APIs
-
-#### `POST /api/utils/auth`
-Validate authentication tokens.
-
-#### `POST /api/utils/validation`
-Validate various data formats.
-
-## 🔧 Scripts
-
-### GitHub Actions Scripts
-
-#### Discord Stats Collection
-```bash
-node scripts/github-actions/discord-stats.js
-```
-
-**Environment Variables:**
-- `DISCORD_TOKEN`: Discord bot token
-- `GUILD_ID`: Discord server ID
-- `OUTPUT_FILE`: Output file path (optional)
-- `BACKFILL`: Set to 'true' for historical data
-- `BACKFILL_YEAR`: Year to backfill from
-
-#### GitHub Repository Stats
-```bash
-node scripts/github-actions/github-repo-stats.js
-```
-
-**Environment Variables:**
-- `GITHUB_TOKEN`: GitHub personal access token
-- `GITHUB_OWNER`: Repository owner
-- `GITHUB_REPO`: Repository name
-- `OUTPUT_FILE`: Output file path (optional)
-
-### Testing Scripts
-
-#### Discord API Tests
-```bash
-node scripts/testing/test-discord-api.js
-```
-
-#### GitHub API Tests
-```bash
-node scripts/testing/test-github-api.js
-```
-
-## 📋 Templates
-
-### Discord Stats Template
-Copy `scripts/templates/basic-discord-stats.js` to your project and customize:
-
-1. Update configuration variables
-2. Set environment variables
-3. Install dependencies: `npm install discord.js`
-4. Run: `node basic-discord-stats.js`
-
-### GitHub Actions Workflow Template
-Copy `scripts/templates/github-action.yml` to `.github/workflows/`:
-
-```yaml
-name: Monthly Stats Collection
-on:
-  schedule:
-    - cron: '0 0 1 * *'  # First day of each month
-  workflow_dispatch:     # Manual trigger
-```
-
-## 🔐 Environment Variables
-
-### Required
-- `DISCORD_TOKEN`: Discord bot token
-- `GITHUB_TOKEN`: GitHub personal access token
-
-### Optional
-- `NEXT_PUBLIC_DISCORD_GUILD_ID`: Discord server ID for testing
-- `OUTPUT_FILE`: Custom output path for scripts
-- `BACKFILL`: Enable historical data collection
-- `BACKFILL_YEAR`: Year to start backfill from
-
-## 🚀 Deployment
-
-### Netlify Deployment
-
-1. **Connect your repository** to Netlify
-2. **Set environment variables** in Netlify dashboard
-3. **Deploy automatically** on push to main branch
-
-### Vercel Deployment
-
-1. **Connect your repository** to Vercel
-2. **Set environment variables** in Vercel dashboard
-3. **Deploy automatically** on push to main branch
-
-## 📊 Usage Examples
-
-### Running Discord Stats Collection
+### Local Development
 
 ```bash
-# Basic usage
-DISCORD_TOKEN=your_token GUILD_ID=your_guild_id node scripts/github-actions/discord-stats.js
+# Install dependencies
+npm install
 
-# With backfill
-DISCORD_TOKEN=your_token GUILD_ID=your_guild_id BACKFILL=true BACKFILL_YEAR=2024 node scripts/github-actions/discord-stats.js
+# Start development server
+npm run dev
+
+# Build functions
+npm run build:functions
 ```
 
-### Running GitHub Stats Collection
+### Production Deployment
+
+The application is configured for deployment on Netlify with:
+- API routes served as serverless functions
+- Background functions configured in `netlify.toml`
+- Automatic builds and deployments
+
+## API Usage Examples
+
+### Check Catalyst Proposal Status
 
 ```bash
-# Basic usage
-GITHUB_TOKEN=your_token GITHUB_OWNER=username GITHUB_REPO=repo-name node scripts/github-actions/github-repo-stats.js
+curl "http://localhost:3000/api/catalyst/status?projectIds=1000107,1100271"
 ```
 
-### Testing APIs
+### Fetch Discord Statistics
 
 ```bash
-# Test Discord API
-DISCORD_TOKEN=your_token GUILD_ID=your_guild_id node scripts/testing/test-discord-api.js
-
-# Test GitHub API
-GITHUB_TOKEN=your_token node scripts/testing/test-github-api.js
+curl "http://localhost:3000/api/discord/status?guildId=123456789"
 ```
 
-## 🤝 Contributing
+### Trigger Background Functions
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+```bash
+# Catalyst proposals update
+curl "https://your-netlify-app.netlify.app/.netlify/functions/catalyst-proposals-background"
 
-## 📝 License
+# Discord stats update
+curl "https://your-netlify-app.netlify.app/.netlify/functions/discord-stats-background?guildId=123456789"
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Data Flow
 
-## 🆘 Support
+1. **Background Functions** run periodically to fetch fresh data from external APIs
+2. **Data Processing** occurs in the background functions before storage
+3. **Supabase Storage** holds processed data with timestamps
+4. **API Routes** serve data to dashboard applications with freshness indicators
+5. **Dashboard Apps** consume the API routes for real-time data display
 
-If you encounter any issues:
+## Monitoring
 
-1. Check the [Issues](../../issues) page
-2. Create a new issue with detailed information
-3. Include environment details and error messages
+The API routes provide status endpoints that help monitor:
+- Data freshness (recent updates within 5 minutes)
+- Missing data for requested project IDs
+- Overall system health and availability
 
-## 🔄 Updates
+## Dependencies
 
-This project is actively maintained. Check the releases page for updates and new features.
+- **Next.js**: Framework for API routes and server-side rendering
+- **Supabase**: Database and authentication
+- **Discord.js**: Discord API integration
+- **Axios**: HTTP client for external API calls
+- **TypeScript**: Type safety and development experience
 
----
+## Contributing
 
-**Happy API Testing! 🎉** 
+When adding new API routes or functions:
+1. Follow the existing patterns for error handling and response formatting
+2. Include proper TypeScript types
+3. Add appropriate environment variable documentation
+4. Update this README with new endpoint documentation
