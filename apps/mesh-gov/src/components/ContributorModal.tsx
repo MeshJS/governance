@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import styles from '../styles/ContributorModal.module.css';
 import { Contributor } from '../types';
@@ -6,17 +6,27 @@ import RepoDonutChart from './RepoDonutChart';
 import { IoClose } from 'react-icons/io5';
 import { FaGithub, FaCode, FaCodeBranch, FaCodePullRequest } from 'react-icons/fa6';
 import ContributionTimeline from './ContributionTimeline';
+import { getFilteredMetrics } from '../utils/contributorMetrics';
 
 interface ContributorModalProps {
     contributor: Contributor;
+    globalStartDate?: string;
+    globalEndDate?: string;
     onClose: () => void;
 }
 
 export const ContributorModal: React.FC<ContributorModalProps> = ({
     contributor,
+    globalStartDate,
+    globalEndDate,
     onClose,
 }) => {
     const modalRef = useRef<HTMLDivElement>(null);
+
+    // Calculate filtered metrics for the selected time window
+    const filteredMetrics = useMemo(() => {
+        return getFilteredMetrics(contributor, globalStartDate || null, globalEndDate || null);
+    }, [contributor, globalStartDate, globalEndDate]);
 
     useEffect(() => {
         function handleEscape(e: KeyboardEvent) {
@@ -81,19 +91,19 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
                         <span className={styles.metaLabel}>
                             <FaCodeBranch /> Total Contributions
                         </span>
-                        <span className={styles.metaValue}>{contributor.contributions}</span>
-                        <span className={styles.metaLabel}>Repositories</span>
-                        <span className={styles.metaValue}>{contributor.repositories.length}</span>
+                        <span className={styles.metaValue}>{filteredMetrics.contributions}</span>
+                        <span className={styles.metaLabel}>Active Repositories</span>
+                        <span className={styles.metaValue}>{filteredMetrics.repositories}</span>
                     </div>
                     <div className={styles.metaItem}>
                         <span className={styles.metaLabel}>
                             <FaCode /> Commits
                         </span>
-                        <span className={styles.metaValue}>{contributor.commits}</span>
+                        <span className={styles.metaValue}>{filteredMetrics.commits}</span>
                         <span className={styles.metaLabel}>
                             <FaCodePullRequest /> Pull Requests
                         </span>
-                        <span className={styles.metaValue}>{contributor.pull_requests}</span>
+                        <span className={styles.metaValue}>{filteredMetrics.pullRequests}</span>
                     </div>
                 </div>
 
@@ -104,6 +114,8 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
                             prTimestamps={contributor.repositories.flatMap(repo => repo.pr_timestamps)}
                             height={200}
                             showAxis={false}
+                            globalStartDate={globalStartDate}
+                            globalEndDate={globalEndDate}
                         />
                     </div>
 
@@ -124,22 +136,36 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
                                 </tr>
                             </thead>
                             <tbody>
-                                {sortedRepos.map(repo => (
-                                    <tr key={repo.name}>
-                                        <td>
-                                            <a
-                                                href={`https://github.com/MeshJS/${repo.name}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                {repo.name}
-                                            </a>
-                                        </td>
-                                        <td>{repo.commits}</td>
-                                        <td>{repo.pull_requests}</td>
-                                        <td>{repo.contributions}</td>
-                                    </tr>
-                                ))}
+                                {sortedRepos.map(repo => {
+                                    // Calculate filtered metrics for this specific repository
+                                    const repoFilteredMetrics = getFilteredMetrics(
+                                        { ...contributor, repositories: [repo] } as Contributor,
+                                        globalStartDate || null,
+                                        globalEndDate || null
+                                    );
+
+                                    // Only show repositories that have contributions in the selected time window
+                                    if (repoFilteredMetrics.contributions === 0 && (globalStartDate || globalEndDate)) {
+                                        return null;
+                                    }
+
+                                    return (
+                                        <tr key={repo.name}>
+                                            <td>
+                                                <a
+                                                    href={`https://github.com/MeshJS/${repo.name}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {repo.name}
+                                                </a>
+                                            </td>
+                                            <td>{repoFilteredMetrics.commits}</td>
+                                            <td>{repoFilteredMetrics.pullRequests}</td>
+                                            <td>{repoFilteredMetrics.contributions}</td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
