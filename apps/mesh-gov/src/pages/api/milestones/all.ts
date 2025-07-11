@@ -1,108 +1,60 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
+import { MilestoneData } from '../../../utils/milestones';
 
-// Get the absolute path to the funding directory
 function getFundingDir() {
-    // Try different possible locations
+    // Try multiple possible locations for the funding directory
     const possiblePaths = [
-        // Direct from workspace root
-        path.join(process.cwd(), 'funding'),
-        // From app directory
         path.join(process.cwd(), '..', '..', 'funding'),
-        // From Next.js app directory
-        path.join(process.cwd(), 'apps', 'mesh-gov', '..', '..', 'funding'),
+        path.join(process.cwd(), '..', 'funding'),
+        path.join(process.cwd(), 'funding'),
+        path.join(process.cwd(), '..', '..', '..', 'funding'),
     ];
 
-    for (const dir of possiblePaths) {
-        if (fs.existsSync(dir)) {
-            console.log('Found funding directory at:', dir);
-            return dir;
+    for (const fundingPath of possiblePaths) {
+        if (fs.existsSync(fundingPath)) {
+            return fundingPath;
         }
-        console.log('Tried funding directory at:', dir);
     }
 
-    throw new Error('Funding directory not found in any of the expected locations');
+    throw new Error('Funding directory not found');
 }
 
-export interface MilestoneData {
-    number: number;
-    budget: string;
-    delivered: string;
-    projectId: string;
-    link: string;
-    challenge: string;
-    content: string;
-    isCloseOut?: boolean;
-}
-
-function findMilestoneFiles(fundingDir: string, projectId: string): string[] {
-    console.log(`Looking for milestone files for project ID ${projectId} in ${fundingDir}`);
-    
+function findAllMilestoneFiles(fundingDir: string): string[] {
     const allFiles: string[] = [];
-
+    
     try {
-        // Search through all fund directories
-        const fundDirs = fs.readdirSync(fundingDir)
-            .filter(dir => dir.startsWith('catalyst-fund'));
+        const entries = fs.readdirSync(fundingDir, { withFileTypes: true });
         
-        console.log('Found fund directories:', fundDirs);
-
-        for (const fundDir of fundDirs) {
-            const fundPath = path.join(fundingDir, fundDir);
-            
-            try {
-                const projectDirs = fs.readdirSync(fundPath);
-                console.log(`Checking fund directory ${fundDir}, found projects:`, projectDirs);
-
-                for (const projectDir of projectDirs) {
-                    const projectPath = path.join(fundPath, projectDir);
+        for (const entry of entries) {
+            if (entry.isDirectory()) {
+                const fundDir = path.join(fundingDir, entry.name);
+                
+                try {
+                    const fundEntries = fs.readdirSync(fundDir, { withFileTypes: true });
                     
-                    try {
-                        // Try to find files with new naming pattern first
-                        let mdFiles = fs.readdirSync(projectPath)
-                            .filter(file => file.startsWith(`${projectId}-`) && (file.endsWith('.md') || file === 'close-out'));
-                        
-                        // If no files found with new pattern, check old pattern and verify project ID in content
-                        if (mdFiles.length === 0) {
-                            const oldFiles = fs.readdirSync(projectPath)
-                                .filter(file => (
-                                    file.startsWith('milestone') || 
-                                    file === 'close-out.md' || 
-                                    file === 'close-out'
-                                ) && (file.endsWith('.md') || file === 'close-out'));
+                    for (const fundEntry of fundEntries) {
+                        if (fundEntry.isDirectory()) {
+                            const projectDir = path.join(fundDir, fundEntry.name);
                             
-                            if (oldFiles.length > 0) {
-                                // Check if any file contains the correct project ID
-                                for (const file of oldFiles) {
-                                    try {
-                                        const content = fs.readFileSync(path.join(projectPath, file), 'utf-8');
-                                        const idMatch = content.match(/\|Project ID\|(\d+)\|/) ||
-                                                    content.match(/\| Project ID \|(\d+)\|/) ||
-                                                    content.match(/\|ProjectID\|(\d+)\|/) ||
-                                                    content.match(/\| ProjectID \|(\d+)\|/);
-                                        
-                                        if (idMatch && idMatch[1] === projectId) {
-                                            mdFiles = oldFiles;
-                                            break;
-                                        }
-                                    } catch (err) {
-                                        console.error(`Error reading file ${file}:`, err);
+                            try {
+                                const projectFiles = fs.readdirSync(projectDir);
+                                
+                                for (const file of projectFiles) {
+                                    if (file.endsWith('.md') && 
+                                        (file.includes('milestone') || file.includes('close-out'))) {
+                                        allFiles.push(path.join(projectDir, file));
                                     }
                                 }
+                            } catch (err) {
+                                console.error(`Error accessing project directory ${projectDir}:`, err);
                             }
                         }
-                        
-                        if (mdFiles.length > 0) {
-                            console.log(`Found milestone files in ${projectDir}:`, mdFiles);
-                            allFiles.push(...mdFiles.map(file => path.join(projectPath, file)));
-                        }
-                    } catch (err) {
-                        console.error(`Error accessing project directory ${projectDir}:`, err);
                     }
+                } catch (err) {
+                    console.error(`Error accessing fund directory ${fundDir}:`, err);
                 }
-            } catch (err) {
-                console.error(`Error accessing fund directory ${fundDir}:`, err);
             }
         }
     } catch (err) {
@@ -179,10 +131,6 @@ function parseMilestoneFile(content: string, fileName: string): Omit<MilestoneDa
 
         const mainContent = extractContent(content);
 
-        if (!mainContent) {
-            console.log(`No content found after heading in file ${fileName}`);
-        }
-
         // Extract the actual link from nested markdown links
         let link = '';
         if (linkMatch) {
@@ -218,14 +166,8 @@ export default async function handler(
         return;
     }
 
-    const { projectId } = req.query;
-    if (!projectId || Array.isArray(projectId)) {
-        res.status(400).json({ error: 'Invalid project ID' });
-        return;
-    }
-
     try {
-        console.log('Starting milestone search for project ID:', projectId);
+        console.log('Starting milestone search for all projects');
         
         let fundingDir;
         try {
@@ -236,12 +178,12 @@ export default async function handler(
             return;
         }
         
-        const milestoneFiles = findMilestoneFiles(fundingDir, projectId);
-        console.log('Found milestone files:', milestoneFiles);
+        const milestoneFiles = findAllMilestoneFiles(fundingDir);
+        console.log('Found milestone files:', milestoneFiles.length);
 
         if (milestoneFiles.length === 0) {
             console.log('No milestone files found');
-            res.status(404).json({ error: 'No milestone files found' });
+            res.status(200).json([]);
             return;
         }
 
@@ -249,14 +191,12 @@ export default async function handler(
 
         for (const filePath of milestoneFiles) {
             const fileName = path.basename(filePath);
-            console.log(`Processing file: ${fileName}`);
             
             try {
                 const content = fs.readFileSync(filePath, 'utf-8');
                 const milestone = parseMilestoneFile(content, fileName);
                 
                 if (milestone) {
-                    console.log(`Successfully parsed milestone from ${fileName}`);
                     if (fileName.includes('close-out')) {
                         milestones.push({
                             ...milestone,
@@ -271,30 +211,27 @@ export default async function handler(
                             });
                         }
                     }
-                } else {
-                    console.log(`Failed to parse milestone from ${fileName}`);
                 }
             } catch (err) {
                 console.error(`Error processing file ${fileName}:`, err);
             }
         }
 
-        if (milestones.length === 0) {
-            console.log('No milestones could be parsed');
-            res.status(404).json({ error: 'No milestones could be parsed' });
-            return;
-        }
-
-        console.log(`Found ${milestones.length} milestones`);
-        // Sort milestones by number, ensuring close-out reports appear at the end
+        console.log(`Found ${milestones.length} milestones from all projects`);
+        
+        // Sort milestones by project ID and number
         const sortedMilestones = milestones.sort((a, b) => {
+            if (a.projectId !== b.projectId) {
+                return a.projectId.localeCompare(b.projectId);
+            }
             if (a.isCloseOut) return 1;
             if (b.isCloseOut) return -1;
             return a.number - b.number;
         });
+
         res.status(200).json(sortedMilestones);
     } catch (error) {
-        console.error('Error reading milestones:', error);
+        console.error('Error reading all milestones:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 } 

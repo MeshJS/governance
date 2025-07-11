@@ -13,7 +13,8 @@
     box-shadow: 0 2px 12px -1px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     padding: 1.5rem 1rem;
-    height: calc(100vh - 3rem);
+    height: auto;
+    max-height: calc(100vh - 8rem);
     display: flex;
     flex-direction: column;
 }

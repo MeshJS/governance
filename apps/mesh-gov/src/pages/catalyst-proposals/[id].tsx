@@ -15,6 +15,14 @@ const getFundingRound = (category: string): string => {
     return match ? match[0] : category;
 };
 
+// Determine project status based on milestone completion
+const getProjectStatus = (milestonesCompleted: number, totalMilestones: number): 'Completed' | 'In Progress' => {
+    if (milestonesCompleted >= totalMilestones && totalMilestones > 0) {
+        return 'Completed';
+    }
+    return 'In Progress';
+};
+
 export default function ProposalDetail() {
     const router = useRouter();
     const { id } = router.query;
@@ -105,7 +113,7 @@ export default function ProposalDetail() {
                                 milestonesLink: `https://milestones.projectcatalyst.io/projects/${proposal.projectDetails.project_id}`,
                                 fundingCategory: proposal.projectDetails.category,
                                 proposalBudget: `${proposal.projectDetails.budget} ₳`,
-                                status: proposal.projectDetails.status,
+                                status: getProjectStatus(proposal.milestonesCompleted, proposal.projectDetails.milestones_qty),
                                 milestonesCompleted: `${proposal.milestonesCompleted}/${proposal.projectDetails.milestones_qty}`,
                                 fundsDistributed: `${proposal.projectDetails.funds_distributed} of ${proposal.projectDetails.budget}`,
                                 fundingProgress: ''

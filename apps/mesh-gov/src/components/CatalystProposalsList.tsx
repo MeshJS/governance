@@ -19,6 +19,14 @@ const calculateProgress = (completed: number, total: number): number => {
     return Math.round((completed / total) * 100);
 };
 
+// Determine project status based on milestone completion
+const getProjectStatus = (milestonesCompleted: number, totalMilestones: number): 'Completed' | 'In Progress' => {
+    if (milestonesCompleted >= totalMilestones && totalMilestones > 0) {
+        return 'Completed';
+    }
+    return 'In Progress';
+};
+
 // Format title for URL
 const formatTitleForUrl = (title: string): string => {
     return title
@@ -86,7 +94,7 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                                         style={{
                                             width: `${progressPercent}%`,
                                             background: progressPercent === 100
-                                                ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.35))'
+                                                ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
                                                 : progressPercent > 50
                                                     ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
                                                     : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
@@ -102,6 +110,7 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
             <ul className={styles.list}>
                 {data.projects.map((project) => {
                     const progressPercent = calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty);
+                    const projectStatus = getProjectStatus(project.milestonesCompleted, project.projectDetails.milestones_qty);
 
                     return (
                         <li
@@ -112,11 +121,11 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                         >
                             <div className={styles.cardInner}>
                                 <div className={styles.cardHeader}>
-                                    <span className={`${styles.status} ${project.projectDetails.status === 'Completed' ? styles.statusCompleted :
-                                        project.projectDetails.status === 'In Progress' ? styles.statusInProgress :
+                                    <span className={`${styles.status} ${projectStatus === 'Completed' ? styles.statusCompleted :
+                                        projectStatus === 'In Progress' ? styles.statusInProgress :
                                             styles.statusPending
                                         }`}>
-                                        {project.projectDetails.status}
+                                        {projectStatus}
                                     </span>
                                     <h3 className={styles.title}>{project.projectDetails.title}</h3>
                                 </div>
@@ -149,7 +158,7 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                                                     style={{
                                                         width: `${progressPercent}%`,
                                                         background: progressPercent === 100
-                                                            ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.35))'
+                                                            ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
                                                             : progressPercent > 50
                                                                 ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
                                                                 : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
