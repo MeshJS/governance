@@ -1,0 +1,13 @@
+[build]
+functions = "netlify/functions"
+
+[functions]
+[functions."discord-stats-background"]
+runtime = "nodejs18.x"
+
+[functions."catalyst-proposals-background"]
+runtime = "nodejs18.x"
+
+[dev]
+functions = "netlify/functions"
+edge_functions = false
