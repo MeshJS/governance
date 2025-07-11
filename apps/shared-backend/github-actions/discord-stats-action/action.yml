@@ -1,0 +1,42 @@
+# action.yml
+name: "Discord Stats"
+description: "Fetch monthly Discord member & message stats via Netlify background function"
+
+inputs:
+  guild-id:
+    description: "Server (guild) ID"
+    required: true
+  output-file:
+    description: "Relative or absolute path for JSON output"
+    required: false
+    default: "stats.json"
+  backfill:
+    description: "Whether to backfill from Jan of BACKFILL_YEAR"
+    required: false
+    default: "false"
+  backfill-year:
+    description: "Year to backfill from (ignored if backfill=false)"
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "18"
+
+    - name: Install dependencies
+      working-directory: ${{ github.action_path }}
+      shell: bash
+      run: npm install
+
+    - name: Run stats script
+      shell: bash
+      run: node ${{ github.action_path }}/getStats.js
+      env:
+        GUILD_ID: ${{ inputs.guild-id }}
+        OUTPUT_FILE: ${{ inputs.output-file }}
+        BACKFILL: ${{ inputs.backfill }}
+        BACKFILL_YEAR: ${{ inputs.backfill-year }}

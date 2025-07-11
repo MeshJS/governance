@@ -1,0 +1,7 @@
+{
+  "name": "discord-stats-action",
+  "version": "1.0.3",
+  "type": "module",
+  "main": "getStats.js",
+  "dependencies": {}
+}
