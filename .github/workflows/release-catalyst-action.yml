@@ -31,25 +31,19 @@ jobs:
           cd apps/shared-backend/github-actions/catalyst-stats-action
           npm run build
 
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release with Asset
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          name: Release ${{ github.ref }}
           body: |
             Changes in this Release:
             ${{ github.event.head_commit.message }}
           draft: false
           prerelease: false
-
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
+          files: |
+            ./apps/shared-backend/github-actions/catalyst-stats-action/dist/index.js
+            ./apps/shared-backend/github-actions/catalyst-stats-action/action.yml
+            ./apps/shared-backend/github-actions/catalyst-stats-action/package.json
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./apps/shared-backend/github-actions/catalyst-stats-action/dist/index.js
-          asset_name: index.js
-          asset_content_type: application/javascript 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
