@@ -34,7 +34,7 @@ interface TimeWindow {
 export default function Contributors() {
     const { contributorsData, isLoading, error } = useData();
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
-    
+
     // Default time window is set to "All time" when page loads
     const [timeWindow, setTimeWindow] = useState<TimeWindow>({
         startDate: null,
@@ -46,9 +46,9 @@ export default function Contributors() {
     // Calculate global earliest contribution date across all contributors
     const globalEarliestDate = useMemo(() => {
         if (!contributorsData) return null;
-        
+
         let earliestDate: string | null = null;
-        
+
         contributorsData.contributors.forEach(contributor => {
             contributor.repositories.forEach(repo => {
                 const allTimestamps = [...repo.commit_timestamps, ...repo.pr_timestamps];
@@ -59,7 +59,7 @@ export default function Contributors() {
                 });
             });
         });
-        
+
         return earliestDate;
     }, [contributorsData]);
 
@@ -122,7 +122,7 @@ export default function Contributors() {
         if (!contributorsData) return [];
 
         const { startDate, endDate } = timeWindowBoundaries;
-        
+
         // Create array of contributors with their filtered metrics
         const contributorsWithMetrics = contributorsData.contributors.map(contributor => {
             const filteredMetrics = getFilteredMetrics(contributor, startDate, endDate);
@@ -137,11 +137,11 @@ export default function Contributors() {
             // Primary sort: total contributions
             const contributionsDiff = b.filteredMetrics.contributions - a.filteredMetrics.contributions;
             if (contributionsDiff !== 0) return contributionsDiff;
-            
+
             // Secondary sort: commits (for tiebreaker)
             const commitsDiff = b.filteredMetrics.commits - a.filteredMetrics.commits;
             if (commitsDiff !== 0) return commitsDiff;
-            
+
             // Tertiary sort: pull requests (for tiebreaker)
             return b.filteredMetrics.pullRequests - a.filteredMetrics.pullRequests;
         });
@@ -158,12 +158,12 @@ export default function Contributors() {
     const handleCustomDateChange = (field: 'startDate' | 'endDate', value: string) => {
         setTimeWindow(prev => {
             const newWindow = { ...prev, [field]: value };
-            
+
             // Validate date range - ensure start is not after end
             if (newWindow.startDate && newWindow.endDate) {
                 const start = new Date(newWindow.startDate);
                 const end = new Date(newWindow.endDate);
-                
+
                 if (start > end) {
                     // If start is after end, adjust the other date
                     if (field === 'startDate') {
@@ -173,7 +173,7 @@ export default function Contributors() {
                     }
                 }
             }
-            
+
             return newWindow;
         });
     };
@@ -231,7 +231,7 @@ export default function Contributors() {
                     title={<>Mesh <span>Contributors</span></>}
                     subtitle="Mesh is build by many minds and hands, here our Contributors"
                 />
-                
+
                 {/* Time Window Selector - Positioned alongside header */}
                 <div className={styles.timeWindowSelector}>
                     <div className={styles.timeWindowHeader}>
@@ -243,9 +243,8 @@ export default function Contributors() {
                             {TIME_WINDOW_PRESETS.map((preset) => (
                                 <button
                                     key={preset.value}
-                                    className={`${styles.presetButton} ${
-                                        timeWindow.preset === preset.value ? styles.active : ''
-                                    }`}
+                                    className={`${styles.presetButton} ${timeWindow.preset === preset.value ? styles.active : ''
+                                        }`}
                                     onClick={() => handleTimeWindowPresetChange(preset.value)}
                                 >
                                     {preset.label}
@@ -427,13 +426,13 @@ export default function Contributors() {
                 }).filter(Boolean)}
 
                 {/* Show message if no contributors have activity in selected time window */}
-                {timeWindow.preset !== 'all' && 
-                 filteredSummaryMetrics?.activeContributors === 0 && (
-                    <div className={styles.noContributorsMessage}>
-                        <p>No contributors found with activity in the selected time window.</p>
-                        <p>Try selecting a different time period or "All time" to see all contributors.</p>
-                    </div>
-                )}
+                {timeWindow.preset !== 'all' &&
+                    filteredSummaryMetrics?.activeContributors === 0 && (
+                        <div className={styles.noContributorsMessage}>
+                            <p>No contributors found with activity in the selected time window.</p>
+                            <p>Try selecting a different time period or &quot;All time&quot; to see all contributors.</p>
+                        </div>
+                    )}
             </div>
 
             {selectedContributor && (
