@@ -9,6 +9,8 @@ import { FaUsers, FaCalendarAlt } from 'react-icons/fa';
 import { VscGitCommit, VscGitPullRequest, VscRepo } from 'react-icons/vsc';
 import ContributionTimeline from '../components/ContributionTimeline';
 import { getFilteredMetrics, getFilteredSummaryMetrics } from '../utils/contributorMetrics';
+import ContributorsEvolutionChart from '../components/ContributorsEvolutionChart';
+import RepositoriesEvolutionChart from '../components/RepositoriesEvolutionChart';
 
 // Generate a consistent color for a repository
 const getRepoColor = (repoName: string) => {
@@ -109,6 +111,28 @@ export default function Contributors() {
         };
     }, [timeWindow, globalEarliestDate]);
 
+    // Calculate timeline display boundaries - always use global earliest date for consistent timeline display
+    const timelineDisplayBoundaries = useMemo(() => {
+        if (timeWindow.preset === 'custom') {
+            return {
+                startDate: timeWindow.startDate,
+                endDate: timeWindow.endDate
+            };
+        }
+
+        if (timeWindow.preset === 'all') {
+            // Convert timestamp to date part for consistent timeline display
+            const globalStartDate = globalEarliestDate ? new Date(globalEarliestDate).toISOString().split('T')[0] : null;
+            return {
+                startDate: globalStartDate,
+                endDate: null
+            };
+        }
+
+        // For other presets, use the same boundaries as data filtering
+        return timeWindowBoundaries;
+    }, [timeWindow, globalEarliestDate, timeWindowBoundaries]);
+
     // Calculate filtered summary metrics
     const filteredSummaryMetrics = useMemo(() => {
         if (!contributorsData) return null;
@@ -132,18 +156,38 @@ export default function Contributors() {
             };
         });
 
-        // Sort by total contributions in the time window (descending)
+        // Sort by weighted contributions with repository diversity bonus
         return contributorsWithMetrics.sort((a, b) => {
-            // Primary sort: total contributions
-            const contributionsDiff = b.filteredMetrics.contributions - a.filteredMetrics.contributions;
-            if (contributionsDiff !== 0) return contributionsDiff;
+            // Calculate base weighted scores - PRs are more complex so they count 3x
+            const baseScoreA = a.filteredMetrics.commits + (a.filteredMetrics.pullRequests * 3);
+            const baseScoreB = b.filteredMetrics.commits + (b.filteredMetrics.pullRequests * 3);
+            
+            // Apply repository diversity multiplier - multi-repo contributors get bonus
+            // 1 repo: 1x, 2 repos: 1.2x, 3 repos: 1.4x, 4+ repos: 1.5x
+            const getRepoMultiplier = (repoCount: number) => {
+                if (repoCount === 1) return 1.0;
+                if (repoCount === 2) return 1.2;
+                if (repoCount === 3) return 1.4;
+                return 1.5; // 4+ repositories
+            };
+            
+            const finalScoreA = baseScoreA * getRepoMultiplier(a.filteredMetrics.repositories);
+            const finalScoreB = baseScoreB * getRepoMultiplier(b.filteredMetrics.repositories);
+            
+            // Primary sort: final weighted score with repository diversity
+            const scoreDiff = finalScoreB - finalScoreA;
+            if (scoreDiff !== 0) return scoreDiff;
 
-            // Secondary sort: commits (for tiebreaker)
-            const commitsDiff = b.filteredMetrics.commits - a.filteredMetrics.commits;
-            if (commitsDiff !== 0) return commitsDiff;
+            // Secondary sort: repository count (cross-project engagement)
+            const repoDiff = b.filteredMetrics.repositories - a.filteredMetrics.repositories;
+            if (repoDiff !== 0) return repoDiff;
 
             // Tertiary sort: pull requests (for tiebreaker)
-            return b.filteredMetrics.pullRequests - a.filteredMetrics.pullRequests;
+            const prDiff = b.filteredMetrics.pullRequests - a.filteredMetrics.pullRequests;
+            if (prDiff !== 0) return prDiff;
+
+            // Quaternary sort: commits (final tiebreaker)
+            return b.filteredMetrics.commits - a.filteredMetrics.commits;
         });
     }, [contributorsData, timeWindowBoundaries]);
 
@@ -231,8 +275,89 @@ export default function Contributors() {
                     title={<>Mesh <span>Contributors</span></>}
                     subtitle="Mesh is build by many minds and hands, here our Contributors"
                 />
+            </div>
 
-                {/* Time Window Selector - Positioned alongside header */}
+            <div className={styles.summaryContainer}>
+                <div className={styles.summaryCards}>
+                    <div className={`${styles.summaryCard} ${styles.card}`}>
+                        <div className={styles.summaryContent}>
+                            <div className={styles.statColumn}>
+                                <FaUsers className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Total Contributors</p>
+                                <p className={styles.summaryNumber}>
+                                    {filteredSummaryMetrics?.activeContributors || 0}
+                                </p>
+                            </div>
+                            <div className={styles.statColumn}>
+                                <VscRepo className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Total Repositories</p>
+                                <p className={styles.summaryNumber}>
+                                    {filteredSummaryMetrics?.activeRepositories || 0}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={`${styles.summaryCard} ${styles.card}`}>
+                        <div className={styles.summaryContent}>
+                            <div className={styles.statColumn}>
+                                <VscGitCommit className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Commits</p>
+                                <p className={styles.summaryNumber}>
+                                    {filteredSummaryMetrics?.totalCommits || 0}
+                                </p>
+                            </div>
+                            <div className={styles.statColumn}>
+                                <VscGitPullRequest className={styles.summaryIcon} />
+                                <p className={styles.statLabel}>Pull Requests</p>
+                                <p className={styles.summaryNumber}>
+                                    {filteredSummaryMetrics?.totalPRs || 0}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Evolution Charts */}
+            <div className={styles.evolutionChartSection}>
+                <div className={styles.chartsContainer}>
+                    <div className={styles.chartWrapper}>
+                        <h3 className={styles.chartTitle}>Top Contributors</h3>
+                        <p className={styles.chartSubtitle}>
+                            Monthly activity trends for top {contributorsData ? Math.min(10, contributorsData.contributors.length) : 10} contributors
+                        </p>
+                        <div className={styles.chartContainer}>
+                            <ContributorsEvolutionChart
+                                contributors={contributorsData?.contributors || []}
+                                height={400}
+                                maxContributors={10}
+                                globalStartDate={timelineDisplayBoundaries.startDate || undefined}
+                                globalEndDate={timelineDisplayBoundaries.endDate || undefined}
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className={styles.chartWrapper}>
+                        <h3 className={styles.chartTitle}>Top Repositories</h3>
+                        <p className={styles.chartSubtitle}>
+                            Monthly contribution trends for the most active repositories
+                        </p>
+                        <div className={styles.chartContainer}>
+                            <RepositoriesEvolutionChart
+                                contributors={contributorsData?.contributors || []}
+                                height={400}
+                                maxRepositories={10}
+                                globalStartDate={timelineDisplayBoundaries.startDate || undefined}
+                                globalEndDate={timelineDisplayBoundaries.endDate || undefined}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Time Window Selector - Positioned above contributor cards */}
+            <div className={styles.timeWindowSection}>
                 <div className={styles.timeWindowSelector}>
                     <div className={styles.timeWindowHeader}>
                         <FaCalendarAlt className={styles.timeWindowIcon} />
@@ -273,48 +398,6 @@ export default function Contributors() {
                                 </div>
                             </div>
                         )}
-                    </div>
-                </div>
-            </div>
-
-            <div className={styles.summaryContainer}>
-                <div className={styles.summaryCards}>
-                    <div className={`${styles.summaryCard} ${styles.card}`}>
-                        <div className={styles.summaryContent}>
-                            <div className={styles.statColumn}>
-                                <FaUsers className={styles.summaryIcon} />
-                                <p className={styles.statLabel}>Active Contributors</p>
-                                <p className={styles.summaryNumber}>
-                                    {filteredSummaryMetrics?.activeContributors || 0}
-                                </p>
-                            </div>
-                            <div className={styles.statColumn}>
-                                <VscRepo className={styles.summaryIcon} />
-                                <p className={styles.statLabel}>Active Repositories</p>
-                                <p className={styles.summaryNumber}>
-                                    {filteredSummaryMetrics?.activeRepositories || 0}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={`${styles.summaryCard} ${styles.card}`}>
-                        <div className={styles.summaryContent}>
-                            <div className={styles.statColumn}>
-                                <VscGitCommit className={styles.summaryIcon} />
-                                <p className={styles.statLabel}>Commits</p>
-                                <p className={styles.summaryNumber}>
-                                    {filteredSummaryMetrics?.totalCommits || 0}
-                                </p>
-                            </div>
-                            <div className={styles.statColumn}>
-                                <VscGitPullRequest className={styles.summaryIcon} />
-                                <p className={styles.statLabel}>Pull Requests</p>
-                                <p className={styles.summaryNumber}>
-                                    {filteredSummaryMetrics?.totalPRs || 0}
-                                </p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -378,8 +461,8 @@ export default function Contributors() {
                                 <ContributionTimeline
                                     commitTimestamps={contributor.repositories.flatMap(repo => repo.commit_timestamps)}
                                     prTimestamps={contributor.repositories.flatMap(repo => repo.pr_timestamps)}
-                                    globalStartDate={timeWindowBoundaries.startDate || undefined}
-                                    globalEndDate={timeWindowBoundaries.endDate || undefined}
+                                    globalStartDate={timelineDisplayBoundaries.startDate || undefined}
+                                    globalEndDate={timelineDisplayBoundaries.endDate || undefined}
                                 />
                             </div>
 
@@ -438,8 +521,8 @@ export default function Contributors() {
             {selectedContributor && (
                 <ContributorModal
                     contributor={selectedContributor}
-                    globalStartDate={timeWindowBoundaries.startDate || undefined}
-                    globalEndDate={timeWindowBoundaries.endDate || undefined}
+                    globalStartDate={timelineDisplayBoundaries.startDate || undefined}
+                    globalEndDate={timelineDisplayBoundaries.endDate || undefined}
                     onClose={() => setSelectedContributor(null)}
                 />
             )}

@@ -26,15 +26,19 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
     const closeOutReport = milestones.find(m => m.isCloseOut);
 
     const markdownComponents: Components = {
-        a: ({ node, children, ...props }) => (
-            <a
-                {...props}
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                {children}
-            </a>
-        )
+        a: ({ node, children, ...props }) => {
+            // Extract ref and other problematic props to avoid TypeScript conflicts
+            const { ref, ...safeProps } = props;
+            return (
+                <a
+                    {...safeProps}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {children}
+                </a>
+            );
+        }
     };
 
     return (

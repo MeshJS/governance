@@ -1058,3 +1058,199 @@
     font-weight: 600;
     font-size: 1.125rem;
 }
+
+/* Evolution Chart Section */
+.evolutionChartSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: linear-gradient(165deg,
+            rgba(56, 232, 225, 0.08) 0%,
+            rgba(20, 184, 166, 0.04) 50%,
+            rgba(16, 185, 129, 0.02) 100%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(56, 232, 225, 0.15);
+    box-shadow: 0 2px 12px -1px rgba(56, 232, 225, 0.1);
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.evolutionChartSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(45deg, 
+        rgba(56, 232, 225, 0.2), 
+        transparent, 
+        rgba(20, 184, 166, 0.1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: exclude;
+    pointer-events: none;
+}
+
+.evolutionChartSection:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -3px rgba(56, 232, 225, 0.2);
+    border-color: rgba(56, 232, 225, 0.25);
+}
+
+.evolutionChartSection:hover::before {
+    background: linear-gradient(45deg, rgba(56, 232, 225, 0.3), transparent, rgba(20, 184, 166, 0.15));
+}
+
+.chartsContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.chartWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.chartTitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-align: center;
+}
+
+.chartSubtitle {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+
+.sectionSubtitle {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.chartContainer {
+    /* Removed all styling - just a plain container now */
+}
+
+/* Time Window Section */
+.timeWindowSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: linear-gradient(165deg,
+            rgba(255, 255, 255, 0.04) 0%,
+            rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+    .evolutionChartSection {
+        padding: 1.5rem;
+    }
+
+    .chartsContainer {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .sectionTitle {
+        font-size: 1.375rem;
+    }
+
+    .sectionSubtitle {
+        font-size: 0.9rem;
+    }
+
+    .timeWindowSection {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .evolutionChartSection {
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .sectionTitle {
+        font-size: 1.25rem;
+    }
+
+    .sectionSubtitle {
+        font-size: 0.85rem;
+    }
+
+    .chartsContainer {
+        gap: 1rem;
+    }
+
+    .chartWrapper {
+        gap: 0.5rem;
+    }
+
+    .timeWindowSection {
+        padding: 1rem;
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .evolutionChartSection {
+        padding: 1rem;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .sectionTitle {
+        font-size: 1.125rem;
+    }
+
+    .sectionSubtitle {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+
+    .timeWindowSection {
+        padding: 1rem;
+        gap: 1rem;
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
+    }
+}
