@@ -5,6 +5,9 @@
     "main": "voting-action.js",
     "dependencies": {
         "axios": "^1.6.7",
-        "dotenv": "^16.4.7"
+        "dotenv": "^16.4.7",
+        "cheerio": "^1.0.0",
+        "discord.js": "^14.19.2",
+        "@supabase/supabase-js": "^2.50.5"
     }
 }

@@ -1,0 +1,49 @@
+name: Update Catalyst Proposal Data
+
+on:
+  #schedule:
+  #  - cron: '10 0 * * 1'  # Runs at 00:10 UTC every Monday
+  #  - cron: '10 0 * * 3'  # Runs at 00:10 UTC every Wednesday
+  #  - cron: '10 0 * * 5'  # Runs at 00:10 UTC every Friday
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+permissions:
+  contents: write
+  # More explicit permissions:
+  issues: read
+  pull-requests: read
+
+jobs:
+  update-catalyst-data:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL2: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL2 }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY2: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY2 }}
+      NEXT_PUBLIC_MILESTONES_URL: 'https://milestones.projectcatalyst.io'
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      README_PROJECT_IDS: ${{ secrets.README_PROJECT_IDS }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Update Catalyst Data
+        run: npm run update-catalyst-docs
+        
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add mesh-gov-updates/catalyst-proposals/*.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update MeshJS Catalyst Proposal Data" && git push) 
