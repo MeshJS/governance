@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Amaru Treasury Withdrawal 2025](https://adastat.net/governances/60ed6ab43c840ff888a8af30a1ed27b41e9f4a91a89822b2b63d1bfc52aeec4500) |
+| Hash           | 60ed6ab43c840ff888a8af30a1ed27b41e9f4a91a89822b2b63d1bfc52aeec4500 |
+| Action ID      | gov_action1vrkk4dpuss8l3z9g4uc2rmf8ks0f7j534zvz9v4k85dlc54wa3zsqq68rx0 |
+| Type           | TreasuryWithdrawals |
+| Proposed Epoch | 566 |
+| Expires Epoch  | 573 |
+| Vote           | ✅Yes |
+| Vote Submitted | 7/10/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/ae6409b74d9c36a414bd127ce72a5bb5c74ffdcd58b643a328600baace2a60a1 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Set a 300 million ADA Net Change Limit for Epochs 563–635](https://adastat.net/governances/637e3c256da9c1350847ca3211e8c44e3660a4471e8b6f68a8c537746b4aeb7300) |
 | Hash           | 637e3c256da9c1350847ca3211e8c44e3660a4471e8b6f68a8c537746b4aeb7300 |
 | Action ID      | gov_action1vdlrcftd48qn2zz8egepr6xyfcmxpfz8r69k769gc5mhg662adesq9yy8pl |
