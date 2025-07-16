@@ -44,41 +44,6 @@ if (!organizationName) {
     process.exit(1);
 }
 
-// Define the base directory for voting history files
-const votingHistoryDir = path.join('mesh-gov-updates', 'drep-voting', 'markdown');
-
-// Function to read front matter from a file
-function readFrontMatter(filePath) {
-    try {
-        const content = fs.readFileSync(filePath, 'utf8');
-        const frontMatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-        if (frontMatterMatch) {
-            const frontMatter = frontMatterMatch[1];
-            const yearMatch = frontMatter.match(/title:\s*(\d{4})/);
-            if (yearMatch) {
-                return parseInt(yearMatch[1]);
-            }
-        }
-    } catch (error) {
-        console.warn(`Could not read front matter from ${filePath}:`, error.message);
-    }
-    return null;
-}
-
-// Function to find the correct file for a given year
-function findFileForYear(year) {
-    const files = fs.readdirSync(votingHistoryDir);
-    for (const file of files) {
-        if (file.endsWith('.md')) {
-            const fileYear = readFrontMatter(path.join(votingHistoryDir, file));
-            if (fileYear === year) {
-                return path.join(votingHistoryDir, file);
-            }
-        }
-    }
-    return null;
-}
-
 async function fetchMetadata(metaUrl) {
     try {
         // Handle IPFS URLs
@@ -396,8 +361,8 @@ async function getDRepVotes(drepId) {
             let proposalTitle = proposal.meta_json?.body?.title;
 
             // If title not found in meta_json, try fetching from meta_url
-            if (!proposalTitle && vote.meta_url) {
-                const metadata = await fetchMetadata(vote.meta_url);
+            if (!proposalTitle && proposal.meta_url) {
+                const metadata = await fetchMetadata(proposal.meta_url);
                 if (metadata?.body?.title) {
                     proposalTitle = metadata.body.title;
                 }
