@@ -114,82 +114,28 @@ async function updateGovernanceProposals() {
 
         console.log(`Found ${missingProposals.length} missing proposals`);
 
-        // Add missing proposals to Supabase
-        if (missingProposals.length > 0) {
-            console.log('Adding missing proposals to database...');
+        // Process all proposals (both missing and existing) in a single operation
+        console.log('Processing all proposals...');
 
-            const enrichedMissingProposals = await Promise.all(
-                missingProposals.map(async (proposal: GovernanceProposal) => {
-                    const votingSummary = await fetchVotingSummary(proposal.proposal_id);
+        const allProposalsToProcess = allProposals.filter((proposal: GovernanceProposal) => {
+            // Include proposals that are missing OR are active (not expired)
+            return !existingProposalIds.has(proposal.proposal_id) ||
+                proposal.expiration > currentEpoch;
+        });
 
-                    // Fetch metadata if meta_url exists
-                    if (proposal.meta_url) {
-                        console.log(`Fetching metadata for missing proposal ${proposal.proposal_id} from: ${proposal.meta_url}`);
-                        const metadata = await fetchMetadataFromUrl(proposal.meta_url);
-                        if (metadata) {
-                            console.log(`Successfully fetched metadata for missing proposal ${proposal.proposal_id}`);
-                            proposal.meta_json = metadata;
-                        } else {
-                            console.log(`Failed to fetch metadata for missing proposal ${proposal.proposal_id}`);
-                        }
-                    }
+        console.log(`Processing ${allProposalsToProcess.length} proposals (missing + active)`);
 
-                    return {
-                        ...proposal,
-                        ...votingSummary[0],
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    };
-                })
-            );
-
-            const { error: insertError } = await supabase
-                .from('governance_proposals')
-                .insert(enrichedMissingProposals);
-
-            if (insertError) {
-                console.error('Error inserting missing proposals:', insertError);
-                throw insertError;
-            }
-            console.log(`Successfully added ${enrichedMissingProposals.length} missing proposals to database`);
-        }
-
-        // Get active proposals from Supabase (including newly added ones)
-        const { data: activeProposals, error: fetchError } = await supabase
-            .from('governance_proposals')
-            .select('proposal_id, meta_url, meta_json')
-            .gt('expiration', currentEpoch);
-
-        if (fetchError) throw fetchError;
-
-        if (!activeProposals || activeProposals.length === 0) {
-            console.log('No active proposals found in database');
-            return;
-        }
-
-        console.log(`Found ${activeProposals.length} active proposals to update`);
-
-        // Filter only the active proposals we need to update
-        const proposalsToUpdate = allProposals.filter((proposal: GovernanceProposal) =>
-            activeProposals.some((active: { proposal_id: string }) => active.proposal_id === proposal.proposal_id)
-        );
-
-        console.log(`Updating ${proposalsToUpdate.length} active proposals`);
-
-        // Enrich proposals with voting summaries and metadata
+        // Enrich all proposals with voting summaries and metadata
         const enrichedProposals = await Promise.all(
-            proposalsToUpdate.map(async (proposal: GovernanceProposal) => {
+            allProposalsToProcess.map(async (proposal: GovernanceProposal) => {
                 const votingSummary = await fetchVotingSummary(proposal.proposal_id);
 
-                // If meta_json is null or empty and meta_url exists, fetch metadata
-                if ((!proposal.meta_json || Object.keys(proposal.meta_json).length === 0) && proposal.meta_url) {
-                    console.log(`Proposal ${proposal.proposal_id} has meta_url: ${proposal.meta_url}`);
-                    console.log(`Current meta_json:`, proposal.meta_json);
-
+                // Fetch metadata if meta_url exists and we don't have it yet
+                if (proposal.meta_url && (!proposal.meta_json || Object.keys(proposal.meta_json).length === 0)) {
+                    console.log(`Fetching metadata for proposal ${proposal.proposal_id} from: ${proposal.meta_url}`);
                     const metadata = await fetchMetadataFromUrl(proposal.meta_url);
                     if (metadata) {
                         console.log(`Successfully fetched metadata for proposal ${proposal.proposal_id}`);
-                        console.log(`Metadata structure:`, JSON.stringify(metadata, null, 2).substring(0, 200) + '...');
                         proposal.meta_json = metadata;
                     } else {
                         console.log(`Failed to fetch metadata for proposal ${proposal.proposal_id}`);
@@ -199,6 +145,7 @@ async function updateGovernanceProposals() {
                 return {
                     ...proposal,
                     ...votingSummary[0],
+                    created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString()
                 };
             })
@@ -207,16 +154,18 @@ async function updateGovernanceProposals() {
         // Log the final data being sent to Supabase
         console.log('Sample of enriched proposal:', JSON.stringify(enrichedProposals[0], null, 2).substring(0, 200) + '...');
 
-        // Update Supabase
-        const { error: updateError } = await supabase
+        // Upsert all proposals to Supabase (insert new ones, update existing ones)
+        const { error: upsertError } = await supabase
             .from('governance_proposals')
-            .upsert(enrichedProposals, { onConflict: 'proposal_id' });
+            .upsert(enrichedProposals, {
+                onConflict: 'proposal_id'
+            });
 
-        if (updateError) {
-            console.error('Error updating proposals in Supabase:', updateError);
-            throw updateError;
+        if (upsertError) {
+            console.error('Error upserting proposals in Supabase:', upsertError);
+            throw upsertError;
         }
-        console.log(`Successfully updated ${enrichedProposals.length} active governance proposals`);
+        console.log(`Successfully processed ${enrichedProposals.length} governance proposals (inserted new ones, updated existing ones)`);
     } catch (error) {
         console.error('Error updating governance proposals:', error);
         process.exit(1);
