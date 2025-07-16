@@ -93,7 +93,68 @@ async function updateGovernanceProposals() {
         const chainTip = await fetchChainTip();
         const currentEpoch = chainTip[0].epoch_no;
 
-        // First, get active proposals from Supabase
+        // Fetch all governance proposals from Koios
+        const allProposals = await fetchGovernanceProposals();
+        console.log(`Fetched ${allProposals.length} total proposals from Koios`);
+
+        // Get all proposal IDs from Supabase
+        const { data: existingProposals, error: fetchExistingError } = await supabase
+            .from('governance_proposals')
+            .select('proposal_id');
+
+        if (fetchExistingError) throw fetchExistingError;
+
+        const existingProposalIds = new Set(existingProposals?.map(p => p.proposal_id) || []);
+        console.log(`Found ${existingProposalIds.size} existing proposals in Supabase`);
+
+        // Find missing proposals
+        const missingProposals = allProposals.filter((proposal: GovernanceProposal) =>
+            !existingProposalIds.has(proposal.proposal_id)
+        );
+
+        console.log(`Found ${missingProposals.length} missing proposals`);
+
+        // Add missing proposals to Supabase
+        if (missingProposals.length > 0) {
+            console.log('Adding missing proposals to database...');
+
+            const enrichedMissingProposals = await Promise.all(
+                missingProposals.map(async (proposal: GovernanceProposal) => {
+                    const votingSummary = await fetchVotingSummary(proposal.proposal_id);
+
+                    // Fetch metadata if meta_url exists
+                    if (proposal.meta_url) {
+                        console.log(`Fetching metadata for missing proposal ${proposal.proposal_id} from: ${proposal.meta_url}`);
+                        const metadata = await fetchMetadataFromUrl(proposal.meta_url);
+                        if (metadata) {
+                            console.log(`Successfully fetched metadata for missing proposal ${proposal.proposal_id}`);
+                            proposal.meta_json = metadata;
+                        } else {
+                            console.log(`Failed to fetch metadata for missing proposal ${proposal.proposal_id}`);
+                        }
+                    }
+
+                    return {
+                        ...proposal,
+                        ...votingSummary[0],
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+                })
+            );
+
+            const { error: insertError } = await supabase
+                .from('governance_proposals')
+                .insert(enrichedMissingProposals);
+
+            if (insertError) {
+                console.error('Error inserting missing proposals:', insertError);
+                throw insertError;
+            }
+            console.log(`Successfully added ${enrichedMissingProposals.length} missing proposals to database`);
+        }
+
+        // Get active proposals from Supabase (including newly added ones)
         const { data: activeProposals, error: fetchError } = await supabase
             .from('governance_proposals')
             .select('proposal_id, meta_url, meta_json')
@@ -106,13 +167,14 @@ async function updateGovernanceProposals() {
             return;
         }
 
-        // Fetch all governance proposals from Koios
-        const allProposals = await fetchGovernanceProposals();
+        console.log(`Found ${activeProposals.length} active proposals to update`);
 
         // Filter only the active proposals we need to update
         const proposalsToUpdate = allProposals.filter((proposal: GovernanceProposal) =>
             activeProposals.some((active: { proposal_id: string }) => active.proposal_id === proposal.proposal_id)
         );
+
+        console.log(`Updating ${proposalsToUpdate.length} active proposals`);
 
         // Enrich proposals with voting summaries and metadata
         const enrichedProposals = await Promise.all(
