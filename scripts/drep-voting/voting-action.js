@@ -157,16 +157,30 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
         if (year && epoch) {
             const directUrl = `${baseUrl}/${year}/${epoch}_${shortenedId}/Vote_Context.jsonId`;
             try {
-                const response = await axios.get(directUrl);
+                const response = await axios.get(directUrl, { responseType: 'text' });
                 if (response.data) {
+                    // Try to extract the LAST comment value manually to preserve all formatting
+                    const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
+                    if (commentMatches.length > 0) {
+                        let commentRaw = commentMatches[commentMatches.length - 1][1];
+                        // Unescape escaped quotes and backslashes
+                        commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
+                        return commentRaw.trim();
+                    }
+
+                    // Fallback: try to parse as JSON (may lose formatting)
                     try {
-                        // Try to parse the response data if it's a string
-                        const parsedData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-                        if (parsedData?.body?.comment) {
-                            return parsedData.body.comment;
+                        const normalizedRaw = response.data.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                        const parsedData = JSON.parse(normalizedRaw);
+                        if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                            return parsedData.body.comment.trim();
                         }
                     } catch (parseError) {
-                        console.warn(`Failed to parse response for proposal ${proposalId}:`, parseError.message);
+                        const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+                        const parsedData = JSON.parse(cleaned);
+                        if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                            return parsedData.body.comment.trim();
+                        }
                     }
                 }
             } catch (error) {
@@ -185,17 +199,30 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
                 for (const currentEpoch of epochs) {
                     const searchUrl = `${baseUrl}/${currentYear}/${currentEpoch}_${shortenedId}/Vote_Context.jsonId`;
                     try {
-                        const response = await axios.get(searchUrl);
+                        const response = await axios.get(searchUrl, { responseType: 'text' });
                         if (response.data) {
+                            // Try to extract the LAST comment value manually to preserve all formatting
+                            const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
+                            if (commentMatches.length > 0) {
+                                let commentRaw = commentMatches[commentMatches.length - 1][1];
+                                // Unescape escaped quotes and backslashes
+                                commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
+                                return commentRaw.trim();
+                            }
+
+                            // Fallback: try to parse as JSON (may lose formatting)
                             try {
-                                // Try to parse the response data if it's a string
-                                const parsedData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-                                if (parsedData?.body?.comment) {
-                                    return parsedData.body.comment;
+                                const normalizedRaw = response.data.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                                const parsedData = JSON.parse(normalizedRaw);
+                                if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                                    return parsedData.body.comment.trim();
                                 }
                             } catch (parseError) {
-                                console.warn(`Failed to parse response for proposal ${proposalId}:`, parseError.message);
-                                continue;
+                                const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+                                const parsedData = JSON.parse(cleaned);
+                                if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                                    return parsedData.body.comment.trim();
+                                }
                             }
                         }
                     } catch (error) {
@@ -212,17 +239,30 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
             for (let currentEpoch = startEpoch; currentEpoch <= endEpoch; currentEpoch++) {
                 const searchUrl = `${baseUrl}/${currentYear}/${currentEpoch}_${shortenedId}/Vote_Context.jsonId`;
                 try {
-                    const response = await axios.get(searchUrl);
+                    const response = await axios.get(searchUrl, { responseType: 'text' });
                     if (response.data) {
+                        // Try to extract the LAST comment value manually to preserve all formatting
+                        const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
+                        if (commentMatches.length > 0) {
+                            let commentRaw = commentMatches[commentMatches.length - 1][1];
+                            // Unescape escaped quotes and backslashes
+                            commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
+                            return commentRaw.trim();
+                        }
+
+                        // Fallback: try to parse as JSON (may lose formatting)
                         try {
-                            // Try to parse the response data if it's a string
-                            const parsedData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-                            if (parsedData?.body?.comment) {
-                                return parsedData.body.comment;
+                            const normalizedRaw = response.data.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                            const parsedData = JSON.parse(normalizedRaw);
+                            if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                                return parsedData.body.comment.trim();
                             }
                         } catch (parseError) {
-                            console.warn(`Failed to parse response for proposal ${proposalId}:`, parseError.message);
-                            continue;
+                            const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+                            const parsedData = JSON.parse(cleaned);
+                            if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                                return parsedData.body.comment.trim();
+                            }
                         }
                     }
                 } catch (error) {
