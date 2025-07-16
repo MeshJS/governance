@@ -159,16 +159,7 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
             try {
                 const response = await axios.get(directUrl, { responseType: 'text' });
                 if (response.data) {
-                    // Try to extract the LAST comment value manually to preserve all formatting
-                    const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
-                    if (commentMatches.length > 0) {
-                        let commentRaw = commentMatches[commentMatches.length - 1][1];
-                        // Unescape escaped quotes and backslashes
-                        commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
-                        return commentRaw.trim();
-                    }
-
-                    // Fallback: try to parse as JSON (may lose formatting)
+                    // First try to parse as JSON (cleaner if it works)
                     try {
                         const normalizedRaw = response.data.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
                         const parsedData = JSON.parse(normalizedRaw);
@@ -176,10 +167,24 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
                             return parsedData.body.comment.trim();
                         }
                     } catch (parseError) {
-                        const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-                        const parsedData = JSON.parse(cleaned);
-                        if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
-                            return parsedData.body.comment.trim();
+                        // JSON parsing failed, try regex extraction as fallback
+                        const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
+                        if (commentMatches.length > 0) {
+                            let commentRaw = commentMatches[commentMatches.length - 1][1];
+                            // Unescape escaped quotes and backslashes
+                            commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
+                            return commentRaw.trim();
+                        }
+
+                        // Final fallback: try with cleaned control characters
+                        try {
+                            const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+                            const parsedData = JSON.parse(cleaned);
+                            if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                                return parsedData.body.comment.trim();
+                            }
+                        } catch (finalParseError) {
+                            // All parsing attempts failed
                         }
                     }
                 }
@@ -201,16 +206,7 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
                     try {
                         const response = await axios.get(searchUrl, { responseType: 'text' });
                         if (response.data) {
-                            // Try to extract the LAST comment value manually to preserve all formatting
-                            const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
-                            if (commentMatches.length > 0) {
-                                let commentRaw = commentMatches[commentMatches.length - 1][1];
-                                // Unescape escaped quotes and backslashes
-                                commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
-                                return commentRaw.trim();
-                            }
-
-                            // Fallback: try to parse as JSON (may lose formatting)
+                            // First try to parse as JSON (cleaner if it works)
                             try {
                                 const normalizedRaw = response.data.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
                                 const parsedData = JSON.parse(normalizedRaw);
@@ -218,10 +214,24 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
                                     return parsedData.body.comment.trim();
                                 }
                             } catch (parseError) {
-                                const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-                                const parsedData = JSON.parse(cleaned);
-                                if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
-                                    return parsedData.body.comment.trim();
+                                // JSON parsing failed, try regex extraction as fallback
+                                const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
+                                if (commentMatches.length > 0) {
+                                    let commentRaw = commentMatches[commentMatches.length - 1][1];
+                                    // Unescape escaped quotes and backslashes
+                                    commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
+                                    return commentRaw.trim();
+                                }
+
+                                // Final fallback: try with cleaned control characters
+                                try {
+                                    const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+                                    const parsedData = JSON.parse(cleaned);
+                                    if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                                        return parsedData.body.comment.trim();
+                                    }
+                                } catch (finalParseError) {
+                                    // All parsing attempts failed
                                 }
                             }
                         }
@@ -241,16 +251,7 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
                 try {
                     const response = await axios.get(searchUrl, { responseType: 'text' });
                     if (response.data) {
-                        // Try to extract the LAST comment value manually to preserve all formatting
-                        const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
-                        if (commentMatches.length > 0) {
-                            let commentRaw = commentMatches[commentMatches.length - 1][1];
-                            // Unescape escaped quotes and backslashes
-                            commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
-                            return commentRaw.trim();
-                        }
-
-                        // Fallback: try to parse as JSON (may lose formatting)
+                        // First try to parse as JSON (cleaner if it works)
                         try {
                             const normalizedRaw = response.data.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
                             const parsedData = JSON.parse(normalizedRaw);
@@ -258,10 +259,24 @@ async function fetchGovernanceRationale(proposalId, year = null, epoch = null) {
                                 return parsedData.body.comment.trim();
                             }
                         } catch (parseError) {
-                            const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-                            const parsedData = JSON.parse(cleaned);
-                            if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
-                                return parsedData.body.comment.trim();
+                            // JSON parsing failed, try regex extraction as fallback
+                            const commentMatches = [...response.data.matchAll(/"comment"\s*:\s*"([\s\S]*?)"\s*(,|\n|\r|})/g)];
+                            if (commentMatches.length > 0) {
+                                let commentRaw = commentMatches[commentMatches.length - 1][1];
+                                // Unescape escaped quotes and backslashes
+                                commentRaw = commentRaw.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\/g, '\\');
+                                return commentRaw.trim();
+                            }
+
+                            // Final fallback: try with cleaned control characters
+                            try {
+                                const cleaned = response.data.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+                                const parsedData = JSON.parse(cleaned);
+                                if (parsedData?.body?.comment && typeof parsedData.body.comment === 'string') {
+                                    return parsedData.body.comment.trim();
+                                }
+                            } catch (finalParseError) {
+                                // All parsing attempts failed
                             }
                         }
                     }
