@@ -97,6 +97,12 @@ async function updateGovernanceProposals() {
         const allProposals = await fetchGovernanceProposals();
         console.log(`Fetched ${allProposals.length} total proposals from Koios`);
 
+        // Deduplicate proposals by proposal_id (in case the API returns duplicates)
+        const uniqueProposals = allProposals.filter((proposal: GovernanceProposal, index: number, self: GovernanceProposal[]) =>
+            index === self.findIndex(p => p.proposal_id === proposal.proposal_id)
+        );
+        console.log(`After deduplication: ${uniqueProposals.length} unique proposals`);
+
         // Get all proposal IDs from Supabase
         const { data: existingProposals, error: fetchExistingError } = await supabase
             .from('governance_proposals')
@@ -108,7 +114,7 @@ async function updateGovernanceProposals() {
         console.log(`Found ${existingProposalIds.size} existing proposals in Supabase`);
 
         // Find missing proposals
-        const missingProposals = allProposals.filter((proposal: GovernanceProposal) =>
+        const missingProposals = uniqueProposals.filter((proposal: GovernanceProposal) =>
             !existingProposalIds.has(proposal.proposal_id)
         );
 
@@ -117,7 +123,7 @@ async function updateGovernanceProposals() {
         // Process all proposals (both missing and existing) in a single operation
         console.log('Processing all proposals...');
 
-        const allProposalsToProcess = allProposals.filter((proposal: GovernanceProposal) => {
+        const allProposalsToProcess = uniqueProposals.filter((proposal: GovernanceProposal) => {
             // Include proposals that are missing OR are active (not expired)
             return !existingProposalIds.has(proposal.proposal_id) ||
                 proposal.expiration > currentEpoch;
