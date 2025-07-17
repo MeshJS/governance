@@ -10,6 +10,22 @@
 | Expires Epoch  | 573 |
 | Vote           | ✅Yes |
 | Vote Submitted | 7/10/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/ae6409b74d9c36a414bd127ce72a5bb5c74ffdcd58b643a328600baace2a60a1 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
+| Proposal Title | [Amaru Treasury Withdrawal 2025](https://adastat.net/governances/60ed6ab43c840ff888a8af30a1ed27b41e9f4a91a89822b2b63d1bfc52aeec4500) |
+| Hash           | 60ed6ab43c840ff888a8af30a1ed27b41e9f4a91a89822b2b63d1bfc52aeec4500 |
+| Action ID      | gov_action1vrkk4dpuss8l3z9g4uc2rmf8ks0f7j534zvz9v4k85dlc54wa3zsqq68rx0 |
+| Type           | TreasuryWithdrawals |
+| Proposed Epoch | 566 |
+| Expires Epoch  | 573 |
+| Vote           | ✅Yes |
+| Vote Submitted | 7/10/2025 |
 | Rationale       | Title: Amaru Treasury Withdrawal 2025 Type: Treasury Withdrawal Members of the Mesh DRep have voted as following on the governace action Amaru Treasury Withdrawal 2025 Yes: 4 votes No: 0 votes Abstain: 0 votes Therefore, we YES on the Amaru Treasury Withdrawal 2025. Our rationale We mainly apply and extend our rationale to the previous Amaru info action which has been approved since then and enabled this follow up Treasury Withdrawal proposal. - modest budget request. Amaru requests a total of 1.5M Ada, which is a reasonable amount for the outlined work, furthermore, we appreciate the well outlined budget allocations of the proposal. However, it is important to keep in mind that the 1.5M Ada requested from Amaru are not the full budget which will be required to fully build and implement the Node, further funding requests will surely come. Therefore, it would be great to get a at least rough estimation of the total budget required ahead and beyond the initial 1.5M Ada. - feasible deliverables The proposal is well scoped, the envisioned deliverables are very likely to be achieved, one of the most solid proposal we have seen so far indeed and a great first treasury withdrawal gov action. - Ecosystem value Amaru, supporting cardano node diversity definitely adds great value to the cardano ecosystem and we fully support serious projects working on that front. The - All-star Team We have no doubt on the team, sort of a finest all-star crew at Amaru with all the needed skills, expertise and experience to successfully execute and complete the proposal We see the Amaru treasury-withdrawal proposal similar to their initial info-action as really well written proposals which introduces a gold standard and a high quality for governance actions from which we hope that other proposers will draw from. Furthermore, we see Pragma as a highly competent organisation which does not only manages its operations in a highly desirable way but also ensures that projects like Amaru have a highest likelyhood in a cost-effective development and further maintenance. If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep More about our DRep at: https://gov.meshjs.dev/drep-voting |
 |Link|https://adastat.net/transactions/ae6409b74d9c36a414bd127ce72a5bb5c74ffdcd58b643a328600baace2a60a1 |
 
