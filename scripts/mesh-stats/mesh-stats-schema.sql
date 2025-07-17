@@ -18,9 +18,9 @@ CREATE TABLE packages (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- GitHub repositories table
+-- GitHub repositories table - using GitHub repo ID as primary key
 CREATE TABLE github_repos (
-    id SERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY, -- GitHub repository ID
     name VARCHAR(255) NOT NULL,
     full_name VARCHAR(500) NOT NULL UNIQUE,
     description TEXT,
@@ -44,7 +44,7 @@ CREATE TABLE contributors (
 CREATE TABLE commits (
     id SERIAL PRIMARY KEY,
     sha VARCHAR(64) NOT NULL UNIQUE,
-    repo_id INTEGER NOT NULL REFERENCES github_repos(id) ON DELETE CASCADE,
+    repo_id BIGINT NOT NULL REFERENCES github_repos(id) ON DELETE CASCADE,
     author_id INTEGER REFERENCES contributors(id),
     committer_id INTEGER REFERENCES contributors(id),
     message TEXT,
@@ -62,7 +62,7 @@ CREATE TABLE commits (
 CREATE TABLE pull_requests (
     id SERIAL PRIMARY KEY,
     number INTEGER NOT NULL,
-    repo_id INTEGER NOT NULL REFERENCES github_repos(id) ON DELETE CASCADE,
+    repo_id BIGINT NOT NULL REFERENCES github_repos(id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES contributors(id),
     merged_by_id INTEGER REFERENCES contributors(id),
     title TEXT,
@@ -111,7 +111,7 @@ CREATE TABLE pr_commits (
 CREATE TABLE issues (
     id SERIAL PRIMARY KEY,
     number INTEGER NOT NULL,
-    repo_id INTEGER NOT NULL REFERENCES github_repos(id) ON DELETE CASCADE,
+    repo_id BIGINT NOT NULL REFERENCES github_repos(id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES contributors(id),
     title TEXT,
     body TEXT,

@@ -332,6 +332,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
     for (const repo of allRepos) {
         try {
             await upsertGitHubRepo({
+                id: repo.id, // GitHub repository ID
                 name: repo.name,
                 full_name: repo.full_name,
                 description: repo.description,

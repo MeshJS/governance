@@ -75,7 +75,15 @@ export async function insertPackageStatsHistory(packageId, month, stats) {
 export async function upsertGitHubRepo(repoData) {
     const { data, error } = await supabase
         .from('github_repos')
-        .upsert(repoData, { onConflict: 'full_name' })
+        .upsert({
+            id: repoData.id, // Use GitHub repo ID as primary key
+            name: repoData.name,
+            full_name: repoData.full_name,
+            description: repoData.description,
+            private: repoData.private,
+            fork: repoData.fork,
+            html_url: repoData.html_url
+        }, { onConflict: 'id' })
         .select()
         .single();
 
