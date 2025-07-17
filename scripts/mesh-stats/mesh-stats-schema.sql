@@ -83,28 +83,32 @@ CREATE TABLE pull_requests (
 CREATE TABLE pr_reviewers (
     id SERIAL PRIMARY KEY,
     pr_id INTEGER NOT NULL REFERENCES pull_requests(id) ON DELETE CASCADE,
-    reviewer_id INTEGER NOT NULL REFERENCES contributors(id)
+    reviewer_id INTEGER NOT NULL REFERENCES contributors(id),
+    UNIQUE(pr_id, reviewer_id)
 );
 
 -- PR Assignees table: links PRs to assignees (contributors)
 CREATE TABLE pr_assignees (
     id SERIAL PRIMARY KEY,
     pr_id INTEGER NOT NULL REFERENCES pull_requests(id) ON DELETE CASCADE,
-    assignee_id INTEGER NOT NULL REFERENCES contributors(id)
+    assignee_id INTEGER NOT NULL REFERENCES contributors(id),
+    UNIQUE(pr_id, assignee_id)
 );
 
 -- PR Labels table: links PRs to labels
 CREATE TABLE pr_labels (
     id SERIAL PRIMARY KEY,
     pr_id INTEGER NOT NULL REFERENCES pull_requests(id) ON DELETE CASCADE,
-    label_name VARCHAR(255) NOT NULL
+    label_name VARCHAR(255) NOT NULL,
+    UNIQUE(pr_id, label_name)
 );
 
 -- PR <-> Commit link table: links PRs to their commits
 CREATE TABLE pr_commits (
     id SERIAL PRIMARY KEY,
     pr_id INTEGER NOT NULL REFERENCES pull_requests(id) ON DELETE CASCADE,
-    commit_sha VARCHAR(64) NOT NULL
+    commit_sha VARCHAR(64) NOT NULL,
+    UNIQUE(pr_id, commit_sha)
 );
 
 -- Issues table
@@ -129,14 +133,16 @@ CREATE TABLE issues (
 CREATE TABLE issue_assignees (
     id SERIAL PRIMARY KEY,
     issue_id INTEGER NOT NULL REFERENCES issues(id) ON DELETE CASCADE,
-    assignee_id INTEGER NOT NULL REFERENCES contributors(id)
+    assignee_id INTEGER NOT NULL REFERENCES contributors(id),
+    UNIQUE(issue_id, assignee_id)
 );
 
 -- Issue Labels table
 CREATE TABLE issue_labels (
     id SERIAL PRIMARY KEY,
     issue_id INTEGER NOT NULL REFERENCES issues(id) ON DELETE CASCADE,
-    label_name VARCHAR(255) NOT NULL
+    label_name VARCHAR(255) NOT NULL,
+    UNIQUE(issue_id, label_name)
 );
 
 
