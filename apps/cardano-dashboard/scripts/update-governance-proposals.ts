@@ -93,41 +93,55 @@ async function updateGovernanceProposals() {
         const chainTip = await fetchChainTip();
         const currentEpoch = chainTip[0].epoch_no;
 
-        // First, get active proposals from Supabase
-        const { data: activeProposals, error: fetchError } = await supabase
-            .from('governance_proposals')
-            .select('proposal_id, meta_url, meta_json')
-            .gt('expiration', currentEpoch);
-
-        if (fetchError) throw fetchError;
-
-        if (!activeProposals || activeProposals.length === 0) {
-            console.log('No active proposals found in database');
-            return;
-        }
-
         // Fetch all governance proposals from Koios
         const allProposals = await fetchGovernanceProposals();
+        console.log(`Fetched ${allProposals.length} total proposals from Koios`);
 
-        // Filter only the active proposals we need to update
-        const proposalsToUpdate = allProposals.filter((proposal: GovernanceProposal) =>
-            activeProposals.some((active: { proposal_id: string }) => active.proposal_id === proposal.proposal_id)
+        // Deduplicate proposals by proposal_id (in case the API returns duplicates)
+        const uniqueProposals = allProposals.filter((proposal: GovernanceProposal, index: number, self: GovernanceProposal[]) =>
+            index === self.findIndex(p => p.proposal_id === proposal.proposal_id)
+        );
+        console.log(`After deduplication: ${uniqueProposals.length} unique proposals`);
+
+        // Get all proposal IDs from Supabase
+        const { data: existingProposals, error: fetchExistingError } = await supabase
+            .from('governance_proposals')
+            .select('proposal_id');
+
+        if (fetchExistingError) throw fetchExistingError;
+
+        const existingProposalIds = new Set(existingProposals?.map(p => p.proposal_id) || []);
+        console.log(`Found ${existingProposalIds.size} existing proposals in Supabase`);
+
+        // Find missing proposals
+        const missingProposals = uniqueProposals.filter((proposal: GovernanceProposal) =>
+            !existingProposalIds.has(proposal.proposal_id)
         );
 
-        // Enrich proposals with voting summaries and metadata
+        console.log(`Found ${missingProposals.length} missing proposals`);
+
+        // Process all proposals (both missing and existing) in a single operation
+        console.log('Processing all proposals...');
+
+        const allProposalsToProcess = uniqueProposals.filter((proposal: GovernanceProposal) => {
+            // Include proposals that are missing OR are active (not expired)
+            return !existingProposalIds.has(proposal.proposal_id) ||
+                proposal.expiration > currentEpoch;
+        });
+
+        console.log(`Processing ${allProposalsToProcess.length} proposals (missing + active)`);
+
+        // Enrich all proposals with voting summaries and metadata
         const enrichedProposals = await Promise.all(
-            proposalsToUpdate.map(async (proposal: GovernanceProposal) => {
+            allProposalsToProcess.map(async (proposal: GovernanceProposal) => {
                 const votingSummary = await fetchVotingSummary(proposal.proposal_id);
 
-                // If meta_json is null or empty and meta_url exists, fetch metadata
-                if ((!proposal.meta_json || Object.keys(proposal.meta_json).length === 0) && proposal.meta_url) {
-                    console.log(`Proposal ${proposal.proposal_id} has meta_url: ${proposal.meta_url}`);
-                    console.log(`Current meta_json:`, proposal.meta_json);
-
+                // Fetch metadata if meta_url exists and we don't have it yet
+                if (proposal.meta_url && (!proposal.meta_json || Object.keys(proposal.meta_json).length === 0)) {
+                    console.log(`Fetching metadata for proposal ${proposal.proposal_id} from: ${proposal.meta_url}`);
                     const metadata = await fetchMetadataFromUrl(proposal.meta_url);
                     if (metadata) {
                         console.log(`Successfully fetched metadata for proposal ${proposal.proposal_id}`);
-                        console.log(`Metadata structure:`, JSON.stringify(metadata, null, 2).substring(0, 200) + '...');
                         proposal.meta_json = metadata;
                     } else {
                         console.log(`Failed to fetch metadata for proposal ${proposal.proposal_id}`);
@@ -137,6 +151,7 @@ async function updateGovernanceProposals() {
                 return {
                     ...proposal,
                     ...votingSummary[0],
+                    created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString()
                 };
             })
@@ -145,16 +160,18 @@ async function updateGovernanceProposals() {
         // Log the final data being sent to Supabase
         console.log('Sample of enriched proposal:', JSON.stringify(enrichedProposals[0], null, 2).substring(0, 200) + '...');
 
-        // Update Supabase
-        const { error: updateError } = await supabase
+        // Upsert all proposals to Supabase (insert new ones, update existing ones)
+        const { error: upsertError } = await supabase
             .from('governance_proposals')
-            .upsert(enrichedProposals, { onConflict: 'proposal_id' });
+            .upsert(enrichedProposals, {
+                onConflict: 'proposal_id'
+            });
 
-        if (updateError) {
-            console.error('Error updating proposals in Supabase:', updateError);
-            throw updateError;
+        if (upsertError) {
+            console.error('Error upserting proposals in Supabase:', upsertError);
+            throw upsertError;
         }
-        console.log(`Successfully updated ${enrichedProposals.length} active governance proposals`);
+        console.log(`Successfully processed ${enrichedProposals.length} governance proposals (inserted new ones, updated existing ones)`);
     } catch (error) {
         console.error('Error updating governance proposals:', error);
         process.exit(1);

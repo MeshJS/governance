@@ -1,4 +1,4 @@
-name: DRep Voting Action
+name: DRep Voting Markdown Action
 
 on:
   schedule:
@@ -24,7 +24,7 @@ jobs:
     - name: Run voting action script
       env:
         KOIOS_API_KEY: ${{ secrets.KOIOS_API_KEY }}
-      run: node scripts/voting-action.js
+      run: node scripts/voting-markdown-action.js
 
     - name: Check for changes
       id: git-check

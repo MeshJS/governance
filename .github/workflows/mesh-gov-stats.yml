@@ -1,0 +1,32 @@
+name: Mesh SDK Usage Stats
+
+on:
+  schedule:
+    - cron: '0 0 * * 4'  # Run every Thursday at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  search-mesh-usage:
+    if: github.repository == 'MeshJS/governance'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
+      SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Generate Current Stats (Database)
+        run: node scripts/mesh-stats/generate-mesh-stats-db.js
+        
+      - name: Generate Yearly Stats (Database)
+        run: node scripts/mesh-stats/generate-yearly-stats-db.js

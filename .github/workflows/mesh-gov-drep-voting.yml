@@ -1,0 +1,30 @@
+name: DRep Voting Action
+
+on:
+  schedule:
+    - cron: '10 4 * * *'  # Runs at 4:10 AM UTC every day
+    - cron: '10 16 * * *'  # Runs at 4:10 PM UTC every day
+  workflow_dispatch:
+
+jobs:
+  fetch-drep-info:
+    if: github.repository == 'MeshJS/governance'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run voting action script
+      env:
+        KOIOS_API_KEY: ${{ secrets.KOIOS_API_KEY }}
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      run: node scripts/drep-voting/voting-action.js
