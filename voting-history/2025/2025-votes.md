@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Amaru Treasury Withdrawal 2025](https://adastat.net/governances/60ed6ab43c840ff888a8af30a1ed27b41e9f4a91a89822b2b63d1bfc52aeec4500) |
+| Hash           | 60ed6ab43c840ff888a8af30a1ed27b41e9f4a91a89822b2b63d1bfc52aeec4500 |
+| Action ID      | gov_action1vrkk4dpuss8l3z9g4uc2rmf8ks0f7j534zvz9v4k85dlc54wa3zsqq68rx0 |
+| Type           | TreasuryWithdrawals |
+| Proposed Epoch | 566 |
+| Expires Epoch  | 573 |
+| Vote           | ✅Yes |
+| Vote Submitted | 7/10/2025 |
+| Rationale       | Title: Amaru Treasury Withdrawal 2025 Type: Treasury Withdrawal Members of the Mesh DRep have voted as following on the governace action Amaru Treasury Withdrawal 2025 Yes: 4 votes No: 0 votes Abstain: 0 votes Therefore, we YES on the Amaru Treasury Withdrawal 2025. Our rationale We mainly apply and extend our rationale to the previous Amaru info action which has been approved since then and enabled this follow up Treasury Withdrawal proposal. - modest budget request. Amaru requests a total of 1.5M Ada, which is a reasonable amount for the outlined work, furthermore, we appreciate the well outlined budget allocations of the proposal. However, it is important to keep in mind that the 1.5M Ada requested from Amaru are not the full budget which will be required to fully build and implement the Node, further funding requests will surely come. Therefore, it would be great to get a at least rough estimation of the total budget required ahead and beyond the initial 1.5M Ada. - feasible deliverables The proposal is well scoped, the envisioned deliverables are very likely to be achieved, one of the most solid proposal we have seen so far indeed and a great first treasury withdrawal gov action. - Ecosystem value Amaru, supporting cardano node diversity definitely adds great value to the cardano ecosystem and we fully support serious projects working on that front. The - All-star Team We have no doubt on the team, sort of a finest all-star crew at Amaru with all the needed skills, expertise and experience to successfully execute and complete the proposal We see the Amaru treasury-withdrawal proposal similar to their initial info-action as really well written proposals which introduces a gold standard and a high quality for governance actions from which we hope that other proposers will draw from. Furthermore, we see Pragma as a highly competent organisation which does not only manages its operations in a highly desirable way but also ensures that projects like Amaru have a highest likelyhood in a cost-effective development and further maintenance. If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep More about our DRep at: https://gov.meshjs.dev/drep-voting |
+|Link|https://adastat.net/transactions/ae6409b74d9c36a414bd127ce72a5bb5c74ffdcd58b643a328600baace2a60a1 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Set a 300 million ADA Net Change Limit for Epochs 563–635](https://adastat.net/governances/637e3c256da9c1350847ca3211e8c44e3660a4471e8b6f68a8c537746b4aeb7300) |
 | Hash           | 637e3c256da9c1350847ca3211e8c44e3660a4471e8b6f68a8c537746b4aeb7300 |
 | Action ID      | gov_action1vdlrcftd48qn2zz8egepr6xyfcmxpfz8r69k769gc5mhg662adesq9yy8pl |
@@ -10,7 +26,7 @@
 | Expires Epoch  | 563 |
 | Vote           | ⚪Abstain |
 | Vote Submitted | 6/7/2025 |
-| Rationale       | No rationale available |
+| Rationale       | Members of the Mesh DRep have voted as following on the governace action: Set a 300 million ADA Net Change Limit for Epochs 563–635: Yes: 0 votes No: 2 votes Abstain: 3 votes Therefore, we will vote Abstain on the proposal in its current form. Rationale: We already voted Yes on the NCL = 200M Ada proposal and vote abstain on the NCL 300M Ada. |
 |Link|https://adastat.net/transactions/3413a2fb941005dd7bf9f682f36a2b3c64a6c8f8d2e8040a993855eeccbc4d12 |
 
 
@@ -26,7 +42,7 @@
 | Expires Epoch  | 563 |
 | Vote           | ✅Yes |
 | Vote Submitted | 6/6/2025 |
-| Rationale       | No rationale available |
+| Rationale       | Members of the Mesh DRep have voted as following on the governace action: Cardano Blockchain Ecosystem Budget: Amaru Node Development 2025: Yes: 7 votes No: 0 votes Abstain: 0 votes Therefore, we support the Amaru proposal. Rationale: - modest budget request. Amaru requests a total of 1.5M Ada, which is a reasonable amount for the outlined work, furthermore, we appreciate the well outlined budget allocations of the proposal - feasible deliverables The proposal is well scoped, the envisioned deliverables are very likely to be achieved, one of the most solid proposal we have seen so far indeed. - Ecosystem value Amaru, supporting cardano node diversity definitely adds great value to the cardano ecosystem and we fully support serious projects working on that front - All-star Team We have no doubt on the team, sort of a finest all-star crew at Amaru with all the needed skills, expertise and experience to successfully execute and complete the proposal We see the Amaru proposal as a really well written proposal which introduces a gold standard and a high quality for governance actions from which we hope that other proposers will draw from. Furthermore, we see Pragma as a highly competent organisation which does not only manages its operations in a highly desirable way but also ensures that its projects like Amaru have a highest likelyhood in a cost-effective development and further maintenance. If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep More about our DRep at: https://gov.meshjs.dev/drep-voting |
 |Link|https://adastat.net/transactions/5394deadeda08098a34dd08dc438a027972ed46018373fb1adc20f85ca520748 |
 
 
@@ -42,7 +58,7 @@
 | Expires Epoch  | 563 |
 | Vote           | ✅Yes |
 | Vote Submitted | 6/6/2025 |
-| Rationale       | No rationale available |
+| Rationale       | Members of the Mesh DRep have voted as following on the governace action: 2025 Cardano Blockchain Ecosystem Budget - 7.5M ₳ for community builders: Yes: 6 votes No: 1 votes Abstain: 0 votes Therefore, we support the proposal. Rationale: We see the proposal as a serious effort from cardano builders to enable funds for important development which further improves the Cardano ecosystem. While we generally act careful with package proposals like this, which include multiple projects and funding allocations under one proposal, we think that the total of 7 projects within this package have a high likelyhood of a successful execution. Most teams in this proposal have a strong track record and have proven to have all required skills and expertise to ensure a successful implementation. That being sad, we still have some doubts on the administrations of the proposal and hope that the effectivity and efficiency wont be impacted by too much bureaucratic overhead which naturally comes with large collaborative proposals. If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep More about our DRep at: https://gov.meshjs.dev/drep-voting |
 |Link|https://adastat.net/transactions/5b29ba2a4512e1df0c5e44fe6f474e85499ef5e9d881db3255b847420f7dee7c |
 
 
@@ -50,7 +66,7 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
-| Proposal Title | [Unknown Proposal](https://adastat.net/governances/4840e305563327358cf70dae5015b2df8f8c35cef03f74521d4f117ac17bc38400) |
+| Proposal Title | [Cardano Treasury DeFi Liquidity Budget](https://adastat.net/governances/4840e305563327358cf70dae5015b2df8f8c35cef03f74521d4f117ac17bc38400) |
 | Hash           | 4840e305563327358cf70dae5015b2df8f8c35cef03f74521d4f117ac17bc38400 |
 | Action ID      | gov_action1fpqwxp2kxvnntr8hpkh9q9djm78ccdww7qlhg5safugh4stmcwzqql5lauu |
 | Type           | InfoAction |
@@ -58,7 +74,7 @@
 | Expires Epoch  | 563 |
 | Vote           | ❌No |
 | Vote Submitted | 6/5/2025 |
-| Rationale       | No rationale available |
+| Rationale       | Members of the Mesh DRep Collective have voted as following on the info action Cardano Treasury DeFi Liquidity Budget : Yes: 0 votes No: 4 votes Abstain: 1 vote Therefore, we will not support the Proposal in its current form. Our rationale: We are actually not forcefully against the proposal itself but can not support the proposal since it does not provide the correct onchain data, the stored data from the proposer does not matches anymore the data at the time the proposal was initially created, hence why many explorers are not able to display content correctly, leading to quite some confusion for DReps. We encourage the proposer to resubmit the proposal with the correct data. If you approve of our reasoning and want to further support us, we welcome you to delegate to our Mesh DRep More about our DRep at: https://gov.meshjs.dev/drep-voting |
 |Link|https://adastat.net/transactions/f582dae8ecb62f09fe005405b607e5323b08066685493ce0918777d8b4191c96 |
 
 
@@ -74,7 +90,7 @@
 | Expires Epoch  | 563 |
 | Vote           | ✅Yes |
 | Vote Submitted | 6/4/2025 |
-| Rationale       | No rationale available |
+| Rationale       | Members of the Mesh DRep have voted as following on the governace action: Set a 300 million ADA Net Change Limit for Epochs 563–635: Yes: 0 votes No: 2 votes Abstain: 3 votes Therefore, we will vote Abstain on the proposal in its current form. Rationale: We already voted Yes on the NCL = 200M Ada proposal and vote abstain on the NCL 300M Ada. |
 |Link|https://adastat.net/transactions/6c64b6b54aca658afc154dedb3d5f72f4ca8baa66f01f5d44edc7451c027b970 |
 
 
@@ -154,7 +170,7 @@
 | Expires Epoch  | 549 |
 | Vote           | ✅Yes |
 | Vote Submitted | 3/11/2025 |
-| Rationale       | We see the proposed roadmap for 2025 as a helpful effort in building ecosystem wide alignment on top priorities, and vote Yes on this proposal. We also hope that this proposal will encourage other efforts which aim to propose further roadmaps for the Cardano ecosystem. Since we achieved the last of the initial Cardano Milestones with Voltaire, we think that longterm roadmaps at Cardano have proven their worth and value and are a existential part of our culture and careful longterm thinking |
+| Rationale       | No rationale available |
 |Link|https://adastat.net/transactions/464ceed8ec269a28d3fee305b1c0d397270b8193fbbb2557ab51c1b070f9171f |
 
 
@@ -170,7 +186,7 @@
 | Expires Epoch  | 546 |
 | Vote           | ❌No |
 | Vote Submitted | 2/22/2025 |
-| Rationale       | While we generally agree to reduce treasury spending and think that reducing the allocation to the Treasury is a effective way to achieve lower spending capacities, we yet see that we lack research on how such changes will impact the SPO ecosystem and deem that we currently should not change treasury income before we have better insights |
+| Rationale       | No rationale available |
 |Link|https://adastat.net/transactions/08b9205dcac01fed95287f6dc82f744cf66792c1de9f65d318c1085d2bca5946 |
 
 
@@ -186,5 +202,5 @@
 | Expires Epoch  | 544 |
 | Vote           | ✅Yes |
 | Vote Submitted | 2/10/2025 |
-| Rationale       | We see the proposed Constitution as a major improvement to the currently active interim Constitution and feel confident that emerging governance infrastructure and capacities are in place and growing to build and act upon the new Constitution. However, while we respect the significant community engagement and involvement which has led to major improvements, we still see room for improvements at the proposed constitution and hope that further evolutions lead of a constantly evolving constitution which is able to reflect and support rapid ecosystem growth and changes |
+| Rationale       | No rationale available |
 |Link|https://adastat.net/transactions/3bed0723c02caca480d000ffa2ca4b4eec82cc8c02d5d8e5d3f9cac6e7bae1f1 |
