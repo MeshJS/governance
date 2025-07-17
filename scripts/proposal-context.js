@@ -1,7 +1,12 @@
-require('dotenv').config();
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
+import 'dotenv/config';
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Read config file
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
