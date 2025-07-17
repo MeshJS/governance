@@ -1,4 +1,4 @@
-import { fetchAndSaveMeshStats, fetchAndSaveMonthlyDownloads, fetchAndSaveContributors } from './fetch-mesh-stats-data-db.js';
+import { fetchAndSaveMeshStats, fetchAndSaveMonthlyDownloads, fetchAndSaveContributorsAndActivity } from './fetch-mesh-stats-data-db.js';
 
 // Configuration
 const CONFIG = {
@@ -36,7 +36,7 @@ async function main() {
         // Fetch and save contributors
         if (CONFIG.fetchContributors) {
             console.log('\n=== Fetching Contributors ===');
-            await fetchAndSaveContributors(githubToken);
+            await fetchAndSaveContributorsAndActivity(githubToken);
         }
 
         console.log('\n✅ Stats generated and saved to database successfully!');
