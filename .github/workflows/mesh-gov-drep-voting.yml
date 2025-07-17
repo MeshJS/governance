@@ -8,6 +8,7 @@ on:
 
 jobs:
   fetch-drep-info:
+    if: github.repository == 'MeshJS/governance'
     runs-on: ubuntu-latest
     
     steps:
