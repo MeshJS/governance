@@ -1,0 +1,48 @@
+name: Update Discord Stats (Configurable)
+on:
+  #schedule:
+  #  - cron: '0 2 1 * *' # 1st day of the month at 2:00 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write      # allow GITHUB_TOKEN to push
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read config and set expected repository
+        id: config
+        run: |
+          CONFIG=$(cat org-stats-config.json)
+          ORG_NAME=$(echo "$CONFIG" | jq -r '.mainOrganization.name')
+          GOV_REPO=$(echo "$CONFIG" | jq -r '.repositories.governance')
+          EXPECTED_REPO="$ORG_NAME/$GOV_REPO"
+          GUILD_ID=$(echo "$CONFIG" | jq -r '.discordGuildId')
+          USE_API_ACTION=$(echo "$CONFIG" | jq -r '.discordStats.useApiAction // false')
+          echo "expected_repo=$EXPECTED_REPO" >> $GITHUB_OUTPUT
+          echo "guild_id=$GUILD_ID" >> $GITHUB_OUTPUT
+          echo "use_api_action=$USE_API_ACTION" >> $GITHUB_OUTPUT
+          echo "Current repository: ${{ github.repository }}"
+          echo "Expected repository: $EXPECTED_REPO"
+          echo "Guild ID: $GUILD_ID"
+          echo "Use API Action: $USE_API_ACTION"
+      
+      - name: Check repository
+        if: github.repository != steps.config.outputs.expected_repo
+        run: |
+          echo "This workflow is designed to run only in ${{ steps.config.outputs.expected_repo }}"
+          echo "Current repository: ${{ github.repository }}"
+          exit 1
+
+      - name: Run Discord Stats Action
+        uses: ./apps/shared-backend/github-actions/discord-stats-action
+        with:
+          guild-id: ${{ steps.config.outputs.guild_id }}
+          backfill: 'false'
+          backfill-year: '2025'
+          discord-token: ${{ secrets.DISCORD_ANALYTICS_TOKEN }}
+
+      # Removed commit and push steps, as output file is no longer used

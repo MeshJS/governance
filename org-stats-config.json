@@ -1,5 +1,5 @@
 {
-    "organization": {
+    "mainOrganization": {
         "name": "MeshJS",
         "displayName": "MeshJS",
         "logo": {
@@ -11,8 +11,19 @@
             "src": "/mesh-white-txt.png",
             "width": 120,
             "height": 120
-        }
+        },
+        "excludedRepos": []
     },
+    "extendedOrganizations": [
+        {
+            "name": "example-org",
+            "displayName": "Example Organization",
+            "excludedRepos": [
+                "legacy-repo",
+                "deprecated-project"
+            ]
+        }
+    ],
     "repositories": {
         "governance": "governance",
         "dependentsCountRepo": "mesh"
@@ -22,6 +33,12 @@
     "extendedOrgExcludedRepos": [],
     "poolId": "",
     "drepId": "drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3",
+    "catalystProjectIds": "1000107,1100271,1200148,1200147,1200220,1300135,1300134,1300130,1300050,1300036",
+    "discordGuildId": "907191435864977459",
+    "discordStats": {
+        "useApiAction": true,
+        "description": "Set to true if your Discord server has more than 500 members to use the API-based action, false for the standard action (default: false)"
+    },
     "npmPackages": {
         "core": "@meshsdk/core",
         "react": "@meshsdk/react",

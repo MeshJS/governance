@@ -1,0 +1,43 @@
+name: Update Catalyst Stats (Configurable)
+
+on:
+  #schedule:
+  #  - cron: '10 0 * * 1'  # Runs at 00:10 UTC every Monday
+  #  - cron: '10 0 * * 3'  # Runs at 00:10 UTC every Wednesday
+  #  - cron: '10 0 * * 5'  # Runs at 00:10 UTC every Friday
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+permissions:
+  contents: write      # allow GITHUB_TOKEN to push
+
+jobs:
+  catalyst-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read config and set expected repository
+        id: config
+        run: |
+          CONFIG=$(cat org-stats-config.json)
+          ORG_NAME=$(echo "$CONFIG" | jq -r '.mainOrganization.name')
+          GOV_REPO=$(echo "$CONFIG" | jq -r '.repositories.governance')
+          EXPECTED_REPO="$ORG_NAME/$GOV_REPO"
+          PROJECT_IDS=$(echo "$CONFIG" | jq -r '.catalystProjectIds')
+          echo "expected_repo=$EXPECTED_REPO" >> $GITHUB_OUTPUT
+          echo "project_ids=$PROJECT_IDS" >> $GITHUB_OUTPUT
+          echo "Current repository: ${{ github.repository }}"
+          echo "Expected repository: $EXPECTED_REPO"
+          echo "Project IDs: $PROJECT_IDS"
+      
+      - name: Check repository
+        if: github.repository != steps.config.outputs.expected_repo
+        run: |
+          echo "This workflow is designed to run only in ${{ steps.config.outputs.expected_repo }}"
+          echo "Current repository: ${{ github.repository }}"
+          exit 1
+
+      - name: Run Catalyst-Stats Action
+        uses: ./apps/shared-backend/github-actions/catalyst-stats-action
+        with:
+          project_ids: ${{ steps.config.outputs.project_ids }} 
