@@ -4,12 +4,14 @@
 const GUILD_ID = process.env.GUILD_ID
 const BACKFILL = process.env.BACKFILL
 const BACKFILL_YEAR = process.env.BACKFILL_YEAR
+const DISCORD_TOKEN = process.env.DISCORD_TOKEN
 
 // Debug logging
 console.log('🔍 Environment variables:')
 console.log(`  GUILD_ID: ${process.env.GUILD_ID}`)
 console.log(`  BACKFILL: ${process.env.BACKFILL}`)
 console.log(`  BACKFILL_YEAR: ${process.env.BACKFILL_YEAR}`)
+console.log(`  DISCORD_TOKEN: ${DISCORD_TOKEN ? '[REDACTED]' : '(not provided)'}`)
 
 // Input validation function
 function validateInputs() {
@@ -113,6 +115,10 @@ async function main() {
   functionUrl.searchParams.set('guildId', GUILD_ID)
   functionUrl.searchParams.set('backfill', parsedBackfill.toString())
   functionUrl.searchParams.set('year', parsedBackfillYear.toString())
+  if (DISCORD_TOKEN && DISCORD_TOKEN.trim() !== '') {
+    functionUrl.searchParams.set('analyticsToken', DISCORD_TOKEN)
+    console.log('🔑 analyticsToken will be sent to the background function')
+  }
 
   console.log(`🌐 Calling URL: ${functionUrl.toString()}`)
 
