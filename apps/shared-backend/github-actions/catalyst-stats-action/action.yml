@@ -1,11 +1,8 @@
 name: "Catalyst Stats Processor"
-description: "Trigger Netlify background function and save results"
+description: "Trigger Netlify background function"
 inputs:
   project_ids:
     description: "Comma-separated project IDs"
-    required: true
-  output_file:
-    description: "Path to output file"
     required: true
 runs:
   using: "node20"
