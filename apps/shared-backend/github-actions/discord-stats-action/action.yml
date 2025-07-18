@@ -1,15 +1,11 @@
 # action.yml
 name: "Discord Stats"
-description: "Fetch monthly Discord member & message stats via Netlify background function"
+description: "Trigger Discord stats collection via Netlify background function"
 
 inputs:
   guild-id:
     description: "Server (guild) ID"
     required: true
-  output-file:
-    description: "Relative or absolute path for JSON output"
-    required: false
-    default: "stats.json"
   backfill:
     description: "Whether to backfill from Jan of BACKFILL_YEAR"
     required: false
@@ -37,6 +33,5 @@ runs:
       run: node ${{ github.action_path }}/getStats.js
       env:
         GUILD_ID: ${{ inputs.guild-id }}
-        OUTPUT_FILE: ${{ inputs.output-file }}
         BACKFILL: ${{ inputs.backfill }}
         BACKFILL_YEAR: ${{ inputs.backfill-year }}

@@ -1,38 +1,69 @@
 #!/usr/bin/env node
-import fs from 'fs'
-import path from 'path'
 
 // —— Config from env / GitHub Action inputs ——
 const GUILD_ID = process.env.GUILD_ID
-
-const OUTPUT_FILE =
-  process.env.OUTPUT_FILE ||
-  path.resolve(process.cwd(), 'data/discord-stats/stats.json')
-
-const BACKFILL = (process.env.BACKFILL || 'false') === 'true'
-const BACKFILL_YEAR = Number(process.env.BACKFILL_YEAR) || new Date().getFullYear()
+const BACKFILL = process.env.BACKFILL
+const BACKFILL_YEAR = process.env.BACKFILL_YEAR
 
 // Debug logging
 console.log('🔍 Environment variables:')
 console.log(`  GUILD_ID: ${process.env.GUILD_ID}`)
-console.log(`  OUTPUT_FILE: ${process.env.OUTPUT_FILE}`)
 console.log(`  BACKFILL: ${process.env.BACKFILL}`)
 console.log(`  BACKFILL_YEAR: ${process.env.BACKFILL_YEAR}`)
-console.log('📊 Resolved values:')
-console.log(`  GUILD_ID: ${GUILD_ID}`)
-console.log(`  OUTPUT_FILE: ${OUTPUT_FILE}`)
-console.log(`  BACKFILL: ${BACKFILL}`)
-console.log(`  BACKFILL_YEAR: ${BACKFILL_YEAR}`)
 
-// Netlify function configuration - hardcoded URLs
-const NETLIFY_FUNCTION_URL = 'https://glittering-chebakia-09bd42.netlify.app/.netlify/functions/discord-stats-background'
-const API_ROUTE_URL = 'https://glittering-chebakia-09bd42.netlify.app/api/discord/status'
+// Input validation function
+function validateInputs() {
+  const errors = []
 
-// Validate required inputs 
-if (!GUILD_ID) {
-  console.error('❌ GUILD_ID (or INPUT_GUILD_ID) must be set')
+  // Validate GUILD_ID
+  if (!GUILD_ID) {
+    errors.push('GUILD_ID is required but not provided')
+  } else if (typeof GUILD_ID !== 'string' || GUILD_ID.trim() === '') {
+    errors.push('GUILD_ID must be a non-empty string')
+  } else if (!/^\d+$/.test(GUILD_ID.trim())) {
+    errors.push('GUILD_ID must be a valid numeric Discord guild ID')
+  }
+
+  // Validate BACKFILL
+  if (BACKFILL !== undefined && BACKFILL !== null && BACKFILL !== '') {
+    if (BACKFILL !== 'true' && BACKFILL !== 'false') {
+      errors.push('BACKFILL must be either "true" or "false"')
+    }
+  }
+
+  // Validate BACKFILL_YEAR
+  if (BACKFILL_YEAR !== undefined && BACKFILL_YEAR !== null && BACKFILL_YEAR !== '') {
+    const year = Number(BACKFILL_YEAR)
+    if (isNaN(year)) {
+      errors.push('BACKFILL_YEAR must be a valid number')
+    } else if (year < 2020 || year > new Date().getFullYear() + 1) {
+      errors.push(`BACKFILL_YEAR must be between 2020 and ${new Date().getFullYear() + 1}`)
+    }
+  }
+
+  return errors
+}
+
+// Parse and validate inputs
+const validationErrors = validateInputs()
+
+if (validationErrors.length > 0) {
+  console.error('❌ Input validation failed:')
+  validationErrors.forEach(error => console.error(`  - ${error}`))
   process.exit(1)
 }
+
+// Parse validated inputs with defaults
+const parsedBackfill = BACKFILL === 'true'
+const parsedBackfillYear = BACKFILL_YEAR ? Number(BACKFILL_YEAR) : new Date().getFullYear()
+
+console.log('📊 Resolved values:')
+console.log(`  GUILD_ID: ${GUILD_ID}`)
+console.log(`  BACKFILL: ${parsedBackfill}`)
+console.log(`  BACKFILL_YEAR: ${parsedBackfillYear}`)
+
+// Netlify function configuration - hardcoded URL
+const NETLIFY_FUNCTION_URL = 'https://glittering-chebakia-09bd42.netlify.app/.netlify/functions/discord-stats-background'
 
 // Helper function to make HTTP requests
 async function makeRequest(url, options = {}) {
@@ -71,22 +102,17 @@ async function makeRequest(url, options = {}) {
   }
 }
 
-// Helper function to wait
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 // Main function
 async function main() {
   console.log(`🚀 Starting Discord stats collection for guild: ${GUILD_ID}`)
 
-  // Step 1: Trigger the Netlify background function
+  // Trigger the Netlify background function
   console.log('📡 Triggering Netlify background function...')
 
   const functionUrl = new URL(NETLIFY_FUNCTION_URL)
   functionUrl.searchParams.set('guildId', GUILD_ID)
-  functionUrl.searchParams.set('backfill', BACKFILL.toString())
-  functionUrl.searchParams.set('year', BACKFILL_YEAR.toString())
+  functionUrl.searchParams.set('backfill', parsedBackfill.toString())
+  functionUrl.searchParams.set('year', parsedBackfillYear.toString())
 
   console.log(`🌐 Calling URL: ${functionUrl.toString()}`)
 
@@ -98,104 +124,18 @@ async function main() {
     console.log('✅ Background function triggered successfully')
     console.log(`📊 Response: ${JSON.stringify(functionResponse, null, 2)}`)
 
-    // If the response indicates success (even if it's not JSON), continue with polling
+    // If the response indicates success (even if it's not JSON), we're done
     if (functionResponse.success !== false) {
       console.log('✅ Background function appears to have been triggered successfully')
+      console.log('🎉 Discord stats collection initiated - the background function will handle the rest')
+      process.exit(0)
+    } else {
+      console.error('❌ Background function returned an error')
+      process.exit(1)
     }
   } catch (error) {
     console.error('❌ Failed to trigger background function:', error.message)
     process.exit(1)
-  }
-
-  // Step 2: Poll the API route to check for results
-  console.log('⏳ Polling for results...')
-
-  const maxAttempts = 60 // 5 minutes with 5-second intervals
-  const pollInterval = 5000 // 5 seconds
-  let staleData = null
-  let staleAttempt = 0
-  const maxStaleAttempts = 36 // 3 minutes with 5-second intervals
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    console.log(`🔄 Polling attempt ${attempt}/${maxAttempts}...`)
-
-    try {
-      const apiUrl = new URL(API_ROUTE_URL)
-      apiUrl.searchParams.set('guildId', GUILD_ID)
-
-      const statusResponse = await makeRequest(apiUrl.toString(), {
-        method: 'GET'
-      })
-
-      console.log(`📊 Status: ${statusResponse.status}`)
-      console.log(`📝 Message: ${statusResponse.message}`)
-
-      if (statusResponse.status === 'completed') {
-        console.log('✅ Stats collection completed!')
-
-        // Step 3: Write the stats to the output file
-        const stats = statusResponse.stats
-        const outDir = path.dirname(OUTPUT_FILE)
-
-        if (!fs.existsSync(outDir)) {
-          fs.mkdirSync(outDir, { recursive: true })
-        }
-
-        fs.writeFileSync(OUTPUT_FILE, JSON.stringify(stats, null, 2))
-        console.log(`✅ Stats written to ${OUTPUT_FILE}`)
-        console.log(`📊 Last updated: ${statusResponse.lastUpdated}`)
-        console.log(`⏱️  Time since update: ${statusResponse.timeSinceUpdate} seconds`)
-
-        process.exit(0)
-      } else if (statusResponse.status === 'stale') {
-        if (!staleData) {
-          staleData = statusResponse
-          staleAttempt = 0
-          console.log('⚠️  Stats are stale, but available. Will continue polling for fresh data...')
-        }
-
-        staleAttempt++
-        console.log(`⏳ Stale data found, continuing to poll for fresh data... (${staleAttempt}/${maxStaleAttempts})`)
-
-        if (staleAttempt >= maxStaleAttempts) {
-          console.log('⏰ 3 minutes elapsed with stale data, using current stale data...')
-
-          const stats = staleData.stats
-          const outDir = path.dirname(OUTPUT_FILE)
-
-          if (!fs.existsSync(outDir)) {
-            fs.mkdirSync(outDir, { recursive: true })
-          }
-
-          fs.writeFileSync(OUTPUT_FILE, JSON.stringify(stats, null, 2))
-          console.log(`✅ Stats written to ${OUTPUT_FILE}`)
-          console.log(`📊 Last updated: ${staleData.lastUpdated}`)
-          console.log(`⏱️  Time since update: ${staleData.timeSinceUpdate} seconds`)
-
-          process.exit(0)
-        }
-
-        await sleep(pollInterval)
-      } else if (statusResponse.status === 'pending') {
-        console.log('⏳ Stats are still being processed...')
-
-        if (attempt === maxAttempts) {
-          console.error('❌ Timeout: Stats collection did not complete within the expected time')
-          process.exit(1)
-        }
-
-        await sleep(pollInterval)
-      }
-    } catch (error) {
-      console.error(`❌ Polling attempt ${attempt} failed:`, error.message)
-
-      if (attempt === maxAttempts) {
-        console.error('❌ Failed to get results after all attempts')
-        process.exit(1)
-      }
-
-      await sleep(pollInterval)
-    }
   }
 }
 
