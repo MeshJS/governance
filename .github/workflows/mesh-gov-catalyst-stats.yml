@@ -38,6 +38,6 @@ jobs:
           exit 1
 
       - name: Run Catalyst-Stats Action
-        uses: ./apps/shared-backend/github-actions/catalyst-stats-action
+        uses: MeshJS/governance@catalyst-stats-action@1.0.0
         with:
           project_ids: ${{ steps.config.outputs.project_ids }} 
