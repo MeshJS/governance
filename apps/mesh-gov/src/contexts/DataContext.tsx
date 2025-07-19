@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import fetchData from '../lib/fetchData';
 import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, ContributorsData } from '../types';
 import { aggregateContributorStats } from '../utils/contributorStats';
+import config from '../../config';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -190,6 +191,30 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     const fetchDiscordStats = async () => {
         try {
+            // First try to fetch from the new API route
+            const guildId = config.discordGuildId;
+            if (guildId) {
+                try {
+                    console.log('Attempting to fetch Discord stats via API route...');
+                    const apiData = await fetchData(`/api/discord/stats/${guildId}`);
+
+                    if (apiData && apiData.stats) {
+                        const newData = {
+                            stats: apiData.stats,
+                            lastFetched: Date.now()
+                        };
+                        safeSetItem(DISCORD_STATS_STORAGE_KEY, JSON.stringify(newData));
+                        setDiscordStats(newData);
+                        console.log('Discord stats fetched successfully via API route');
+                        return;
+                    }
+                } catch (apiError) {
+                    console.warn('Failed to fetch Discord stats via API route, falling back to JSON file:', apiError);
+                }
+            }
+
+            // Fallback to the old JSON file method
+            console.log('Fetching Discord stats via JSON file fallback...');
             const data = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/refs/heads/main/mesh-gov-updates/discord-stats/stats.json');
             const newData = {
                 stats: data,
@@ -197,6 +222,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             };
             safeSetItem(DISCORD_STATS_STORAGE_KEY, JSON.stringify(newData));
             setDiscordStats(newData);
+            console.log('Discord stats fetched successfully via JSON file fallback');
         } catch (err) {
             console.error('Error fetching Discord stats:', err);
             setDiscordStats(null);
