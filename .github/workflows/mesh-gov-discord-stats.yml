@@ -38,9 +38,8 @@ jobs:
           exit 1
 
       - name: Run Discord Stats Action
-        uses: MeshJS/governance@main
+        uses: ./apps/shared-backend/github-actions/discord-stats-action
         with:
-          path: apps/shared-backend/github-actions/discord-stats-action
           guild-id: ${{ steps.config.outputs.guild_id }}
           backfill: 'false'
           backfill-year: '2025'
