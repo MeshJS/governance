@@ -12,8 +12,7 @@
  * @param {string} [params.apiBaseUrl] - API base URL (optional)
  * @returns {Promise<Object>} Processed stats object keyed by YYYY-MM
  */
-export async function fetchDiscordStatsViaApi({ guildId, token, backfill = false, backfillYear = new Date().getFullYear(), apiBaseUrl }) {
-  const API_BASE_URL = apiBaseUrl || process.env.API_BASE_URL || 'http://localhost:3000';
+export async function fetchDiscordStatsViaApi({ guildId, token, backfill = false, backfillYear = new Date().getFullYear(), apiBaseUrl = '' }) {
 
   // Build query parameters for engagement API
   const params = new URLSearchParams({
@@ -29,7 +28,8 @@ export async function fetchDiscordStatsViaApi({ guildId, token, backfill = false
     params.append('interval', '3'); // 3-day intervals (monthly data)
   }
 
-  const url = `${API_BASE_URL}/api/discord/engagement?${params.toString()}`;
+  const relativeUrl = `/api/discord/engagement?${params.toString()}`;
+  const url = apiBaseUrl ? `${apiBaseUrl}${relativeUrl}` : relativeUrl;
   console.log(`🌐 Calling engagement API: ${url}`);
 
   // Use global fetch (Node 18+ or Netlify env)

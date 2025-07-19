@@ -1,11 +1,8 @@
-name: Update Discord Stats (Configurable)
+name: Update Discord Stats
 on:
-  #schedule:
-  #  - cron: '0 2 1 * *' # 1st day of the month at 2:00 AM UTC
+  schedule:
+    - cron: '0 2 1 * *' # 1st day of the month at 2:00 AM UTC
   workflow_dispatch:
-
-permissions:
-  contents: write      # allow GITHUB_TOKEN to push
 
 jobs:
   stats:

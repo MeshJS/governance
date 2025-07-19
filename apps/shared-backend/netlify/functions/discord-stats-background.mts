@@ -71,11 +71,14 @@ export default async (req: Request, context: Context) => {
     let newStats
     if (analyticsToken) {
       console.log('📡 Using API-based Discord stats fetcher (getStatsViaApi.js)')
+      // Get the base URL for API calls - use the site URL from context or construct from request
+      const siteUrl = context.site?.url || `${url.protocol}//${url.hostname}`
       newStats = await fetchDiscordStatsViaApi({
         guildId,
         token: analyticsToken,
         backfill,
-        backfillYear
+        backfillYear,
+        apiBaseUrl: siteUrl
       })
     } else {
       console.log('🤖 Using bot-based Discord stats fetcher (fetchStats.ts)')
