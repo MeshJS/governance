@@ -13,6 +13,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.52.0",
     "@types/react-icons": "^2.2.7",
     "@xyflow/react": "^12.6.0",
     "d3": "^7.9.0",
