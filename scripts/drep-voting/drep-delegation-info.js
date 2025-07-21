@@ -117,13 +117,28 @@ async function getCurrentEpoch() {
 
 async function upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDelegators, currentEpoch) {
     try {
-        // Build the epochs object
-        const epochs = {};
+        // Build the new epochs object from latest data
+        const newEpochs = {};
         for (const epochData of votingPowerHistory) {
-            epochs[epochData.epoch_no] = {
+            newEpochs[epochData.epoch_no] = {
                 voting_power_lovelace: epochData.amount,
                 total_delegators: epochData.epoch_no === currentEpoch ? currentDelegators.length : 0
             };
+        }
+
+        // Fetch existing epochs for this drep_id
+        let mergedEpochs = { ...newEpochs };
+        const { data: existing, error: fetchError } = await supabase
+            .from('drep_delegation_info')
+            .select('epochs')
+            .eq('drep_id', drepId)
+            .single();
+        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116: No rows found
+            throw fetchError;
+        }
+        if (existing && existing.epochs) {
+            // Merge: existing epochs + new epochs (new overwrites old for same epoch)
+            mergedEpochs = { ...existing.epochs, ...newEpochs };
         }
 
         const totalAmountAda = Number(votingPowerHistory[0]?.amount || 0) / 1_000_000;
@@ -132,7 +147,7 @@ async function upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDeleg
             .from('drep_delegation_info')
             .upsert({
                 drep_id: drepId,
-                epochs,
+                epochs: mergedEpochs,
                 current_epoch: currentEpoch,
                 total_delegators: currentDelegators.length,
                 total_amount_ada: totalAmountAda
