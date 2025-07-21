@@ -291,4 +291,33 @@ export interface CatalystProposalsResponse {
     missingProjectIds: string[];
     totalRequested: number;
     totalFound: number;
+}
+
+// DRep Vote API Types
+export interface DRepVote {
+    vote_tx_hash: string;
+    drep_id: string;
+    proposal_id: string;
+    proposal_tx_hash: string;
+    proposal_index: number;
+    vote: 'Yes' | 'No' | 'Abstain';
+    block_time: string;
+    meta_url: string | null;
+    meta_hash: string | null;
+    proposal_title: string;
+    proposal_type: string;
+    proposed_epoch: number | null;
+    expiration_epoch: number | null;
+    rationale: string;
+    isRecent?: boolean;
+    timeSinceVote?: number;
+}
+
+export interface DRepVotesResponse {
+    status: 'completed' | 'partial' | 'stale';
+    message: string;
+    hasData: boolean;
+    yearlyVotes: Record<string, DRepVote[]>;
+    totalVotes: number;
+    drepId: string;
 } 
