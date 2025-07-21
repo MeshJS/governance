@@ -98,6 +98,26 @@ async function fetchPackageStats(pkgConfig, githubToken) {
 
     // Fetch GitHub dependents count using Cheerio (scrape GitHub dependents page)
     let githubDependentsCount = null;
+    async function fetchDependentsWithRetry(url, maxRetries = 3, delayMs = 2000) {
+        let attempt = 0;
+        while (attempt < maxRetries) {
+            try {
+                const response = await axios.get(url, {
+                    headers: { 'User-Agent': 'Mozilla/5.0' }
+                });
+                return response.data;
+            } catch (error) {
+                attempt++;
+                if (attempt >= maxRetries) throw error;
+                if (error.response && error.response.status === 403) {
+                    console.warn(`403 Forbidden on ${url}, retrying in ${delayMs}ms (attempt ${attempt}/${maxRetries})...`);
+                } else {
+                    console.warn(`Error fetching ${url}, retrying in ${delayMs}ms (attempt ${attempt}/${maxRetries})...`);
+                }
+                await new Promise(res => setTimeout(res, delayMs));
+            }
+        }
+    }
     try {
         let dependentsUrl = null;
         if (githubPackageId) {
@@ -106,10 +126,7 @@ async function fetchPackageStats(pkgConfig, githubToken) {
             dependentsUrl = dependentsUrlOverride;
         }
         if (dependentsUrl) {
-            const response = await axios.get(dependentsUrl, {
-                headers: { 'User-Agent': 'Mozilla/5.0' }
-            });
-            const html = response.data;
+            const html = await fetchDependentsWithRetry(dependentsUrl);
             const $ = cheerio.load(html);
             const selector = 'a.btn-link.selected';
             const countText = $(selector).text().trim();
