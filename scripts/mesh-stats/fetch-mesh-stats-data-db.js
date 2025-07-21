@@ -2,6 +2,9 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import * as cheerio from 'cheerio';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import {
     upsertPackage,
     updatePackageStats,
@@ -47,7 +50,7 @@ async function sendDiscordNotification(message) {
 }
 
 // Read org-stats-config.json and parse npmPackages
-const orgStatsConfigPath = path.resolve(__dirname || path.dirname(new URL(import.meta.url).pathname), '../../org-stats-config.json');
+const orgStatsConfigPath = path.resolve(__dirname, '../../org-stats-config.json');
 const orgStatsConfig = JSON.parse(fs.readFileSync(orgStatsConfigPath, 'utf-8'));
 const npmPackagesConfig = orgStatsConfig.npmPackages;
 
