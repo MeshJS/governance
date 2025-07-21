@@ -115,41 +115,39 @@ async function getCurrentEpoch() {
     }
 }
 
-async function upsertVotingPowerHistory(votingPowerHistory, currentDelegators, currentEpoch) {
+async function upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDelegators, currentEpoch) {
     try {
-        const records = votingPowerHistory.map(epochData => ({
-            drep_id: drepId,
-            epoch_no: epochData.epoch_no,
-            voting_power_lovelace: epochData.amount,
-            total_delegators: epochData.epoch_no === currentEpoch ? currentDelegators.length : 0
-        }));
-
-        const { data, error } = await supabase
-            .from('drep_voting_power_history')
-            .upsert(records, {
-                onConflict: 'drep_id,epoch_no'
-            });
-
-        if (error) {
-            throw error;
+        // Build the new epochs object from latest data
+        const newEpochs = {};
+        for (const epochData of votingPowerHistory) {
+            newEpochs[epochData.epoch_no] = {
+                voting_power_lovelace: epochData.amount,
+                total_delegators: epochData.epoch_no === currentEpoch ? currentDelegators.length : 0
+            };
         }
 
-        console.log(`Voting power history updated for ${records.length} epochs`);
-        return data;
-    } catch (error) {
-        console.error('Error upserting voting power history:', error);
-        throw error;
-    }
-}
+        // Fetch existing epochs for this drep_id
+        let mergedEpochs = { ...newEpochs };
+        const { data: existing, error: fetchError } = await supabase
+            .from('drep_delegation_info')
+            .select('epochs')
+            .eq('drep_id', drepId)
+            .single();
+        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116: No rows found
+            throw fetchError;
+        }
+        if (existing && existing.epochs) {
+            // Merge: existing epochs + new epochs (new overwrites old for same epoch)
+            mergedEpochs = { ...existing.epochs, ...newEpochs };
+        }
 
-async function upsertDelegationSummary(currentEpoch, currentDelegators, votingPowerHistory) {
-    try {
-        const totalAmountAda = Number(votingPowerHistory[0]?.amount || 0) / 1000000;
+        const totalAmountAda = Number(votingPowerHistory[0]?.amount || 0) / 1_000_000;
 
         const { data, error } = await supabase
-            .from('drep_delegation_summary')
+            .from('drep_delegation_info')
             .upsert({
                 drep_id: drepId,
+                epochs: mergedEpochs,
                 current_epoch: currentEpoch,
                 total_delegators: currentDelegators.length,
                 total_amount_ada: totalAmountAda
@@ -157,14 +155,12 @@ async function upsertDelegationSummary(currentEpoch, currentDelegators, votingPo
                 onConflict: 'drep_id'
             });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
-        console.log('Delegation summary updated in Supabase');
+        console.log('DRep delegation info updated in Supabase');
         return data;
     } catch (error) {
-        console.error('Error upserting delegation summary:', error);
+        console.error('Error upserting DRep delegation info:', error);
         throw error;
     }
 }
@@ -180,11 +176,8 @@ async function main() {
     }
 
     try {
-        // Update voting power history
-        await upsertVotingPowerHistory(votingPowerHistory, currentDelegators, currentEpoch);
-
-        // Update delegation summary
-        await upsertDelegationSummary(currentEpoch, currentDelegators, votingPowerHistory);
+        // Upsert all data into the new table
+        await upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDelegators, currentEpoch);
 
         // Log summary
         console.log('\nDelegation Summary:');
