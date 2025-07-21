@@ -46,7 +46,15 @@ async function sendDiscordNotification(message) {
     }
 }
 
-async function fetchPackageStats(packageName, githubToken) {
+// Read org-stats-config.json and parse npmPackages
+const orgStatsConfigPath = path.resolve(__dirname || path.dirname(new URL(import.meta.url).pathname), '../../org-stats-config.json');
+const orgStatsConfig = JSON.parse(fs.readFileSync(orgStatsConfigPath, 'utf-8'));
+const npmPackagesConfig = orgStatsConfig.npmPackages;
+
+async function fetchPackageStats(pkgConfig, githubToken) {
+    const packageName = pkgConfig.name;
+    const githubPackageId = pkgConfig.github_package_id;
+    const dependentsUrlOverride = pkgConfig.dependents_url;
     console.log(`Fetching stats for ${packageName}...`);
 
     // Search for package in package.json
@@ -88,9 +96,13 @@ async function fetchPackageStats(packageName, githubToken) {
     // Fetch GitHub dependents count using Cheerio (scrape GitHub dependents page)
     let githubDependentsCount = null;
     try {
-        // Only attempt for @meshsdk/core, as in the old code
-        if (packageName === '@meshsdk/core') {
-            const dependentsUrl = 'https://github.com/MeshJS/mesh/network/dependents';
+        let dependentsUrl = null;
+        if (githubPackageId) {
+            dependentsUrl = `https://github.com/MeshJS/mesh/network/dependents?package_id=${githubPackageId}`;
+        } else if (dependentsUrlOverride) {
+            dependentsUrl = dependentsUrlOverride;
+        }
+        if (dependentsUrl) {
             const response = await axios.get(dependentsUrl, {
                 headers: { 'User-Agent': 'Mozilla/5.0' }
             });
@@ -160,7 +172,7 @@ async function fetchPackageStats(packageName, githubToken) {
     return {
         github_in_package_json: packageJsonResponse.data.total_count,
         github_in_any_file: anyFileResponse.data.total_count,
-        github_dependents_count: githubDependentsCount, // <-- new field
+        github_dependents_count: githubDependentsCount,
         latest_version: latestVersion,
         npm_dependents_count: dependentsResponse.data.total,
         last_day_downloads: lastDayDownloads,
@@ -211,18 +223,35 @@ async function fetchMonthlyDownloadsForPackage(packageName, year) {
 
 export async function fetchAndSaveMeshStats(githubToken) {
     console.log('Fetching and saving Mesh SDK statistics to database...');
-
-    const packages = await getAllPackages();
-
-    for (const pkg of packages) {
-        console.log(`\nProcessing package: ${pkg.name}`);
-
+    // Ensure all config packages exist in the DB
+    let dbPackages = await getAllPackages();
+    for (const pkgConfig of npmPackagesConfig) {
+        const dbPkg = dbPackages.find(p => p.name === pkgConfig.name);
+        if (!dbPkg) {
+            // Insert missing package
+            try {
+                await upsertPackage({ name: pkgConfig.name });
+                console.log(`Inserted missing package: ${pkgConfig.name}`);
+            } catch (err) {
+                console.error(`Failed to insert package ${pkgConfig.name}:`, err.message);
+            }
+        }
+    }
+    // Fetch the updated DB package list
+    dbPackages = await getAllPackages();
+    // Map config packages to DB packages by name
+    for (const pkgConfig of npmPackagesConfig) {
+        const dbPkg = dbPackages.find(p => p.name === pkgConfig.name);
+        if (!dbPkg) {
+            console.warn(`Package ${pkgConfig.name} not found in DB, skipping.`);
+            continue;
+        }
+        console.log(`\nProcessing package: ${pkgConfig.name}`);
         try {
             // Fetch stats for this package
-            const stats = await fetchPackageStats(pkg.name, githubToken);
-
+            const stats = await fetchPackageStats(pkgConfig, githubToken);
             // Update package with new stats
-            await updatePackageStats(pkg.id, {
+            await updatePackageStats(dbPkg.id, {
                 latest_version: stats.latest_version,
                 npm_dependents_count: stats.npm_dependents_count,
                 github_in_any_file: stats.github_in_any_file,
@@ -235,27 +264,25 @@ export async function fetchAndSaveMeshStats(githubToken) {
                 last_12_months_downloads: stats.last_12_months_downloads,
                 updated_at: new Date().toISOString()
             });
-
             // Save to history
             const now = new Date();
             const year = now.getFullYear();
             const monthNum = now.getMonth() + 1;
             const monthStr = `${year}-${String(monthNum).padStart(2, '0')}`;
             // Fetch monthly downloads for this package and year
-            const monthlyDownloadsArr = await fetchMonthlyDownloadsForPackage(pkg.name, year);
+            const monthlyDownloadsArr = await fetchMonthlyDownloadsForPackage(pkgConfig.name, year);
             const thisMonthDownloads = monthlyDownloadsArr.find(m => m.month === monthNum)?.downloads ?? 0;
-            await insertPackageStatsHistory(pkg.id, monthStr, {
+            await insertPackageStatsHistory(dbPkg.id, monthStr, {
                 npm_dependents_count: stats.npm_dependents_count,
                 github_in_any_file: stats.github_in_any_file,
                 github_in_repositories: stats.github_in_package_json,
                 github_dependents_count: stats.github_dependents_count,
                 package_downloads: thisMonthDownloads
             });
-
-            console.log(`✅ Updated stats for ${pkg.name}`);
+            console.log(`✅ Updated stats for ${pkgConfig.name}`);
         } catch (error) {
-            console.error(`❌ Error processing ${pkg.name}:`, error.message);
-            await sendDiscordNotification(`⚠️ Error processing package ${pkg.name}: ${error.message}`);
+            console.error(`❌ Error processing ${pkgConfig.name}:`, error.message);
+            await sendDiscordNotification(`⚠️ Error processing package ${pkgConfig.name}: ${error.message}`);
         }
     }
 }
