@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import fetchData from '../lib/fetchData';
-import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, ContributorsData } from '../types';
+import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, ContributorsData, GovernanceVote } from '../types';
 import { aggregateContributorStats } from '../utils/contributorStats';
 import { fetchCatalystProposalsViaAPI } from '../utils/catalystDataTransform';
 import config from '../../config';
@@ -141,32 +141,42 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     const fetchDRepVotingData = async () => {
         try {
-            // console.log('Fetching DRep voting data...');
+            // Fetch from new API route
+            const drepId = config.drepId;
+            let apiData: any = null;
+            try {
+                apiData = await fetchData(`/api/drep/votes?drepId=${drepId}`);
+            } catch (apiErr) {
+                // Ignore, will fallback
+            }
+            if (apiData && Array.isArray(apiData.votes) && apiData.delegationData) {
+                console.log('Using DRep voting data from API');
+                const newData: DRepVotingData = {
+                    votes: apiData.votes as GovernanceVote[],
+                    delegationData: apiData.delegationData || null,
+                    lastFetched: Date.now(),
+                };
+                safeSetItem(DREP_VOTING_STORAGE_KEY, JSON.stringify(newData));
+                setDrepVotingData(newData);
+                return;
+            }
+            // Fallback to JSON files if API fails or is missing data
+            console.log('Using DRep voting data from JSON fallback');
             const currentYear = getCurrentYear();
             const startYear = 2024;
             const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i);
-
             // Fetch yearly votes
             const yearlyVotesResults = await Promise.all(years.map(year => fetchYearlyVotes(year)));
-
-            // Combine all votes and sort by blockTime, filtering out null results
             const allVotes = yearlyVotesResults
                 .filter(votes => votes !== null)
-                .flat()
-                .sort((a, b) => new Date(b.blockTime).getTime() - new Date(a.blockTime).getTime());
-
+                .flat() as GovernanceVote[];
             // Fetch delegation data
-            // console.log('Fetching delegation data...');
             const delegationData = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/main/mesh-gov-updates/drep-voting/drep-delegation-info.json');
-            // console.log('Received delegation data:', delegationData);
-
             const newData: DRepVotingData = {
                 votes: allVotes,
                 delegationData: delegationData || null,
-                lastFetched: Date.now()
+                lastFetched: Date.now(),
             };
-
-            // console.log('Setting DRep voting data:', newData);
             safeSetItem(DREP_VOTING_STORAGE_KEY, JSON.stringify(newData));
             setDrepVotingData(newData);
         } catch (err) {
