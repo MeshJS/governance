@@ -250,4 +250,74 @@ export interface MeshStatsViewProps {
     discordStats?: DiscordStats;
     contributorsData?: ContributorsData;
     contributorStats?: Record<number, ContributorStats>;
+}
+
+// Catalyst Proposal API Types
+export interface CatalystProposalVoting {
+    proposalId: number;
+    yes_votes_count: number;
+    no_votes_count: number;
+    abstain_votes_count: number;
+    unique_wallets: number;
+}
+
+export interface CatalystProposal {
+    id: number;
+    title: string;
+    budget: number;
+    milestones_qty: number;
+    funds_distributed: number;
+    project_id: string;
+    challenges: any;
+    name: string;
+    category: string;
+    category_slug: string | null;
+    fund_number: string | null;
+    url: string;
+    status: string;
+    finished: string;
+    voting: CatalystProposalVoting | null;
+    milestones_completed: number;
+    updated_at: string;
+    isRecent?: boolean;
+    timeSinceUpdate?: number;
+}
+
+export interface CatalystProposalsResponse {
+    status: 'completed' | 'partial' | 'stale';
+    message: string;
+    hasData: boolean;
+    proposals: CatalystProposal[];
+    missingProjectIds: string[];
+    totalRequested: number;
+    totalFound: number;
+}
+
+// DRep Vote API Types
+export interface DRepVote {
+    vote_tx_hash: string;
+    drep_id: string;
+    proposal_id: string;
+    proposal_tx_hash: string;
+    proposal_index: number;
+    vote: 'Yes' | 'No' | 'Abstain';
+    block_time: string;
+    meta_url: string | null;
+    meta_hash: string | null;
+    proposal_title: string;
+    proposal_type: string;
+    proposed_epoch: number | null;
+    expiration_epoch: number | null;
+    rationale: string;
+    isRecent?: boolean;
+    timeSinceVote?: number;
+}
+
+export interface DRepVotesResponse {
+    status: 'completed' | 'partial' | 'stale';
+    message: string;
+    hasData: boolean;
+    yearlyVotes: Record<string, DRepVote[]>;
+    totalVotes: number;
+    drepId: string;
 } 

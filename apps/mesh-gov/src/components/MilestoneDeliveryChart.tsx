@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { MilestoneData } from '../utils/milestones';
 import styles from './MilestoneDeliveryChart.module.css';
@@ -17,20 +17,20 @@ interface MonthlyData {
 const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milestones }) => {
     const [hoveredMonth, setHoveredMonth] = useState<string | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-    
+
     const monthlyData = useMemo(() => {
         // Group milestones by month
         const monthlyDeliveries: { [key: string]: string[] } = {};
         const monthlyMilestones: { [key: string]: MilestoneData[] } = {};
-        
+
         milestones.forEach(milestone => {
             if (milestone.delivered && milestone.delivered.trim() !== '') {
                 const deliveredText = milestone.delivered.trim();
-                
+
                 try {
                     // Handle various date formats
                     let deliveredDate: Date | null = null;
-                    
+
                     // Try different date parsing strategies
                     const parseAttempts = [
                         // Standard ISO formats
@@ -67,9 +67,9 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                         // Try to parse month names
                         () => {
                             const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
-                                              'july', 'august', 'september', 'october', 'november', 'december'];
+                                'july', 'august', 'september', 'october', 'november', 'december'];
                             const lowerText = deliveredText.toLowerCase();
-                            
+
                             for (let i = 0; i < monthNames.length; i++) {
                                 if (lowerText.includes(monthNames[i])) {
                                     // Extract year from the string
@@ -86,7 +86,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                             return null;
                         }
                     ];
-                    
+
                     // Try each parsing method
                     for (const attempt of parseAttempts) {
                         try {
@@ -99,13 +99,13 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                             // Continue to next attempt
                         }
                     }
-                    
+
                     if (deliveredDate && !isNaN(deliveredDate.getTime())) {
-                        const monthKey = deliveredDate.toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'short' 
+                        const monthKey = deliveredDate.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short'
                         });
-                        
+
                         if (!monthlyDeliveries[monthKey]) {
                             monthlyDeliveries[monthKey] = [];
                             monthlyMilestones[monthKey] = [];
@@ -120,7 +120,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                 }
             }
         });
-        
+
         // Convert to array format for chart
         const rawData: MonthlyData[] = Object.entries(monthlyDeliveries)
             .map(([month, deliveries]) => ({
@@ -130,33 +130,33 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                 milestones: monthlyMilestones[month] || []
             }))
             .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
-        
+
         // Fill in missing months with 0 deliveries to show complete timeline
         const filledData: MonthlyData[] = [];
-        
+
         if (rawData.length > 0) {
             // Find the actual start and end dates from the data
             const allDates = rawData.map(item => new Date(item.month));
             const startDate = new Date(Math.min(...allDates.map(d => d.getTime())));
             const endDate = new Date(Math.max(...allDates.map(d => d.getTime())));
-            
+
             // Create a map for quick lookup of existing data
             const dataMap = new Map(rawData.map(item => [item.month, item]));
-            
+
             // Generate all months from start to end (inclusive)
             const currentDate = new Date(startDate);
             currentDate.setDate(1); // Set to first day of month
-            
+
             // Make sure we include the end month by going one month past it
             const endDatePlusOne = new Date(endDate);
             endDatePlusOne.setMonth(endDatePlusOne.getMonth() + 1);
-            
+
             while (currentDate < endDatePlusOne) {
-                const monthKey = currentDate.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short' 
+                const monthKey = currentDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short'
                 });
-                
+
                 if (dataMap.has(monthKey)) {
                     filledData.push(dataMap.get(monthKey)!);
                 } else {
@@ -167,22 +167,30 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                         milestones: []
                     });
                 }
-                
+
                 // Move to next month
                 currentDate.setMonth(currentDate.getMonth() + 1);
             }
         }
-        
+
         return filledData;
     }, [milestones]);
 
     // Custom tooltip component that also sets hover state
     const CustomTooltip = ({ active, payload, label }: any) => {
-        // Update hover state for detail panel
-        if (active && payload && payload.length) {
-            if (hoveredMonth !== label) {
-                setHoveredMonth(label);
+        // Use useEffect to handle state updates to avoid render-time setState calls
+        useEffect(() => {
+            if (active && payload && payload.length) {
+                if (hoveredMonth !== label) {
+                    setHoveredMonth(label);
+                }
+            } else if (hoveredMonth && !active && !selectedMonth) {
+                // Clear hover state when tooltip is not active and no month is selected
+                setHoveredMonth(null);
             }
+        }, [active, payload, label, hoveredMonth, selectedMonth]);
+
+        if (active && payload && payload.length) {
             const data = payload[0].payload;
             return (
                 <div className={styles.tooltip}>
@@ -193,9 +201,6 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                     <p className={styles.tooltipHint}>Click to pin details</p>
                 </div>
             );
-        } else if (hoveredMonth && !active && !selectedMonth) {
-            // Clear hover state when tooltip is not active and no month is selected
-            setHoveredMonth(null);
         }
         return null;
     };
@@ -209,7 +214,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
 
     // Get details for the currently displayed month (selected takes priority over hovered)
     const displayedMonth = selectedMonth || hoveredMonth;
-    const displayedMonthData = displayedMonth 
+    const displayedMonthData = displayedMonth
         ? monthlyData.find(item => item.month === displayedMonth)
         : null;
 
@@ -246,7 +251,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                     </p>
                 </div>
             </div>
-            
+
             <div className={styles.chartLayout}>
                 <div className={styles.chartSection}>
                     <div className={styles.chartWrapper}>
@@ -257,8 +262,8 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                                 onClick={handleChartClick}
                             >
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
-                                <XAxis 
-                                    dataKey="month" 
+                                <XAxis
+                                    dataKey="month"
                                     stroke="rgba(255, 255, 255, 0.8)"
                                     fontSize={12}
                                     tickLine={false}
@@ -268,7 +273,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                                     textAnchor="end"
                                     height={60}
                                 />
-                                <YAxis 
+                                <YAxis
                                     stroke="rgba(255, 255, 255, 0.8)"
                                     fontSize={12}
                                     tickLine={false}
@@ -276,19 +281,19 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                                     allowDecimals={false}
                                 />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="count" 
+                                <Line
+                                    type="monotone"
+                                    dataKey="count"
                                     stroke="rgba(56, 232, 225, 0.9)"
                                     strokeWidth={2}
-                                    dot={{ 
-                                        fill: "rgba(56, 232, 225, 0.9)", 
-                                        strokeWidth: 1, 
+                                    dot={{
+                                        fill: "rgba(56, 232, 225, 0.9)",
+                                        strokeWidth: 1,
                                         r: 3,
                                         stroke: "rgba(56, 232, 225, 1)"
                                     }}
-                                    activeDot={{ 
-                                        r: 5, 
+                                    activeDot={{
+                                        r: 5,
                                         fill: "rgba(56, 232, 225, 1)",
                                         stroke: "rgba(255, 255, 255, 0.9)",
                                         strokeWidth: 1.5
@@ -308,7 +313,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                                     {displayedMonthData.count} milestone{displayedMonthData.count !== 1 ? 's' : ''}
                                 </span>
                                 {selectedMonth && (
-                                    <button 
+                                    <button
                                         className={styles.clearButton}
                                         onClick={() => setSelectedMonth(null)}
                                         title="Clear selection"
@@ -317,11 +322,11 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                                     </button>
                                 )}
                             </div>
-                            
+
                             <div className={styles.milestoneList}>
                                 {displayedMonthData.milestones.map((milestone: MilestoneData, index: number) => (
-                                    <div 
-                                        key={`${milestone.projectId}-${milestone.number}-${index}`} 
+                                    <div
+                                        key={`${milestone.projectId}-${milestone.number}-${index}`}
                                         className={styles.milestoneItem}
                                         onClick={() => handleMilestoneClick(milestone)}
                                         style={{ cursor: 'pointer' }}
@@ -348,7 +353,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                                 <span className={styles.monthName}>{displayedMonthData.month}</span>
                                 <span className={styles.monthCount}>No milestones delivered</span>
                                 {selectedMonth && (
-                                    <button 
+                                    <button
                                         className={styles.clearButton}
                                         onClick={() => setSelectedMonth(null)}
                                         title="Clear selection"
