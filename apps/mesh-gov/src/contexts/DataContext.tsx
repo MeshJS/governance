@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import fetchData from '../lib/fetchData';
 import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, ContributorsData } from '../types';
 import { aggregateContributorStats } from '../utils/contributorStats';
+import { fetchCatalystProposalsViaAPI } from '../utils/catalystDataTransform';
 import config from '../../config';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -176,6 +177,33 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     const fetchCatalystData = async () => {
         try {
+            // First try to fetch from the new API route
+            const meshProjectIds = config.catalystProjectIds.split(',').map(id => id.trim());
+
+            try {
+                //console.log('Attempting to fetch Catalyst proposals via API route...');
+                //console.log('Using project IDs from config:', meshProjectIds);
+                const apiData = await fetchCatalystProposalsViaAPI(meshProjectIds);
+
+                if (apiData && apiData.projects && apiData.projects.length > 0) {
+                    //console.log(`API route returned ${apiData.projects.length} proposals`);
+                    const newData: CatalystContextData = {
+                        catalystData: apiData,
+                        lastFetched: Date.now()
+                    };
+                    safeSetItem(CATALYST_STORAGE_KEY, JSON.stringify(newData));
+                    setCatalystData(newData);
+                    console.log('Catalyst proposals fetched successfully via API route');
+                    return;
+                } else {
+                    console.warn('API route returned no proposals, falling back to JSON file');
+                }
+            } catch (apiError) {
+                console.warn('Failed to fetch Catalyst proposals via API route, falling back to JSON file:', apiError);
+            }
+
+            // Fallback to the old JSON file method
+            console.log('Fetching Catalyst proposals via JSON file fallback...');
             const data = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/main/mesh-gov-updates/catalyst-proposals/catalyst-data.json');
             const newData: CatalystContextData = {
                 catalystData: data,
@@ -183,6 +211,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             };
             safeSetItem(CATALYST_STORAGE_KEY, JSON.stringify(newData));
             setCatalystData(newData);
+            console.log('Catalyst proposals fetched successfully via JSON file fallback');
         } catch (err) {
             console.error('Error fetching catalyst data:', err);
             setCatalystData(null);
@@ -195,7 +224,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             const guildId = config.discordGuildId;
             if (guildId) {
                 try {
-                    console.log('Attempting to fetch Discord stats via API route...');
+                    //console.log('Attempting to fetch Discord stats via API route...');
                     const apiData = await fetchData(`/api/discord/stats/${guildId}`);
 
                     if (apiData && apiData.stats) {
