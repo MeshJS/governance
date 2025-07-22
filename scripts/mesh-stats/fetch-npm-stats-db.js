@@ -81,8 +81,9 @@ async function fetchPackageStats(pkgConfig, githubToken) {
 
     // Fetch GitHub dependents count using Cheerio (scrape GitHub dependents page)
     let githubDependentsCount = null;
-    async function fetchDependentsWithRetry(url, maxRetries = 3, delayMs = 2000) {
+    async function fetchDependentsWithRetry(url, maxRetries = 5, initialDelayMs = 2000) {
         let attempt = 0;
+        let delayMs = initialDelayMs;
         while (attempt < maxRetries) {
             try {
                 const response = await axios.get(url, {
@@ -92,12 +93,10 @@ async function fetchPackageStats(pkgConfig, githubToken) {
             } catch (error) {
                 attempt++;
                 if (attempt >= maxRetries) throw error;
-                if (error.response && error.response.status === 403) {
-                    console.warn(`403 Forbidden on ${url}, retrying in ${delayMs}ms (attempt ${attempt}/${maxRetries})...`);
-                } else {
-                    console.warn(`Error fetching ${url}, retrying in ${delayMs}ms (attempt ${attempt}/${maxRetries})...`);
-                }
+                const status = error.response ? error.response.status : null;
+                console.warn(`Error fetching ${url} (status: ${status}), retrying in ${delayMs}ms (attempt ${attempt}/${maxRetries})...`);
                 await new Promise(res => setTimeout(res, delayMs));
+                delayMs = Math.min(delayMs * 2, 32000); // exponential backoff, max 32s
             }
         }
     }
