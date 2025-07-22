@@ -418,4 +418,22 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
         }
     }
     console.log('✅ Contributors, commits, and pull requests saved successfully');
+}
+
+// --- MAIN EXECUTION BLOCK ---
+if (require.main === module) {
+    const githubToken = process.env.GITHUB_TOKEN;
+    if (!githubToken) {
+        console.error('GITHUB_TOKEN environment variable is required');
+        process.exit(1);
+    }
+    fetchAndSaveContributorsAndActivity(githubToken)
+        .then(() => {
+            console.log('GitHub stats fetch completed.');
+            process.exit(0);
+        })
+        .catch((err) => {
+            console.error('Error running GitHub stats fetch:', err);
+            process.exit(1);
+        });
 } 
