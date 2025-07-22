@@ -6,14 +6,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).json({ error: 'Method not allowed' });
     }
     try {
-        // Fetch all commits with author, committer, and repo info using explicit foreign key relationships
-        const { data: commits, error } = await supabase
-            .from('commits')
-            .select(`*, author:author_id(*), committer:committer_id(*), repo:repo_id(*)`);
+        const { data: organizations, error } = await supabase
+            .from('github_orgs')
+            .select('*');
         if (error) throw new Error(error.message);
-        return res.status(200).json({ commits });
+        return res.status(200).json({ organizations });
     } catch (err) {
         console.error('API error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }
-}
+} 

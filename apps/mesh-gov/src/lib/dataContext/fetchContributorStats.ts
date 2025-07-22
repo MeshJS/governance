@@ -5,6 +5,9 @@
 import fetchData from '../fetchData';
 import { aggregateContributorStats } from '../../utils/contributorStats';
 import { ContributorStats, ContributorsData } from '../../types';
+import config from '../../../config';
+
+const organizationName = config.mainOrganization.name;
 
 export async function fetchContributorStatsForContext({
     getCurrentYear,
@@ -71,25 +74,25 @@ export async function fetchContributorStatsForContext({
         setContributorsData(newContributorsData);
         if (setError) setError(null);
         if (setContributorsApiData) {
-            fetch('/api/contributors')
+            fetch(`/api/github?org=${encodeURIComponent(organizationName)}`)
                 .then(res => res.json())
                 .then(data => setContributorsApiData(data.contributors))
                 .catch(err => console.error('Error fetching contributors API data:', err));
         }
         if (setCommitsApiData) {
-            fetch('/api/contributors/commits')
+            fetch(`/api/github/commits?org=${encodeURIComponent(organizationName)}`)
                 .then(res => res.json())
                 .then(data => setCommitsApiData(data.commits))
                 .catch(err => console.error('Error fetching commits API data:', err));
         }
         if (setPullRequestsApiData) {
-            fetch('/api/contributors/pull-requests')
+            fetch(`/api/github/pull-requests?org=${encodeURIComponent(organizationName)}`)
                 .then(res => res.json())
                 .then(data => setPullRequestsApiData(data.pullRequests))
                 .catch(err => console.error('Error fetching pull requests API data:', err));
         }
         if (setIssuesApiData) {
-            fetch('/api/contributors/issues')
+            fetch(`/api/github/issues?org=${encodeURIComponent(organizationName)}`)
                 .then(res => res.json())
                 .then(data => setIssuesApiData(data.issues))
                 .catch(err => console.error('Error fetching issues API data:', err));
