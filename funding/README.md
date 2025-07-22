@@ -3,13 +3,13 @@
 List of funded proposals from MeshJS at Cardano's Project Catalyst.
 
 > **Data Source**: Real data from Catalyst
-> **Last Updated**: July 14, 2025 at 12:56 AM UTC
+> **Last Updated**: July 21, 2025 at 12:58 AM UTC
 
 ## Overall Progress
 
 | Milestones | Funding |
 |:-----------|:--------|
-| Total completed: 37/50 (74%)<br>`███████████████·····` 74% | Total distributed: ADA 1,497,429/2,018,429 (74%)<br>`███████████████·····` 74% |
+| Total completed: 38/50 (76%)<br>`███████████████·····` 76% | Total distributed: ADA 1,497,429/2,018,429 (74%)<br>`███████████████·····` 74% |
 
 ## Overview of All Proposals
 
@@ -17,7 +17,7 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 |:--------|:---|:-----------|:--------|
 | F10 - MeshJS SDK Operations: Supporting Open-Source Library Development, Developer Resources & Builder Community | 1000107 | `████████████████████` 100% | `████████████████████` 100% |
 | F11 - Sustain & Maintain MeshJS | 1100271 | `████████████████████` 100% | `████████████████████` 100% |
-| F12 - Mesh Software as a Service | 1200148 | `████████████████····` 80% | `████████████████····` 80% |
+| F12 - Mesh Software as a Service | 1200148 | `████████████████████` 100% | `████████████████····` 80% |
 | F12 - Mesh New Features to Improve Developer experience and Cardano Adoption | 1200147 | `████████████████████` 100% | `████████████████████` 100% |
 | F12 - Sustain and Maintain Mesh SDK | 1200220 | `████████████████████` 100% | `████████████████████` 100% |
 | F13 - Mesh: Hydra Tools for administrating & interacting with Hydra Heads | 1300135 | `████████············` 40% | `███████████·········` 56% |
@@ -72,8 +72,8 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | **Milestones** | [Milestones](https://milestones.projectcatalyst.io/projects/1200148) |
 | **Funding Category** | F12: Cardano Use Cases: Concept |
 | **Proposal Budget** | ADA 100,000 |
-| **Status** | 🔆 In Progress |
-| **Milestones completed** | 4/5 (80%) |
+| **Status** | ✅ In Progress |
+| **Milestones completed** | 5/5 (100%) |
 | **Funds distributed** | ADA 80,000 of 100,000 (80%) |
 | **Funding Progress** | `████████████████····` |
 
