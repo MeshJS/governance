@@ -57,16 +57,22 @@ async function withRetry(fn, { retries = 5, minDelay = 10000, maxDelay = 120000,
             ) {
                 const reset = parseInt(error.response.headers['x-ratelimit-reset'], 10) * 1000;
                 const now = Date.now();
-                const waitTime = Math.max(reset - now, 0);
+                let waitTime = Math.max(reset - now, 0);
+                const minWait = 10000; // 10 seconds
+                if (waitTime < minWait) {
+                    console.warn(`GitHub rate limit reset time is now or past. Waiting minimum ${minWait / 1000}s before retrying...`);
+                    waitTime = minWait;
+                } else {
+                    console.warn(`GitHub rate limit hit. Waiting until reset in ${Math.ceil(waitTime / 1000)}s...`);
+                }
                 if (onRetry) onRetry(error, attempt, waitTime);
-                console.warn(`GitHub rate limit hit. Waiting until reset in ${Math.ceil(waitTime / 1000)}s...`);
                 await new Promise(res => setTimeout(res, waitTime));
-                delay = minDelay; // reset delay after rate limit
-            } else {
-                if (onRetry) onRetry(error, attempt, delay);
-                await new Promise(res => setTimeout(res, delay));
-                delay = Math.min(delay * 2, maxDelay);
+                delay = minDelay; // always reset backoff delay after rate limit wait
+                continue; // skip exponential backoff for this retry
             }
+            if (onRetry) onRetry(error, attempt, delay);
+            await new Promise(res => setTimeout(res, delay));
+            delay = Math.min(delay * 2, maxDelay);
         }
     }
 }
