@@ -319,4 +319,31 @@ export async function fetchAndSaveMonthlyDownloads(year) {
             console.error(`❌ Error processing monthly downloads for ${pkg.name}:`, error.message);
         }
     }
-} 
+}
+
+(async () => {
+    try {
+        console.log('--- Mesh NPM Stats Script: START ---');
+        const githubToken = process.env.GITHUB_TOKEN;
+        if (!githubToken) {
+            console.error('GITHUB_TOKEN environment variable is not set. Exiting.');
+            process.exit(1);
+        }
+        // Log Supabase envs for debug (do not print secrets)
+        if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            console.error('Supabase environment variables are missing. Exiting.');
+            process.exit(1);
+        }
+        console.log('Environment variables loaded.');
+        // Run main stats update
+        await fetchAndSaveMeshStats(githubToken);
+        // Optionally, run monthly downloads for current year
+        const year = new Date().getFullYear();
+        await fetchAndSaveMonthlyDownloads(year);
+        console.log('--- Mesh NPM Stats Script: FINISHED SUCCESSFULLY ---');
+    } catch (err) {
+        console.error('--- Mesh NPM Stats Script: ERROR ---');
+        console.error(err);
+        process.exit(1);
+    }
+})(); 
