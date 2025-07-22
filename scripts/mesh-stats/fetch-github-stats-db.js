@@ -40,6 +40,29 @@ async function sendDiscordNotification(message) {
 
 // --- GitHub Stats Logic ---
 
+// Retry helper for GitHub API calls
+async function retryWithBackoff(fn, maxRetries = 5, initialDelay = 1000) {
+    let attempt = 0;
+    let delay = initialDelay;
+    while (attempt < maxRetries) {
+        try {
+            return await fn();
+        } catch (error) {
+            const status = error.response?.status;
+            // Only retry on 403, 429, or 5xx errors
+            if ([403, 429].includes(status) || (status >= 500 && status < 600)) {
+                attempt++;
+                if (attempt === maxRetries) throw error;
+                console.warn(`Retrying after error ${status} (attempt ${attempt}/${maxRetries})...`);
+                await new Promise(res => setTimeout(res, delay));
+                delay *= 2; // Exponential backoff
+            } else {
+                throw error;
+            }
+        }
+    }
+}
+
 export async function fetchAndSaveContributorsAndActivity(githubToken) {
     console.log('\nFetching and saving repository contributors, commits, and pull requests...');
 
@@ -51,17 +74,19 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
     while (hasMoreRepos) {
         try {
             console.log(`Fetching repositories page ${page}...`);
-            const reposResponse = await axios.get('https://api.github.com/orgs/MeshJS/repos', {
-                params: {
-                    type: 'all',
-                    per_page: 100,
-                    page: page
-                },
-                headers: {
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Authorization': `token ${githubToken}`
-                }
-            });
+            const reposResponse = await retryWithBackoff(() =>
+                axios.get('https://api.github.com/orgs/MeshJS/repos', {
+                    params: {
+                        type: 'all',
+                        per_page: 100,
+                        page: page
+                    },
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Authorization': `token ${githubToken}`
+                    }
+                })
+            );
 
             if (reposResponse.data.length === 0) {
                 hasMoreRepos = false;
@@ -124,13 +149,15 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                     page: commitsPage
                 };
                 if (since) params.since = since;
-                const commitsResponse = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits`, {
-                    params,
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': `token ${githubToken}`
-                    }
-                });
+                const commitsResponse = await retryWithBackoff(() =>
+                    axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits`, {
+                        params,
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Authorization': `token ${githubToken}`
+                        }
+                    })
+                );
                 if (commitsResponse.data.length === 0) {
                     hasMoreCommits = false;
                 } else {
@@ -156,12 +183,14 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                         let commitDetails = commit;
                         if (!commit.stats || !commit.files) {
                             // Need to fetch full commit details
-                            const commitDetailsResp = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits/${commit.sha}`, {
-                                headers: {
-                                    'Accept': 'application/vnd.github.v3+json',
-                                    'Authorization': `token ${githubToken}`
-                                }
-                            });
+                            const commitDetailsResp = await retryWithBackoff(() =>
+                                axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits/${commit.sha}`, {
+                                    headers: {
+                                        'Accept': 'application/vnd.github.v3+json',
+                                        'Authorization': `token ${githubToken}`
+                                    }
+                                })
+                            );
                             commitDetails = commitDetailsResp.data;
                         }
                         const isMerge = (commitDetails.parents && commitDetails.parents.length > 1);
@@ -213,13 +242,15 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                     page: prsPage
                 };
                 if (since) params.since = since;
-                const prsResponse = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls`, {
-                    params,
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': `token ${githubToken}`
-                    }
-                });
+                const prsResponse = await retryWithBackoff(() =>
+                    axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls`, {
+                        params,
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Authorization': `token ${githubToken}`
+                        }
+                    })
+                );
                 if (prsResponse.data.length === 0) {
                     hasMorePRs = false;
                 } else {
@@ -242,12 +273,14 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             mergedById = mergedBy.id;
                         }
                         // Fetch full PR details for body, timestamps, stats, reviewers, assignees, labels, commits
-                        const prDetailsResp = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}`, {
-                            headers: {
-                                'Accept': 'application/vnd.github.v3+json',
-                                'Authorization': `token ${githubToken}`
-                            }
-                        });
+                        const prDetailsResp = await retryWithBackoff(() =>
+                            axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}`, {
+                                headers: {
+                                    'Accept': 'application/vnd.github.v3+json',
+                                    'Authorization': `token ${githubToken}`
+                                }
+                            })
+                        );
                         const prDetails = prDetailsResp.data;
                         await upsertPullRequest({
                             number: pr.number,
@@ -308,12 +341,14 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             }
                         }
                         // PR commits
-                        const prCommitsResp = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}/commits`, {
-                            headers: {
-                                'Accept': 'application/vnd.github.v3+json',
-                                'Authorization': `token ${githubToken}`
-                            }
-                        });
+                        const prCommitsResp = await retryWithBackoff(() =>
+                            axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}/commits`, {
+                                headers: {
+                                    'Accept': 'application/vnd.github.v3+json',
+                                    'Authorization': `token ${githubToken}`
+                                }
+                            })
+                        );
                         for (const prCommit of prCommitsResp.data) {
                             await upsertPRCommit({
                                 pr_id: prRecord.id,
@@ -354,13 +389,15 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                     page: issuesPage
                 };
                 if (since) params.since = since;
-                const issuesResponse = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/issues`, {
-                    params,
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': `token ${githubToken}`
-                    }
-                });
+                const issuesResponse = await retryWithBackoff(() =>
+                    axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/issues`, {
+                        params,
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Authorization': `token ${githubToken}`
+                        }
+                    })
+                );
                 if (issuesResponse.data.length === 0) {
                     hasMoreIssues = false;
                 } else {
