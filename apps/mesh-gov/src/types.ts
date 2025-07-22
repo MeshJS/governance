@@ -242,6 +242,10 @@ export interface DataContextType {
     isLoading: boolean;
     error: string | null;
     refetchData: () => Promise<void>;
+    contributorsApiData?: any;
+    commitsApiData?: any;
+    pullRequestsApiData?: any;
+    issuesApiData?: any;
 }
 
 export interface MeshStatsViewProps {

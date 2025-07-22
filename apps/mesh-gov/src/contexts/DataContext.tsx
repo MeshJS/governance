@@ -61,6 +61,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
     const [contributorStats, setContributorStats] = useState<Record<number, ContributorStats> | null>(null);
     const [contributorsData, setContributorsData] = useState<ContributorsData | null>(null);
+    const [contributorsApiData, setContributorsApiData] = useState<any>(null);
+    const [commitsApiData, setCommitsApiData] = useState<any>(null);
+    const [pullRequestsApiData, setPullRequestsApiData] = useState<any>(null);
+    const [issuesApiData, setIssuesApiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -100,6 +104,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setError,
             CONTRIBUTOR_STATS_STORAGE_KEY,
             CONTRIBUTORS_DATA_STORAGE_KEY,
+            setContributorsApiData,
+            setCommitsApiData,
+            setPullRequestsApiData,
+            setIssuesApiData,
         });
     };
 
@@ -237,7 +245,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, contributorsData, isLoading, error, refetchData }}>
+        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, contributorsData, isLoading, error, refetchData, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData }}>
             {children}
         </DataContext.Provider>
     );

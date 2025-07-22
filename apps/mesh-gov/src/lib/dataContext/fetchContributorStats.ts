@@ -14,6 +14,10 @@ export async function fetchContributorStatsForContext({
     setError,
     CONTRIBUTOR_STATS_STORAGE_KEY,
     CONTRIBUTORS_DATA_STORAGE_KEY,
+    setContributorsApiData,
+    setCommitsApiData,
+    setPullRequestsApiData,
+    setIssuesApiData,
 }: {
     getCurrentYear: () => number;
     safeSetItem: (key: string, value: string) => void;
@@ -22,6 +26,10 @@ export async function fetchContributorStatsForContext({
     setError?: (err: string | null) => void;
     CONTRIBUTOR_STATS_STORAGE_KEY: string;
     CONTRIBUTORS_DATA_STORAGE_KEY: string;
+    setContributorsApiData?: (data: any) => void;
+    setCommitsApiData?: (data: any) => void;
+    setPullRequestsApiData?: (data: any) => void;
+    setIssuesApiData?: (data: any) => void;
 }) {
     try {
         const currentYear = getCurrentYear();
@@ -62,6 +70,30 @@ export async function fetchContributorStatsForContext({
         safeSetItem(CONTRIBUTORS_DATA_STORAGE_KEY, JSON.stringify(newContributorsData));
         setContributorsData(newContributorsData);
         if (setError) setError(null);
+        if (setContributorsApiData) {
+            fetch('/api/contributors')
+                .then(res => res.json())
+                .then(data => setContributorsApiData(data.contributors))
+                .catch(err => console.error('Error fetching contributors API data:', err));
+        }
+        if (setCommitsApiData) {
+            fetch('/api/contributors/commits')
+                .then(res => res.json())
+                .then(data => setCommitsApiData(data.commits))
+                .catch(err => console.error('Error fetching commits API data:', err));
+        }
+        if (setPullRequestsApiData) {
+            fetch('/api/contributors/pull-requests')
+                .then(res => res.json())
+                .then(data => setPullRequestsApiData(data.pullRequests))
+                .catch(err => console.error('Error fetching pull requests API data:', err));
+        }
+        if (setIssuesApiData) {
+            fetch('/api/contributors/issues')
+                .then(res => res.json())
+                .then(data => setIssuesApiData(data.issues))
+                .catch(err => console.error('Error fetching issues API data:', err));
+        }
     } catch (err) {
         console.error('Error fetching contributor stats:', err);
         setContributorStats(null);
