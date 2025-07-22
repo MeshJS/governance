@@ -38,7 +38,7 @@ const npmPackagesConfig = orgStatsConfig.npmPackages;
 // --- NPM Stats Logic ---
 
 // Generalized retry wrapper for axios calls
-async function withRetry(fn, { retries = 5, minDelay = 2000, maxDelay = 32000, onRetry } = {}) {
+async function withRetry(fn, { retries = 5, minDelay = 10000, maxDelay = 120000, onRetry } = {}) {
     let attempt = 0;
     let delay = minDelay;
     while (attempt < retries) {
@@ -47,9 +47,26 @@ async function withRetry(fn, { retries = 5, minDelay = 2000, maxDelay = 32000, o
         } catch (error) {
             attempt++;
             if (attempt >= retries) throw error;
-            if (onRetry) onRetry(error, attempt, delay);
-            await new Promise(res => setTimeout(res, delay));
-            delay = Math.min(delay * 2, maxDelay);
+            const status = error.response ? error.response.status : null;
+            // Check for GitHub rate limit
+            if (
+                status === 403 &&
+                error.response &&
+                error.response.headers &&
+                error.response.headers['x-ratelimit-reset']
+            ) {
+                const reset = parseInt(error.response.headers['x-ratelimit-reset'], 10) * 1000;
+                const now = Date.now();
+                const waitTime = Math.max(reset - now, 0);
+                if (onRetry) onRetry(error, attempt, waitTime);
+                console.warn(`GitHub rate limit hit. Waiting until reset in ${Math.ceil(waitTime / 1000)}s...`);
+                await new Promise(res => setTimeout(res, waitTime));
+                delay = minDelay; // reset delay after rate limit
+            } else {
+                if (onRetry) onRetry(error, attempt, delay);
+                await new Promise(res => setTimeout(res, delay));
+                delay = Math.min(delay * 2, maxDelay);
+            }
         }
     }
 }
