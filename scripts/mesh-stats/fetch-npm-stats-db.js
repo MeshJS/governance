@@ -37,6 +37,23 @@ const npmPackagesConfig = orgStatsConfig.npmPackages;
 
 // --- NPM Stats Logic ---
 
+// Generalized retry wrapper for axios calls
+async function withRetry(fn, { retries = 5, minDelay = 2000, maxDelay = 32000, onRetry } = {}) {
+    let attempt = 0;
+    let delay = minDelay;
+    while (attempt < retries) {
+        try {
+            return await fn();
+        } catch (error) {
+            attempt++;
+            if (attempt >= retries) throw error;
+            if (onRetry) onRetry(error, attempt, delay);
+            await new Promise(res => setTimeout(res, delay));
+            delay = Math.min(delay * 2, maxDelay);
+        }
+    }
+}
+
 async function fetchPackageStats(pkgConfig, githubToken) {
     const packageName = pkgConfig.name;
     const githubPackageId = pkgConfig.github_package_id;
@@ -44,25 +61,41 @@ async function fetchPackageStats(pkgConfig, githubToken) {
     console.log(`Fetching stats for ${packageName}...`);
 
     // Search for package in package.json
-    const packageJsonResponse = await axios.get(
-        'https://api.github.com/search/code',
+    const packageJsonResponse = await withRetry(() =>
+        axios.get(
+            'https://api.github.com/search/code',
+            {
+                params: { q: `"${packageName}" in:file filename:package.json` },
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Authorization': `token ${githubToken}`
+                }
+            }
+        ),
         {
-            params: { q: `"${packageName}" in:file filename:package.json` },
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'Authorization': `token ${githubToken}`
+            onRetry: (err, attempt, delay) => {
+                const status = err.response ? err.response.status : null;
+                console.warn(`Retrying GitHub package.json search for ${packageName} (status: ${status}) in ${delay}ms (attempt ${attempt}/5): ${err.message}`);
             }
         }
     );
 
     // Search for package in any file
-    const anyFileResponse = await axios.get(
-        'https://api.github.com/search/code',
+    const anyFileResponse = await withRetry(() =>
+        axios.get(
+            'https://api.github.com/search/code',
+            {
+                params: { q: `"${packageName}"` },
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Authorization': `token ${githubToken}`
+                }
+            }
+        ),
         {
-            params: { q: `"${packageName}"` },
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'Authorization': `token ${githubToken}`
+            onRetry: (err, attempt, delay) => {
+                const status = err.response ? err.response.status : null;
+                console.warn(`Retrying GitHub any-file search for ${packageName} (status: ${status}) in ${delay}ms (attempt ${attempt}/5): ${err.message}`);
             }
         }
     );
