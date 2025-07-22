@@ -1,4 +1,4 @@
-name: Mesh SDK Usage Stats
+name: Mesh GitHub Usage Stats
 
 on:
   schedule:
@@ -6,8 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  search-mesh-usage:
-    #if: github.repository == 'MeshJS/governance'
+  search-mesh-github-usage:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -16,14 +15,11 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
-      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
       - name: Install dependencies
         run: npm install
-      
-      - name: Generate Current Stats (Database)
-        run: node scripts/mesh-stats/generate-mesh-stats-db.js
+      - name: Generate GitHub Stats (Database)
+        run: node scripts/mesh-stats/fetch-github-stats-db.js 
