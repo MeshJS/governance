@@ -140,6 +140,7 @@ export interface MeshData {
     currentStats: CurrentStats;
     yearlyStats: Record<number, YearlyStats>;
     lastFetched: number;
+    meshPackagesData?: MeshPackagesApiResponse | null;
 }
 
 export interface DRepEpochInfo {
@@ -320,4 +321,46 @@ export interface DRepVotesResponse {
     yearlyVotes: Record<string, DRepVote[]>;
     totalVotes: number;
     drepId: string;
+}
+
+export interface MonthlyDownloadRow {
+    id: number;
+    package_id: number;
+    year: number;
+    month: number;
+    downloads: number;
+    created_at: string;
+}
+
+export interface PackageStatsHistoryRow {
+    id: number;
+    package_id: number;
+    recorded_at: string;
+    month: string; // Format: YYYY-MM
+    npm_dependents_count: number;
+    github_in_any_file: number;
+    github_in_repositories: number;
+    github_dependents_count: number;
+    package_downloads: number;
+}
+
+export interface MeshPackagesApiResponse {
+    packages: Array<{
+        id: number;
+        name: string;
+        latest_version: string;
+        npm_dependents_count: number;
+        github_in_any_file: number;
+        github_in_repositories: number;
+        github_dependents_count: number;
+        last_day_downloads: number;
+        last_week_downloads: number;
+        last_month_downloads: number;
+        last_year_downloads: number;
+        last_12_months_downloads: number;
+        created_at: string;
+        updated_at: string;
+        monthly_downloads: MonthlyDownloadRow[];
+        package_stats_history: PackageStatsHistoryRow[];
+    }>;
 } 

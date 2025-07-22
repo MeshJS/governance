@@ -6,20 +6,7 @@ import PageHeader from '../components/PageHeader';
 
 export default function MeshStatsPage() {
     const { meshData, discordStats, contributorsData, contributorStats, isLoading, error } = useData();
-
-    // Create package data array for the filter generator
-    const packageData = useMemo(() => {
-        if (!meshData?.currentStats?.npm) return [];
-        return [
-            { name: 'Core', downloads: meshData.currentStats.npm.downloads.last_month },
-            { name: 'React', downloads: meshData.currentStats.npm.react_package_downloads },
-            { name: 'Transaction', downloads: meshData.currentStats.npm.transaction_package_downloads },
-            { name: 'Wallet', downloads: meshData.currentStats.npm.wallet_package_downloads },
-            { name: 'Provider', downloads: meshData.currentStats.npm.provider_package_downloads },
-            { name: 'Core CSL', downloads: meshData.currentStats.npm.core_csl_package_downloads },
-            { name: 'Core CST', downloads: meshData.currentStats.npm.core_cst_package_downloads },
-        ];
-    }, [meshData]);
+    //console.log('meshData', meshData, discordStats, contributorsData, contributorStats)
 
     // Version subtitle for PageHeader
     const versionSubtitle = useMemo(() => {
@@ -71,6 +58,7 @@ export default function MeshStatsPage() {
                 discordStats={discordStats || undefined}
                 contributorsData={contributorsData?.unique_count ? contributorsData : undefined}
                 contributorStats={contributorStats || undefined}
+                meshPackagesData={meshData.meshPackagesData}
             />
         </div>
     );

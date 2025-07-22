@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 import styles from '../styles/MeshStats.module.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps, LineChart, Line } from 'recharts';
-import { YearlyStats, PackageData, MeshStatsViewProps, DiscordStats, ContributorsData } from '../types';
+import { YearlyStats, PackageData, MeshStatsViewProps as OriginalMeshStatsViewProps, DiscordStats, ContributorsData, MeshPackagesApiResponse } from '../types';
 
 const formatNumber = (num: number | undefined): string => {
     if (num === undefined) return '0';
@@ -10,9 +10,9 @@ const formatNumber = (num: number | undefined): string => {
 
 const CustomTooltip = ({ active, payload, label, chartId }: TooltipProps<number, string> & { chartId?: string }) => {
     if (active && payload && payload.length && payload[0].value !== undefined) {
-        const unit = chartId === 'repositories' ? 'repositories' : 
-                    chartId === 'contributions' ? 'contributions' : 
-                    chartId === 'contributors' ? 'contributors' : 'downloads';
+        const unit = chartId === 'repositories' ? 'repositories' :
+            chartId === 'contributions' ? 'contributions' :
+                chartId === 'contributors' ? 'contributors' : 'downloads';
         return (
             <div className={styles.customTooltip}>
                 <p className={styles.tooltipLabel}>{label}</p>
@@ -112,10 +112,10 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => (
                     <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.5" />
                 </linearGradient>
                 <filter id={`glow-${chartId}`}>
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                     <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
                     </feMerge>
                 </filter>
             </defs>
@@ -286,7 +286,11 @@ const CustomSingleLineChart = ({ data, chartId, dataKey, name, stroke, yAxisDoma
     </ResponsiveContainer>
 );
 
-const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorsData, contributorStats }) => {
+export interface MeshStatsViewProps extends Omit<OriginalMeshStatsViewProps, 'meshPackagesData'> {
+    meshPackagesData?: MeshPackagesApiResponse | null;
+}
+
+const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorsData, contributorStats, meshPackagesData }) => {
     // Use all package data
     const packageData = currentStats?.npm ? [
         { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
@@ -318,42 +322,42 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
 
         const result = [];
         let lastKnownValue = 0;
-        
+
         // Process months in chronological order from January to previous month
         for (let i = 0; i < currentMonth; i++) {
             const month = months[i];
             const yearData = yearlyStats[currentYear]?.githubStats.find(stat => stat.month === month);
-            
+
             // If we have data for this month with a positive value, update the last known value
             // Repository counts are cumulative and should never drop to 0
             if (yearData?.repositories !== undefined && yearData.repositories > 0) {
                 lastKnownValue = yearData.repositories;
             }
             // Use the last known value (either from this month or carried forward)
-            
+
             result.push({
                 month,
                 repositories: lastKnownValue
             });
         }
-        
+
         return result;
     }, [yearlyStats]);
 
     // Generate monthly contribution data from timestamp arrays
     const contributionsData = useMemo(() => {
         if (!contributorsData?.contributors) return [];
-        
+
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth();
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        
+
         // Initialize monthly data for current year up to previous month (excluding current month)
         const monthlyContributions = months.slice(0, currentMonth).map(month => ({
             month,
             contributions: 0
         }));
-        
+
         // Process all contributors' timestamps
         contributorsData.contributors.forEach(contributor => {
             contributor.repositories.forEach(repo => {
@@ -367,7 +371,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                         }
                     }
                 });
-                
+
                 // Process PR timestamps
                 repo.pr_timestamps?.forEach(timestamp => {
                     const date = new Date(timestamp);
@@ -380,58 +384,58 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                 });
             });
         });
-        
+
         return monthlyContributions;
     }, [contributorsData]);
 
     // Generate monthly contributor growth data
     const contributorsGrowthData = useMemo(() => {
         if (!contributorsData?.contributors) return [];
-        
+
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth();
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        
+
         // Calculate cumulative contributors per month (including previously existing ones)
         const monthlyGrowth = months.slice(0, currentMonth).map((month, index) => {
             const activeContributors = new Set<string>();
-            
+
             contributorsData.contributors.forEach(contributor => {
                 let hasContributedByThisMonth = false;
-                
+
                 contributor.repositories.forEach(repo => {
                     // Check commit timestamps up to this month
                     repo.commit_timestamps?.forEach(timestamp => {
                         const date = new Date(timestamp);
                         // Include contributions from any year, but only up to the previous month in current year
-                        if (date.getFullYear() < currentYear || 
+                        if (date.getFullYear() < currentYear ||
                             (date.getFullYear() === currentYear && date.getMonth() <= index)) {
                             hasContributedByThisMonth = true;
                         }
                     });
-                    
+
                     // Check PR timestamps up to this month
                     repo.pr_timestamps?.forEach(timestamp => {
                         const date = new Date(timestamp);
                         // Include contributions from any year, but only up to the previous month in current year
-                        if (date.getFullYear() < currentYear || 
+                        if (date.getFullYear() < currentYear ||
                             (date.getFullYear() === currentYear && date.getMonth() <= index)) {
                             hasContributedByThisMonth = true;
                         }
                     });
                 });
-                
+
                 if (hasContributedByThisMonth) {
                     activeContributors.add(contributor.login);
                 }
             });
-            
+
             return {
                 month,
                 contributors: activeContributors.size
             };
         });
-        
+
         return monthlyGrowth;
     }, [contributorsData]);
 
@@ -558,27 +562,27 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                         <div className={styles.chartSection}>
                             <h2>Monthly Contributions ({new Date().getFullYear()})</h2>
                             <div className={styles.chart}>
-                                <CustomLineChart 
-                                    data={contributionsData.map(item => ({ 
-                                        month: item.month, 
-                                        repositories: item.contributions 
-                                    }))} 
-                                    chartId="contributions" 
+                                <CustomLineChart
+                                    data={contributionsData.map(item => ({
+                                        month: item.month,
+                                        repositories: item.contributions
+                                    }))}
+                                    chartId="contributions"
                                 />
                             </div>
                         </div>
                     )}
-                    
+
                     {contributorsGrowthData.length > 0 && (
                         <div className={styles.chartSection}>
                             <h2>Contributors Growth ({new Date().getFullYear()})</h2>
                             <div className={styles.chart}>
-                                <CustomLineChart 
-                                    data={contributorsGrowthData.map(item => ({ 
-                                        month: item.month, 
-                                        repositories: item.contributors 
-                                    }))} 
-                                    chartId="contributors" 
+                                <CustomLineChart
+                                    data={contributorsGrowthData.map(item => ({
+                                        month: item.month,
+                                        repositories: item.contributors
+                                    }))}
+                                    chartId="contributors"
                                 />
                             </div>
                         </div>
