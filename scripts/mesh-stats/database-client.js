@@ -77,6 +77,7 @@ export async function upsertGitHubRepo(repoData) {
         .from('github_repos')
         .upsert({
             id: repoData.id, // Use GitHub repo ID as primary key
+            org_id: repoData.org_id, // New: org_id
             name: repoData.name,
             full_name: repoData.full_name,
             description: repoData.description,
@@ -285,6 +286,34 @@ export async function upsertIssueLabel(issueLabelData) {
     return data;
 }
 
+// Database operations for GitHub organizations
+export async function upsertGitHubOrg(orgData) {
+    const { data, error } = await supabase
+        .from('github_orgs')
+        .upsert({
+            id: orgData.id, // GitHub org ID
+            login: orgData.login,
+            name: orgData.name,
+            description: orgData.description,
+            avatar_url: orgData.avatar_url,
+            html_url: orgData.html_url
+        }, { onConflict: 'id' })
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+export async function getGitHubOrgByLogin(login) {
+    const { data, error } = await supabase
+        .from('github_orgs')
+        .select('*')
+        .eq('login', login)
+        .single();
+    if (error && error.code !== 'PGRST116') throw error;
+    return data;
+}
+
 // Utility function to clear old data (for fresh imports)
 export async function clearOldData() {
     console.log('Clearing old data...');
@@ -303,6 +332,7 @@ export async function clearOldData() {
     await supabase.from('issues').delete().neq('id', 0);
     await supabase.from('issue_assignees').delete().neq('id', 0);
     await supabase.from('issue_labels').delete().neq('id', 0);
+    await supabase.from('github_orgs').delete().neq('id', 0); // Clear orgs last
 
     console.log('Old data cleared successfully');
 }

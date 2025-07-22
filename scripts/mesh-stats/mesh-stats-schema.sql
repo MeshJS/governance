@@ -18,9 +18,22 @@ CREATE TABLE packages (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- GitHub organizations table
+CREATE TABLE github_orgs (
+    id BIGINT PRIMARY KEY, -- GitHub org ID
+    login VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255),
+    description TEXT,
+    avatar_url TEXT,
+    html_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- GitHub repositories table - using GitHub repo ID as primary key
 CREATE TABLE github_repos (
     id BIGINT PRIMARY KEY, -- GitHub repository ID
+    org_id BIGINT NOT NULL REFERENCES github_orgs(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     full_name VARCHAR(500) NOT NULL UNIQUE,
     description TEXT,

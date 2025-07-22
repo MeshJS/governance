@@ -17,7 +17,8 @@ import {
     upsertIssueLabel,
     getLatestCommitDate,
     getLatestPullRequestDate,
-    getLatestIssueDate
+    getLatestIssueDate,
+    upsertGitHubOrg // <-- add import
 } from './database-client.js';
 
 // Add Discord webhook URL - this should be set as an environment variable
@@ -76,11 +77,22 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
 
     console.log(`Found ${allRepos.length} repositories in the MeshJS organization`);
 
-    // Save repositories to database
+    // Save organizations and repositories to database
     for (const repo of allRepos) {
         try {
+            // Upsert org first (repo.owner is the org for org repos)
+            const org = repo.owner;
+            const orgRecord = await upsertGitHubOrg({
+                id: org.id,
+                login: org.login,
+                name: org.name || null,
+                description: org.description || null,
+                avatar_url: org.avatar_url || null,
+                html_url: org.html_url || null
+            });
             await upsertGitHubRepo({
                 id: repo.id, // GitHub repository ID
+                org_id: orgRecord.id, // New: org_id
                 name: repo.name,
                 full_name: repo.full_name,
                 description: repo.description,
