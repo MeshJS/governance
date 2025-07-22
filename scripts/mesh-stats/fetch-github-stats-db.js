@@ -421,19 +421,26 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
 }
 
 // --- MAIN EXECUTION BLOCK ---
-if (require.main === module) {
-    const githubToken = process.env.GITHUB_TOKEN;
-    if (!githubToken) {
-        console.error('GITHUB_TOKEN environment variable is required');
+(async () => {
+    try {
+        console.log('--- Mesh GitHub Stats Script: START ---');
+        const githubToken = process.env.GITHUB_TOKEN;
+        if (!githubToken) {
+            console.error('GITHUB_TOKEN environment variable is required');
+            process.exit(1);
+        }
+        // Log Supabase envs for debug (do not print secrets)
+        if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            console.error('Supabase environment variables are missing. Exiting.');
+            process.exit(1);
+        }
+        console.log('Environment variables loaded.');
+        await fetchAndSaveContributorsAndActivity(githubToken);
+        console.log('--- Mesh GitHub Stats Script: FINISHED SUCCESSFULLY ---');
+        process.exit(0);
+    } catch (err) {
+        console.error('--- Mesh GitHub Stats Script: ERROR ---');
+        console.error(err);
         process.exit(1);
     }
-    fetchAndSaveContributorsAndActivity(githubToken)
-        .then(() => {
-            console.log('GitHub stats fetch completed.');
-            process.exit(0);
-        })
-        .catch((err) => {
-            console.error('Error running GitHub stats fetch:', err);
-            process.exit(1);
-        });
-} 
+})(); 
