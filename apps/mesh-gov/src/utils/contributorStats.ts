@@ -61,4 +61,277 @@ export function aggregateContributorStats(yearlyStats: Record<number, Contributo
     // Convert map to array and sort by total contributions
     return Array.from(contributorMap.values())
         .sort((a, b) => b.contributions - a.contributions);
+}
+
+/**
+ * Aggregates raw GitHub API data into per-contributor, per-repo, and org-wide stats.
+ * Only counts commits by author_id (not committer_id).
+ * @param contributorsApiData Array of contributors (from /api/github)
+ * @param commitsApiData Array of commits (from /api/github/commits)
+ * @param pullRequestsApiData Array of pull requests (from /api/github/pull-requests)
+ * @param issuesApiData Array of issues (from /api/github/issues)
+ * @param reposApiData Array of repos (from /api/github/repos)
+ * @returns {
+ *   orgTotals: { total_commits, total_pull_requests, total_issues },
+ *   contributors: Contributor[],
+ *   perRepo: Record<repoName, { total_commits, total_pull_requests, total_issues, contributors: Contributor[] }>
+ * }
+ */
+export function aggregateApiContributorStats({
+    contributorsApiData = [],
+    commitsApiData = [],
+    pullRequestsApiData = [],
+    issuesApiData = [],
+    reposApiData = []
+}: {
+    contributorsApiData: any[];
+    commitsApiData: any[];
+    pullRequestsApiData: any[];
+    issuesApiData: any[];
+    reposApiData: any[];
+}) {
+    // Build repoId -> repoName map
+    const repoIdToName: Record<number, string> = {};
+    reposApiData.forEach((repo: any) => {
+        repoIdToName[repo.id] = repo.name;
+    });
+
+    // Build contributorId -> contributor info map
+    const contributorIdToInfo: Record<number, any> = {};
+    contributorsApiData.forEach((contributor: any) => {
+        contributorIdToInfo[contributor.id] = contributor;
+    });
+
+    // Helper: get login/avatar for a contributorId
+    function getContributorInfo(id: number) {
+        return contributorIdToInfo[id] || { login: `unknown-${id}`, avatar_url: '' };
+    }
+
+    // Per-contributor stats: login -> Contributor
+    const contributorMap = new Map<string, import('../types').Contributor>();
+    // Per-repo stats: repoName -> { total_commits, total_pull_requests, total_issues, contributors: Map<login, Contributor> }
+    const perRepoMap = new Map<string, {
+        total_commits: number;
+        total_pull_requests: number;
+        total_issues: number;
+        contributors: Map<string, import('../types').Contributor>;
+    }>();
+
+    // Org-wide totals
+    let orgTotals = {
+        total_commits: 0,
+        total_pull_requests: 0,
+        total_issues: 0
+    };
+
+    // Aggregate commits (ONLY by author_id)
+    commitsApiData.forEach((commit: any) => {
+        const repoName = commit.repo?.name || repoIdToName[commit.repo_id] || 'unknown-repo';
+        const authorId = commit.author_id;
+        if (!authorId) return;
+        const { login, avatar_url } = getContributorInfo(authorId);
+        // Contributor global
+        if (!contributorMap.has(login)) {
+            contributorMap.set(login, {
+                login,
+                avatar_url,
+                commits: 0,
+                pull_requests: 0,
+                contributions: 0,
+                repositories: []
+            });
+        }
+        const contributor = contributorMap.get(login)!;
+        contributor.commits += 1;
+        contributor.contributions += 1;
+        // Contributor per-repo
+        let repoStats = contributor.repositories.find(r => r.name === repoName);
+        if (!repoStats) {
+            repoStats = {
+                name: repoName,
+                commits: 0,
+                pull_requests: 0,
+                contributions: 0,
+                commit_timestamps: [],
+                pr_timestamps: []
+            };
+            contributor.repositories.push(repoStats);
+        }
+        repoStats.commits += 1;
+        repoStats.contributions += 1;
+        if (commit.date) {
+            repoStats.commit_timestamps.push(commit.date);
+        }
+        // Per-repo global
+        if (!perRepoMap.has(repoName)) {
+            perRepoMap.set(repoName, {
+                total_commits: 0,
+                total_pull_requests: 0,
+                total_issues: 0,
+                contributors: new Map()
+            });
+        }
+        const repoAgg = perRepoMap.get(repoName)!;
+        repoAgg.total_commits += 1;
+        if (!repoAgg.contributors.has(login)) {
+            repoAgg.contributors.set(login, {
+                login,
+                avatar_url,
+                commits: 0,
+                pull_requests: 0,
+                contributions: 0,
+                repositories: []
+            });
+        }
+        const repoContributor = repoAgg.contributors.get(login)!;
+        repoContributor.commits += 1;
+        repoContributor.contributions += 1;
+        // (No need to track per-repo repositories for repoContributor)
+        orgTotals.total_commits += 1;
+    });
+
+    // Aggregate pull requests
+    pullRequestsApiData.forEach((pr: any) => {
+        const repoName = pr.repo?.name || repoIdToName[pr.repo_id] || 'unknown-repo';
+        // Deduplicate contributor IDs (user/merged_by)
+        const contributorIds = new Set([pr.user_id, pr.merged_by_id]);
+        contributorIds.forEach((contributorId: number | undefined) => {
+            if (!contributorId) return;
+            const { login, avatar_url } = getContributorInfo(contributorId);
+            // Contributor global
+            if (!contributorMap.has(login)) {
+                contributorMap.set(login, {
+                    login,
+                    avatar_url,
+                    commits: 0,
+                    pull_requests: 0,
+                    contributions: 0,
+                    repositories: []
+                });
+            }
+            const contributor = contributorMap.get(login)!;
+            contributor.pull_requests += 1;
+            contributor.contributions += 1;
+            // Contributor per-repo
+            let repoStats = contributor.repositories.find(r => r.name === repoName);
+            if (!repoStats) {
+                repoStats = {
+                    name: repoName,
+                    commits: 0,
+                    pull_requests: 0,
+                    contributions: 0,
+                    commit_timestamps: [],
+                    pr_timestamps: []
+                };
+                contributor.repositories.push(repoStats);
+            }
+            repoStats.pull_requests += 1;
+            repoStats.contributions += 1;
+            if (pr.created_at) {
+                repoStats.pr_timestamps.push(pr.created_at);
+            }
+            // Per-repo global
+            if (!perRepoMap.has(repoName)) {
+                perRepoMap.set(repoName, {
+                    total_commits: 0,
+                    total_pull_requests: 0,
+                    total_issues: 0,
+                    contributors: new Map()
+                });
+            }
+            const repoAgg = perRepoMap.get(repoName)!;
+            repoAgg.total_pull_requests += 1;
+            if (!repoAgg.contributors.has(login)) {
+                repoAgg.contributors.set(login, {
+                    login,
+                    avatar_url,
+                    commits: 0,
+                    pull_requests: 0,
+                    contributions: 0,
+                    repositories: []
+                });
+            }
+            const repoContributor = repoAgg.contributors.get(login)!;
+            repoContributor.pull_requests += 1;
+            repoContributor.contributions += 1;
+        });
+        orgTotals.total_pull_requests += 1;
+    });
+
+    // Aggregate issues
+    issuesApiData.forEach((issue: any) => {
+        const repoName = issue.repo?.name || repoIdToName[issue.repo_id] || 'unknown-repo';
+        const userId = issue.user_id;
+        if (!userId) return;
+        const { login, avatar_url } = getContributorInfo(userId);
+        // Contributor global
+        if (!contributorMap.has(login)) {
+            contributorMap.set(login, {
+                login,
+                avatar_url,
+                commits: 0,
+                pull_requests: 0,
+                contributions: 0,
+                repositories: []
+            });
+        }
+        const contributor = contributorMap.get(login)!;
+        // (Optionally, you could add an 'issues' field to Contributor/ContributorRepository)
+        // Contributor per-repo
+        let repoStats = contributor.repositories.find(r => r.name === repoName);
+        if (!repoStats) {
+            repoStats = {
+                name: repoName,
+                commits: 0,
+                pull_requests: 0,
+                contributions: 0,
+                commit_timestamps: [],
+                pr_timestamps: []
+            };
+            contributor.repositories.push(repoStats);
+        }
+        // Per-repo global
+        if (!perRepoMap.has(repoName)) {
+            perRepoMap.set(repoName, {
+                total_commits: 0,
+                total_pull_requests: 0,
+                total_issues: 0,
+                contributors: new Map()
+            });
+        }
+        const repoAgg = perRepoMap.get(repoName)!;
+        repoAgg.total_issues += 1;
+        if (!repoAgg.contributors.has(login)) {
+            repoAgg.contributors.set(login, {
+                login,
+                avatar_url,
+                commits: 0,
+                pull_requests: 0,
+                contributions: 0,
+                repositories: []
+            });
+        }
+        // (No need to increment issues on Contributor for now)
+        orgTotals.total_issues += 1;
+    });
+
+    // Convert perRepoMap contributors to arrays
+    const perRepo: Record<string, any> = {};
+    perRepoMap.forEach((value, key) => {
+        perRepo[key] = {
+            total_commits: value.total_commits,
+            total_pull_requests: value.total_pull_requests,
+            total_issues: value.total_issues,
+            contributors: Array.from(value.contributors.values())
+        };
+    });
+
+    // Final contributors array
+    const contributors = Array.from(contributorMap.values());
+
+    return {
+        orgTotals,
+        contributors,
+        perRepo
+    };
 } 

@@ -8,6 +8,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         const orgLogin = req.query.org as string | undefined;
         let repoIds: number[] | undefined = undefined;
+        if (!orgLogin) {
+            return res.status(200).json({ pullRequests: [] });
+        }
         if (orgLogin) {
             // Get org id
             const { data: orgs, error: orgError } = await supabase

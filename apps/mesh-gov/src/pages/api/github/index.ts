@@ -8,12 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         const orgLogin = req.query.org as string | undefined;
         if (!orgLogin) {
-            // No org filter, return all contributors
-            const { data: contributors, error } = await supabase
-                .from('contributors')
-                .select('*');
-            if (error) throw new Error(error.message);
-            return res.status(200).json({ contributors });
+            return res.status(200).json({ contributors: [] });
         }
         // Get org id
         const { data: orgs, error: orgError } = await supabase
@@ -37,14 +32,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
         // Get contributors from commits, pull_requests, and issues
         const [commits, pullRequests, issues] = await Promise.all([
-            supabase.from('commits').select('author_id, committer_id').in('repo_id', repoIds),
+            supabase.from('commits').select('author_id').in('repo_id', repoIds), // Only author_id
             supabase.from('pull_requests').select('user_id, merged_by_id').in('repo_id', repoIds),
             supabase.from('issues').select('user_id').in('repo_id', repoIds),
         ]);
         const contributorIds = new Set<number>();
         (commits.data || []).forEach(row => {
             if (row.author_id) contributorIds.add(row.author_id);
-            if (row.committer_id) contributorIds.add(row.committer_id);
         });
         (pullRequests.data || []).forEach(row => {
             if (row.user_id) contributorIds.add(row.user_id);

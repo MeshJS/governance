@@ -1,11 +1,12 @@
 // ../contexts/DataContext.tsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, ContributorsData, GovernanceVote, MeshPackagesApiResponse } from '../types';
 import { fetchMeshDataForContext } from '../lib/dataContext/fetchMeshData';
 import { fetchDRepVotingDataForContext } from '../lib/dataContext/fetchDRepVotingData';
 import { fetchCatalystDataForContext } from '../lib/dataContext/fetchCatalystData';
 import { fetchDiscordStatsForContext } from '../lib/dataContext/fetchDiscordStats';
 import { fetchContributorStatsForContext } from '../lib/dataContext/fetchContributorStats';
+import { aggregateApiContributorStats } from '../utils/contributorStats';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -65,6 +66,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [commitsApiData, setCommitsApiData] = useState<any>(null);
     const [pullRequestsApiData, setPullRequestsApiData] = useState<any>(null);
     const [issuesApiData, setIssuesApiData] = useState<any>(null);
+    const [reposApiData, setReposApiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -108,6 +110,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setCommitsApiData,
             setPullRequestsApiData,
             setIssuesApiData,
+            setReposApiData,
         });
     };
 
@@ -244,8 +247,20 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
     };
 
+    // Compute org-wide contributor stats from API data
+    const contributorOrgStats = useMemo(() => {
+        if (!contributorsApiData || !commitsApiData || !pullRequestsApiData || !issuesApiData || !reposApiData) return null;
+        return aggregateApiContributorStats({
+            contributorsApiData,
+            commitsApiData,
+            pullRequestsApiData,
+            issuesApiData,
+            reposApiData
+        });
+    }, [contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData, reposApiData]);
+
     return (
-        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, contributorsData, isLoading, error, refetchData, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData }}>
+        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, contributorsData, isLoading, error, refetchData, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData, contributorOrgStats }}>
             {children}
         </DataContext.Provider>
     );

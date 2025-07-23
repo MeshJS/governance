@@ -5,8 +5,8 @@ import { useMemo } from 'react';
 import PageHeader from '../components/PageHeader';
 
 export default function MeshStatsPage() {
-    const { meshData, discordStats, contributorsData, contributorStats, isLoading, error } = useData();
-    //console.log('meshData', meshData, discordStats, contributorsData, contributorStats)
+    const { meshData, discordStats, contributorsData, contributorStats, isLoading, error, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData, contributorOrgStats } = useData();
+    //console.log('meshData', contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData, 'contributorOrgStats', contributorOrgStats)
 
     // Version subtitle for PageHeader
     const versionSubtitle = useMemo(() => {

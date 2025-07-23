@@ -21,6 +21,7 @@ export async function fetchContributorStatsForContext({
     setCommitsApiData,
     setPullRequestsApiData,
     setIssuesApiData,
+    setReposApiData,
 }: {
     getCurrentYear: () => number;
     safeSetItem: (key: string, value: string) => void;
@@ -33,6 +34,7 @@ export async function fetchContributorStatsForContext({
     setCommitsApiData?: (data: any) => void;
     setPullRequestsApiData?: (data: any) => void;
     setIssuesApiData?: (data: any) => void;
+    setReposApiData?: (data: any) => void;
 }) {
     try {
         const currentYear = getCurrentYear();
@@ -96,6 +98,12 @@ export async function fetchContributorStatsForContext({
                 .then(res => res.json())
                 .then(data => setIssuesApiData(data.issues))
                 .catch(err => console.error('Error fetching issues API data:', err));
+        }
+        if (setReposApiData) {
+            fetch(`/api/github/repos?org=${encodeURIComponent(organizationName)}`)
+                .then(res => res.json())
+                .then(data => setReposApiData(data.repos))
+                .catch(err => console.error('Error fetching repos API data:', err));
         }
     } catch (err) {
         console.error('Error fetching contributor stats:', err);

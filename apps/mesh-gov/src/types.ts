@@ -246,6 +246,7 @@ export interface DataContextType {
     commitsApiData?: any;
     pullRequestsApiData?: any;
     issuesApiData?: any;
+    contributorOrgStats?: any;
 }
 
 export interface MeshStatsViewProps {
