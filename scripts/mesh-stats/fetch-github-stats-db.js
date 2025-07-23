@@ -144,6 +144,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
         let commitsPage = 1;
         let hasMoreCommits = true;
         let newCommitsCount = 0;
+        let totalCommitsProcessed = 0;
 
         while (hasMoreCommits) {
             try {
@@ -163,12 +164,11 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 if (commitsResponse.data.length === 0) {
                     hasMoreCommits = false;
                 } else {
-                    let foundExistingCommit = false;
-
                     for (const commit of commitsResponse.data) {
+                        totalCommitsProcessed++;
+
                         // Skip if we already have this commit
                         if (existingCommitShas.has(commit.sha)) {
-                            foundExistingCommit = true;
                             continue;
                         }
 
@@ -224,12 +224,8 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                         newCommitsCount++;
                     }
 
-                    // If we found an existing commit, we've reached the end of new commits
-                    if (foundExistingCommit) {
-                        hasMoreCommits = false;
-                    } else {
-                        commitsPage++;
-                    }
+                    // Continue to next page to check for any missing commits
+                    commitsPage++;
                 }
             } catch (error) {
                 if (error.response && (error.response.status === 404 || error.response.status === 403)) {
@@ -241,7 +237,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
             }
         }
 
-        console.log(`Added ${newCommitsCount} new commits for ${repo.name}`);
+        console.log(`Processed ${totalCommitsProcessed} commits from GitHub, added ${newCommitsCount} new commits for ${repo.name}`);
     }
 
     // --- PULL REQUESTS ---
@@ -255,6 +251,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
         let prsPage = 1;
         let hasMorePRs = true;
         let newPRsCount = 0;
+        let totalPRsProcessed = 0;
 
         while (hasMorePRs) {
             try {
@@ -275,12 +272,11 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 if (prsResponse.data.length === 0) {
                     hasMorePRs = false;
                 } else {
-                    let foundExistingPR = false;
-
                     for (const pr of prsResponse.data) {
+                        totalPRsProcessed++;
+
                         // Skip if we already have this PR
                         if (existingPRNumbers.has(pr.number)) {
-                            foundExistingPR = true;
                             continue;
                         }
 
@@ -395,12 +391,8 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                         newPRsCount++;
                     }
 
-                    // If we found an existing PR, we've reached the end of new PRs
-                    if (foundExistingPR) {
-                        hasMorePRs = false;
-                    } else {
-                        prsPage++;
-                    }
+                    // Continue to next page to check for any missing PRs
+                    prsPage++;
                 }
             } catch (error) {
                 if (error.response && (error.response.status === 404 || error.response.status === 403)) {
@@ -412,7 +404,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
             }
         }
 
-        console.log(`Added ${newPRsCount} new pull requests for ${repo.name}`);
+        console.log(`Processed ${totalPRsProcessed} pull requests from GitHub, added ${newPRsCount} new pull requests for ${repo.name}`);
     }
 
     // --- ISSUES ---
@@ -426,6 +418,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
         let issuesPage = 1;
         let hasMoreIssues = true;
         let newIssuesCount = 0;
+        let totalIssuesProcessed = 0;
 
         while (hasMoreIssues) {
             try {
@@ -446,15 +439,14 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 if (issuesResponse.data.length === 0) {
                     hasMoreIssues = false;
                 } else {
-                    let foundExistingIssue = false;
-
                     for (const issue of issuesResponse.data) {
                         // Skip if this is a pull request (already handled)
                         if (issue.pull_request) continue;
 
+                        totalIssuesProcessed++;
+
                         // Skip if we already have this issue
                         if (existingIssueNumbers.has(issue.number)) {
-                            foundExistingIssue = true;
                             continue;
                         }
 
@@ -515,12 +507,8 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                         newIssuesCount++;
                     }
 
-                    // If we found an existing issue, we've reached the end of new issues
-                    if (foundExistingIssue) {
-                        hasMoreIssues = false;
-                    } else {
-                        issuesPage++;
-                    }
+                    // Continue to next page to check for any missing issues
+                    issuesPage++;
                 }
             } catch (error) {
                 if (error.response && (error.response.status === 404 || error.response.status === 403)) {
@@ -532,7 +520,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
             }
         }
 
-        console.log(`Added ${newIssuesCount} new issues for ${repo.name}`);
+        console.log(`Processed ${totalIssuesProcessed} issues from GitHub, added ${newIssuesCount} new issues for ${repo.name}`);
     }
     console.log('✅ Contributors, commits, and pull requests saved successfully');
 }
