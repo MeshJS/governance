@@ -18,7 +18,10 @@ import {
     getLatestCommitDate,
     getLatestPullRequestDate,
     getLatestIssueDate,
-    upsertGitHubOrg // <-- add import
+    upsertGitHubOrg,
+    getExistingCommitShas,
+    getExistingPRNumbers,
+    getExistingIssueNumbers
 } from './database-client.js';
 
 // Add Discord webhook URL - this should be set as an environment variable
@@ -133,35 +136,42 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
     // --- COMMITS ---
     for (const repo of allRepos) {
         console.log(`Processing commits for ${repo.name}...`);
+
+        // Get existing commit SHAs from database
+        const existingCommitShas = await getExistingCommitShas(repo.id);
+        console.log(`Found ${existingCommitShas.size} existing commits for ${repo.name}`);
+
         let commitsPage = 1;
         let hasMoreCommits = true;
-        // Get latest commit date for this repo (buffer: minus 1 month)
-        let since = undefined;
-        const latestCommitDate = await getLatestCommitDate(repo.id);
-        if (latestCommitDate) {
-            const bufferDate = new Date(new Date(latestCommitDate).getTime() - 30 * 24 * 60 * 60 * 1000);
-            since = bufferDate.toISOString();
-        }
+        let newCommitsCount = 0;
+
         while (hasMoreCommits) {
             try {
-                const params = {
-                    per_page: 100,
-                    page: commitsPage
-                };
-                if (since) params.since = since;
                 const commitsResponse = await retryWithBackoff(() =>
                     axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits`, {
-                        params,
+                        params: {
+                            per_page: 100,
+                            page: commitsPage
+                        },
                         headers: {
                             'Accept': 'application/vnd.github.v3+json',
                             'Authorization': `token ${githubToken}`
                         }
                     })
                 );
+
                 if (commitsResponse.data.length === 0) {
                     hasMoreCommits = false;
                 } else {
+                    let foundExistingCommit = false;
+
                     for (const commit of commitsResponse.data) {
+                        // Skip if we already have this commit
+                        if (existingCommitShas.has(commit.sha)) {
+                            foundExistingCommit = true;
+                            continue;
+                        }
+
                         // Upsert author and committer as contributors
                         let authorId = null;
                         let committerId = null;
@@ -179,6 +189,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             });
                             committerId = committer.id;
                         }
+
                         // Fetch commit details for stats/files/parents
                         let commitDetails = commit;
                         if (!commit.stats || !commit.files) {
@@ -193,6 +204,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             );
                             commitDetails = commitDetailsResp.data;
                         }
+
                         const isMerge = (commitDetails.parents && commitDetails.parents.length > 1);
                         await upsertCommit({
                             sha: commit.sha,
@@ -208,8 +220,16 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             is_merge: isMerge,
                             parent_shas: commitDetails.parents ? commitDetails.parents.map(p => p.sha) : []
                         });
+
+                        newCommitsCount++;
                     }
-                    commitsPage++;
+
+                    // If we found an existing commit, we've reached the end of new commits
+                    if (foundExistingCommit) {
+                        hasMoreCommits = false;
+                    } else {
+                        commitsPage++;
+                    }
                 }
             } catch (error) {
                 if (error.response && (error.response.status === 404 || error.response.status === 403)) {
@@ -220,41 +240,50 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 hasMoreCommits = false;
             }
         }
+
+        console.log(`Added ${newCommitsCount} new commits for ${repo.name}`);
     }
 
     // --- PULL REQUESTS ---
     for (const repo of allRepos) {
         console.log(`Processing pull requests for ${repo.name}...`);
+
+        // Get existing PR numbers from database
+        const existingPRNumbers = await getExistingPRNumbers(repo.id);
+        console.log(`Found ${existingPRNumbers.size} existing pull requests for ${repo.name}`);
+
         let prsPage = 1;
         let hasMorePRs = true;
-        // Get latest PR date for this repo (buffer: minus 1 month)
-        let since = undefined;
-        const latestPRDate = await getLatestPullRequestDate(repo.id);
-        if (latestPRDate) {
-            const bufferDate = new Date(new Date(latestPRDate).getTime() - 30 * 24 * 60 * 60 * 1000);
-            since = bufferDate.toISOString();
-        }
+        let newPRsCount = 0;
+
         while (hasMorePRs) {
             try {
-                const params = {
-                    state: 'all',
-                    per_page: 100,
-                    page: prsPage
-                };
-                if (since) params.since = since;
                 const prsResponse = await retryWithBackoff(() =>
                     axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls`, {
-                        params,
+                        params: {
+                            state: 'all',
+                            per_page: 100,
+                            page: prsPage
+                        },
                         headers: {
                             'Accept': 'application/vnd.github.v3+json',
                             'Authorization': `token ${githubToken}`
                         }
                     })
                 );
+
                 if (prsResponse.data.length === 0) {
                     hasMorePRs = false;
                 } else {
+                    let foundExistingPR = false;
+
                     for (const pr of prsResponse.data) {
+                        // Skip if we already have this PR
+                        if (existingPRNumbers.has(pr.number)) {
+                            foundExistingPR = true;
+                            continue;
+                        }
+
                         // Upsert user and merged_by as contributors
                         let userId = null;
                         let mergedById = null;
@@ -272,6 +301,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             });
                             mergedById = mergedBy.id;
                         }
+
                         // Fetch full PR details for body, timestamps, stats, reviewers, assignees, labels, commits
                         const prDetailsResp = await retryWithBackoff(() =>
                             axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}`, {
@@ -282,6 +312,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             })
                         );
                         const prDetails = prDetailsResp.data;
+
                         await upsertPullRequest({
                             number: pr.number,
                             repo_id: repo.id,
@@ -299,8 +330,10 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             changed_files: prDetails.changed_files,
                             commits_count: prDetails.commits
                         });
+
                         // Get PR record for id
                         const prRecord = await getPullRequestByNumber(repo.id, pr.number);
+
                         // Reviewers
                         if (prDetails.requested_reviewers && prDetails.requested_reviewers.length > 0) {
                             for (const reviewer of prDetails.requested_reviewers) {
@@ -316,6 +349,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 }
                             }
                         }
+
                         // Assignees
                         if (prDetails.assignees && prDetails.assignees.length > 0) {
                             for (const assignee of prDetails.assignees) {
@@ -331,6 +365,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 }
                             }
                         }
+
                         // Labels
                         if (prDetails.labels && prDetails.labels.length > 0) {
                             for (const label of prDetails.labels) {
@@ -340,6 +375,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 });
                             }
                         }
+
                         // PR commits
                         const prCommitsResp = await retryWithBackoff(() =>
                             axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}/commits`, {
@@ -355,8 +391,16 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 commit_sha: prCommit.sha
                             });
                         }
+
+                        newPRsCount++;
                     }
-                    prsPage++;
+
+                    // If we found an existing PR, we've reached the end of new PRs
+                    if (foundExistingPR) {
+                        hasMorePRs = false;
+                    } else {
+                        prsPage++;
+                    }
                 }
             } catch (error) {
                 if (error.response && (error.response.status === 404 || error.response.status === 403)) {
@@ -367,43 +411,53 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 hasMorePRs = false;
             }
         }
+
+        console.log(`Added ${newPRsCount} new pull requests for ${repo.name}`);
     }
 
     // --- ISSUES ---
     for (const repo of allRepos) {
         console.log(`Processing issues for ${repo.name}...`);
+
+        // Get existing issue numbers from database
+        const existingIssueNumbers = await getExistingIssueNumbers(repo.id);
+        console.log(`Found ${existingIssueNumbers.size} existing issues for ${repo.name}`);
+
         let issuesPage = 1;
         let hasMoreIssues = true;
-        // Get latest issue date for this repo (buffer: minus 1 month)
-        let since = undefined;
-        const latestIssueDate = await getLatestIssueDate(repo.id);
-        if (latestIssueDate) {
-            const bufferDate = new Date(new Date(latestIssueDate).getTime() - 30 * 24 * 60 * 60 * 1000);
-            since = bufferDate.toISOString();
-        }
+        let newIssuesCount = 0;
+
         while (hasMoreIssues) {
             try {
-                const params = {
-                    state: 'all',
-                    per_page: 100,
-                    page: issuesPage
-                };
-                if (since) params.since = since;
                 const issuesResponse = await retryWithBackoff(() =>
                     axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/issues`, {
-                        params,
+                        params: {
+                            state: 'all',
+                            per_page: 100,
+                            page: issuesPage
+                        },
                         headers: {
                             'Accept': 'application/vnd.github.v3+json',
                             'Authorization': `token ${githubToken}`
                         }
                     })
                 );
+
                 if (issuesResponse.data.length === 0) {
                     hasMoreIssues = false;
                 } else {
+                    let foundExistingIssue = false;
+
                     for (const issue of issuesResponse.data) {
                         // Skip if this is a pull request (already handled)
                         if (issue.pull_request) continue;
+
+                        // Skip if we already have this issue
+                        if (existingIssueNumbers.has(issue.number)) {
+                            foundExistingIssue = true;
+                            continue;
+                        }
+
                         // Upsert user as contributor
                         let userId = null;
                         if (issue.user && issue.user.login) {
@@ -413,6 +467,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             });
                             userId = user.id;
                         }
+
                         await upsertIssue({
                             number: issue.number,
                             repo_id: repo.id,
@@ -427,8 +482,10 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             is_pull_request: false,
                             milestone_title: issue.milestone ? issue.milestone.title : null
                         });
+
                         // Get issue record for id
                         const issueRecord = await getIssueByNumber(repo.id, issue.number);
+
                         // Assignees
                         if (issue.assignees && issue.assignees.length > 0) {
                             for (const assignee of issue.assignees) {
@@ -444,6 +501,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 }
                             }
                         }
+
                         // Labels
                         if (issue.labels && issue.labels.length > 0) {
                             for (const label of issue.labels) {
@@ -453,8 +511,16 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 });
                             }
                         }
+
+                        newIssuesCount++;
                     }
-                    issuesPage++;
+
+                    // If we found an existing issue, we've reached the end of new issues
+                    if (foundExistingIssue) {
+                        hasMoreIssues = false;
+                    } else {
+                        issuesPage++;
+                    }
                 }
             } catch (error) {
                 if (error.response && (error.response.status === 404 || error.response.status === 403)) {
@@ -465,6 +531,8 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 hasMoreIssues = false;
             }
         }
+
+        console.log(`Added ${newIssuesCount} new issues for ${repo.name}`);
     }
     console.log('✅ Contributors, commits, and pull requests saved successfully');
 }

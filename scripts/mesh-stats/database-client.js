@@ -385,4 +385,34 @@ export async function getLatestIssueDate(repoId) {
         .single();
     if (error && error.code !== 'PGRST116') throw error;
     return data ? data.created_at : null;
+}
+
+// Get all existing commit SHAs for a repo
+export async function getExistingCommitShas(repoId) {
+    const { data, error } = await supabase
+        .from('commits')
+        .select('sha')
+        .eq('repo_id', repoId);
+    if (error) throw error;
+    return new Set(data.map(commit => commit.sha));
+}
+
+// Get all existing PR numbers for a repo
+export async function getExistingPRNumbers(repoId) {
+    const { data, error } = await supabase
+        .from('pull_requests')
+        .select('number')
+        .eq('repo_id', repoId);
+    if (error) throw error;
+    return new Set(data.map(pr => pr.number));
+}
+
+// Get all existing issue numbers for a repo
+export async function getExistingIssueNumbers(repoId) {
+    const { data, error } = await supabase
+        .from('issues')
+        .select('number')
+        .eq('repo_id', repoId);
+    if (error) throw error;
+    return new Set(data.map(issue => issue.number));
 } 
