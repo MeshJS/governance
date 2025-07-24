@@ -14,7 +14,8 @@ export function aggregateContributorStats(yearlyStats: Record<number, Contributo
                     commits: 0,
                     pull_requests: 0,
                     contributions: 0,
-                    repositories: []
+                    repositories: [],
+                    repoNames: []
                 });
             }
 
@@ -54,12 +55,18 @@ export function aggregateContributorStats(yearlyStats: Record<number, Contributo
                 if (repoStats.pr_timestamps) {
                     repo.pr_timestamps.push(...repoStats.pr_timestamps);
                 }
+
+                // Add repo name to repoNames array if not already present
+                if (!existingContributor.repoNames.includes(repoStats.name)) {
+                    existingContributor.repoNames.push(repoStats.name);
+                }
             });
         });
     });
 
-    // Convert map to array and sort by total contributions
+    // Convert map to array, filter for contributors with commits or merged pull requests, and sort by total contributions
     return Array.from(contributorMap.values())
+        .filter(contributor => contributor.commits > 0 || contributor.pull_requests > 0)
         .sort((a, b) => b.contributions - a.contributions);
 }
 
@@ -72,7 +79,7 @@ export function aggregateContributorStats(yearlyStats: Record<number, Contributo
  * @param issuesApiData Array of issues (from /api/github/issues)
  * @param reposApiData Array of repos (from /api/github/repos)
  * @returns {
- *   orgTotals: { total_commits, total_pull_requests, total_issues },
+ *   total_commits, total_pull_requests, total_issues, total_contributions, unique_count, lastFetched,
  *   contributors: Contributor[],
  *   perRepo: Record<repoName, { total_commits, total_pull_requests, total_issues, contributors: Contributor[] }>
  * }
@@ -118,11 +125,12 @@ export function aggregateApiContributorStats({
     }>();
 
     // Org-wide totals
-    let orgTotals = {
-        total_commits: 0,
-        total_pull_requests: 0,
-        total_issues: 0
-    };
+    let total_commits = 0;
+    let total_pull_requests = 0;
+    let total_issues = 0;
+    let total_contributions = 0;
+    let unique_count = 0;
+    let lastFetched = Date.now();
 
     // Aggregate commits (ONLY by author_id)
     commitsApiData.forEach((commit: any) => {
@@ -138,7 +146,8 @@ export function aggregateApiContributorStats({
                 commits: 0,
                 pull_requests: 0,
                 contributions: 0,
-                repositories: []
+                repositories: [],
+                repoNames: []
             });
         }
         const contributor = contributorMap.get(login)!;
@@ -162,6 +171,10 @@ export function aggregateApiContributorStats({
         if (commit.date) {
             repoStats.commit_timestamps.push(commit.date);
         }
+        // Add repo name to repoNames array if not already present
+        if (!contributor.repoNames.includes(repoName)) {
+            contributor.repoNames.push(repoName);
+        }
         // Per-repo global
         if (!perRepoMap.has(repoName)) {
             perRepoMap.set(repoName, {
@@ -180,18 +193,23 @@ export function aggregateApiContributorStats({
                 commits: 0,
                 pull_requests: 0,
                 contributions: 0,
-                repositories: []
+                repositories: [],
+                repoNames: []
             });
         }
         const repoContributor = repoAgg.contributors.get(login)!;
         repoContributor.commits += 1;
         repoContributor.contributions += 1;
         // (No need to track per-repo repositories for repoContributor)
-        orgTotals.total_commits += 1;
+        total_commits += 1;
+        total_contributions += 1;
     });
 
-    // Aggregate pull requests
+    // Aggregate pull requests (only merged ones)
     pullRequestsApiData.forEach((pr: any) => {
+        // Only process merged pull requests
+        if (!pr.merged_at) return;
+
         const repoName = pr.repo?.name || repoIdToName[pr.repo_id] || 'unknown-repo';
         // Deduplicate contributor IDs (user/merged_by)
         const contributorIds = new Set([pr.user_id, pr.merged_by_id]);
@@ -206,7 +224,8 @@ export function aggregateApiContributorStats({
                     commits: 0,
                     pull_requests: 0,
                     contributions: 0,
-                    repositories: []
+                    repositories: [],
+                    repoNames: []
                 });
             }
             const contributor = contributorMap.get(login)!;
@@ -227,8 +246,12 @@ export function aggregateApiContributorStats({
             }
             repoStats.pull_requests += 1;
             repoStats.contributions += 1;
-            if (pr.created_at) {
-                repoStats.pr_timestamps.push(pr.created_at);
+            if (pr.merged_at) {
+                repoStats.pr_timestamps.push(pr.merged_at);
+            }
+            // Add repo name to repoNames array if not already present
+            if (!contributor.repoNames.includes(repoName)) {
+                contributor.repoNames.push(repoName);
             }
             // Per-repo global
             if (!perRepoMap.has(repoName)) {
@@ -248,14 +271,16 @@ export function aggregateApiContributorStats({
                     commits: 0,
                     pull_requests: 0,
                     contributions: 0,
-                    repositories: []
+                    repositories: [],
+                    repoNames: []
                 });
             }
             const repoContributor = repoAgg.contributors.get(login)!;
             repoContributor.pull_requests += 1;
             repoContributor.contributions += 1;
         });
-        orgTotals.total_pull_requests += 1;
+        total_pull_requests += 1;
+        total_contributions += 1;
     });
 
     // Aggregate issues
@@ -272,7 +297,8 @@ export function aggregateApiContributorStats({
                 commits: 0,
                 pull_requests: 0,
                 contributions: 0,
-                repositories: []
+                repositories: [],
+                repoNames: []
             });
         }
         const contributor = contributorMap.get(login)!;
@@ -308,11 +334,12 @@ export function aggregateApiContributorStats({
                 commits: 0,
                 pull_requests: 0,
                 contributions: 0,
-                repositories: []
+                repositories: [],
+                repoNames: []
             });
         }
         // (No need to increment issues on Contributor for now)
-        orgTotals.total_issues += 1;
+        total_issues += 1;
     });
 
     // Convert perRepoMap contributors to arrays
@@ -326,11 +353,20 @@ export function aggregateApiContributorStats({
         };
     });
 
-    // Final contributors array
-    const contributors = Array.from(contributorMap.values());
+    // Final contributors array - only include contributors with commits or merged pull requests
+    const contributors = Array.from(contributorMap.values())
+        .filter(contributor => contributor.commits > 0 || contributor.pull_requests > 0);
+
+    // Calculate unique_count (number of unique contributors)
+    unique_count = contributors.length;
 
     return {
-        orgTotals,
+        total_commits,
+        total_pull_requests,
+        total_issues,
+        total_contributions,
+        unique_count,
+        lastFetched,
         contributors,
         perRepo
     };

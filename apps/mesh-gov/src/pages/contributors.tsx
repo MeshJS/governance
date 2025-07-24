@@ -36,7 +36,7 @@ interface TimeWindow {
 export default function Contributors() {
     const { contributorsData, isLoading, error, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData, contributorOrgStats } = useData();
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
-//console.log('contributorsData', contributorsData, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData, 'contributorOrgStats', contributorOrgStats)
+    console.log('contributorOrgStats', contributorOrgStats, contributorsData)
     // Default time window is set to "All time" when page loads
     const [timeWindow, setTimeWindow] = useState<TimeWindow>({
         startDate: null,

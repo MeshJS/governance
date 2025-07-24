@@ -35,7 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
         let query = supabase
             .from('pull_requests')
-            .select(`*, user:user_id(*), merged_by:merged_by_id(*), repo:repo_id(*), reviewers:pr_reviewers(*, reviewer:reviewer_id(*)), assignees:pr_assignees(*, assignee:assignee_id(*))`);
+            .select(`*, user:user_id(*), merged_by:merged_by_id(*), repo:repo_id(*), reviewers:pr_reviewers(*, reviewer:reviewer_id(*)), assignees:pr_assignees(*, assignee:assignee_id(*))`)
+            .not('merged_at', 'is', null);
         if (repoIds) {
             query = query.in('repo_id', repoIds);
         }

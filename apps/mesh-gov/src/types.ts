@@ -88,6 +88,7 @@ export interface Contributor {
     pull_requests: number;
     contributions: number;
     repositories: ContributorRepository[];
+    repoNames: string[];
 }
 
 export interface CurrentStats {
