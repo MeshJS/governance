@@ -6,7 +6,6 @@ import { fetchDRepVotingDataForContext } from '../lib/dataContext/fetchDRepVotin
 import { fetchCatalystDataForContext } from '../lib/dataContext/fetchCatalystData';
 import { fetchDiscordStatsForContext } from '../lib/dataContext/fetchDiscordStats';
 import { fetchContributorStatsForContext } from '../lib/dataContext/fetchContributorStats';
-import { aggregateApiContributorStats } from '../utils/contributorStats';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -20,7 +19,6 @@ const DREP_VOTING_STORAGE_KEY = 'drepVotingData';
 const DISCORD_STATS_STORAGE_KEY = 'discordStats';
 const CONTRIBUTOR_STATS_STORAGE_KEY = 'contributorStats';
 const CONTRIBUTORS_DATA_STORAGE_KEY = 'contributorsData';
-
 // Utility function to check if localStorage is available
 const isLocalStorageAvailable = (): boolean => {
     try {
@@ -60,7 +58,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [catalystData, setCatalystData] = useState<CatalystContextData | null>(null);
     const [drepVotingData, setDrepVotingData] = useState<DRepVotingData | null>(null);
     const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
-    const [contributorStats, setContributorStats] = useState<Record<number, ContributorStats> | null>(null);
+    const [contributorStats, setContributorStats] = useState<any | null>(null); // org-wide stats object
     const [contributorsData, setContributorsData] = useState<ContributorsData | null>(null);
     const [contributorsApiData, setContributorsApiData] = useState<any>(null);
     const [commitsApiData, setCommitsApiData] = useState<any>(null);
@@ -99,18 +97,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
     const fetchContributorStatsWrapper = async () => {
         await fetchContributorStatsForContext({
-            getCurrentYear,
             safeSetItem,
             setContributorStats,
             setContributorsData,
             setError,
-            CONTRIBUTOR_STATS_STORAGE_KEY,
             CONTRIBUTORS_DATA_STORAGE_KEY,
             setContributorsApiData,
             setCommitsApiData,
             setPullRequestsApiData,
             setIssuesApiData,
-            setReposApiData,
+            setReposApiData
         });
     };
 
@@ -247,20 +243,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
     };
 
-    // Compute org-wide contributor stats from API data
-    const contributorOrgStats = useMemo(() => {
-        if (!contributorsApiData || !commitsApiData || !pullRequestsApiData || !issuesApiData || !reposApiData) return null;
-        return aggregateApiContributorStats({
-            contributorsApiData,
-            commitsApiData,
-            pullRequestsApiData,
-            issuesApiData,
-            reposApiData
-        });
-    }, [contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData, reposApiData]);
-
     return (
-        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, contributorsData, isLoading, error, refetchData, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData, contributorOrgStats }}>
+        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, contributorsData, isLoading, error, refetchData, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData }}>
             {children}
         </DataContext.Provider>
     );

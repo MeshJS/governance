@@ -2,20 +2,37 @@
  * Fetches contributor stats for use in DataContext.
  * Accepts context-specific helpers and state setters as arguments.
  */
-import fetchData from '../fetchData';
-import { aggregateContributorStats } from '../../utils/contributorStats';
-import { ContributorStats, ContributorsData } from '../../types';
+import { aggregateApiContributorStats } from '../../utils/contributorStats';
+import { ContributorsData } from '../../types';
 import config from '../../../config';
 
 const organizationName = config.mainOrganization.name;
 
+// Helper for localStorage caching with timestamp
+function getCachedItem(key: string, cacheDuration: number) {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (Date.now() - parsed.lastFetched < cacheDuration) {
+            return parsed.data;
+        }
+    } catch { }
+    return null;
+}
+function setCachedItem(key: string, data: any) {
+    try {
+        localStorage.setItem(key, JSON.stringify({ data, lastFetched: Date.now() }));
+    } catch (e) {
+        // Ignore quota errors for individual items
+    }
+}
+
 export async function fetchContributorStatsForContext({
-    getCurrentYear,
     safeSetItem,
     setContributorStats,
     setContributorsData,
     setError,
-    CONTRIBUTOR_STATS_STORAGE_KEY,
     CONTRIBUTORS_DATA_STORAGE_KEY,
     setContributorsApiData,
     setCommitsApiData,
@@ -23,12 +40,10 @@ export async function fetchContributorStatsForContext({
     setIssuesApiData,
     setReposApiData,
 }: {
-    getCurrentYear: () => number;
     safeSetItem: (key: string, value: string) => void;
-    setContributorStats: (data: Record<number, ContributorStats> | null) => void;
+    setContributorStats: (data: any | null) => void;
     setContributorsData: (data: ContributorsData | null) => void;
     setError?: (err: string | null) => void;
-    CONTRIBUTOR_STATS_STORAGE_KEY: string;
     CONTRIBUTORS_DATA_STORAGE_KEY: string;
     setContributorsApiData?: (data: any) => void;
     setCommitsApiData?: (data: any) => void;
@@ -36,75 +51,80 @@ export async function fetchContributorStatsForContext({
     setIssuesApiData?: (data: any) => void;
     setReposApiData?: (data: any) => void;
 }) {
+    // Use the same cache duration as other context variables
+    const CACHE_DURATION = process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE === 'false'
+        ? 0
+        : 5 * 60 * 1000;
+    const CONTRIBUTORS_API_KEY = 'contributorsApiData';
+    const COMMITS_API_KEY = 'commitsApiData';
+    const PULL_REQUESTS_API_KEY = 'pullRequestsApiData';
+    const ISSUES_API_KEY = 'issuesApiData';
+    const REPOS_API_KEY = 'reposApiData';
+
     try {
-        const currentYear = getCurrentYear();
-        const startYear = 2022;
-        const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i);
-        const yearlyStatsPromises = years.map(year =>
-            fetchData(`https://raw.githubusercontent.com/Signius/mesh-automations/refs/heads/main/mesh-gov-updates/mesh-stats/contributions/contributors-${year}.json`).catch(() => null)
-        );
-        const yearlyStatsResults = await Promise.all(yearlyStatsPromises);
-        const yearlyStats = years.reduce((acc, year, index) => {
-            if (yearlyStatsResults[index] !== null) {
-                acc[year] = yearlyStatsResults[index];
-            }
-            return acc;
-        }, {} as Record<number, ContributorStats>);
-        const aggregatedContributors = aggregateContributorStats(yearlyStats);
-        const totals = aggregatedContributors.reduce((acc, contributor) => ({
-            total_commits: acc.total_commits + contributor.commits,
-            total_pull_requests: acc.total_pull_requests + contributor.pull_requests,
-            total_contributions: acc.total_contributions + contributor.contributions
-        }), {
-            total_commits: 0,
-            total_pull_requests: 0,
-            total_contributions: 0
+        // Try to load each API result from localStorage
+        let contributorsApiData = getCachedItem(CONTRIBUTORS_API_KEY, CACHE_DURATION);
+        let commitsApiData = getCachedItem(COMMITS_API_KEY, CACHE_DURATION);
+        let pullRequestsApiData = getCachedItem(PULL_REQUESTS_API_KEY, CACHE_DURATION);
+        let issuesApiData = getCachedItem(ISSUES_API_KEY, CACHE_DURATION);
+        let reposApiData = getCachedItem(REPOS_API_KEY, CACHE_DURATION);
+
+        // Fetch from API if not cached
+        if (!contributorsApiData) {
+            const res = await fetch(`/api/github?org=${encodeURIComponent(organizationName)}`);
+            contributorsApiData = (await res.json()).contributors;
+            setCachedItem(CONTRIBUTORS_API_KEY, contributorsApiData);
+        }
+        if (!commitsApiData) {
+            const res = await fetch(`/api/github/commits?org=${encodeURIComponent(organizationName)}`);
+            commitsApiData = (await res.json()).commits;
+            setCachedItem(COMMITS_API_KEY, commitsApiData);
+        }
+        if (!pullRequestsApiData) {
+            const res = await fetch(`/api/github/pull-requests?org=${encodeURIComponent(organizationName)}`);
+            pullRequestsApiData = (await res.json()).pullRequests;
+            setCachedItem(PULL_REQUESTS_API_KEY, pullRequestsApiData);
+        }
+        if (!issuesApiData) {
+            const res = await fetch(`/api/github/issues?org=${encodeURIComponent(organizationName)}`);
+            issuesApiData = (await res.json()).issues;
+            setCachedItem(ISSUES_API_KEY, issuesApiData);
+        }
+        if (!reposApiData) {
+            const res = await fetch(`/api/github/repos?org=${encodeURIComponent(organizationName)}`);
+            reposApiData = (await res.json()).repos;
+            setCachedItem(REPOS_API_KEY, reposApiData);
+        }
+
+        // Optionally set raw API data for other consumers
+        setContributorsApiData?.(contributorsApiData);
+        setCommitsApiData?.(commitsApiData);
+        setPullRequestsApiData?.(pullRequestsApiData);
+        setIssuesApiData?.(issuesApiData);
+        setReposApiData?.(reposApiData);
+
+        // Aggregate org-wide stats in-memory only
+        const orgStats = aggregateApiContributorStats({
+            contributorsApiData,
+            commitsApiData,
+            pullRequestsApiData,
+            issuesApiData,
+            reposApiData,
         });
-        const newData = {
-            stats: yearlyStats,
-            lastFetched: Date.now()
+        setContributorStats(orgStats);
+
+        // Set contributorsData for network/graph consumers
+        const contributorsData: ContributorsData = {
+            unique_count: orgStats.unique_count,
+            contributors: orgStats.contributors,
+            total_pull_requests: orgStats.total_pull_requests,
+            total_commits: orgStats.total_commits,
+            total_contributions: orgStats.total_contributions,
+            lastFetched: orgStats.lastFetched,
         };
-        safeSetItem(CONTRIBUTOR_STATS_STORAGE_KEY, JSON.stringify(newData));
-        setContributorStats(yearlyStats);
-        const newContributorsData: ContributorsData = {
-            unique_count: aggregatedContributors.length,
-            contributors: aggregatedContributors,
-            ...totals,
-            lastFetched: Date.now()
-        };
-        safeSetItem(CONTRIBUTORS_DATA_STORAGE_KEY, JSON.stringify(newContributorsData));
-        setContributorsData(newContributorsData);
+        safeSetItem(CONTRIBUTORS_DATA_STORAGE_KEY, JSON.stringify(contributorsData));
+        setContributorsData(contributorsData);
         if (setError) setError(null);
-        if (setContributorsApiData) {
-            fetch(`/api/github?org=${encodeURIComponent(organizationName)}`)
-                .then(res => res.json())
-                .then(data => setContributorsApiData(data.contributors))
-                .catch(err => console.error('Error fetching contributors API data:', err));
-        }
-        if (setCommitsApiData) {
-            fetch(`/api/github/commits?org=${encodeURIComponent(organizationName)}`)
-                .then(res => res.json())
-                .then(data => setCommitsApiData(data.commits))
-                .catch(err => console.error('Error fetching commits API data:', err));
-        }
-        if (setPullRequestsApiData) {
-            fetch(`/api/github/pull-requests?org=${encodeURIComponent(organizationName)}`)
-                .then(res => res.json())
-                .then(data => setPullRequestsApiData(data.pullRequests))
-                .catch(err => console.error('Error fetching pull requests API data:', err));
-        }
-        if (setIssuesApiData) {
-            fetch(`/api/github/issues?org=${encodeURIComponent(organizationName)}`)
-                .then(res => res.json())
-                .then(data => setIssuesApiData(data.issues))
-                .catch(err => console.error('Error fetching issues API data:', err));
-        }
-        if (setReposApiData) {
-            fetch(`/api/github/repos?org=${encodeURIComponent(organizationName)}`)
-                .then(res => res.json())
-                .then(data => setReposApiData(data.repos))
-                .catch(err => console.error('Error fetching repos API data:', err));
-        }
     } catch (err) {
         console.error('Error fetching contributor stats:', err);
         setContributorStats(null);
