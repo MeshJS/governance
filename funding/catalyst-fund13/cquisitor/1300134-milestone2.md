@@ -30,7 +30,7 @@ The development of the Rust module for partial phase - 1 validation has been suc
 We identified and defined error messages for common validator issues and listed them at:
 - https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.rs
 ### Provide explanations and hints for fixing each error
-Explanations and hints for fixing the errors have been added at the same source at;
+Explanations and hints for fixing the errors have been added at the respective error examples at the same source at;
 - https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.rs
 
 ### Open Source licence
