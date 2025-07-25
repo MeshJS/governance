@@ -17,7 +17,6 @@ const MESH_STORAGE_KEY = 'meshGovData';
 const CATALYST_STORAGE_KEY = 'catalystData';
 const DREP_VOTING_STORAGE_KEY = 'drepVotingData';
 const DISCORD_STATS_STORAGE_KEY = 'discordStats';
-const CONTRIBUTOR_STATS_STORAGE_KEY = 'contributorStats';
 
 // Utility function to check if localStorage is available
 const isLocalStorageAvailable = (): boolean => {
@@ -58,7 +57,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [catalystData, setCatalystData] = useState<CatalystContextData | null>(null);
     const [drepVotingData, setDrepVotingData] = useState<DRepVotingData | null>(null);
     const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
-    const [contributorStats, setContributorStats] = useState<ContributorStats | null>(null); 
+    const [contributorStats, setContributorStats] = useState<ContributorStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -129,7 +128,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             const cachedCatalystData = safeGetItem(CATALYST_STORAGE_KEY);
             const cachedDRepVotingData = safeGetItem(DREP_VOTING_STORAGE_KEY);
             const cachedDiscordStats = safeGetItem(DISCORD_STATS_STORAGE_KEY);
-            const cachedContributorStats = safeGetItem(CONTRIBUTOR_STATS_STORAGE_KEY);
 
             // First handle mesh data
             if (cachedMeshData) {
@@ -165,14 +163,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 }
             }
 
-            if (cachedContributorStats) {
-                const parsed = JSON.parse(cachedContributorStats);
-                const cacheAge = Date.now() - parsed.lastFetched;
-                if (cacheAge < CACHE_DURATION) {
-                    setContributorStats(parsed.stats);
-                }
-            }
-
             // Fetch fresh data if cache is expired or missing
             const fetchPromises = [];
 
@@ -191,7 +181,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             if (!cachedDiscordStats || Date.now() - JSON.parse(cachedDiscordStats).lastFetched >= CACHE_DURATION) {
                 fetchPromises.push(fetchDiscordStatsWrapper());
             }
-            if (!cachedContributorStats || Date.now() - JSON.parse(cachedContributorStats).lastFetched >= CACHE_DURATION) {
+
+            if (true) { // Always fetch contributorStats via wrapper
                 fetchPromises.push(fetchContributorStatsWrapper());
             }
 

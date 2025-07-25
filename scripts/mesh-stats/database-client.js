@@ -155,6 +155,28 @@ export async function upsertMonthlyDownloads(packageId, year, month, downloads) 
     return data;
 }
 
+// Check if monthly_downloads data exists for a package
+export async function hasMonthlyDownloadsData(packageId) {
+    const { data, error } = await supabase
+        .from('monthly_downloads')
+        .select('id')
+        .eq('package_id', packageId)
+        .limit(1);
+    if (error) throw error;
+    return data && data.length > 0;
+}
+
+// Check if package_stats_history data exists for a package
+export async function hasPackageStatsHistoryData(packageId) {
+    const { data, error } = await supabase
+        .from('package_stats_history')
+        .select('id')
+        .eq('package_id', packageId)
+        .limit(1);
+    if (error) throw error;
+    return data && data.length > 0;
+}
+
 // Database operations for commits
 export async function upsertCommit(commitData) {
     const { data, error } = await supabase

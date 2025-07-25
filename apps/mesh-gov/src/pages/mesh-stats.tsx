@@ -6,7 +6,6 @@ import PageHeader from '../components/PageHeader';
 
 export default function MeshStatsPage() {
     const { meshData, discordStats, contributorStats, isLoading, error, } = useData();
-    //console.log('meshData', contributorStats)
 
     // Version subtitle for PageHeader
     const versionSubtitle = useMemo(() => {

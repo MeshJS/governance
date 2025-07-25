@@ -301,7 +301,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         { name: 'Core CSL', downloads: currentStats.npm.core_csl_package_downloads },
         { name: 'Core CST', downloads: currentStats.npm.core_cst_package_downloads },
     ] : [];
-
+    console.log("meshPackagesData", meshPackagesData);
     const years = Object.keys(yearlyStats || {}).map(Number).sort((a, b) => b - a);
     const latestYear = years[0];
 

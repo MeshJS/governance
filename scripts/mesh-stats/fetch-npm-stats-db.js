@@ -10,7 +10,9 @@ import {
     updatePackageStats,
     insertPackageStatsHistory,
     upsertMonthlyDownloads,
-    getAllPackages
+    getAllPackages,
+    hasMonthlyDownloadsData,
+    hasPackageStatsHistoryData // <-- add this import
 } from './database-client.js';
 
 // Add Discord webhook URL - this should be set as an environment variable
@@ -322,21 +324,47 @@ export async function fetchAndSaveMeshStats(githubToken) {
                 last_12_months_downloads: stats.last_12_months_downloads,
                 updated_at: new Date().toISOString()
             });
-            // Save to history
+            // Save to history (backfill if needed)
             const now = new Date();
             const year = now.getFullYear();
             const monthNum = now.getMonth() + 1;
             const monthStr = `${year}-${String(monthNum).padStart(2, '0')}`;
-            // Fetch monthly downloads for this package and year
-            const monthlyDownloadsArr = await fetchMonthlyDownloadsForPackage(pkgConfig.name, year);
-            const thisMonthDownloads = monthlyDownloadsArr.find(m => m.month === monthNum)?.downloads ?? 0;
-            await insertPackageStatsHistory(dbPkg.id, monthStr, {
-                npm_dependents_count: stats.npm_dependents_count,
-                github_in_any_file: stats.github_in_any_file,
-                github_in_repositories: stats.github_in_package_json,
-                github_dependents_count: stats.github_dependents_count,
-                package_downloads: thisMonthDownloads
-            });
+            // Check if we need to backfill package_stats_history
+            const hasHistory = await hasPackageStatsHistoryData(dbPkg.id);
+            if (!hasHistory) {
+                // Backfill from 2020 to current year/month
+                for (let y = 2020; y <= year; y++) {
+                    const monthsInYear = (y === year) ? monthNum : 12;
+                    // Get monthly downloads for this year
+                    const monthlyDownloadsArr = await fetchMonthlyDownloadsForPackage(pkgConfig.name, y);
+                    for (let m = 1; m <= monthsInYear; m++) {
+                        const monthStrBackfill = `${y}-${String(m).padStart(2, '0')}`;
+                        const downloads = monthlyDownloadsArr.find(md => md.month === m)?.downloads;
+                        // Only insert if downloads is a valid number (including zero)
+                        if (typeof downloads === 'number') {
+                            await insertPackageStatsHistory(dbPkg.id, monthStrBackfill, {
+                                npm_dependents_count: null,
+                                github_in_any_file: null,
+                                github_in_repositories: null,
+                                github_dependents_count: null,
+                                package_downloads: downloads
+                            });
+                        }
+                    }
+                }
+                console.log(`✅ Backfilled package_stats_history for ${pkgConfig.name}`);
+            } else {
+                // Only insert for current month
+                const monthlyDownloadsArr = await fetchMonthlyDownloadsForPackage(pkgConfig.name, year);
+                const thisMonthDownloads = monthlyDownloadsArr.find(m => m.month === monthNum)?.downloads ?? 0;
+                await insertPackageStatsHistory(dbPkg.id, monthStr, {
+                    npm_dependents_count: stats.npm_dependents_count,
+                    github_in_any_file: stats.github_in_any_file,
+                    github_in_repositories: stats.github_in_package_json,
+                    github_dependents_count: stats.github_dependents_count,
+                    package_downloads: thisMonthDownloads
+                });
+            }
             console.log(`✅ Updated stats for ${pkgConfig.name}`);
         } catch (error) {
             console.error(`❌ Error processing ${pkgConfig.name}:`, error.message);
@@ -355,21 +383,32 @@ export async function fetchAndSaveMonthlyDownloads(year) {
 
     for (const pkg of packages) {
         console.log(`Processing monthly downloads for ${pkg.name}...`);
-
         try {
-            const monthlyDownloads = await fetchMonthlyDownloadsForPackage(pkg.name, year);
-
-            // Save monthly downloads to database
-            for (const monthData of monthlyDownloads) {
-                // Skip future months
-                if (year === currentYear && monthData.month > currentMonth) {
-                    continue;
+            const hasData = await hasMonthlyDownloadsData(pkg.id);
+            let yearsToFetch = [];
+            if (!hasData) {
+                // Backfill from 2020 to current year
+                for (let y = 2020; y <= currentYear; y++) {
+                    yearsToFetch.push(y);
                 }
-
-                await upsertMonthlyDownloads(pkg.id, year, monthData.month, monthData.downloads);
+            } else {
+                yearsToFetch = [currentYear];
             }
-
-            console.log(`✅ Saved monthly downloads for ${pkg.name}`);
+            for (const y of yearsToFetch) {
+                const monthlyDownloads = await fetchMonthlyDownloadsForPackage(pkg.name, y);
+                // Save monthly downloads to database
+                for (const monthData of monthlyDownloads) {
+                    // Skip future months
+                    if (y === currentYear && monthData.month > currentMonth) {
+                        continue;
+                    }
+                    // Only insert if downloads is a valid number (including zero)
+                    if (typeof monthData.downloads === 'number') {
+                        await upsertMonthlyDownloads(pkg.id, y, monthData.month, monthData.downloads);
+                    }
+                }
+                console.log(`✅ Saved monthly downloads for ${pkg.name} (${y})`);
+            }
         } catch (error) {
             console.error(`❌ Error processing monthly downloads for ${pkg.name}:`, error.message);
         }
