@@ -290,59 +290,60 @@ export interface MeshStatsViewProps extends Omit<OriginalMeshStatsViewProps, 'me
     meshPackagesData?: MeshPackagesApiResponse | null;
 }
 
-const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorStats, meshPackagesData }) => {
-    // Use all package data
-    const packageData = currentStats?.npm ? [
-        { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
-        { name: 'React', downloads: currentStats.npm.react_package_downloads },
-        { name: 'Transaction', downloads: currentStats.npm.transaction_package_downloads },
-        { name: 'Wallet', downloads: currentStats.npm.wallet_package_downloads },
-        { name: 'Provider', downloads: currentStats.npm.provider_package_downloads },
-        { name: 'Core CSL', downloads: currentStats.npm.core_csl_package_downloads },
-        { name: 'Core CST', downloads: currentStats.npm.core_cst_package_downloads },
-    ] : [];
-    console.log("meshPackagesData", meshPackagesData);
-    const years = Object.keys(yearlyStats || {}).map(Number).sort((a, b) => b - a);
-    const latestYear = years[0];
+const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats, meshPackagesData }) => {
+    // Find the @meshsdk/core package
+    const corePackage = meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core');
 
-    // Use all monthly data
-    const monthlyData = latestYear && yearlyStats?.[latestYear]?.monthlyDownloads
-        ? yearlyStats[latestYear].monthlyDownloads.map((month: YearlyStats['monthlyDownloads'][0]) => ({
-            name: month.month,
-            downloads: month.downloads,
-            trend: month.trend
+    // Use all package data for the package comparison chart
+    const packageData = meshPackagesData?.packages
+        ? meshPackagesData.packages.map(pkg => ({
+            name: pkg.name.replace('@meshsdk/', '').replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()),
+            downloads: pkg.last_12_months_downloads
         }))
         : [];
 
-    // Get the current year's repositories data up to previous month (excluding current month)
+    // Use @meshsdk/core monthly_downloads for the monthly downloads chart (current year only)
+    const currentYear = new Date().getFullYear();
+    const monthlyData = corePackage?.monthly_downloads
+        ? corePackage.monthly_downloads
+            .filter((monthObj: any) => monthObj.year === currentYear)
+            .sort((a: any, b: any) => a.month - b.month)
+            .map((monthObj: any) => ({
+                name: `${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][monthObj.month - 1]} ${monthObj.year}`,
+                downloads: monthObj.downloads,
+                // No trend info in meshPackagesData, so omit or set to undefined
+            }))
+        : [];
+
+    // Get the latest year for display
+    const latestYear = monthlyData.length > 0 ? monthlyData[monthlyData.length - 1].name.split(' ')[1] : '';
+
+    // repositoriesData: Use corePackage.package_stats_history for the current year
     const repositoriesData = useMemo(() => {
-        const currentYear = new Date().getFullYear();
-        const currentMonth = new Date().getMonth();
+        if (!corePackage?.package_stats_history) return [];
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-        const result = [];
-        let lastKnownValue = 0;
-
-        // Process months in chronological order from January to previous month
-        for (let i = 0; i < currentMonth; i++) {
-            const month = months[i];
-            const yearData = yearlyStats[currentYear]?.githubStats.find(stat => stat.month === month);
-
-            // If we have data for this month with a positive value, update the last known value
-            // Repository counts are cumulative and should never drop to 0
-            if (yearData?.repositories !== undefined && yearData.repositories > 0) {
-                lastKnownValue = yearData.repositories;
-            }
-            // Use the last known value (either from this month or carried forward)
-
-            result.push({
-                month,
-                repositories: lastKnownValue
+        return corePackage.package_stats_history
+            .filter((stat: any) => {
+                // stat.month can be 'YYYY-MM' or a number
+                if (typeof stat.month === 'string' && stat.month.length === 7) {
+                    return Number(stat.month.split('-')[0]) === currentYear;
+                }
+                return false;
+            })
+            .sort((a: any, b: any) => {
+                // sort by month number
+                const aMonth = typeof a.month === 'string' ? Number(a.month.split('-')[1]) : 0;
+                const bMonth = typeof b.month === 'string' ? Number(b.month.split('-')[1]) : 0;
+                return aMonth - bMonth;
+            })
+            .map((stat: any) => {
+                const monthIdx = typeof stat.month === 'string' ? Number(stat.month.split('-')[1]) - 1 : 0;
+                return {
+                    month: months[monthIdx],
+                    repositories: stat.github_dependents_count ?? 0
+                };
             });
-        }
-
-        return result;
-    }, [yearlyStats]);
+    }, [corePackage, currentYear]);
 
     // Generate monthly contribution data from timestamp arrays
     const contributionsData = useMemo(() => {
@@ -480,21 +481,21 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
 
     return (
         <div data-testid="mesh-stats-view">
-            {currentStats?.npm?.downloads && (
+            {corePackage && (
                 <>
                     <h2 className={styles.statsHeader}>meshsdk/core downloads</h2>
                     <div className={styles.statsGrid}>
                         <div className={styles.stat}>
                             <h3>Last Week</h3>
-                            <p>{formatNumber(currentStats.npm.downloads.last_week)}</p>
+                            <p>{formatNumber(corePackage.last_week_downloads)}</p>
                         </div>
                         <div className={styles.stat}>
                             <h3>Last Month</h3>
-                            <p>{formatNumber(currentStats.npm.downloads.last_month)}</p>
+                            <p>{formatNumber(corePackage.last_month_downloads)}</p>
                         </div>
                         <div className={styles.stat}>
                             <h3>Last Year</h3>
-                            <p>{formatNumber(currentStats.npm.downloads.last_year)}</p>
+                            <p>{formatNumber(corePackage.last_year_downloads)}</p>
                         </div>
                     </div>
                 </>
@@ -519,16 +520,15 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
 
                     </div>
                 </>
-
             )}
 
-            {currentStats?.github && (
+            {meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core') && (
                 <div className={styles.githubStats}>
                     <h2>GitHub Usage</h2>
                     <div className={styles.statsGrid}>
                         <div className={styles.stat}>
                             <h3>Projects Using Mesh</h3>
-                            <p>{formatNumber(currentStats.github.core_in_repositories)}</p>
+                            <p>{formatNumber(meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core')?.github_dependents_count)}</p>
                         </div>
 
                         {contributorStats && contributorStats.unique_count && (

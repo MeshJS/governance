@@ -129,8 +129,6 @@ export interface CurrentStats {
 
 // Context Types
 export interface MeshData {
-    currentStats: CurrentStats;
-    yearlyStats: Record<number, YearlyStats>;
     lastFetched: number;
     meshPackagesData?: MeshPackagesApiResponse | null;
 }
@@ -234,8 +232,6 @@ export interface DataContextType {
 }
 
 export interface MeshStatsViewProps {
-    currentStats: CurrentStats;
-    yearlyStats: Record<number, YearlyStats>;
     filteredStats?: FilteredStats;
     discordStats?: DiscordStats;
     contributorStats?: ContributorStats;

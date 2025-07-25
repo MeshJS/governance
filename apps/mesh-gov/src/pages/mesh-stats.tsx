@@ -6,12 +6,13 @@ import PageHeader from '../components/PageHeader';
 
 export default function MeshStatsPage() {
     const { meshData, discordStats, contributorStats, isLoading, error, } = useData();
-
     // Version subtitle for PageHeader
     const versionSubtitle = useMemo(() => {
-        return meshData?.currentStats?.npm?.latest_version
-            ? `Latest Version: ${meshData.currentStats.npm.latest_version}`
-            : undefined;
+        if (!meshData || !meshData.meshPackagesData || !Array.isArray(meshData.meshPackagesData.packages)) {
+            return undefined;
+        }
+        const corePackage = meshData.meshPackagesData.packages.find(pkg => pkg.name === '@meshsdk/core');
+        return corePackage?.latest_version ? `@meshsdk/core Version: ${corePackage.latest_version}` : undefined;
     }, [meshData]);
 
     if (isLoading) {
@@ -34,7 +35,7 @@ export default function MeshStatsPage() {
         );
     }
 
-    if (!meshData?.currentStats || !meshData?.yearlyStats || Object.keys(meshData.yearlyStats).length === 0) {
+    if (!meshData || !meshData.meshPackagesData || !Array.isArray(meshData.meshPackagesData.packages) || meshData.meshPackagesData.packages.length === 0) {
         return (
             <div className={styles.container}>
                 <div className={styles.stat}>
@@ -52,8 +53,6 @@ export default function MeshStatsPage() {
             />
 
             <MeshStatsView
-                currentStats={meshData.currentStats}
-                yearlyStats={meshData.yearlyStats}
                 discordStats={discordStats || undefined}
                 contributorStats={contributorStats?.unique_count ? contributorStats : undefined}
                 meshPackagesData={meshData.meshPackagesData}

@@ -66,8 +66,6 @@ export async function fetchMeshDataForContext({
         }
 
         const newData: MeshData = {
-            currentStats,
-            yearlyStats,
             lastFetched: Date.now(),
             meshPackagesData,
         };
