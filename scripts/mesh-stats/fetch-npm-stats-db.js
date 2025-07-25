@@ -340,8 +340,8 @@ export async function fetchAndSaveMeshStats(githubToken) {
                     for (let m = 1; m <= monthsInYear; m++) {
                         const monthStrBackfill = `${y}-${String(m).padStart(2, '0')}`;
                         const downloads = monthlyDownloadsArr.find(md => md.month === m)?.downloads;
-                        // Only insert if downloads is a valid number (including zero)
-                        if (typeof downloads === 'number') {
+                        // Only insert if downloads is a number greater than zero
+                        if (typeof downloads === 'number' && downloads > 0) {
                             await insertPackageStatsHistory(dbPkg.id, monthStrBackfill, {
                                 npm_dependents_count: null,
                                 github_in_any_file: null,
@@ -402,8 +402,8 @@ export async function fetchAndSaveMonthlyDownloads(year) {
                     if (y === currentYear && monthData.month > currentMonth) {
                         continue;
                     }
-                    // Only insert if downloads is a valid number (including zero)
-                    if (typeof monthData.downloads === 'number') {
+                    // Only insert if downloads is a number greater than zero
+                    if (typeof monthData.downloads === 'number' && monthData.downloads > 0) {
                         await upsertMonthlyDownloads(pkg.id, y, monthData.month, monthData.downloads);
                     }
                 }
