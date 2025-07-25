@@ -272,10 +272,6 @@ async function fetchMonthlyDownloadsForPackage(packageName, year) {
             });
         } catch (error) {
             console.error(`Error fetching downloads for ${packageName} in ${year}-${month}:`, error.message);
-            downloads.push({
-                month,
-                downloads: 0
-            });
         }
     }
     return downloads;
