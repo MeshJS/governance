@@ -14,13 +14,15 @@ We are still a bit after the initial schedule, mainly due to running into quite 
 
 
 
-The milestone outcomes have been stated as:
+## The milestone outcomes have been stated as:
 
 - Develop the Rust module for partial phase-1 validation
 - Identify and define error messages for common validation issues
 - Provide explanations and hints for fixing each error
 
 And here out reports on the completion of the deliverables:
+
+## Deliverables:
 
 ### Develop the Rust module for partial phase-1 validation
 The devlopment of the Rust module for partial phase - 1 validation has been successfully completed. The deployed code can be found at:
@@ -39,3 +41,7 @@ https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.
 All related code has been assigned under Apache 2.0 open-source licensed
 Cquisitor: https://github.com/MeshJS/cquisitor/tree/main?tab=Apache-2.0-1-ov-file#readme
 Cquisitor Library: https://github.com/MeshJS/cquisitor-lib?tab=Apache-2.0-1-ov-file#readme 
+
+Cquisitor dev interface: https://cloud.meshjs.dev/cquisitor
+
+
