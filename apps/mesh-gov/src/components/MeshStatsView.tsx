@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 import styles from '../styles/MeshStats.module.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps, LineChart, Line } from 'recharts';
-import { YearlyStats, PackageData, MeshStatsViewProps as OriginalMeshStatsViewProps, DiscordStats, ContributorStats, MeshPackagesApiResponse } from '../types';
+import { PackageData, MeshStatsViewProps as OriginalMeshStatsViewProps, DiscordStats, ContributorStats, MeshPackagesApiResponse } from '../types';
 
 const formatNumber = (num: number | undefined): string => {
     if (num === undefined) return '0';
@@ -43,7 +43,7 @@ const CustomDiscordTooltip = ({ active, payload, label }: TooltipProps<number, s
 };
 
 interface CustomBarChartProps {
-    data: PackageData[] | YearlyStats['monthlyDownloads'];
+    data: PackageData[];
     chartId: string;
 }
 

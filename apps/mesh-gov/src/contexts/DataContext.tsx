@@ -1,6 +1,6 @@
 // ../contexts/DataContext.tsx
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, GovernanceVote, MeshPackagesApiResponse } from '../types';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { MeshData, CatalystContextData, DRepVotingData, DiscordStats, ContributorStats, DataContextType } from '../types';
 import { fetchMeshDataForContext } from '../lib/dataContext/fetchMeshData';
 import { fetchDRepVotingDataForContext } from '../lib/dataContext/fetchDRepVotingData';
 import { fetchCatalystDataForContext } from '../lib/dataContext/fetchCatalystData';

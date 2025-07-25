@@ -43,35 +43,6 @@ export interface GovernanceVote {
     rationale: string;
 }
 
-export interface YearlyStats {
-    year: number;
-    yearlyTotals: {
-        core: number;
-        react: number;
-        transaction: number;
-        wallet: number;
-        provider: number;
-        coreCsl: number;
-        coreCst: number;
-    };
-    monthlyDownloads: Array<{
-        month: string;
-        downloads: number;
-        trend: '➡️' | '📈' | '📉' | '🔥';
-    }>;
-    githubStats: Array<{
-        month: string;
-        projects: number;
-        files: number;
-        repositories: number;
-    }>;
-    peakMonth: {
-        name: string;
-        downloads: number;
-    };
-    lastUpdated: string;
-}
-
 export interface ContributorRepository {
     name: string;
     commits: number;
@@ -89,42 +60,6 @@ export interface Contributor {
     contributions: number;
     repositories: ContributorRepository[];
     repoNames: string[];
-}
-
-export interface CurrentStats {
-    github: {
-        core_in_package_json: number;
-        core_in_any_file: number;
-        core_in_repositories: number;
-    };
-    npm: {
-        downloads: {
-            core_package_last_12_months: number;
-            last_day: number;
-            last_week: number;
-            last_month: number;
-            last_year: number;
-        };
-        react_package_downloads: number;
-        transaction_package_downloads: number;
-        wallet_package_downloads: number;
-        provider_package_downloads: number;
-        core_csl_package_downloads: number;
-        core_cst_package_downloads: number;
-        latest_version: string;
-        dependents_count: number;
-    };
-    urls: {
-        npm_stat_url: string;
-        npm_stat_compare_url: string;
-    };
-    contributors: {
-        unique_count: number;
-        contributors: Contributor[];
-        total_pull_requests: number;
-        total_commits: number;
-        total_contributions: number;
-    };
 }
 
 // Context Types
@@ -183,9 +118,6 @@ export interface PackageData {
 
 export interface FilteredStats {
     packageData?: PackageData[];
-    monthlyData?: YearlyStats['monthlyDownloads'];
-    currentStats?: CurrentStats;
-    yearlyStats?: Record<number, YearlyStats>;
 }
 
 export interface MonthlyDiscordStats {
