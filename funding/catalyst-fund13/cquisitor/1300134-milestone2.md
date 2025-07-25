@@ -26,21 +26,21 @@ And here out reports on the completion of the deliverables:
 
 ### Develop the Rust module for partial phase-1 validation
 The devlopment of the Rust module for partial phase - 1 validation has been successfully completed. The deployed code can be found at:
-https://github.com/MeshJS/cquisitor-lib/tree/main/src/validators/phase_1
+- https://github.com/MeshJS/cquisitor-lib/tree/main/src/validators/phase_1
 
 ### Identify and define error messages for common validation issues
 We identified and defined error messages for common validator issues and lsited them at:
-https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.rs
+- https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.rs
 
 ### Provide explanations and hints for fixing each error
 Explenations and hints for fixing the errors have been added at the same source at;
-https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.rs
+- https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.rs
 
 
 ### Open Source licence
 All related code has been assigned under Apache 2.0 open-source licensed
-Cquisitor: https://github.com/MeshJS/cquisitor/tree/main?tab=Apache-2.0-1-ov-file#readme
-Cquisitor Library: https://github.com/MeshJS/cquisitor-lib?tab=Apache-2.0-1-ov-file#readme 
+- Cquisitor: https://github.com/MeshJS/cquisitor/tree/main?tab=Apache-2.0-1-ov-file#readme
+- Cquisitor Library: https://github.com/MeshJS/cquisitor-lib?tab=Apache-2.0-1-ov-file#readme 
 
 Cquisitor dev interface: https://cloud.meshjs.dev/cquisitor
 
