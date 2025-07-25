@@ -226,8 +226,8 @@ export default function Projects() {
         );
     }
 
-    const githubUsage = meshData?.currentStats?.github?.core_in_package_json || 0;
-    const totalReferences = meshData?.currentStats?.github?.core_in_any_file || 0;
+    const githubUsage = meshData?.meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core')?.github_dependents_count || 0;
+    const totalReferences = meshData?.meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core')?.github_in_any_file || 0;
 
     return (
         <div className={styles.container}>

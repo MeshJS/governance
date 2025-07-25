@@ -39,15 +39,58 @@
         "useApiAction": true,
         "description": "Set to true if your Discord server has more than 500 members to use the API-based action, false for the standard action (default: false)"
     },
-    "npmPackages": {
-        "core": "@meshsdk/core",
-        "react": "@meshsdk/react",
-        "transaction": "@meshsdk/transaction",
-        "wallet": "@meshsdk/wallet",
-        "provider": "@meshsdk/provider",
-        "core-csl": "@meshsdk/core-csl",
-        "core-cst": "@meshsdk/core-cst"
-    },
+    "npmPackages": [
+        {
+            "key": "core",
+            "name": "@meshsdk/core",
+            "github_package_id": "UGFja2FnZS0zNDczNjUyOTU4"
+        },
+        {
+            "key": "react",
+            "name": "@meshsdk/react",
+            "github_package_id": "UGFja2FnZS0zNDczNjUyNzU5"
+        },
+        {
+            "key": "transaction",
+            "name": "@meshsdk/transaction",
+            "dependents_url": "https://github.com/rawvie-nuvola/mesh-transaction/network/dependents"
+        },
+        {
+            "key": "wallet",
+            "name": "@meshsdk/wallet",
+            "dependents_url": "https://github.com/rawvie-nuvola/mesh-wallet/network/dependents"
+        },
+        {
+            "key": "provider",
+            "name": "@meshsdk/provider",
+            "dependents_url": "https://github.com/rawvie-nuvola/mesh-provider/network/dependents"
+        },
+        {
+            "key": "contract",
+            "name": "@meshsdk/contract",
+            "dependents_url": "https://github.com/rawvie-nuvola/mesh-contract/network/dependents"
+        },
+        {
+            "key": "common",
+            "name": "@meshsdk/common",
+            "dependents_url": "https://github.com/rawvie-nuvola/mesh-common/network/dependents"
+        },
+        {
+            "key": "web3-sdk",
+            "name": "@meshsdk/web3-sdk",
+            "dependents_url": "https://github.com/MeshJS/web3-sdk/network/dependents"
+        },
+        {
+            "key": "core-csl",
+            "name": "@meshsdk/core-csl",
+            "dependents_url": "https://github.com/rawvie-nuvola/mesh-core-csl/network/dependents"
+        },
+        {
+            "key": "core-cst",
+            "name": "@meshsdk/core-cst",
+            "dependents_url": "https://github.com/rawvie-nuvola/mesh-core-cst/network/dependents"
+        }
+    ],
     "socialLinks": [
         {
             "name": "GitHub",

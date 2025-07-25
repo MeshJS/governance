@@ -4,7 +4,7 @@ import Image from 'next/image';
 import PageHeader from '../components/PageHeader';
 import ContributorModal from '../components/ContributorModal';
 import { useState, useMemo } from 'react';
-import { Contributor } from '../types';
+import { Contributor, ContributorRepository } from '../types';
 import { FaUsers, FaCalendarAlt } from 'react-icons/fa';
 import { VscGitCommit, VscGitPullRequest, VscRepo } from 'react-icons/vsc';
 import ContributionTimeline from '../components/ContributionTimeline';
@@ -33,10 +33,16 @@ interface TimeWindow {
     preset: string;
 }
 
-export default function Contributors() {
-    const { contributorsData, isLoading, error } = useData();
-    const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
+// Helper type for contributor with metrics
+interface ContributorWithMetrics {
+    contributor: Contributor;
+    filteredMetrics: ReturnType<typeof getFilteredMetrics>;
+}
 
+export default function Contributors() {
+    const { contributorStats, isLoading, error } = useData();
+    const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
+    //console.log('contributorStats', contributorStats)
     // Default time window is set to "All time" when page loads
     const [timeWindow, setTimeWindow] = useState<TimeWindow>({
         startDate: null,
@@ -45,14 +51,14 @@ export default function Contributors() {
     });
     const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
 
+    // Defensive: treat as no data if contributorStats is a legacy yearly record (object with numeric keys, not .contributors array)
+    const isOrgStats = contributorStats && typeof contributorStats === 'object' && 'contributors' in contributorStats && Array.isArray(contributorStats.contributors);
     // Calculate global earliest contribution date across all contributors
     const globalEarliestDate = useMemo(() => {
-        if (!contributorsData) return null;
-
+        if (!isOrgStats) return null;
         let earliestDate: string | null = null;
-
-        contributorsData.contributors.forEach(contributor => {
-            contributor.repositories.forEach(repo => {
+        (contributorStats.contributors as Contributor[]).forEach((contributor: Contributor) => {
+            contributor.repositories.forEach((repo: ContributorRepository) => {
                 const allTimestamps = [...repo.commit_timestamps, ...repo.pr_timestamps];
                 allTimestamps.forEach(timestamp => {
                     if (!earliestDate || timestamp < earliestDate) {
@@ -61,9 +67,8 @@ export default function Contributors() {
                 });
             });
         });
-
         return earliestDate;
-    }, [contributorsData]);
+    }, [contributorStats, isOrgStats]);
 
     // Calculate time window boundaries based on preset or custom selection
     const timeWindowBoundaries = useMemo(() => {
@@ -135,33 +140,28 @@ export default function Contributors() {
 
     // Calculate filtered summary metrics
     const filteredSummaryMetrics = useMemo(() => {
-        if (!contributorsData) return null;
-
+        if (!isOrgStats) return null;
         const { startDate, endDate } = timeWindowBoundaries;
-        return getFilteredSummaryMetrics(contributorsData.contributors, startDate, endDate);
-    }, [contributorsData, timeWindowBoundaries]);
+        return getFilteredSummaryMetrics(contributorStats.contributors as Contributor[], startDate, endDate);
+    }, [contributorStats, isOrgStats, timeWindowBoundaries]);
 
     // Sort contributors by their activity in the selected time window
     const sortedContributors = useMemo(() => {
-        if (!contributorsData) return [];
-
+        if (!isOrgStats) return [];
         const { startDate, endDate } = timeWindowBoundaries;
-
         // Create array of contributors with their filtered metrics
-        const contributorsWithMetrics = contributorsData.contributors.map(contributor => {
+        const contributorsWithMetrics: ContributorWithMetrics[] = (contributorStats.contributors as Contributor[]).map((contributor: Contributor) => {
             const filteredMetrics = getFilteredMetrics(contributor, startDate, endDate);
             return {
                 contributor,
                 filteredMetrics
             };
         });
-
         // Sort by weighted contributions with repository diversity bonus
         return contributorsWithMetrics.sort((a, b) => {
             // Calculate base weighted scores - PRs are more complex so they count 3x
             const baseScoreA = a.filteredMetrics.commits + (a.filteredMetrics.pullRequests * 3);
             const baseScoreB = b.filteredMetrics.commits + (b.filteredMetrics.pullRequests * 3);
-            
             // Apply repository diversity multiplier - multi-repo contributors get bonus
             // 1 repo: 1x, 2 repos: 1.2x, 3 repos: 1.4x, 4+ repos: 1.5x
             const getRepoMultiplier = (repoCount: number) => {
@@ -170,26 +170,21 @@ export default function Contributors() {
                 if (repoCount === 3) return 1.4;
                 return 1.5; // 4+ repositories
             };
-            
             const finalScoreA = baseScoreA * getRepoMultiplier(a.filteredMetrics.repositories);
             const finalScoreB = baseScoreB * getRepoMultiplier(b.filteredMetrics.repositories);
-            
             // Primary sort: final weighted score with repository diversity
             const scoreDiff = finalScoreB - finalScoreA;
             if (scoreDiff !== 0) return scoreDiff;
-
             // Secondary sort: repository count (cross-project engagement)
             const repoDiff = b.filteredMetrics.repositories - a.filteredMetrics.repositories;
             if (repoDiff !== 0) return repoDiff;
-
             // Tertiary sort: pull requests (for tiebreaker)
             const prDiff = b.filteredMetrics.pullRequests - a.filteredMetrics.pullRequests;
             if (prDiff !== 0) return prDiff;
-
             // Quaternary sort: commits (final tiebreaker)
             return b.filteredMetrics.commits - a.filteredMetrics.commits;
         });
-    }, [contributorsData, timeWindowBoundaries]);
+    }, [contributorStats, isOrgStats, timeWindowBoundaries]);
 
     const handleTimeWindowPresetChange = (preset: string) => {
         setTimeWindow(prev => ({
@@ -250,7 +245,7 @@ export default function Contributors() {
         );
     }
 
-    if (!contributorsData) {
+    if (!isOrgStats) {
         return (
             <div className={styles.container}>
                 <PageHeader
@@ -325,11 +320,11 @@ export default function Contributors() {
                     <div className={styles.chartWrapper}>
                         <h3 className={styles.chartTitle}>Top Contributors</h3>
                         <p className={styles.chartSubtitle}>
-                            Monthly activity trends for top {contributorsData ? Math.min(10, contributorsData.contributors.length) : 10} contributors
+                            Monthly activity trends for top {isOrgStats ? Math.min(10, (contributorStats.contributors as Contributor[]).length) : 10} contributors
                         </p>
                         <div className={styles.chartContainer}>
                             <ContributorsEvolutionChart
-                                contributors={contributorsData?.contributors || []}
+                                contributors={isOrgStats ? (contributorStats.contributors as Contributor[]) : []}
                                 height={400}
                                 maxContributors={10}
                                 globalStartDate={timelineDisplayBoundaries.startDate || undefined}
@@ -337,7 +332,7 @@ export default function Contributors() {
                             />
                         </div>
                     </div>
-                    
+
                     <div className={styles.chartWrapper}>
                         <h3 className={styles.chartTitle}>Top Repositories</h3>
                         <p className={styles.chartSubtitle}>
@@ -345,7 +340,7 @@ export default function Contributors() {
                         </p>
                         <div className={styles.chartContainer}>
                             <RepositoriesEvolutionChart
-                                contributors={contributorsData?.contributors || []}
+                                contributors={isOrgStats ? (contributorStats.contributors as Contributor[]) : []}
                                 height={400}
                                 maxRepositories={10}
                                 globalStartDate={timelineDisplayBoundaries.startDate || undefined}
@@ -403,7 +398,7 @@ export default function Contributors() {
             </div>
 
             <div className={styles.contributorsGrid}>
-                {sortedContributors.map((item, index) => {
+                {sortedContributors.map((item: ContributorWithMetrics, index: number) => {
                     const contributor = item.contributor;
                     const filteredMetrics = item.filteredMetrics;
 
@@ -459,8 +454,8 @@ export default function Contributors() {
 
                             <div className={styles.timelineContainer}>
                                 <ContributionTimeline
-                                    commitTimestamps={contributor.repositories.flatMap(repo => repo.commit_timestamps)}
-                                    prTimestamps={contributor.repositories.flatMap(repo => repo.pr_timestamps)}
+                                    commitTimestamps={contributor.repositories.flatMap((repo: ContributorRepository) => repo.commit_timestamps)}
+                                    prTimestamps={contributor.repositories.flatMap((repo: ContributorRepository) => repo.pr_timestamps)}
                                     globalStartDate={timelineDisplayBoundaries.startDate || undefined}
                                     globalEndDate={timelineDisplayBoundaries.endDate || undefined}
                                 />
@@ -468,7 +463,7 @@ export default function Contributors() {
 
                             <div className={styles.topRepos}>
                                 {contributor.repositories
-                                    .map(repo => {
+                                    .map((repo: ContributorRepository) => {
                                         // Calculate filtered metrics for this repository in the time window
                                         const repoFilteredMetrics = getFilteredMetrics(
                                             { ...contributor, repositories: [repo] } as Contributor,
@@ -480,7 +475,7 @@ export default function Contributors() {
                                             filteredContributions: repoFilteredMetrics.contributions
                                         };
                                     })
-                                    .filter(item => item.filteredContributions > 0 || timeWindow.preset === 'all') // Only show repos with activity in time window (or all for "all time")
+                                    .filter((item) => item.filteredContributions > 0 || timeWindow.preset === 'all') // Only show repos with activity in time window (or all for "all time")
                                     .sort((a, b) => {
                                         // Sort by filtered contributions for the time window
                                         if (timeWindow.preset === 'all') {

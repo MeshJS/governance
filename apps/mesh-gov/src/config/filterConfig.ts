@@ -1,5 +1,5 @@
 import { SearchFilterConfig } from '../components/SearchFilterBar';
-import { CatalystProject, GovernanceVote, CurrentStats } from '../types';
+import { CatalystProject, GovernanceVote } from '../types';
 
 // Helper functions to generate filter options dynamically from data
 export const getUniqueValues = <T, K extends keyof T>(items: T[], key: K): T[K][] => {
@@ -16,18 +16,6 @@ export const extractFundingRounds = (projects: CatalystProject[]): string[] => {
 
 export const getProposalTypes = (votes: GovernanceVote[]): string[] => {
     return [...new Set(votes.map(vote => vote.proposalType))];
-};
-
-export const getPackageNames = (_stats: CurrentStats): string[] => {
-    return [
-        'core',
-        'react',
-        'transaction',
-        'wallet',
-        'provider',
-        'core-csl',
-        'core-cst'
-    ];
 };
 
 // Dashboard page - search across all data (this one is static by nature)
@@ -102,34 +90,6 @@ export const generateCatalystProposalsFilterConfig = (projects: CatalystProject[
     };
 };
 
-export const generateMeshStatsFilterConfig = (stats: CurrentStats): SearchFilterConfig => {
-    // Get package names from stats data
-    const packageNames = getPackageNames(stats);
-
-    return {
-        placeholder: 'Search statistics by package name or trend...',
-        filters: [
-            {
-                id: 'package',
-                label: 'Package',
-                options: packageNames.map(name => ({
-                    label: name,
-                    value: name
-                }))
-            },
-            {
-                id: 'trend',
-                label: 'Trend',
-                options: [
-                    { label: 'Increasing', value: 'up' },
-                    { label: 'Decreasing', value: 'down' },
-                    { label: 'Stable', value: 'stable' }
-                ]
-            }
-        ]
-    };
-};
-
 // Search helper functions for each data type
 export const filterVotes = (votes: GovernanceVote[], searchTerm: string, filters: Record<string, string>): GovernanceVote[] => {
     // Don't filter if no search term and no filters
@@ -172,18 +132,3 @@ export const filterProposals = (projects: CatalystProject[], searchTerm: string,
         return searchMatch && statusMatch && fundingRoundMatch;
     });
 };
-
-export const filterStats = (stats: CurrentStats, searchTerm: string, filters: Record<string, string>): CurrentStats | undefined => {
-    // Don't filter if no search term and no filters
-    if (!searchTerm && Object.keys(filters).length === 0) return stats;
-
-    // Since CurrentStats is a single object, we'll just return it if it matches the filters
-    const packageNames = getPackageNames(stats);
-    const searchMatch = !searchTerm ||
-        packageNames.some(name => name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const packageMatch = !filters.package ||
-        packageNames.includes(filters.package);
-
-    return searchMatch && packageMatch ? stats : undefined;
-}; 

@@ -33,7 +33,7 @@ export default function DRepVoting() {
     const router = useRouter();
     const [lastNavigationTime, setLastNavigationTime] = useState(0);
     const [copied, setCopied] = useState(false);
-
+    
     const votes = drepVotingData?.votes || [];
 
     // Calculate metrics for the overview section

@@ -6,19 +6,19 @@ interface VotingTypeDonutProps {
 }
 
 const TYPE_GRADIENTS = {
-    InfoAction: [
+    color1: [
         'rgba(56, 232, 225, 0.95)', // Bright teal
         'rgba(20, 184, 166, 0.85)', // Deep teal
         'rgba(8, 74, 67, 0.8)',     // Very dark teal
         'rgba(0, 0, 0, 0.9)'        // Black
     ],
-    ParameterChange: [
+    color2: [
         'rgba(56, 232, 225, 0.75)', // Lighter teal
         'rgba(20, 184, 166, 0.65)', // Lighter deep teal
         'rgba(8, 74, 67, 0.6)',     // Lighter dark teal
         'rgba(0, 0, 0, 0.9)'        // Black
     ],
-    NewConstitution: [
+    color3: [
         'rgba(56, 232, 225, 0.55)', // Lightest teal
         'rgba(20, 184, 166, 0.45)', // Lightest deep teal
         'rgba(8, 74, 67, 0.4)',     // Lightest dark teal
@@ -26,17 +26,8 @@ const TYPE_GRADIENTS = {
     ]
 };
 
-const TYPE_LABELS = {
-    InfoAction: 'InfoAction',
-    ParameterChange: 'ParameterChange',
-    NewConstitution: 'NewConstitution'
-};
-
-const TYPE_CLASS = {
-    InfoAction: styles.yes,
-    ParameterChange: styles.yes,
-    NewConstitution: styles.yes
-};
+const LEGEND_COLOR_CLASSES = [styles.yes, styles.no, styles.abstain];
+const GRADIENT_KEYS = Object.keys(TYPE_GRADIENTS);
 
 export default function VotingTypeDonut({ typeStats }: VotingTypeDonutProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -71,7 +62,7 @@ export default function VotingTypeDonut({ typeStats }: VotingTypeDonutProps) {
         ctx.shadowOffsetY = 10;
         let startAngle = -Math.PI / 2;
         const newSegments: typeof segments = [];
-        data.forEach(({ type, value }) => {
+        data.forEach(({ type, value }, idx) => {
             const segmentAngle = (value / total) * (Math.PI * 2);
             const endAngle = startAngle + segmentAngle;
             newSegments.push({ type, startAngle, endAngle });
@@ -92,7 +83,7 @@ export default function VotingTypeDonut({ typeStats }: VotingTypeDonutProps) {
             ctx.closePath();
             // Gradient
             const grad = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
-            const stops = TYPE_GRADIENTS[type as keyof typeof TYPE_GRADIENTS] || TYPE_GRADIENTS.InfoAction;
+            const stops = TYPE_GRADIENTS[GRADIENT_KEYS[idx % GRADIENT_KEYS.length] as keyof typeof TYPE_GRADIENTS];
             grad.addColorStop(0, stops[0]);
             grad.addColorStop(0.4, stops[1]);
             grad.addColorStop(0.8, stops[2]);
@@ -135,7 +126,7 @@ export default function VotingTypeDonut({ typeStats }: VotingTypeDonutProps) {
         const adjustedAngle = angle < -Math.PI / 2 ? angle + Math.PI * 2 : angle;
         const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
         if (distance > innerRadius && distance < radius) {
-            const active = segments.find(segment => 
+            const active = segments.find(segment =>
                 adjustedAngle >= segment.startAngle && adjustedAngle <= segment.endAngle
             );
             setActiveSegment(active ? active.type : null);
@@ -151,22 +142,25 @@ export default function VotingTypeDonut({ typeStats }: VotingTypeDonutProps) {
     return (
         <div className={styles.donutChartContainer}>
             <div className={styles.chartTitle}>Proposal Types</div>
-            <canvas 
-                ref={canvasRef} 
+            <canvas
+                ref={canvasRef}
                 className={styles.donutChart}
                 onMouseMove={handleCanvasMouseMove}
                 onMouseLeave={handleCanvasMouseLeave}
             ></canvas>
             <div className={styles.donutLegend}>
-                {data.map(({ type, value }) => (
-                    <div 
+                {data.map(({ type, value }, idx) => (
+                    <div
                         key={type}
                         className={`${styles.legendItem} ${activeSegment === type ? styles.active : ''}`}
                         onMouseEnter={() => setActiveSegment(type)}
                         onMouseLeave={() => setActiveSegment(null)}
                     >
-                        <span className={`${styles.legendColor} ${TYPE_CLASS[type as keyof typeof TYPE_CLASS]}`}></span>
-                        <span className={styles.legendLabel}>{TYPE_LABELS[type as keyof typeof TYPE_LABELS]}</span>
+                        <span
+                            className={styles.legendColor}
+                            style={{ background: TYPE_GRADIENTS[GRADIENT_KEYS[idx % GRADIENT_KEYS.length] as keyof typeof TYPE_GRADIENTS][0] }}
+                        ></span>
+                        <span className={styles.legendLabel}>{type}</span>
                         <span className={styles.legendValue}>{value}</span>
                     </div>
                 ))}

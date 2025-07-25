@@ -1,0 +1,26 @@
+name: Mesh GitHub Usage Stats
+
+on:
+  schedule:
+    - cron: '0 0 * * 4'  # Run every Thursday at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  search-mesh-github-usage:
+    if: github.repository == 'MeshJS/governance'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Generate GitHub Stats (Database)
+        run: node scripts/mesh-stats/fetch-github-stats-db.js 

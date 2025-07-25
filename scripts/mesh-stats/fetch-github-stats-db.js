@@ -1,16 +1,8 @@
 import axios from 'axios';
-import fs from 'fs';
-import path from 'path';
-import * as cheerio from 'cheerio';
 import {
-    upsertPackage,
-    updatePackageStats,
-    insertPackageStatsHistory,
     upsertGitHubRepo,
     upsertContributor,
     updateContributorStats,
-    upsertMonthlyDownloads,
-    getAllPackages,
     upsertCommit,
     getCommitBySha,
     upsertPullRequest,
@@ -25,7 +17,11 @@ import {
     upsertIssueLabel,
     getLatestCommitDate,
     getLatestPullRequestDate,
-    getLatestIssueDate
+    getLatestIssueDate,
+    upsertGitHubOrg,
+    getExistingCommitShas,
+    getExistingPRNumbers,
+    getExistingIssueNumbers
 } from './database-client.js';
 
 // Add Discord webhook URL - this should be set as an environment variable
@@ -36,7 +32,6 @@ async function sendDiscordNotification(message) {
         console.error('Discord webhook URL not set');
         return;
     }
-
     try {
         await axios.post(DISCORD_WEBHOOK_URL, {
             content: message
@@ -46,247 +41,27 @@ async function sendDiscordNotification(message) {
     }
 }
 
-async function fetchPackageStats(packageName, githubToken) {
-    console.log(`Fetching stats for ${packageName}...`);
+// --- GitHub Stats Logic ---
 
-    // Search for package in package.json
-    const packageJsonResponse = await axios.get(
-        'https://api.github.com/search/code',
-        {
-            params: { q: `"${packageName}" in:file filename:package.json` },
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'Authorization': `token ${githubToken}`
-            }
-        }
-    );
-
-    // Search for package in any file
-    const anyFileResponse = await axios.get(
-        'https://api.github.com/search/code',
-        {
-            params: { q: `"${packageName}"` },
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'Authorization': `token ${githubToken}`
-            }
-        }
-    );
-
-    // Get package info from npm registry
-    const packageInfo = await axios.get(`https://registry.npmjs.org/${packageName}`);
-    const latestVersion = packageInfo.data['dist-tags'].latest;
-
-    // Get dependents count from npm registry
-    const dependentsResponse = await axios.get(
-        'https://registry.npmjs.org/-/v1/search',
-        {
-            params: { text: `dependencies:${packageName}`, size: 1 }
-        }
-    );
-
-    // Fetch GitHub dependents count using Cheerio (scrape GitHub dependents page)
-    let githubDependentsCount = null;
-    try {
-        // Only attempt for @meshsdk/core, as in the old code
-        if (packageName === '@meshsdk/core') {
-            const dependentsUrl = 'https://github.com/MeshJS/mesh/network/dependents';
-            const response = await axios.get(dependentsUrl, {
-                headers: { 'User-Agent': 'Mozilla/5.0' }
-            });
-            const html = response.data;
-            const $ = cheerio.load(html);
-            const selector = 'a.btn-link.selected';
-            const countText = $(selector).text().trim();
-            if (countText) {
-                const [rawCount] = countText.split(' ');
-                const dependentsCount = parseInt(rawCount.replace(/,/g, ''), 10);
-                if (!isNaN(dependentsCount)) {
-                    githubDependentsCount = dependentsCount;
-                } else {
-                    console.error('Extracted text is not a valid number:', countText);
-                }
+// Retry helper for GitHub API calls
+async function retryWithBackoff(fn, maxRetries = 5, initialDelay = 1000) {
+    let attempt = 0;
+    let delay = initialDelay;
+    while (attempt < maxRetries) {
+        try {
+            return await fn();
+        } catch (error) {
+            const status = error.response?.status;
+            // Only retry on 403, 429, or 5xx errors
+            if ([403, 429].includes(status) || (status >= 500 && status < 600)) {
+                attempt++;
+                if (attempt === maxRetries) throw error;
+                console.warn(`Retrying after error ${status} (attempt ${attempt}/${maxRetries})...`);
+                await new Promise(res => setTimeout(res, delay));
+                delay *= 2; // Exponential backoff
             } else {
-                console.error('CSS selector did not match any content.');
+                throw error;
             }
-        }
-    } catch (error) {
-        console.error('Error fetching GitHub dependents count using Cheerio:', error.message);
-    }
-
-    // Fetch downloads for different time periods
-    const currentDate = new Date();
-    const lastDay = new Date(currentDate);
-    lastDay.setDate(lastDay.getDate() - 1);
-
-    const lastWeek = new Date(currentDate);
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    const lastWeekStart = new Date(lastWeek);
-    lastWeekStart.setDate(lastWeekStart.getDate() - lastWeekStart.getDay() + 1);
-    const lastWeekEnd = new Date(lastWeekStart);
-    lastWeekEnd.setDate(lastWeekEnd.getDate() + 6);
-
-    const lastMonth = new Date(currentDate);
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
-    const lastMonthStart = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
-    const lastMonthEnd = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
-
-    const lastYear = new Date(currentDate);
-    lastYear.setFullYear(lastYear.getFullYear() - 1);
-    const lastYearStart = new Date(lastYear.getFullYear(), 0, 1);
-    const lastYearEnd = new Date(lastYear.getFullYear(), 11, 31);
-
-    const formatDate = date => date.toISOString().split('T')[0];
-    const getDownloads = async (startDate, endDate) => {
-        const response = await axios.get(
-            `https://api.npmjs.org/downloads/point/${startDate}:${endDate}/${packageName}`
-        );
-        return response.data.downloads;
-    };
-
-    // Fetch last 12 months downloads (rolling window)
-    const last12MonthsDownloadsResponse = await axios.get(
-        `https://api.npmjs.org/downloads/point/last-year/${packageName}`
-    );
-    const last12MonthsDownloads = last12MonthsDownloadsResponse.data.downloads;
-
-    const [lastDayDownloads, lastWeekDownloads, lastMonthDownloads, lastYearDownloads] = await Promise.all([
-        getDownloads(formatDate(lastDay), formatDate(currentDate)),
-        getDownloads(formatDate(lastWeekStart), formatDate(lastWeekEnd)),
-        getDownloads(formatDate(lastMonthStart), formatDate(lastMonthEnd)),
-        getDownloads(formatDate(lastYearStart), formatDate(lastYearEnd))
-    ]);
-
-    return {
-        github_in_package_json: packageJsonResponse.data.total_count,
-        github_in_any_file: anyFileResponse.data.total_count,
-        github_dependents_count: githubDependentsCount, // <-- new field
-        latest_version: latestVersion,
-        npm_dependents_count: dependentsResponse.data.total,
-        last_day_downloads: lastDayDownloads,
-        last_week_downloads: lastWeekDownloads,
-        last_month_downloads: lastMonthDownloads,
-        last_year_downloads: lastYearDownloads,
-        last_12_months_downloads: last12MonthsDownloads
-    };
-}
-
-async function fetchMonthlyDownloadsForPackage(packageName, year) {
-    const downloads = [];
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1;
-
-    for (let month = 1; month <= 12; month++) {
-        // Skip future months
-        if (year === currentYear && month > currentMonth) {
-            downloads.push({
-                month,
-                downloads: 0
-            });
-            continue;
-        }
-
-        const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-        const endDate = new Date(year, month, 0).toISOString().split('T')[0];
-
-        try {
-            const response = await axios.get(
-                `https://api.npmjs.org/downloads/point/${startDate}:${endDate}/${packageName}`
-            );
-            downloads.push({
-                month,
-                downloads: response.data.downloads
-            });
-        } catch (error) {
-            console.error(`Error fetching downloads for ${packageName} in ${year}-${month}:`, error.message);
-            downloads.push({
-                month,
-                downloads: 0
-            });
-        }
-    }
-    return downloads;
-}
-
-export async function fetchAndSaveMeshStats(githubToken) {
-    console.log('Fetching and saving Mesh SDK statistics to database...');
-
-    const packages = await getAllPackages();
-
-    for (const pkg of packages) {
-        console.log(`\nProcessing package: ${pkg.name}`);
-
-        try {
-            // Fetch stats for this package
-            const stats = await fetchPackageStats(pkg.name, githubToken);
-
-            // Update package with new stats
-            await updatePackageStats(pkg.id, {
-                latest_version: stats.latest_version,
-                npm_dependents_count: stats.npm_dependents_count,
-                github_in_any_file: stats.github_in_any_file,
-                github_in_repositories: stats.github_in_package_json,
-                github_dependents_count: stats.github_dependents_count,
-                last_day_downloads: stats.last_day_downloads,
-                last_week_downloads: stats.last_week_downloads,
-                last_month_downloads: stats.last_month_downloads,
-                last_year_downloads: stats.last_year_downloads,
-                last_12_months_downloads: stats.last_12_months_downloads,
-                updated_at: new Date().toISOString()
-            });
-
-            // Save to history
-            const now = new Date();
-            const year = now.getFullYear();
-            const monthNum = now.getMonth() + 1;
-            const monthStr = `${year}-${String(monthNum).padStart(2, '0')}`;
-            // Fetch monthly downloads for this package and year
-            const monthlyDownloadsArr = await fetchMonthlyDownloadsForPackage(pkg.name, year);
-            const thisMonthDownloads = monthlyDownloadsArr.find(m => m.month === monthNum)?.downloads ?? 0;
-            await insertPackageStatsHistory(pkg.id, monthStr, {
-                npm_dependents_count: stats.npm_dependents_count,
-                github_in_any_file: stats.github_in_any_file,
-                github_in_repositories: stats.github_in_package_json,
-                github_dependents_count: stats.github_dependents_count,
-                package_downloads: thisMonthDownloads
-            });
-
-            console.log(`✅ Updated stats for ${pkg.name}`);
-        } catch (error) {
-            console.error(`❌ Error processing ${pkg.name}:`, error.message);
-            await sendDiscordNotification(`⚠️ Error processing package ${pkg.name}: ${error.message}`);
-        }
-    }
-}
-
-export async function fetchAndSaveMonthlyDownloads(year) {
-    console.log(`\nFetching monthly downloads for year ${year}...`);
-
-    const packages = await getAllPackages();
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1;
-
-    for (const pkg of packages) {
-        console.log(`Processing monthly downloads for ${pkg.name}...`);
-
-        try {
-            const monthlyDownloads = await fetchMonthlyDownloadsForPackage(pkg.name, year);
-
-            // Save monthly downloads to database
-            for (const monthData of monthlyDownloads) {
-                // Skip future months
-                if (year === currentYear && monthData.month > currentMonth) {
-                    continue;
-                }
-
-                await upsertMonthlyDownloads(pkg.id, year, monthData.month, monthData.downloads);
-            }
-
-            console.log(`✅ Saved monthly downloads for ${pkg.name}`);
-        } catch (error) {
-            console.error(`❌ Error processing monthly downloads for ${pkg.name}:`, error.message);
         }
     }
 }
@@ -302,17 +77,19 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
     while (hasMoreRepos) {
         try {
             console.log(`Fetching repositories page ${page}...`);
-            const reposResponse = await axios.get('https://api.github.com/orgs/MeshJS/repos', {
-                params: {
-                    type: 'all',
-                    per_page: 100,
-                    page: page
-                },
-                headers: {
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Authorization': `token ${githubToken}`
-                }
-            });
+            const reposResponse = await retryWithBackoff(() =>
+                axios.get('https://api.github.com/orgs/MeshJS/repos', {
+                    params: {
+                        type: 'all',
+                        per_page: 100,
+                        page: page
+                    },
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Authorization': `token ${githubToken}`
+                    }
+                })
+            );
 
             if (reposResponse.data.length === 0) {
                 hasMoreRepos = false;
@@ -328,11 +105,22 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
 
     console.log(`Found ${allRepos.length} repositories in the MeshJS organization`);
 
-    // Save repositories to database
+    // Save organizations and repositories to database
     for (const repo of allRepos) {
         try {
+            // Upsert org first (repo.owner is the org for org repos)
+            const org = repo.owner;
+            const orgRecord = await upsertGitHubOrg({
+                id: org.id,
+                login: org.login,
+                name: org.name || null,
+                description: org.description || null,
+                avatar_url: org.avatar_url || null,
+                html_url: org.html_url || null
+            });
             await upsertGitHubRepo({
                 id: repo.id, // GitHub repository ID
+                org_id: orgRecord.id, // New: org_id
                 name: repo.name,
                 full_name: repo.full_name,
                 description: repo.description,
@@ -348,33 +136,42 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
     // --- COMMITS ---
     for (const repo of allRepos) {
         console.log(`Processing commits for ${repo.name}...`);
+
+        // Get existing commit SHAs from database
+        const existingCommitShas = await getExistingCommitShas(repo.id);
+        console.log(`Found ${existingCommitShas.size} existing commits for ${repo.name}`);
+
         let commitsPage = 1;
         let hasMoreCommits = true;
-        // Get latest commit date for this repo (buffer: minus 1 month)
-        let since = undefined;
-        const latestCommitDate = await getLatestCommitDate(repo.id);
-        if (latestCommitDate) {
-            const bufferDate = new Date(new Date(latestCommitDate).getTime() - 30 * 24 * 60 * 60 * 1000);
-            since = bufferDate.toISOString();
-        }
+        let newCommitsCount = 0;
+        let totalCommitsProcessed = 0;
+
         while (hasMoreCommits) {
             try {
-                const params = {
-                    per_page: 100,
-                    page: commitsPage
-                };
-                if (since) params.since = since;
-                const commitsResponse = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits`, {
-                    params,
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': `token ${githubToken}`
-                    }
-                });
+                const commitsResponse = await retryWithBackoff(() =>
+                    axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits`, {
+                        params: {
+                            per_page: 100,
+                            page: commitsPage
+                        },
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Authorization': `token ${githubToken}`
+                        }
+                    })
+                );
+
                 if (commitsResponse.data.length === 0) {
                     hasMoreCommits = false;
                 } else {
                     for (const commit of commitsResponse.data) {
+                        totalCommitsProcessed++;
+
+                        // Skip if we already have this commit
+                        if (existingCommitShas.has(commit.sha)) {
+                            continue;
+                        }
+
                         // Upsert author and committer as contributors
                         let authorId = null;
                         let committerId = null;
@@ -392,18 +189,22 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             });
                             committerId = committer.id;
                         }
+
                         // Fetch commit details for stats/files/parents
                         let commitDetails = commit;
                         if (!commit.stats || !commit.files) {
                             // Need to fetch full commit details
-                            const commitDetailsResp = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits/${commit.sha}`, {
-                                headers: {
-                                    'Accept': 'application/vnd.github.v3+json',
-                                    'Authorization': `token ${githubToken}`
-                                }
-                            });
+                            const commitDetailsResp = await retryWithBackoff(() =>
+                                axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/commits/${commit.sha}`, {
+                                    headers: {
+                                        'Accept': 'application/vnd.github.v3+json',
+                                        'Authorization': `token ${githubToken}`
+                                    }
+                                })
+                            );
                             commitDetails = commitDetailsResp.data;
                         }
+
                         const isMerge = (commitDetails.parents && commitDetails.parents.length > 1);
                         await upsertCommit({
                             sha: commit.sha,
@@ -419,7 +220,11 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             is_merge: isMerge,
                             parent_shas: commitDetails.parents ? commitDetails.parents.map(p => p.sha) : []
                         });
+
+                        newCommitsCount++;
                     }
+
+                    // Continue to next page to check for any missing commits
                     commitsPage++;
                 }
             } catch (error) {
@@ -431,39 +236,50 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 hasMoreCommits = false;
             }
         }
+
+        console.log(`Processed ${totalCommitsProcessed} commits from GitHub, added ${newCommitsCount} new commits for ${repo.name}`);
     }
 
     // --- PULL REQUESTS ---
     for (const repo of allRepos) {
         console.log(`Processing pull requests for ${repo.name}...`);
+
+        // Get existing PR numbers from database
+        const existingPRNumbers = await getExistingPRNumbers(repo.id);
+        console.log(`Found ${existingPRNumbers.size} existing pull requests for ${repo.name}`);
+
         let prsPage = 1;
         let hasMorePRs = true;
-        // Get latest PR date for this repo (buffer: minus 1 month)
-        let since = undefined;
-        const latestPRDate = await getLatestPullRequestDate(repo.id);
-        if (latestPRDate) {
-            const bufferDate = new Date(new Date(latestPRDate).getTime() - 30 * 24 * 60 * 60 * 1000);
-            since = bufferDate.toISOString();
-        }
+        let newPRsCount = 0;
+        let totalPRsProcessed = 0;
+
         while (hasMorePRs) {
             try {
-                const params = {
-                    state: 'all',
-                    per_page: 100,
-                    page: prsPage
-                };
-                if (since) params.since = since;
-                const prsResponse = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls`, {
-                    params,
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': `token ${githubToken}`
-                    }
-                });
+                const prsResponse = await retryWithBackoff(() =>
+                    axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls`, {
+                        params: {
+                            state: 'all',
+                            per_page: 100,
+                            page: prsPage
+                        },
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Authorization': `token ${githubToken}`
+                        }
+                    })
+                );
+
                 if (prsResponse.data.length === 0) {
                     hasMorePRs = false;
                 } else {
                     for (const pr of prsResponse.data) {
+                        totalPRsProcessed++;
+
+                        // Skip if we already have this PR
+                        if (existingPRNumbers.has(pr.number)) {
+                            continue;
+                        }
+
                         // Upsert user and merged_by as contributors
                         let userId = null;
                         let mergedById = null;
@@ -481,14 +297,18 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             });
                             mergedById = mergedBy.id;
                         }
+
                         // Fetch full PR details for body, timestamps, stats, reviewers, assignees, labels, commits
-                        const prDetailsResp = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}`, {
-                            headers: {
-                                'Accept': 'application/vnd.github.v3+json',
-                                'Authorization': `token ${githubToken}`
-                            }
-                        });
+                        const prDetailsResp = await retryWithBackoff(() =>
+                            axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}`, {
+                                headers: {
+                                    'Accept': 'application/vnd.github.v3+json',
+                                    'Authorization': `token ${githubToken}`
+                                }
+                            })
+                        );
                         const prDetails = prDetailsResp.data;
+
                         await upsertPullRequest({
                             number: pr.number,
                             repo_id: repo.id,
@@ -506,8 +326,10 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             changed_files: prDetails.changed_files,
                             commits_count: prDetails.commits
                         });
+
                         // Get PR record for id
                         const prRecord = await getPullRequestByNumber(repo.id, pr.number);
+
                         // Reviewers
                         if (prDetails.requested_reviewers && prDetails.requested_reviewers.length > 0) {
                             for (const reviewer of prDetails.requested_reviewers) {
@@ -523,6 +345,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 }
                             }
                         }
+
                         // Assignees
                         if (prDetails.assignees && prDetails.assignees.length > 0) {
                             for (const assignee of prDetails.assignees) {
@@ -538,6 +361,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 }
                             }
                         }
+
                         // Labels
                         if (prDetails.labels && prDetails.labels.length > 0) {
                             for (const label of prDetails.labels) {
@@ -547,20 +371,27 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 });
                             }
                         }
+
                         // PR commits
-                        const prCommitsResp = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}/commits`, {
-                            headers: {
-                                'Accept': 'application/vnd.github.v3+json',
-                                'Authorization': `token ${githubToken}`
-                            }
-                        });
+                        const prCommitsResp = await retryWithBackoff(() =>
+                            axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/pulls/${pr.number}/commits`, {
+                                headers: {
+                                    'Accept': 'application/vnd.github.v3+json',
+                                    'Authorization': `token ${githubToken}`
+                                }
+                            })
+                        );
                         for (const prCommit of prCommitsResp.data) {
                             await upsertPRCommit({
                                 pr_id: prRecord.id,
                                 commit_sha: prCommit.sha
                             });
                         }
+
+                        newPRsCount++;
                     }
+
+                    // Continue to next page to check for any missing PRs
                     prsPage++;
                 }
             } catch (error) {
@@ -572,41 +403,53 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 hasMorePRs = false;
             }
         }
+
+        console.log(`Processed ${totalPRsProcessed} pull requests from GitHub, added ${newPRsCount} new pull requests for ${repo.name}`);
     }
 
     // --- ISSUES ---
     for (const repo of allRepos) {
         console.log(`Processing issues for ${repo.name}...`);
+
+        // Get existing issue numbers from database
+        const existingIssueNumbers = await getExistingIssueNumbers(repo.id);
+        console.log(`Found ${existingIssueNumbers.size} existing issues for ${repo.name}`);
+
         let issuesPage = 1;
         let hasMoreIssues = true;
-        // Get latest issue date for this repo (buffer: minus 1 month)
-        let since = undefined;
-        const latestIssueDate = await getLatestIssueDate(repo.id);
-        if (latestIssueDate) {
-            const bufferDate = new Date(new Date(latestIssueDate).getTime() - 30 * 24 * 60 * 60 * 1000);
-            since = bufferDate.toISOString();
-        }
+        let newIssuesCount = 0;
+        let totalIssuesProcessed = 0;
+
         while (hasMoreIssues) {
             try {
-                const params = {
-                    state: 'all',
-                    per_page: 100,
-                    page: issuesPage
-                };
-                if (since) params.since = since;
-                const issuesResponse = await axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/issues`, {
-                    params,
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': `token ${githubToken}`
-                    }
-                });
+                const issuesResponse = await retryWithBackoff(() =>
+                    axios.get(`https://api.github.com/repos/MeshJS/${repo.name}/issues`, {
+                        params: {
+                            state: 'all',
+                            per_page: 100,
+                            page: issuesPage
+                        },
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Authorization': `token ${githubToken}`
+                        }
+                    })
+                );
+
                 if (issuesResponse.data.length === 0) {
                     hasMoreIssues = false;
                 } else {
                     for (const issue of issuesResponse.data) {
                         // Skip if this is a pull request (already handled)
                         if (issue.pull_request) continue;
+
+                        totalIssuesProcessed++;
+
+                        // Skip if we already have this issue
+                        if (existingIssueNumbers.has(issue.number)) {
+                            continue;
+                        }
+
                         // Upsert user as contributor
                         let userId = null;
                         if (issue.user && issue.user.login) {
@@ -616,6 +459,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             });
                             userId = user.id;
                         }
+
                         await upsertIssue({
                             number: issue.number,
                             repo_id: repo.id,
@@ -630,8 +474,10 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                             is_pull_request: false,
                             milestone_title: issue.milestone ? issue.milestone.title : null
                         });
+
                         // Get issue record for id
                         const issueRecord = await getIssueByNumber(repo.id, issue.number);
+
                         // Assignees
                         if (issue.assignees && issue.assignees.length > 0) {
                             for (const assignee of issue.assignees) {
@@ -647,6 +493,7 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 }
                             }
                         }
+
                         // Labels
                         if (issue.labels && issue.labels.length > 0) {
                             for (const label of issue.labels) {
@@ -656,7 +503,11 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                                 });
                             }
                         }
+
+                        newIssuesCount++;
                     }
+
+                    // Continue to next page to check for any missing issues
                     issuesPage++;
                 }
             } catch (error) {
@@ -668,6 +519,33 @@ export async function fetchAndSaveContributorsAndActivity(githubToken) {
                 hasMoreIssues = false;
             }
         }
+
+        console.log(`Processed ${totalIssuesProcessed} issues from GitHub, added ${newIssuesCount} new issues for ${repo.name}`);
     }
     console.log('✅ Contributors, commits, and pull requests saved successfully');
-} 
+}
+
+// --- MAIN EXECUTION BLOCK ---
+(async () => {
+    try {
+        console.log('--- Mesh GitHub Stats Script: START ---');
+        const githubToken = process.env.GITHUB_TOKEN;
+        if (!githubToken) {
+            console.error('GITHUB_TOKEN environment variable is required');
+            process.exit(1);
+        }
+        // Log Supabase envs for debug (do not print secrets)
+        if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            console.error('Supabase environment variables are missing. Exiting.');
+            process.exit(1);
+        }
+        console.log('Environment variables loaded.');
+        await fetchAndSaveContributorsAndActivity(githubToken);
+        console.log('--- Mesh GitHub Stats Script: FINISHED SUCCESSFULLY ---');
+        process.exit(0);
+    } catch (err) {
+        console.error('--- Mesh GitHub Stats Script: ERROR ---');
+        console.error(err);
+        process.exit(1);
+    }
+})(); 

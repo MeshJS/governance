@@ -21,19 +21,29 @@ export interface DiscordStatsResponse {
 // Re-export the table type with the original name for backward compatibility
 export type DiscordStats = DiscordStatsTable;
 
-// Add more database table types here as needed
-// Example:
-// export interface Users {
-//     id: string;
-//     email: string;
-//     created_at: string;
-//     updated_at: string;
-// }
 
-// export interface Projects {
-//     id: string;
-//     name: string;
-//     description: string;
-//     created_at: string;
-//     updated_at: string;
-// } 
+// --- GitHub Organizations Table ---
+export interface GithubOrg {
+    id: number; // BIGINT in DB, use number for TS
+    login: string;
+    name: string | null;
+    description: string | null;
+    avatar_url: string | null;
+    html_url: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+// --- GitHub Repositories Table ---
+export interface GithubRepo {
+    id: number; // BIGINT in DB, use number for TS
+    org_id: number;
+    name: string;
+    full_name: string;
+    description: string | null;
+    private: boolean;
+    fork: boolean;
+    html_url: string | null;
+    created_at: string;
+    updated_at: string;
+} 

@@ -29,12 +29,12 @@ const isTimestampInRange = (timestamp: string, startDate: string | null, endDate
     const date = new Date(timestamp);
     const start = startDate ? parseDate(startDate) : null;
     const end = endDate ? parseDate(endDate) : null;
-    
+
     // For end date, include the entire day by setting to end of day
     if (end) {
         end.setHours(23, 59, 59, 999);
     }
-    
+
     return (!start || date >= start) && (!end || date <= end);
 };
 
@@ -46,8 +46,8 @@ const isTimestampInRange = (timestamp: string, startDate: string | null, endDate
  * @returns Filtered metrics for the specified time window
  */
 export const getFilteredMetrics = (
-    contributor: Contributor, 
-    startDate: string | null, 
+    contributor: Contributor,
+    startDate: string | null,
     endDate: string | null
 ): FilteredContributorMetrics => {
     if (!startDate && !endDate) {
@@ -120,7 +120,7 @@ export const getFilteredSummaryMetrics = (
         const filtered = getFilteredMetrics(contributor, startDate, endDate);
         totalCommits += filtered.commits;
         totalPRs += filtered.pullRequests;
-        
+
         if (filtered.contributions > 0) {
             activeContributors++;
         }
@@ -130,11 +130,11 @@ export const getFilteredSummaryMetrics = (
             const hasCommits = repo.commit_timestamps.some(timestamp =>
                 isTimestampInRange(timestamp, startDate, endDate)
             );
-            
+
             const hasPRs = repo.pr_timestamps.some(timestamp =>
                 isTimestampInRange(timestamp, startDate, endDate)
             );
-            
+
             if (hasCommits || hasPRs) {
                 activeRepositories.add(repo.name);
             }

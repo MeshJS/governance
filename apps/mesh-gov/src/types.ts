@@ -43,35 +43,6 @@ export interface GovernanceVote {
     rationale: string;
 }
 
-export interface YearlyStats {
-    year: number;
-    yearlyTotals: {
-        core: number;
-        react: number;
-        transaction: number;
-        wallet: number;
-        provider: number;
-        coreCsl: number;
-        coreCst: number;
-    };
-    monthlyDownloads: Array<{
-        month: string;
-        downloads: number;
-        trend: '➡️' | '📈' | '📉' | '🔥';
-    }>;
-    githubStats: Array<{
-        month: string;
-        projects: number;
-        files: number;
-        repositories: number;
-    }>;
-    peakMonth: {
-        name: string;
-        downloads: number;
-    };
-    lastUpdated: string;
-}
-
 export interface ContributorRepository {
     name: string;
     commits: number;
@@ -88,58 +59,13 @@ export interface Contributor {
     pull_requests: number;
     contributions: number;
     repositories: ContributorRepository[];
-}
-
-export interface CurrentStats {
-    github: {
-        core_in_package_json: number;
-        core_in_any_file: number;
-        core_in_repositories: number;
-    };
-    npm: {
-        downloads: {
-            core_package_last_12_months: number;
-            last_day: number;
-            last_week: number;
-            last_month: number;
-            last_year: number;
-        };
-        react_package_downloads: number;
-        transaction_package_downloads: number;
-        wallet_package_downloads: number;
-        provider_package_downloads: number;
-        core_csl_package_downloads: number;
-        core_cst_package_downloads: number;
-        latest_version: string;
-        dependents_count: number;
-    };
-    urls: {
-        npm_stat_url: string;
-        npm_stat_compare_url: string;
-    };
-    contributors: {
-        unique_count: number;
-        contributors: Contributor[];
-        total_pull_requests: number;
-        total_commits: number;
-        total_contributions: number;
-    };
-}
-
-export interface ContributorsData {
-    unique_count: number;
-    contributors: Contributor[];
-    total_pull_requests: number;
-    total_commits: number;
-    total_contributions: number;
-    lastFetched: number;
+    repoNames: string[];
 }
 
 // Context Types
 export interface MeshData {
-    currentStats: CurrentStats;
-    yearlyStats: Record<number, YearlyStats>;
     lastFetched: number;
+    meshPackagesData?: MeshPackagesApiResponse | null;
 }
 
 export interface DRepEpochInfo {
@@ -192,9 +118,6 @@ export interface PackageData {
 
 export interface FilteredStats {
     packageData?: PackageData[];
-    monthlyData?: YearlyStats['monthlyDownloads'];
-    currentStats?: CurrentStats;
-    yearlyStats?: Record<number, YearlyStats>;
 }
 
 export interface MonthlyDiscordStats {
@@ -208,27 +131,25 @@ export interface DiscordStats {
     lastFetched: number;
 }
 
+export interface PerRepoStats {
+    total_commits: number;
+    total_pull_requests: number;
+    total_issues: number;
+    contributors: Contributor[];
+    issues: any[];
+    commits: any[];
+    pullRequests: any[];
+}
+
 export interface ContributorStats {
-    year: number;
     unique_count: number;
-    contributors: Array<{
-        login: string;
-        avatar_url: string;
-        commits: number;
-        pull_requests: number;
-        contributions: number;
-        repositories: Array<{
-            name: string;
-            commits: number;
-            pull_requests: number;
-            contributions: number;
-            commit_timestamps: string[];
-            pr_timestamps: string[];
-        }>;
-    }>;
+    contributors: Contributor[];
+    perRepo: Record<string, PerRepoStats>;
     total_pull_requests: number;
     total_commits: number;
+    total_issues: number;
     total_contributions: number;
+    lastFetched: number;
 }
 
 export interface DataContextType {
@@ -236,20 +157,16 @@ export interface DataContextType {
     catalystData: CatalystContextData | null;
     drepVotingData: DRepVotingData | null;
     discordStats: DiscordStats | null;
-    contributorStats: Record<number, ContributorStats> | null;
-    contributorsData: ContributorsData | null;
+    contributorStats: ContributorStats | null;
     isLoading: boolean;
     error: string | null;
     refetchData: () => Promise<void>;
 }
 
 export interface MeshStatsViewProps {
-    currentStats: CurrentStats;
-    yearlyStats: Record<number, YearlyStats>;
     filteredStats?: FilteredStats;
     discordStats?: DiscordStats;
-    contributorsData?: ContributorsData;
-    contributorStats?: Record<number, ContributorStats>;
+    contributorStats?: ContributorStats;
 }
 
 // Catalyst Proposal API Types
@@ -320,4 +237,46 @@ export interface DRepVotesResponse {
     yearlyVotes: Record<string, DRepVote[]>;
     totalVotes: number;
     drepId: string;
+}
+
+export interface MonthlyDownloadRow {
+    id: number;
+    package_id: number;
+    year: number;
+    month: number;
+    downloads: number;
+    created_at: string;
+}
+
+export interface PackageStatsHistoryRow {
+    id: number;
+    package_id: number;
+    recorded_at: string;
+    month: string; // Format: YYYY-MM
+    npm_dependents_count: number;
+    github_in_any_file: number;
+    github_in_repositories: number;
+    github_dependents_count: number;
+    package_downloads: number;
+}
+
+export interface MeshPackagesApiResponse {
+    packages: Array<{
+        id: number;
+        name: string;
+        latest_version: string;
+        npm_dependents_count: number;
+        github_in_any_file: number;
+        github_in_repositories: number;
+        github_dependents_count: number;
+        last_day_downloads: number;
+        last_week_downloads: number;
+        last_month_downloads: number;
+        last_year_downloads: number;
+        last_12_months_downloads: number;
+        created_at: string;
+        updated_at: string;
+        monthly_downloads: MonthlyDownloadRow[];
+        package_stats_history: PackageStatsHistoryRow[];
+    }>;
 } 

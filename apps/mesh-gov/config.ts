@@ -29,6 +29,13 @@ interface ShowcaseRepo {
     url: string;
 }
 
+interface NpmPackage {
+    key: string;
+    name: string;
+    github_package_id?: string;
+    dependents_url?: string;
+}
+
 interface LogoConfig {
     src: string;
     width: number;
@@ -61,9 +68,7 @@ interface OrgStatsConfig {
     drepId: string;
     catalystProjectIds: string;
     discordGuildId: string;
-    npmPackages: {
-        [key: string]: string;
-    };
+    npmPackages: NpmPackage[];
     builderProjects: BuilderProject[];
     highlightedProjects: HighlightedProject[];
     showcaseRepos: ShowcaseRepo[];
