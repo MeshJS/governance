@@ -127,15 +127,6 @@ export interface CurrentStats {
     };
 }
 
-export interface ContributorsData {
-    unique_count: number;
-    contributors: Contributor[];
-    total_pull_requests: number;
-    total_commits: number;
-    total_contributions: number;
-    lastFetched: number;
-}
-
 // Context Types
 export interface MeshData {
     currentStats: CurrentStats;
@@ -210,27 +201,25 @@ export interface DiscordStats {
     lastFetched: number;
 }
 
+export interface PerRepoStats {
+    total_commits: number;
+    total_pull_requests: number;
+    total_issues: number;
+    contributors: Contributor[];
+    issues: any[];
+    commits: any[];
+    pullRequests: any[];
+}
+
 export interface ContributorStats {
-    year: number;
     unique_count: number;
-    contributors: Array<{
-        login: string;
-        avatar_url: string;
-        commits: number;
-        pull_requests: number;
-        contributions: number;
-        repositories: Array<{
-            name: string;
-            commits: number;
-            pull_requests: number;
-            contributions: number;
-            commit_timestamps: string[];
-            pr_timestamps: string[];
-        }>;
-    }>;
+    contributors: Contributor[];
+    perRepo: Record<string, PerRepoStats>;
     total_pull_requests: number;
     total_commits: number;
+    total_issues: number;
     total_contributions: number;
+    lastFetched: number;
 }
 
 export interface DataContextType {
@@ -238,16 +227,10 @@ export interface DataContextType {
     catalystData: CatalystContextData | null;
     drepVotingData: DRepVotingData | null;
     discordStats: DiscordStats | null;
-    contributorStats: Record<number, ContributorStats> | null;
-    contributorsData: ContributorsData | null;
+    contributorStats: ContributorStats | null;
     isLoading: boolean;
     error: string | null;
     refetchData: () => Promise<void>;
-    contributorsApiData?: any;
-    commitsApiData?: any;
-    pullRequestsApiData?: any;
-    issuesApiData?: any;
-    contributorOrgStats?: any;
 }
 
 export interface MeshStatsViewProps {
@@ -255,8 +238,7 @@ export interface MeshStatsViewProps {
     yearlyStats: Record<number, YearlyStats>;
     filteredStats?: FilteredStats;
     discordStats?: DiscordStats;
-    contributorsData?: ContributorsData;
-    contributorStats?: Record<number, ContributorStats>;
+    contributorStats?: ContributorStats;
 }
 
 // Catalyst Proposal API Types

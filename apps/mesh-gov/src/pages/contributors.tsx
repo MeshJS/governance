@@ -42,7 +42,7 @@ interface ContributorWithMetrics {
 export default function Contributors() {
     const { contributorStats, isLoading, error } = useData();
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
-    // console.log('contributorStats', contributorStats)
+    console.log('contributorStats', contributorStats)
     // Default time window is set to "All time" when page loads
     const [timeWindow, setTimeWindow] = useState<TimeWindow>({
         startDate: null,

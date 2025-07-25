@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 import styles from '../styles/MeshStats.module.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps, LineChart, Line } from 'recharts';
-import { YearlyStats, PackageData, MeshStatsViewProps as OriginalMeshStatsViewProps, DiscordStats, ContributorsData, MeshPackagesApiResponse } from '../types';
+import { YearlyStats, PackageData, MeshStatsViewProps as OriginalMeshStatsViewProps, DiscordStats, ContributorStats, MeshPackagesApiResponse } from '../types';
 
 const formatNumber = (num: number | undefined): string => {
     if (num === undefined) return '0';
@@ -290,7 +290,7 @@ export interface MeshStatsViewProps extends Omit<OriginalMeshStatsViewProps, 'me
     meshPackagesData?: MeshPackagesApiResponse | null;
 }
 
-const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorsData, contributorStats, meshPackagesData }) => {
+const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, discordStats, contributorStats, meshPackagesData }) => {
     // Use all package data
     const packageData = currentStats?.npm ? [
         { name: 'Core', downloads: currentStats.npm.downloads.core_package_last_12_months },
@@ -346,7 +346,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
 
     // Generate monthly contribution data from timestamp arrays
     const contributionsData = useMemo(() => {
-        if (!contributorsData?.contributors) return [];
+        if (!contributorStats?.contributors) return [];
 
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth();
@@ -359,7 +359,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         }));
 
         // Process all contributors' timestamps
-        contributorsData.contributors.forEach(contributor => {
+        contributorStats.contributors.forEach(contributor => {
             contributor.repositories.forEach(repo => {
                 // Process commit timestamps
                 repo.commit_timestamps?.forEach(timestamp => {
@@ -386,11 +386,11 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         });
 
         return monthlyContributions;
-    }, [contributorsData]);
+    }, [contributorStats]);
 
     // Generate monthly contributor growth data
     const contributorsGrowthData = useMemo(() => {
-        if (!contributorsData?.contributors) return [];
+        if (!contributorStats?.contributors) return [];
 
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth();
@@ -400,7 +400,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         const monthlyGrowth = months.slice(0, currentMonth).map((month, index) => {
             const activeContributors = new Set<string>();
 
-            contributorsData.contributors.forEach(contributor => {
+            contributorStats.contributors.forEach(contributor => {
                 let hasContributedByThisMonth = false;
 
                 contributor.repositories.forEach(repo => {
@@ -437,7 +437,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
         });
 
         return monthlyGrowth;
-    }, [contributorsData]);
+    }, [contributorStats]);
 
     // Format the Discord stats for the chart
     const discordStatsData = useMemo(() => {
@@ -531,16 +531,16 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ currentStats, yearlyStats, disc
                             <p>{formatNumber(currentStats.github.core_in_repositories)}</p>
                         </div>
 
-                        {contributorsData && contributorsData.unique_count && (
+                        {contributorStats && contributorStats.unique_count && (
                             <div className={styles.stat}>
                                 <h3>GitHub Contributors</h3>
-                                <p>{formatNumber(contributorsData.unique_count)}</p>
+                                <p>{formatNumber(contributorStats.unique_count)}</p>
                             </div>
                         )}
-                        {contributorsData && contributorsData.contributors && (
+                        {contributorStats && contributorStats.contributors && (
                             <div className={styles.stat}>
                                 <h3>Total Contributions</h3>
-                                <p>{formatNumber(contributorsData.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
+                                <p>{formatNumber(contributorStats.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
                             </div>
                         )}
                     </div>

@@ -3,7 +3,6 @@
  * Accepts context-specific helpers and state setters as arguments.
  */
 import { aggregateApiContributorStats } from '../../utils/contributorStats';
-import { ContributorsData } from '../../types';
 import config from '../../../config';
 
 const organizationName = config.mainOrganization.name;
@@ -29,27 +28,12 @@ function setCachedItem(key: string, data: any) {
 }
 
 export async function fetchContributorStatsForContext({
-    safeSetItem,
+    
     setContributorStats,
-    setContributorsData,
-    setError,
-    CONTRIBUTORS_DATA_STORAGE_KEY,
-    setContributorsApiData,
-    setCommitsApiData,
-    setPullRequestsApiData,
-    setIssuesApiData,
-    setReposApiData,
+    setError
 }: {
-    safeSetItem: (key: string, value: string) => void;
     setContributorStats: (data: any | null) => void;
-    setContributorsData: (data: ContributorsData | null) => void;
     setError?: (err: string | null) => void;
-    CONTRIBUTORS_DATA_STORAGE_KEY: string;
-    setContributorsApiData?: (data: any) => void;
-    setCommitsApiData?: (data: any) => void;
-    setPullRequestsApiData?: (data: any) => void;
-    setIssuesApiData?: (data: any) => void;
-    setReposApiData?: (data: any) => void;
 }) {
     // Use the same cache duration as other context variables
     const CACHE_DURATION = process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE === 'false'
@@ -96,13 +80,6 @@ export async function fetchContributorStatsForContext({
             setCachedItem(REPOS_API_KEY, reposApiData);
         }
 
-        // Optionally set raw API data for other consumers
-        setContributorsApiData?.(contributorsApiData);
-        setCommitsApiData?.(commitsApiData);
-        setPullRequestsApiData?.(pullRequestsApiData);
-        setIssuesApiData?.(issuesApiData);
-        setReposApiData?.(reposApiData);
-
         // Aggregate org-wide stats in-memory only
         const orgStats = aggregateApiContributorStats({
             contributorsApiData,
@@ -112,23 +89,11 @@ export async function fetchContributorStatsForContext({
             reposApiData,
         });
         setContributorStats(orgStats);
-
-        // Set contributorsData for network/graph consumers
-        const contributorsData: ContributorsData = {
-            unique_count: orgStats.unique_count,
-            contributors: orgStats.contributors,
-            total_pull_requests: orgStats.total_pull_requests,
-            total_commits: orgStats.total_commits,
-            total_contributions: orgStats.total_contributions,
-            lastFetched: orgStats.lastFetched,
-        };
-        safeSetItem(CONTRIBUTORS_DATA_STORAGE_KEY, JSON.stringify(contributorsData));
-        setContributorsData(contributorsData);
+      
         if (setError) setError(null);
     } catch (err) {
         console.error('Error fetching contributor stats:', err);
         setContributorStats(null);
-        setContributorsData(null);
         if (setError) setError('Failed to fetch contributor stats');
     }
 } 

@@ -1,6 +1,6 @@
 // ../contexts/DataContext.tsx
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, ContributorsData, GovernanceVote, MeshPackagesApiResponse } from '../types';
+import { MeshData, CatalystContextData, DRepVotingData, YearlyStats, DiscordStats, ContributorStats, DataContextType, GovernanceVote, MeshPackagesApiResponse } from '../types';
 import { fetchMeshDataForContext } from '../lib/dataContext/fetchMeshData';
 import { fetchDRepVotingDataForContext } from '../lib/dataContext/fetchDRepVotingData';
 import { fetchCatalystDataForContext } from '../lib/dataContext/fetchCatalystData';
@@ -18,7 +18,7 @@ const CATALYST_STORAGE_KEY = 'catalystData';
 const DREP_VOTING_STORAGE_KEY = 'drepVotingData';
 const DISCORD_STATS_STORAGE_KEY = 'discordStats';
 const CONTRIBUTOR_STATS_STORAGE_KEY = 'contributorStats';
-const CONTRIBUTORS_DATA_STORAGE_KEY = 'contributorsData';
+
 // Utility function to check if localStorage is available
 const isLocalStorageAvailable = (): boolean => {
     try {
@@ -58,13 +58,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [catalystData, setCatalystData] = useState<CatalystContextData | null>(null);
     const [drepVotingData, setDrepVotingData] = useState<DRepVotingData | null>(null);
     const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
-    const [contributorStats, setContributorStats] = useState<any | null>(null); // org-wide stats object
-    const [contributorsData, setContributorsData] = useState<ContributorsData | null>(null);
-    const [contributorsApiData, setContributorsApiData] = useState<any>(null);
-    const [commitsApiData, setCommitsApiData] = useState<any>(null);
-    const [pullRequestsApiData, setPullRequestsApiData] = useState<any>(null);
-    const [issuesApiData, setIssuesApiData] = useState<any>(null);
-    const [reposApiData, setReposApiData] = useState<any>(null);
+    const [contributorStats, setContributorStats] = useState<ContributorStats | null>(null); 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -97,16 +91,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
     const fetchContributorStatsWrapper = async () => {
         await fetchContributorStatsForContext({
-            safeSetItem,
             setContributorStats,
-            setContributorsData,
             setError,
-            CONTRIBUTORS_DATA_STORAGE_KEY,
-            setContributorsApiData,
-            setCommitsApiData,
-            setPullRequestsApiData,
-            setIssuesApiData,
-            setReposApiData
         });
     };
 
@@ -144,7 +130,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             const cachedDRepVotingData = safeGetItem(DREP_VOTING_STORAGE_KEY);
             const cachedDiscordStats = safeGetItem(DISCORD_STATS_STORAGE_KEY);
             const cachedContributorStats = safeGetItem(CONTRIBUTOR_STATS_STORAGE_KEY);
-            const cachedContributorsData = safeGetItem(CONTRIBUTORS_DATA_STORAGE_KEY);
 
             // First handle mesh data
             if (cachedMeshData) {
@@ -185,14 +170,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                 const cacheAge = Date.now() - parsed.lastFetched;
                 if (cacheAge < CACHE_DURATION) {
                     setContributorStats(parsed.stats);
-                }
-            }
-
-            if (cachedContributorsData) {
-                const parsed = JSON.parse(cachedContributorsData);
-                const cacheAge = Date.now() - parsed.lastFetched;
-                if (cacheAge < CACHE_DURATION) {
-                    setContributorsData(parsed);
                 }
             }
 
@@ -244,7 +221,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, contributorsData, isLoading, error, refetchData, contributorsApiData, commitsApiData, pullRequestsApiData, issuesApiData }}>
+        <DataContext.Provider value={{ meshData, catalystData, drepVotingData, discordStats, contributorStats, isLoading, error, refetchData }}>
             {children}
         </DataContext.Provider>
     );
