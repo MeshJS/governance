@@ -25,7 +25,11 @@ export async function fetchDRepVotingDataForContext({
         try {
             apiData = await fetchData(`/api/drep/votes?drepId=${drepId}`);
         } catch (apiErr) {
-            // Ignore, will fallback
+            // If API fails, set error and setDrepVotingData(null)
+            console.error('Error fetching DRep voting data from API:', apiErr);
+            setDrepVotingData(null);
+            if (setError) setError('Failed to fetch DRep voting data');
+            return;
         }
         if (apiData && Array.isArray(apiData.votes) && apiData.delegationData) {
             const newData: DRepVotingData = {
@@ -38,21 +42,7 @@ export async function fetchDRepVotingDataForContext({
             if (setError) setError(null);
             return;
         }
-        // Fallback to JSON files if API fails or is missing data
-        const currentYear = getCurrentYear();
-        const startYear = 2024;
-        const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i);
-        const yearlyVotesResults = await Promise.all(years.map(year => fetchData(`https://raw.githubusercontent.com/Signius/mesh-automations/main/mesh-gov-updates/drep-voting/${year}_voting.json`).catch(() => null)));
-        const allVotes = yearlyVotesResults.filter(votes => votes !== null).flat() as GovernanceVote[];
-        const delegationData = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/main/mesh-gov-updates/drep-voting/drep-delegation-info.json');
-        const newData: DRepVotingData = {
-            votes: allVotes,
-            delegationData: delegationData || null,
-            lastFetched: Date.now(),
-        };
-        safeSetItem(DREP_VOTING_STORAGE_KEY, JSON.stringify(newData));
-        setDrepVotingData(newData);
-        if (setError) setError(null);
+        // Remove fallback to JSON files
     } catch (err) {
         console.error('Error fetching DRep voting data:', err);
         setDrepVotingData(null);

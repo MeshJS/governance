@@ -32,18 +32,14 @@ export async function fetchDiscordStatsForContext({
                     return;
                 }
             } catch (apiError) {
-                // Fallback below
+                // If API fails, set error and setDiscordStats(null)
+                console.error('Error fetching Discord stats from API:', apiError);
+                setDiscordStats(null);
+                if (setError) setError('Failed to fetch Discord stats');
+                return;
             }
         }
-        // Fallback to the old JSON file method
-        const data = await fetchData('https://raw.githubusercontent.com/Signius/mesh-automations/refs/heads/main/mesh-gov-updates/discord-stats/stats.json');
-        const newData = {
-            stats: data,
-            lastFetched: Date.now()
-        };
-        safeSetItem(DISCORD_STATS_STORAGE_KEY, JSON.stringify(newData));
-        setDiscordStats(newData);
-        if (setError) setError(null);
+        // Remove fallback to old JSON file method
     } catch (err) {
         console.error('Error fetching Discord stats:', err);
         setDiscordStats(null);
