@@ -2,16 +2,16 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
-| Proposal Title | [Amaru Treasury Withdrawal 2025](https://adastat.net/governances/60ed6ab43c840ff888a8af30a1ed27b41e9f4a91a89822b2b63d1bfc52aeec4500) |
-| Hash           | 60ed6ab43c840ff888a8af30a1ed27b41e9f4a91a89822b2b63d1bfc52aeec4500 |
-| Action ID      | gov_action1vrkk4dpuss8l3z9g4uc2rmf8ks0f7j534zvz9v4k85dlc54wa3zsqq68rx0 |
-| Type           | TreasuryWithdrawals |
-| Proposed Epoch | 566 |
-| Expires Epoch  | 573 |
-| Vote           | ✅Yes |
-| Vote Submitted | 7/10/2025 |
-| Rationale       | No rationale available |
-|Link|https://adastat.net/transactions/ae6409b74d9c36a414bd127ce72a5bb5c74ffdcd58b643a328600baace2a60a1 |
+| Proposal Title | [Cardano GovTool Budget - 12 months full active maintenance and development](https://adastat.net/governances/9d213a57684d7ddf6f3350c80d042639ecbed5ccccc4a05bf54959a086593e7b00) |
+| Hash           | 9d213a57684d7ddf6f3350c80d042639ecbed5ccccc4a05bf54959a086593e7b00 |
+| Action ID      | gov_action1n5sn54mgf47a7men2ryq6ppx88kta4wvenz2qkl4f9v6ppje8easqxwm88m |
+| Type           | InfoAction |
+| Proposed Epoch | 567 |
+| Expires Epoch  | 574 |
+| Vote           | ❌No |
+| Vote Submitted | 7/23/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following on the governace action Cardano GovTool Budget - 12 months full active maintenance and development Yes: 0 votes No: 4 votes Abstain: 0 votes Therefore, we NO on the proposal. Rationale: We are actually in favor of gov.tools and their work and we indeed think that open source governance tools are a prior net positive for the ecosystem, yet we do not think that the proposal budget request matches the current state of the project. We recommend gov.tools to request a lower budget or to alternatively apply with a proposal at project catalyst at first to build up further solid base and increase budgets and scope progressively over time. |
+|Link|https://adastat.net/transactions/8bce47f5ba5fe40f7c85c50a3806c3fb1d53f53b45e5940a61fd7a937e48a5a2 |
 
 
 ---
@@ -186,7 +186,7 @@
 | Expires Epoch  | 549 |
 | Vote           | ✅Yes |
 | Vote Submitted | 3/11/2025 |
-| Rationale       | No rationale available |
+| Rationale       | We see the proposed roadmap for 2025 as a helpful effort in building ecosystem wide alignment on top priorities, and vote Yes on this proposal. We also hope that this proposal will encourage other efforts which aim to propose further roadmaps for the Cardano ecosystem. Since we achieved the last of the initial Cardano Milestones with Voltaire, we think that longterm roadmaps at Cardano have proven their worth and value and are a existential part of our culture and careful longterm thinking |
 |Link|https://adastat.net/transactions/464ceed8ec269a28d3fee305b1c0d397270b8193fbbb2557ab51c1b070f9171f |
 
 
@@ -202,7 +202,7 @@
 | Expires Epoch  | 546 |
 | Vote           | ❌No |
 | Vote Submitted | 2/22/2025 |
-| Rationale       | No rationale available |
+| Rationale       | While we generally agree to reduce treasury spending and think that reducing the allocation to the Treasury is a effective way to achieve lower spending capacities, we yet see that we lack research on how such changes will impact the SPO ecosystem and deem that we currently should not change treasury income before we have better insights |
 |Link|https://adastat.net/transactions/08b9205dcac01fed95287f6dc82f744cf66792c1de9f65d318c1085d2bca5946 |
 
 
@@ -218,5 +218,5 @@
 | Expires Epoch  | 544 |
 | Vote           | ✅Yes |
 | Vote Submitted | 2/10/2025 |
-| Rationale       | No rationale available |
+| Rationale       | We see the proposed Constitution as a major improvement to the currently active interim Constitution and feel confident that emerging governance infrastructure and capacities are in place and growing to build and act upon the new Constitution. However, while we respect the significant community engagement and involvement which has led to major improvements, we still see room for improvements at the proposed constitution and hope that further evolutions lead of a constantly evolving constitution which is able to reflect and support rapid ecosystem growth and changes |
 |Link|https://adastat.net/transactions/3bed0723c02caca480d000ffa2ca4b4eec82cc8c02d5d8e5d3f9cac6e7bae1f1 |

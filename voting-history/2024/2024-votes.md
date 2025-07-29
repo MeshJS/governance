@@ -10,7 +10,7 @@
 | Expires Epoch  | 529 |
 | Vote           | ✅Yes |
 | Vote Submitted | 11/25/2024 |
-| Rationale       | No rationale available |
+| Rationale       | Plomin founder at Mehen was a outstanding contributor to the Cardano Ecosystem. His unexpected passing on November 14th, 2024 will leave a void at the Community. We lost one of our best. We endorse to pay tribute to Matthew and to honor his work and achievements. Lets keep his name alive. |
 |Link|https://adastat.net/transactions/657084da4d5331b22d3c4d16778a4c9aec7e1a71e573fca9e3abaa241545f0f4 |
 
 
@@ -26,5 +26,5 @@
 | Expires Epoch  | 521 |
 | Vote           | ⚪Abstain |
 | Vote Submitted | 11/9/2024 |
-| Rationale       | No rationale available |
+| Rationale       | We generally agree with increasing "K", however, the info action does not proposes any actual number of the increased "K", therefore, Mesh votes "Abstain". |
 |Link|https://adastat.net/transactions/2b2cd65ea0cb903b07f93cf15bcde1129513c064a6db2af9fba48e90aca3ef9f |
