@@ -115,19 +115,45 @@ async function getCurrentEpoch() {
     }
 }
 
-async function upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDelegators, currentEpoch) {
-    try {
-        // Build the new epochs object from latest data
-        const newEpochs = {};
-        for (const epochData of votingPowerHistory) {
-            newEpochs[epochData.epoch_no] = {
-                voting_power_lovelace: epochData.amount,
-                total_delegators: epochData.epoch_no === currentEpoch ? currentDelegators.length : 0
-            };
+function calculateDelegatorCountsByEpoch(delegators, currentEpoch) {
+    // Group delegators by the epoch they joined
+    const delegatorsByJoinEpoch = {};
+
+    for (const delegator of delegators) {
+        const joinEpoch = delegator.epoch_no;
+        if (!delegatorsByJoinEpoch[joinEpoch]) {
+            delegatorsByJoinEpoch[joinEpoch] = [];
+        }
+        delegatorsByJoinEpoch[joinEpoch].push(delegator);
+    }
+
+    // Calculate cumulative delegator counts for each epoch
+    const delegatorCountsByEpoch = {};
+    let cumulativeCount = 0;
+
+    // Get all epochs from the voting power history to ensure we cover all relevant epochs
+    const allEpochs = Object.keys(delegatorsByJoinEpoch).map(Number).sort((a, b) => a - b);
+
+    // Start from the earliest epoch and build up the cumulative count
+    for (let epoch = Math.min(...allEpochs); epoch <= currentEpoch; epoch++) {
+        // Add new delegators who joined in this epoch
+        if (delegatorsByJoinEpoch[epoch]) {
+            cumulativeCount += delegatorsByJoinEpoch[epoch].length;
         }
 
-        // Fetch existing epochs for this drep_id
-        let mergedEpochs = { ...newEpochs };
+        // Store the cumulative count for this epoch
+        delegatorCountsByEpoch[epoch] = cumulativeCount;
+    }
+
+    console.log(`Calculated delegator counts for ${Object.keys(delegatorCountsByEpoch).length} epochs`);
+    console.log(`Total unique delegators: ${cumulativeCount}`);
+
+    return delegatorCountsByEpoch;
+}
+
+async function upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDelegators, currentEpoch) {
+    try {
+        // Fetch existing epochs for this drep_id first
         const { data: existing, error: fetchError } = await supabase
             .from('drep_delegation_info')
             .select('epochs')
@@ -136,9 +162,61 @@ async function upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDeleg
         if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116: No rows found
             throw fetchError;
         }
+
+        // Check if we need to calculate delegator counts (only if existing epochs have zero delegator counts)
+        let shouldCalculateDelegatorCounts = true;
+        let delegatorCountsByEpoch = {};
+
         if (existing && existing.epochs) {
-            // Merge: existing epochs + new epochs (new overwrites old for same epoch)
-            mergedEpochs = { ...existing.epochs, ...newEpochs };
+            // Check if more than one existing epoch has non-zero delegator counts
+            const epochsWithDelegators = Object.values(existing.epochs).filter(epoch =>
+                epoch.total_delegators && epoch.total_delegators > 0
+            );
+            const hasExistingDelegatorCounts = epochsWithDelegators.length > 1;
+
+            if (hasExistingDelegatorCounts) {
+                shouldCalculateDelegatorCounts = false;
+                console.log(`Existing delegator counts found in ${epochsWithDelegators.length} epochs, preserving historical data`);
+            } else {
+                console.log('Insufficient existing delegator counts found, calculating from join dates');
+                delegatorCountsByEpoch = calculateDelegatorCountsByEpoch(currentDelegators, currentEpoch);
+            }
+        } else {
+            // No existing data, calculate delegator counts
+            console.log('No existing data found, calculating delegator counts from join dates');
+            delegatorCountsByEpoch = calculateDelegatorCountsByEpoch(currentDelegators, currentEpoch);
+        }
+
+        // Build epochs object with voting power for all epochs
+        const newEpochs = {};
+        for (const epochData of votingPowerHistory) {
+            const epochNo = epochData.epoch_no;
+            newEpochs[epochNo] = {
+                voting_power_lovelace: epochData.amount,
+                total_delegators: shouldCalculateDelegatorCounts ? (delegatorCountsByEpoch[epochNo] || 0) : 0
+            };
+        }
+
+        // Merge with existing data
+        let mergedEpochs = { ...newEpochs };
+        if (existing && existing.epochs) {
+            mergedEpochs = { ...existing.epochs };
+            for (const [epochNo, epochData] of Object.entries(newEpochs)) {
+                if (epochNo === currentEpoch.toString()) {
+                    // For current epoch, update both voting power and delegator count
+                    mergedEpochs[epochNo] = {
+                        voting_power_lovelace: epochData.voting_power_lovelace,
+                        total_delegators: currentDelegators.length // Always use current delegator count for current epoch
+                    };
+                } else {
+                    // For other epochs, only update voting power, preserve existing delegator count
+                    const existingEpoch = existing.epochs[epochNo];
+                    mergedEpochs[epochNo] = {
+                        voting_power_lovelace: epochData.voting_power_lovelace,
+                        total_delegators: existingEpoch?.total_delegators || (shouldCalculateDelegatorCounts ? delegatorCountsByEpoch[epochNo] || 0 : 0)
+                    };
+                }
+            }
         }
 
         const totalAmountAda = Number(votingPowerHistory[0]?.amount || 0) / 1_000_000;
@@ -157,7 +235,8 @@ async function upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDeleg
 
         if (error) throw error;
 
-        console.log('DRep delegation info updated in Supabase');
+        const updateType = shouldCalculateDelegatorCounts ? 'calculated delegator counts for all epochs' : 'preserved existing delegator counts, updated current epoch only';
+        console.log(`DRep delegation info updated in Supabase - voting power for all epochs, ${updateType}`);
         return data;
     } catch (error) {
         console.error('Error upserting DRep delegation info:', error);
@@ -182,9 +261,10 @@ async function main() {
         // Log summary
         console.log('\nDelegation Summary:');
         console.log(`- Current Epoch: ${currentEpoch}`);
-        console.log(`- Total Delegators: ${currentDelegators.length}`);
+        console.log(`- Total Current Delegators: ${currentDelegators.length}`);
         console.log(`- Current Voting Power: ${votingPowerHistory[0]?.amount || 0} lovelace`);
-        console.log(`- Historical Epochs Tracked: ${votingPowerHistory.length}`);
+        console.log(`- Epochs with Voting Power Data: ${votingPowerHistory.length}`);
+        console.log(`- Delegator Counts: ${shouldCalculateDelegatorCounts ? 'Calculated from join dates for all epochs' : 'Preserved existing data, updated current epoch only'}`);
         console.log(`- DRep ID: ${drepId}`);
         console.log('\nData successfully saved to Supabase!');
 

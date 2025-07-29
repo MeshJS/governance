@@ -3,7 +3,7 @@ import styles from '../styles/Contributors.module.css';
 import Image from 'next/image';
 import PageHeader from '../components/PageHeader';
 import ContributorModal from '../components/ContributorModal';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Contributor, ContributorRepository } from '../types';
 import { FaUsers, FaCalendarAlt } from 'react-icons/fa';
 import { VscGitCommit, VscGitPullRequest, VscRepo } from 'react-icons/vsc';
@@ -40,7 +40,12 @@ interface ContributorWithMetrics {
 }
 
 export default function Contributors() {
-    const { contributorStats, isLoading, error } = useData();
+    const { contributorStats, isLoadingContributors, contributorsError, loadContributorStats } = useData();
+
+    // Trigger lazy loading when component mounts
+    useEffect(() => {
+        loadContributorStats();
+    }, [loadContributorStats]);
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
     //console.log('contributorStats', contributorStats)
     // Default time window is set to "All time" when page loads
@@ -217,7 +222,7 @@ export default function Contributors() {
         });
     };
 
-    if (isLoading) {
+    if (isLoadingContributors) {
         return (
             <div className={styles.container}>
                 <PageHeader
@@ -231,7 +236,7 @@ export default function Contributors() {
         );
     }
 
-    if (error) {
+    if (contributorsError) {
         return (
             <div className={styles.container}>
                 <PageHeader
@@ -239,7 +244,7 @@ export default function Contributors() {
                     subtitle="Error loading contributor data"
                 />
                 <div className={styles.errorContainer}>
-                    <p>Error: {error}</p>
+                    <p>Error: {contributorsError}</p>
                 </div>
             </div>
         );

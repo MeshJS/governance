@@ -4,9 +4,35 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Dashboard() {
-    const { meshData, catalystData, drepVotingData, contributorStats, discordStats, isLoading, error } = useData();
-    //console.log(meshData, catalystData, drepVotingData, contributorStats, discordStats, isLoading, error);
-    if (isLoading) {
+    const {
+        meshData,
+        catalystData,
+        drepVotingData,
+        contributorStats,
+        discordStats,
+        isLoading,
+        // Individual loading states
+        isLoadingMesh,
+        isLoadingCatalyst,
+        isLoadingDRep,
+        isLoadingDiscord,
+        isLoadingContributors,
+        // Individual error states
+        meshError,
+        catalystError,
+        drepError,
+        discordError,
+        contributorsError,
+        error
+    } = useData();
+
+    // Show skeleton loading only if we have no data at all and everything is still loading
+    const showGlobalLoading = isLoading && !meshData && !catalystData && !drepVotingData && !discordStats && !contributorStats;
+
+    // Show error only if we have no data at all and there's a global error
+    const showGlobalError = error && !meshData && !catalystData && !drepVotingData && !discordStats && !contributorStats;
+
+    if (showGlobalLoading) {
         return (
             <div className={styles.container}>
                 <div className={styles.loading}>Loading...</div>
@@ -14,7 +40,7 @@ export default function Dashboard() {
         );
     }
 
-    if (error) {
+    if (showGlobalError) {
         return (
             <div className={styles.container}>
                 <div className={styles.error}>Error: {error}</div>
@@ -41,6 +67,8 @@ export default function Dashboard() {
                 <Link href="/drep-voting" className={`${styles.section} ${styles.votingActivity}`}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>Mesh DRep</h2>
+                        {isLoadingDRep && <div className={styles.loadingIndicator}>Loading...</div>}
+                        {drepError && <div className={styles.errorIndicator}>Error loading data</div>}
                     </div>
                     <div className={styles.sectionContent}>
                         <div className={styles.previewImage}>
@@ -60,6 +88,8 @@ export default function Dashboard() {
                 <Link href="/catalyst-proposals" className={`${styles.section} ${styles.proposalsOverview}`}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>Catalyst Proposals</h2>
+                        {isLoadingCatalyst && <div className={styles.loadingIndicator}>Loading...</div>}
+                        {catalystError && <div className={styles.errorIndicator}>Error loading data</div>}
                     </div>
                     <div className={styles.sectionContent}>
                         <div className={styles.previewImage}>
@@ -79,6 +109,8 @@ export default function Dashboard() {
                 <Link href="/mesh-stats" className={`${styles.section} ${styles.downloads} ${styles.compactCard}`}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>Mesh Stats</h2>
+                        {isLoadingMesh && <div className={styles.loadingIndicator}>Loading...</div>}
+                        {meshError && <div className={styles.errorIndicator}>Error loading data</div>}
                     </div>
                     <div className={`${styles.sectionContent} ${styles.centerContent}`}>
                         <div className={styles.previewImage}>
@@ -117,6 +149,8 @@ export default function Dashboard() {
                 <Link href="/contributors" className={`${styles.section} ${styles.contributors} ${styles.compactCard}`}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>Contributors</h2>
+                        {isLoadingContributors && <div className={styles.loadingIndicator}>Loading...</div>}
+                        {contributorsError && <div className={styles.errorIndicator}>Error loading data</div>}
                     </div>
                     <div className={`${styles.sectionContent} ${styles.centerContent}`}>
                         <div className={styles.previewImage}>

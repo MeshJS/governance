@@ -160,7 +160,21 @@ export interface DataContextType {
     contributorStats: ContributorStats | null;
     isLoading: boolean;
     error: string | null;
+    // Individual loading states
+    isLoadingMesh: boolean;
+    isLoadingCatalyst: boolean;
+    isLoadingDRep: boolean;
+    isLoadingDiscord: boolean;
+    isLoadingContributors: boolean;
+    // Individual error states
+    meshError: string | null;
+    catalystError: string | null;
+    drepError: string | null;
+    discordError: string | null;
+    contributorsError: string | null;
     refetchData: () => Promise<void>;
+    // Lazy loading function
+    loadContributorStats: () => Promise<void>;
 }
 
 export interface MeshStatsViewProps {
@@ -195,6 +209,7 @@ export interface CatalystProposal {
     finished: string;
     voting: CatalystProposalVoting | null;
     milestones_completed: number;
+    milestones_content?: Record<string, string> | null;
     updated_at: string;
     isRecent?: boolean;
     timeSinceUpdate?: number;

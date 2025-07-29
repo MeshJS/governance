@@ -19,6 +19,7 @@ function getCachedItem(key: string, cacheDuration: number) {
     } catch { }
     return null;
 }
+
 function setCachedItem(key: string, data: any) {
     try {
         localStorage.setItem(key, JSON.stringify({ data, lastFetched: Date.now() }));
@@ -27,8 +28,24 @@ function setCachedItem(key: string, data: any) {
     }
 }
 
+// Helper to fetch with retry logic
+async function fetchWithRetry(url: string, retries = 2): Promise<any> {
+    for (let i = 0; i <= retries; i++) {
+        try {
+            const res = await fetch(url);
+            if (res.ok) {
+                return await res.json();
+            }
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        } catch (error) {
+            if (i === retries) throw error;
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        }
+    }
+}
+
 export async function fetchContributorStatsForContext({
-    
     setContributorStats,
     setError
 }: {
@@ -53,31 +70,80 @@ export async function fetchContributorStatsForContext({
         let issuesApiData = getCachedItem(ISSUES_API_KEY, CACHE_DURATION);
         let reposApiData = getCachedItem(REPOS_API_KEY, CACHE_DURATION);
 
-        // Fetch from API if not cached
+        // Create an array of fetch promises for missing data
+        const fetchPromises: Array<{ key: string; promise: Promise<any>; setData: (data: any) => void }> = [];
+
         if (!contributorsApiData) {
-            const res = await fetch(`/api/github?org=${encodeURIComponent(organizationName)}`);
-            contributorsApiData = (await res.json()).contributors;
-            setCachedItem(CONTRIBUTORS_API_KEY, contributorsApiData);
+            fetchPromises.push({
+                key: 'contributors',
+                promise: fetchWithRetry(`/api/github?org=${encodeURIComponent(organizationName)}`),
+                setData: (data) => {
+                    contributorsApiData = data.contributors;
+                    setCachedItem(CONTRIBUTORS_API_KEY, contributorsApiData);
+                }
+            });
         }
+
         if (!commitsApiData) {
-            const res = await fetch(`/api/github/commits?org=${encodeURIComponent(organizationName)}`);
-            commitsApiData = (await res.json()).commits;
-            setCachedItem(COMMITS_API_KEY, commitsApiData);
+            fetchPromises.push({
+                key: 'commits',
+                promise: fetchWithRetry(`/api/github/commits?org=${encodeURIComponent(organizationName)}`),
+                setData: (data) => {
+                    commitsApiData = data.commits;
+                    setCachedItem(COMMITS_API_KEY, commitsApiData);
+                }
+            });
         }
+
         if (!pullRequestsApiData) {
-            const res = await fetch(`/api/github/pull-requests?org=${encodeURIComponent(organizationName)}`);
-            pullRequestsApiData = (await res.json()).pullRequests;
-            setCachedItem(PULL_REQUESTS_API_KEY, pullRequestsApiData);
+            fetchPromises.push({
+                key: 'pullRequests',
+                promise: fetchWithRetry(`/api/github/pull-requests?org=${encodeURIComponent(organizationName)}`),
+                setData: (data) => {
+                    pullRequestsApiData = data.pullRequests;
+                    setCachedItem(PULL_REQUESTS_API_KEY, pullRequestsApiData);
+                }
+            });
         }
+
         if (!issuesApiData) {
-            const res = await fetch(`/api/github/issues?org=${encodeURIComponent(organizationName)}`);
-            issuesApiData = (await res.json()).issues;
-            setCachedItem(ISSUES_API_KEY, issuesApiData);
+            fetchPromises.push({
+                key: 'issues',
+                promise: fetchWithRetry(`/api/github/issues?org=${encodeURIComponent(organizationName)}`),
+                setData: (data) => {
+                    issuesApiData = data.issues;
+                    setCachedItem(ISSUES_API_KEY, issuesApiData);
+                }
+            });
         }
+
         if (!reposApiData) {
-            const res = await fetch(`/api/github/repos?org=${encodeURIComponent(organizationName)}`);
-            reposApiData = (await res.json()).repos;
-            setCachedItem(REPOS_API_KEY, reposApiData);
+            fetchPromises.push({
+                key: 'repos',
+                promise: fetchWithRetry(`/api/github/repos?org=${encodeURIComponent(organizationName)}`),
+                setData: (data) => {
+                    reposApiData = data.repos;
+                    setCachedItem(REPOS_API_KEY, reposApiData);
+                }
+            });
+        }
+
+        // Execute fetches in batches to avoid overwhelming the API
+        const BATCH_SIZE = 2;
+        for (let i = 0; i < fetchPromises.length; i += BATCH_SIZE) {
+            const batch = fetchPromises.slice(i, i + BATCH_SIZE);
+            const results = await Promise.allSettled(batch.map(async ({ key, promise, setData }) => {
+                const data = await promise;
+                setData(data);
+                return { key, data };
+            }));
+
+            // Handle any failed requests in this batch
+            results.forEach((result, index) => {
+                if (result.status === 'rejected') {
+                    console.error(`Failed to fetch ${batch[index].key}:`, result.reason);
+                }
+            });
         }
 
         // Aggregate org-wide stats in-memory only
@@ -88,8 +154,8 @@ export async function fetchContributorStatsForContext({
             issuesApiData,
             reposApiData,
         });
+
         setContributorStats(orgStats);
-      
         if (setError) setError(null);
     } catch (err) {
         console.error('Error fetching contributor stats:', err);
