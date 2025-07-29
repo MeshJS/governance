@@ -237,7 +237,7 @@ async function upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDeleg
 
         const updateType = shouldCalculateDelegatorCounts ? 'calculated delegator counts for all epochs' : 'preserved existing delegator counts, updated current epoch only';
         console.log(`DRep delegation info updated in Supabase - voting power for all epochs, ${updateType}`);
-        return data;
+        return { data, shouldCalculateDelegatorCounts };
     } catch (error) {
         console.error('Error upserting DRep delegation info:', error);
         throw error;
@@ -256,7 +256,7 @@ async function main() {
 
     try {
         // Upsert all data into the new table
-        await upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDelegators, currentEpoch);
+        const { shouldCalculateDelegatorCounts } = await upsertDRepDelegationInfo(drepId, votingPowerHistory, currentDelegators, currentEpoch);
 
         // Log summary
         console.log('\nDelegation Summary:');
