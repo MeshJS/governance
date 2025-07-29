@@ -31,7 +31,7 @@ We identified and defined error messages for common validator issues and listed 
 - https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.rs
 ### Provide explanations and hints for fixing each error
 Explanations and hints for fixing the errors have been added at the respective error examples at the same source at;
-- https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/errors.rs
+- https://github.com/MeshJS/cquisitor-lib/blob/main/src/validators/phase_1/hints.rs
 
 ### Open Source licence
 All related code has been assigned under Apache 2.0 open-source licensed
