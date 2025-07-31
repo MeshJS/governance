@@ -537,10 +537,10 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                                 <p>{formatNumber(contributorStats.unique_count)}</p>
                             </div>
                         )}
-                        {contributorStats && contributorStats.contributors && (
+                        {contributorStats && contributorStats.total_contributions && (
                             <div className={styles.stat}>
                                 <h3>Total Contributions</h3>
-                                <p>{formatNumber(contributorStats.contributors.reduce((sum, contributor) => sum + contributor.contributions, 0))}</p>
+                                <p>{formatNumber(contributorStats.total_contributions)}</p>
                             </div>
                         )}
                     </div>
