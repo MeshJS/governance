@@ -2,7 +2,7 @@
  * Fetches contributor stats for use in DataContext.
  * Accepts context-specific helpers and state setters as arguments.
  */
-import { aggregateApiContributorStats } from '../../utils/contributorStats';
+import { aggregateMaterializedViewContributorStats } from '../../utils/contributorStats';
 import config from '../../../config';
 
 const organizationName = config.mainOrganization.name;
@@ -56,103 +56,73 @@ export async function fetchContributorStatsForContext({
     const CACHE_DURATION = process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE === 'false'
         ? 0
         : 5 * 60 * 1000;
-    const CONTRIBUTORS_API_KEY = 'contributorsApiData';
-    const COMMITS_API_KEY = 'commitsApiData';
-    const PULL_REQUESTS_API_KEY = 'pullRequestsApiData';
-    const ISSUES_API_KEY = 'issuesApiData';
-    const REPOS_API_KEY = 'reposApiData';
+    const CONTRIBUTOR_SUMMARY_API_KEY = 'contributorSummaryApiData';
+    const CONTRIBUTOR_REPO_ACTIVITY_API_KEY = 'contributorRepoActivityApiData';
+    const CONTRIBUTOR_TIMESTAMPS_API_KEY = 'contributorTimestampsApiData';
 
     try {
         // Try to load each API result from localStorage
-        let contributorsApiData = getCachedItem(CONTRIBUTORS_API_KEY, CACHE_DURATION);
-        let commitsApiData = getCachedItem(COMMITS_API_KEY, CACHE_DURATION);
-        let pullRequestsApiData = getCachedItem(PULL_REQUESTS_API_KEY, CACHE_DURATION);
-        let issuesApiData = getCachedItem(ISSUES_API_KEY, CACHE_DURATION);
-        let reposApiData = getCachedItem(REPOS_API_KEY, CACHE_DURATION);
+        let contributorSummaryData = getCachedItem(CONTRIBUTOR_SUMMARY_API_KEY, CACHE_DURATION);
+        let contributorRepoActivityData = getCachedItem(CONTRIBUTOR_REPO_ACTIVITY_API_KEY, CACHE_DURATION);
+        let contributorTimestampsData = getCachedItem(CONTRIBUTOR_TIMESTAMPS_API_KEY, CACHE_DURATION);
 
         // Create an array of fetch promises for missing data
         const fetchPromises: Array<{ key: string; promise: Promise<any>; setData: (data: any) => void }> = [];
 
-        if (!contributorsApiData) {
+        if (!contributorSummaryData) {
             fetchPromises.push({
-                key: 'contributors',
-                promise: fetchWithRetry(`/api/github?org=${encodeURIComponent(organizationName)}`),
+                key: 'contributorSummary',
+                promise: fetchWithRetry(`/api/github/contributor-summary?org=${encodeURIComponent(organizationName)}`),
                 setData: (data) => {
-                    contributorsApiData = data.contributors;
-                    setCachedItem(CONTRIBUTORS_API_KEY, contributorsApiData);
+                    contributorSummaryData = data.contributorSummary;
+                    setCachedItem(CONTRIBUTOR_SUMMARY_API_KEY, contributorSummaryData);
                 }
             });
         }
 
-        if (!commitsApiData) {
+        if (!contributorRepoActivityData) {
             fetchPromises.push({
-                key: 'commits',
-                promise: fetchWithRetry(`/api/github/commits?org=${encodeURIComponent(organizationName)}`),
+                key: 'contributorRepoActivity',
+                promise: fetchWithRetry(`/api/github/contributor-repo-activity?org=${encodeURIComponent(organizationName)}`),
                 setData: (data) => {
-                    commitsApiData = data.commits;
-                    setCachedItem(COMMITS_API_KEY, commitsApiData);
+                    contributorRepoActivityData = data.contributorRepoActivity;
+                    setCachedItem(CONTRIBUTOR_REPO_ACTIVITY_API_KEY, contributorRepoActivityData);
                 }
             });
         }
 
-        if (!pullRequestsApiData) {
+        if (!contributorTimestampsData) {
             fetchPromises.push({
-                key: 'pullRequests',
-                promise: fetchWithRetry(`/api/github/pull-requests?org=${encodeURIComponent(organizationName)}`),
+                key: 'contributorTimestamps',
+                promise: fetchWithRetry(`/api/github/contributor-timestamps-mat?org=${encodeURIComponent(organizationName)}`),
                 setData: (data) => {
-                    pullRequestsApiData = data.pullRequests;
-                    setCachedItem(PULL_REQUESTS_API_KEY, pullRequestsApiData);
+                    contributorTimestampsData = data.contributorTimestamps;
+                    setCachedItem(CONTRIBUTOR_TIMESTAMPS_API_KEY, contributorTimestampsData);
                 }
             });
         }
 
-        if (!issuesApiData) {
-            fetchPromises.push({
-                key: 'issues',
-                promise: fetchWithRetry(`/api/github/issues?org=${encodeURIComponent(organizationName)}`),
-                setData: (data) => {
-                    issuesApiData = data.issues;
-                    setCachedItem(ISSUES_API_KEY, issuesApiData);
-                }
-            });
-        }
-
-        if (!reposApiData) {
-            fetchPromises.push({
-                key: 'repos',
-                promise: fetchWithRetry(`/api/github/repos?org=${encodeURIComponent(organizationName)}`),
-                setData: (data) => {
-                    reposApiData = data.repos;
-                    setCachedItem(REPOS_API_KEY, reposApiData);
-                }
-            });
-        }
-
-        // Execute fetches in batches to avoid overwhelming the API
-        const BATCH_SIZE = 2;
-        for (let i = 0; i < fetchPromises.length; i += BATCH_SIZE) {
-            const batch = fetchPromises.slice(i, i + BATCH_SIZE);
-            const results = await Promise.allSettled(batch.map(async ({ key, promise, setData }) => {
+        // Execute all fetches in parallel for better performance
+        if (fetchPromises.length > 0) {
+            const results = await Promise.allSettled(fetchPromises.map(async ({ key, promise, setData }) => {
                 const data = await promise;
                 setData(data);
                 return { key, data };
             }));
 
-            // Handle any failed requests in this batch
+            // Handle any failed requests
             results.forEach((result, index) => {
                 if (result.status === 'rejected') {
-                    console.error(`Failed to fetch ${batch[index].key}:`, result.reason);
+                    console.error(`Failed to fetch ${fetchPromises[index].key}:`, result.reason);
                 }
             });
         }
 
-        // Aggregate org-wide stats in-memory only
-        const orgStats = aggregateApiContributorStats({
-            contributorsApiData,
-            commitsApiData,
-            pullRequestsApiData,
-            issuesApiData,
-            reposApiData,
+        // Aggregate org-wide stats using the new materialized view function
+        const orgStats = aggregateMaterializedViewContributorStats({
+            contributorSummaryData,
+            contributorRepoActivityData,
+            contributorTimestampsData,
         });
 
         setContributorStats(orgStats);
