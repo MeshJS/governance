@@ -50,7 +50,22 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following on the governance action Cardano GovTool Budget - 12 months full active maintenance and development
+
+Yes: 0 votes 
+No: 2 votes 
+Abstain: 0 votes  
+
+Therefore, we vote NO on the proposal.
+
+Rationale:
+
+Similar to our vote on the gov.tool proposal, we apply the same logic. 
+We endorse and support projects building governance tooling (especially open source ones), yet we think that the current proposal lacks crucial information, detail and effort to submit a quality proposal which matches to tempo's spirit & stack.
+We highly recommend Tempo to provide more information on their proposal. Currently, detailed milestones, deliverables or actual detailed cost breakdown is totally missing from the proposal which makes it literally impossible to measure and assess concrete achieved objectives, deliverables, KPIs or OKRs. 
+
+Please submit a refined version and you can be sure that our votes will be with you. 
+Keep building Tempo."
   },
   "hashAlgorithm": "blake2b-256"
 }
