@@ -110,6 +110,13 @@ const CustomTick = (props: any) => {
 const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
     const gradientId = `tealGradient-${chartId}`;
     
+    const handleBarClick = (data: any) => {
+        if (data && data.packageName) {
+            const npmUrl = `https://www.npmjs.com/package/${data.packageName}`;
+            window.open(npmUrl, '_blank');
+        }
+    };
+    
     return (
         <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} barGap={8} margin={{ top: 10, right: 10, left: -15, bottom: 45 }}>
@@ -147,6 +154,8 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
                 fill={`url(#${gradientId})`}
                 radius={[4, 4, 0, 0]}
                 maxBarSize={40}
+                onClick={handleBarClick}
+                style={{ cursor: 'pointer' }}
             />
         </BarChart>
     </ResponsiveContainer>
@@ -576,7 +585,8 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
     const packageData = meshPackagesData?.packages
         ? meshPackagesData.packages.map(pkg => ({
             name: pkg.name.replace('@meshsdk/', '').replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()),
-            downloads: pkg.last_12_months_downloads // NPM's most comprehensive download data
+            downloads: pkg.last_12_months_downloads, // NPM's most comprehensive download data
+            packageName: pkg.name // Keep original package name for URL generation
         }))
         : [];
 

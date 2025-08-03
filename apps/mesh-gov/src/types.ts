@@ -114,6 +114,7 @@ export interface MonthlyDownload {
 export interface PackageData {
     name: string;
     downloads: number;
+    packageName?: string;
 }
 
 export interface FilteredStats {

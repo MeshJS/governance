@@ -42,7 +42,7 @@ export default function DRepMetricsSection({
                     <div className={styles.metricLabel}>Proposals Voted</div>
                 </div>
                 <div className={styles.metricCard}>
-                    <div className={styles.metricValue}>{formatPercentage(votingParticipationRate)}</div>
+                    <div className={styles.metricValue}>Constant</div>
                     <div className={styles.metricLabel}>Voting Participation</div>
                 </div>
             </div>
