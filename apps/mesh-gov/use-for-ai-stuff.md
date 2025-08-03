@@ -1,10 +1,10 @@
 # Mesh Governance Dashboard - Development Guide
 
-## 📋 Overview
+## Overview
 
 The Mesh Governance Dashboard is a Next.js 15 application that provides transparency into Mesh's governance activities, SDK usage, and contributor statistics. It features a modern dark theme with glassmorphism design and comprehensive data visualization.
 
-## 🏗️ Architecture
+## Architecture
 
 ### Tech Stack
 - **Framework**: Next.js 15.2.4 with Pages Router
@@ -27,7 +27,7 @@ The Mesh Governance Dashboard is a Next.js 15 application that provides transpar
 }
 ```
 
-## 🎨 Design System
+## Design System
 
 ### Color Palette
 ```css
@@ -72,7 +72,7 @@ border: 1px solid rgba(255, 255, 255, 0.08);
 - **Hover transform**: `translateY(-2px)` to `translateY(-4px)`
 - **Floating animations**: Individual timing for nav items (4.6s - 5.5s)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -96,7 +96,7 @@ src/
 └── types.ts            # Shared types
 ```
 
-## 🧩 Key Components
+## Key Components
 
 ### Core Layout Components
 - **Layout.tsx**: Main layout wrapper with sidebar
@@ -117,7 +117,7 @@ src/
 - **Contributors**: GitHub stats, network visualization
 - **Mesh Stats**: SDK usage, download metrics
 
-## 📊 Data Management
+## Data Management
 
 ### DataContext Structure
 ```typescript
@@ -157,7 +157,7 @@ interface DataContextType {
 3. **Discord API**: Community metrics
 4. **Supabase**: Minimal usage, mainly for future features
 
-## 🎯 Main Sections
+## Main Sections
 
 ### 1. Overview Dashboard (`/`)
 - **Grid layout**: 4-column responsive grid
@@ -194,7 +194,7 @@ interface DataContextType {
 - **Activity timeline**: Historical contribution patterns
 - **Repository breakdown**: Per-repo contribution stats
 
-## 🎨 Styling Guidelines
+## Styling Guidelines
 
 ### CSS Modules Convention
 ```css
@@ -229,7 +229,7 @@ interface DataContextType {
 }
 ```
 
-## 🔧 Development Patterns
+## Development Patterns
 
 ### Component Guidelines
 1. **Functional components**: No class components
@@ -265,7 +265,7 @@ import styles from './ComponentName.module.css';
 import { TypeName } from '../types';
 ```
 
-## 🚀 Performance Optimizations
+## Performance Optimizations
 
 ### Image Handling
 - **Next.js Image**: All images use `next/image`
@@ -282,7 +282,7 @@ import { TypeName } from '../types';
 - **Stale-while-revalidate**: Show cached data while fetching fresh
 - **Error boundaries**: Graceful degradation
 
-## 🛠️ Development Commands
+## Development Commands
 
 ```bash
 # Development
@@ -300,7 +300,7 @@ npm run format:check
 npm run type-check
 ```
 
-## 🎨 UI Patterns
+## UI Patterns
 
 ### Loading States
 ```typescript
@@ -333,14 +333,14 @@ npm run type-check
 }
 ```
 
-## 📱 Mobile Considerations
+## Mobile Considerations
 
 - **Responsive navigation**: Collapses to mobile-friendly format
 - **Touch targets**: 44px minimum for interactive elements
 - **Optimized spacing**: Adjusted padding for mobile viewports
 - **Performance**: Lazy loading and optimized images
 
-## 🔮 Future Development
+## Future Development
 
 ### Planned Features
 - **Real-time updates**: WebSocket integration for live data
@@ -356,7 +356,7 @@ npm run type-check
 
 ---
 
-## 📚 Key Files Reference
+## Key Files Reference
 
 ### Critical Files
 - `src/contexts/DataContext.tsx` - Main state management
