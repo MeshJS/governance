@@ -64,7 +64,7 @@ const projects: Project[] = [
         name: 'UTXOS',
         description: 'Streamline user onboarding and Web3 integration, accelerating your app\'s time to market.',
         icon: '/logo-mesh-white-512x512.png',
-        url: 'https://web3.meshjs.dev/',
+        url: 'https://utxos.dev/',
         category: 'Development Tool'
     },
     {
