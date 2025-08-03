@@ -55,6 +55,7 @@ export default function MeshStatsPage() {
         <div className={styles.container}>
             <PageHeader
                 title={<>Mesh Usage <span>Statistics</span></>}
+                subtitle="Tracking downloads of Mesh npm packages via npmjs.com"
             />
 
             <MeshStatsView
