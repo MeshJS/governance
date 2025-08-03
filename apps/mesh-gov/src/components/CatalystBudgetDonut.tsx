@@ -199,7 +199,7 @@ const CatalystBudgetDonut: React.FC<CatalystBudgetDonutProps> = ({ totalBudget, 
                     onMouseLeave={() => setActiveSegment(null)}
                 >
                     <div className={`${styles.legendColor} ${styles.distributed}`} />
-                    <span className={styles.legendLabel}>Distributed Funds</span>
+                    <span className={styles.legendLabel}>Received Funds</span>
                     <span className={styles.legendValue}>{formatAda(distributedBudget)}</span>
                 </div>
                 <div 

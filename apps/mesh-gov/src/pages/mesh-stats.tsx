@@ -54,8 +54,7 @@ export default function MeshStatsPage() {
     return (
         <div className={styles.container}>
             <PageHeader
-                title={<>Mesh SDK <span>Statistics</span></>}
-                subtitle={versionSubtitle}
+                title={<>Mesh Usage <span>Statistics</span></>}
             />
 
             <MeshStatsView
