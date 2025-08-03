@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { MilestoneData } from '../utils/milestones';
 import styles from './MilestoneDeliveryChart.module.css';
 
@@ -193,12 +193,62 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
         if (active && payload && payload.length) {
             const data = payload[0].payload;
             return (
-                <div className={styles.tooltip}>
-                    <p className={styles.tooltipLabel}>{label}</p>
-                    <p className={styles.tooltipValue}>
-                        {data.count} milestone{data.count !== 1 ? 's' : ''} delivered
-                    </p>
-                    <p className={styles.tooltipHint}>Click to pin details</p>
+                <div style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+                    border: '1px solid rgba(56, 232, 225, 0.3)',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                    maxWidth: '280px'
+                }}>
+                    <div style={{
+                        fontSize: '11px',
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        marginBottom: '6px',
+                        fontWeight: '600',
+                        borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
+                        paddingBottom: '3px'
+                    }}>
+                        {label}
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '4px',
+                        fontSize: '10px'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginRight: '16px' }}>
+                            <div style={{
+                                width: '6px',
+                                height: '6px',
+                                borderRadius: '1px',
+                                backgroundColor: 'rgba(56, 232, 225, 1)',
+                                boxShadow: '0 0 3px rgba(56, 232, 225, 1)'
+                            }} />
+                            <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
+                                Milestones
+                            </span>
+                        </div>
+                        <span style={{ 
+                            color: 'rgba(56, 232, 225, 1)', 
+                            fontWeight: '600',
+                            textShadow: '0 0 4px rgba(56, 232, 225, 0.4)'
+                        }}>
+                            {data.count}
+                        </span>
+                    </div>
+                    <div style={{
+                        fontSize: '9px',
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        fontStyle: 'italic',
+                        textAlign: 'center',
+                        marginTop: '4px'
+                    }}>
+                        Click to pin details
+                    </div>
                 </div>
             );
         }
@@ -256,50 +306,76 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                 <div className={styles.chartSection}>
                     <div className={styles.chartWrapper}>
                         <ResponsiveContainer width="100%" height={300}>
-                            <LineChart
+                            <ComposedChart
                                 data={monthlyData}
-                                margin={{ top: 20, right: 30, left: -40, bottom: 20 }}
+                                margin={{ top: 15, right: 20, left: -40, bottom: 15 }}
                                 onClick={handleChartClick}
                             >
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+                                <defs>
+                                    <linearGradient id="milestoneGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="rgba(56, 232, 225, 0.3)" />
+                                        <stop offset="50%" stopColor="rgba(56, 232, 225, 0.1)" />
+                                        <stop offset="100%" stopColor="rgba(56, 232, 225, 0)" />
+                                    </linearGradient>
+                                    <linearGradient id="milestoneLineGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="rgba(67, 255, 245, 1)" />
+                                        <stop offset="50%" stopColor="rgba(56, 232, 225, 1)" />
+                                        <stop offset="100%" stopColor="rgba(45, 186, 181, 1)" />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid
+                                    strokeDasharray="2 2"
+                                    stroke="rgba(255, 255, 255, 0.08)"
+                                    horizontal={true}
+                                    vertical={false}
+                                />
                                 <XAxis
                                     dataKey="month"
-                                    stroke="rgba(255, 255, 255, 0.8)"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false}
-                                    interval={0}
+                                    stroke="rgba(255, 255, 255, 0.6)"
+                                    fontSize={10}
+                                    fontWeight={500}
                                     angle={-45}
                                     textAnchor="end"
                                     height={60}
+                                    tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+                                    interval={0}
                                 />
                                 <YAxis
-                                    stroke="rgba(255, 255, 255, 0.8)"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false}
+                                    stroke="rgba(255, 255, 255, 0.6)"
+                                    fontSize={10}
+                                    fontWeight={500}
+                                    tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
                                     allowDecimals={false}
                                 />
-                                <Tooltip content={<CustomTooltip />} />
+                                <Tooltip
+                                    content={<CustomTooltip />}
+                                    cursor={false}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="count"
+                                    fill="url(#milestoneGradient)"
+                                    stroke="none"
+                                />
                                 <Line
                                     type="monotone"
                                     dataKey="count"
-                                    stroke="rgba(56, 232, 225, 0.9)"
-                                    strokeWidth={2}
-                                    dot={{
-                                        fill: "rgba(56, 232, 225, 0.9)",
-                                        strokeWidth: 1,
-                                        r: 3,
-                                        stroke: "rgba(56, 232, 225, 1)"
-                                    }}
-                                    activeDot={{
-                                        r: 5,
+                                    stroke="url(#milestoneLineGradient)"
+                                    strokeWidth={1.5}
+                                    strokeOpacity={0.85}
+                                    dot={false}
+                                    activeDot={{ 
+                                        r: 4,
                                         fill: "rgba(56, 232, 225, 1)",
-                                        stroke: "rgba(255, 255, 255, 0.9)",
-                                        strokeWidth: 1.5
+                                        stroke: 'rgba(255, 255, 255, 0.8)',
+                                        strokeWidth: 1.5,
+                                        filter: "drop-shadow(0 0 6px rgba(56, 232, 225, 0.4))"
                                     }}
+                                    connectNulls={false}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                 />
-                            </LineChart>
+                            </ComposedChart>
                         </ResponsiveContainer>
                     </div>
                 </div>

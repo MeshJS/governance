@@ -54,18 +54,34 @@ const projects: Project[] = [
     {
         id: '3',
         name: 'Multisig Platform',
-        description: 'Secure your treasury and participant in Cardano governance as a team with multi-signatureSecure your treasury and participant in Cardano governance as a team with multi-signature. With Fluidtoken & ClarityDAO',
+        description: 'Secure your treasury and participant in Cardano governance as a team with multi-signatureSecure your treas',
         icon: '/wallet.png',
         url: 'https://github.com/MeshJS/multisig',
         category: 'Development Tool'
     },
     {
         id: '4',
-        name: 'Mesh Web3 Services',
+        name: 'UTXOS',
         description: 'Streamline user onboarding and Web3 integration, accelerating your app\'s time to market.',
         icon: '/logo-mesh-white-512x512.png',
         url: 'https://web3.meshjs.dev/',
         category: 'Development Tool'
+    },
+    {
+        id: '5',
+        name: 'Mimir',
+        description: 'AI compatible web3 tools for enhanced blockchain development and smart contract interactions.',
+        icon: '/logo-mesh-white-512x512.png',
+        url: 'https://github.com/MeshJS/mimir',
+        category: 'Development Tool'
+    },
+    {
+        id: '6',
+        name: 'Governance Dashboard',
+        description: 'Provides information about Mesh\'s participation in Cardano\'s governance ecosystem with comprehensive insights and transparency.',
+        icon: '/logo-mesh-white-512x512.png',
+        url: 'https://github.com/MeshJS/governance',
+        category: 'Governance'
     }
 ];
 
@@ -226,8 +242,7 @@ export default function Projects() {
         );
     }
 
-    const githubUsage = meshData?.meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core')?.github_dependents_count || 0;
-    const totalReferences = meshData?.meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core')?.github_in_any_file || 0;
+
 
     return (
         <div className={styles.container}>
@@ -236,26 +251,11 @@ export default function Projects() {
                 subtitle="Projects using Mesh SDK in their GitHub repositories"
             />
 
-            <div className={styles.stats}>
-                <div className={styles.stat}>
-                    <h3>Total Projects</h3>
-                    <p>{githubUsage}</p>
-                </div>
-                <div className={styles.stat}>
-                    <h3>Total References</h3>
-                    <p>{totalReferences}</p>
-                </div>
-            </div>
 
-            <div className={styles.moreSection} style={{ justifyContent: 'flex-start' }}>
-                <a href="https://github.com/MeshJS/mesh/network/dependents" className={styles.moreButton} target="_blank" rel="noopener noreferrer">
-                    View all Projects
-                </a>
-            </div>
 
             <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Mesh Native Projects</h2>
-                <p className={styles.sectionDescription}>Open Source Projects being built by the Mesh team</p>
+                <p className={styles.sectionDescription}>All main Mesh projects</p>
             </div>
 
             <div className={styles.projectsGrid} id="projectsGrid">

@@ -238,7 +238,7 @@ h6 {
 }
 
 .recharts-bar-rectangle path {
-    fill: rgb(79, 70, 229) !important;
+    /* Allow SVG gradient fills to work */
     opacity: 0.8;
 }
 
