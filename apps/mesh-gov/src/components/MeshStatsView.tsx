@@ -572,26 +572,49 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
 
 
 
-    // Use all package data for the package comparison chart
+    // Use all package data for the package comparison chart (all-time downloads)
     const packageData = meshPackagesData?.packages
         ? meshPackagesData.packages.map(pkg => ({
             name: pkg.name.replace('@meshsdk/', '').replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()),
-            downloads: pkg.last_12_months_downloads
+            downloads: pkg.last_12_months_downloads // NPM's most comprehensive download data
         }))
         : [];
 
-    // Use @meshsdk/core monthly_downloads for the monthly downloads chart (current year only)
+    // Aggregate monthly downloads across all packages for current year
     const currentYear = new Date().getFullYear();
-    const monthlyData = corePackage?.monthly_downloads
-        ? corePackage.monthly_downloads
-            .filter((monthObj: any) => monthObj.year === currentYear)
-            .sort((a: any, b: any) => a.month - b.month)
-            .map((monthObj: any) => ({
-                name: `${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][monthObj.month - 1]} ${monthObj.year}`,
-                downloads: monthObj.downloads,
-                // No trend info in meshPackagesData, so omit or set to undefined
+    const monthlyData = useMemo(() => {
+        if (!meshPackagesData?.packages) return [];
+        
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const monthlyTotals: { [key: number]: number } = {};
+        
+        // Aggregate downloads from all packages for current year
+        meshPackagesData.packages.forEach(pkg => {
+            if (pkg.monthly_downloads) {
+                pkg.monthly_downloads
+                    .filter((monthObj: any) => monthObj.year === currentYear)
+                    .forEach((monthObj: any) => {
+                        const monthNum = monthObj.month;
+                        if (!monthlyTotals[monthNum]) {
+                            monthlyTotals[monthNum] = 0;
+                        }
+                        monthlyTotals[monthNum] += monthObj.downloads || 0;
+                    });
+            }
+        });
+        
+        // Convert to array format sorted by month
+        return Object.entries(monthlyTotals)
+            .map(([month, downloads]) => ({
+                name: `${monthNames[parseInt(month) - 1]} ${currentYear}`,
+                downloads: downloads
             }))
-        : [];
+            .sort((a, b) => {
+                const aMonth = monthNames.indexOf(a.name.split(' ')[0]) + 1;
+                const bMonth = monthNames.indexOf(b.name.split(' ')[0]) + 1;
+                return aMonth - bMonth;
+            });
+    }, [meshPackagesData, currentYear]);
 
     // Get the latest year for display
     const latestYear = monthlyData.length > 0 ? monthlyData[monthlyData.length - 1].name.split(' ')[1] : '';
@@ -869,22 +892,50 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
         return Math.floor(min * 0.9 / 100) * 100;
     }, [discordStatsData]);
 
+    // Calculate download metrics across all packages
+    const aggregatedMetrics = useMemo(() => {
+        if (!meshPackagesData?.packages) {
+            return {
+                lastWeek: 0,
+                lastMonth: 0,
+                lastYear: 0,
+                allTime: 0
+            };
+        }
+        
+        return meshPackagesData.packages.reduce((totals, pkg) => ({
+            lastWeek: totals.lastWeek + (pkg.last_week_downloads || 0),
+            lastMonth: totals.lastMonth + (pkg.last_month_downloads || 0),
+            lastYear: totals.lastYear + (pkg.last_year_downloads || 0),
+            allTime: totals.allTime + (pkg.last_12_months_downloads || 0)
+        }), {
+            lastWeek: 0,
+            lastMonth: 0,
+            lastYear: 0,
+            allTime: 0
+        });
+    }, [meshPackagesData]);
+
     return (
         <div data-testid="mesh-stats-view">
-            {corePackage && (
+            {meshPackagesData?.packages && meshPackagesData.packages.length > 0 && (
                 <>
                     <div className={styles.statsGrid}>
                         <div className={styles.stat}>
                             <h3>Last Week</h3>
-                            <p>{formatNumber(corePackage.last_week_downloads)}</p>
+                            <p>{formatNumber(aggregatedMetrics.lastWeek)}</p>
                         </div>
                         <div className={styles.stat}>
                             <h3>Last Month</h3>
-                            <p>{formatNumber(corePackage.last_month_downloads)}</p>
+                            <p>{formatNumber(aggregatedMetrics.lastMonth)}</p>
                         </div>
                         <div className={styles.stat}>
                             <h3>Last Year</h3>
-                            <p>{formatNumber(corePackage.last_year_downloads)}</p>
+                            <p>{formatNumber(aggregatedMetrics.lastYear)}</p>
+                        </div>
+                        <div className={styles.stat}>
+                            <h3>All Time</h3>
+                            <p>{formatNumber(aggregatedMetrics.allTime)}</p>
                         </div>
                     </div>
                 </>
@@ -894,7 +945,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                 <>
                     <div className={styles.chartsGrid}>
                         <div className={styles.chartSection}>
-                            <h2>Package Downloads (Last 12 Months)</h2>
+                            <h2>Package Downloads (All Time)</h2>
                             <div className={styles.chart} style={{ height: '420px' }}>
                                 <CustomBarChart data={packageData} chartId="package" />
                             </div>
