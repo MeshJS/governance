@@ -913,17 +913,43 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
             };
         }
         
-        return meshPackagesData.packages.reduce((totals, pkg) => ({
-            lastWeek: totals.lastWeek + (pkg.last_week_downloads || 0),
-            lastMonth: totals.lastMonth + (pkg.last_month_downloads || 0),
-            lastYear: totals.lastYear + (pkg.last_year_downloads || 0),
-            allTime: totals.allTime + (pkg.last_12_months_downloads || 0)
-        }), {
-            lastWeek: 0,
-            lastMonth: 0,
-            lastYear: 0,
-            allTime: 0
+        // Get current date for calculations
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1; // 1-12
+        
+        let lastWeek = 0;
+        let lastMonth = 0;
+        let last12Months = 0;
+        let allTime = 0;
+        
+        meshPackagesData.packages.forEach(pkg => {
+            // Use API fields for recent periods (more reliable)
+            lastWeek += pkg.last_week_downloads || 0;
+            lastMonth += pkg.last_month_downloads || 0;
+            last12Months += pkg.last_12_months_downloads || 0;
+            
+            // Calculate true all-time from monthly_downloads data
+            if (pkg.monthly_downloads && Array.isArray(pkg.monthly_downloads)) {
+                const packageAllTime = pkg.monthly_downloads.reduce((sum, monthData) => {
+                    return sum + (monthData.downloads || 0);
+                }, 0);
+                allTime += packageAllTime;
+            }
         });
+        
+        // Validation: All-time should be >= 12 months (if not, monthly data might be incomplete)
+        if (allTime < last12Months) {
+            console.warn('All-time downloads appear incomplete. Using 12-month data as minimum.');
+            allTime = last12Months;
+        }
+        
+        return {
+            lastWeek,
+            lastMonth,
+            lastYear: last12Months,
+            allTime
+        };
     }, [meshPackagesData]);
 
     return (
@@ -940,7 +966,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                             <p>{formatNumber(aggregatedMetrics.lastMonth)}</p>
                         </div>
                         <div className={styles.stat}>
-                            <h3>Last Year</h3>
+                            <h3>Last 12 Months</h3>
                             <p>{formatNumber(aggregatedMetrics.lastYear)}</p>
                         </div>
                         <div className={styles.stat}>
