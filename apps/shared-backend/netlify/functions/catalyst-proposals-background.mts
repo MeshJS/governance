@@ -379,6 +379,202 @@ async function fetchSnapshotData(projectId: string) {
     }
 }
 
+
+
+/**
+ * Cleans HTML content while preserving line breaks and formatting.
+ */
+function cleanHtmlContent(htmlContent: string): string {
+    if (!htmlContent) return ''
+
+    console.log(`[HTML Clean] Original content length: ${htmlContent.length}`)
+
+    const cleaned = htmlContent
+        // Replace <br> and <br/> with newlines
+        .replace(/<br\s*\/?>/gi, '\n')
+        // Replace </p> with double newlines to separate paragraphs
+        .replace(/<\/p>/gi, '\n\n')
+        // Replace <p> with empty string (we already handled closing tags)
+        .replace(/<p[^>]*>/gi, '')
+        // Replace <ul> and </ul> with newlines
+        .replace(/<\/?ul[^>]*>/gi, '\n')
+        // Replace <li> and </li> with bullet points
+        .replace(/<li[^>]*>/gi, '• ')
+        .replace(/<\/li>/gi, '\n')
+        // Replace <strong> and </strong> with ** for markdown-style bold
+        .replace(/<strong[^>]*>/gi, '**')
+        .replace(/<\/strong>/gi, '**')
+        // Replace <em> and </em> with * for markdown-style italic
+        .replace(/<em[^>]*>/gi, '*')
+        .replace(/<\/em>/gi, '*')
+        // Replace <a> tags with just the text content
+        .replace(/<a[^>]*>(.*?)<\/a>/gi, '$1')
+        // Remove all other HTML tags
+        .replace(/<[^>]*>/g, '')
+        // Decode HTML entities
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, ' ')
+        // Clean up multiple newlines
+        .replace(/\n{3,}/g, '\n\n')
+        // Trim whitespace
+        .trim()
+
+    console.log(`[HTML Clean] Cleaned content length: ${cleaned.length}`)
+    console.log(`[HTML Clean] Cleaned content preview: ${cleaned.substring(0, 100)}...`)
+
+    return cleaned
+}
+
+/**
+ * Extracts and combines POAs content for all milestones.
+ */
+async function extractMilestonesContent(proposalId: string): Promise<Record<string, string>> {
+    console.log(`[POAs] Extracting milestones content for proposal ${proposalId}`)
+
+    try {
+        // Get all SOMs with POAs data for this proposal in a single query
+        const { data: somData, error } = await supabaseFetch
+            .from('soms')
+            .select(`
+                id,
+                milestone,
+                current,
+                poas(
+                    id,
+                    content,
+                    created_at,
+                    current
+                )
+            `)
+            .eq('proposal_id', proposalId)
+            .order('milestone', { ascending: true })
+            .order('current', { ascending: false })
+            .order('created_at', { ascending: false })
+
+        if (error) {
+            console.error(`[POAs] Error fetching SOMs data for proposal ${proposalId}:`, error)
+            console.error(`[POAs] Error details:`, {
+                code: error.code,
+                message: error.message,
+                details: error.details
+            })
+            return {}
+        }
+
+        if (!somData || somData.length === 0) {
+            console.log(`[POAs] No SOMs found for proposal ${proposalId}`)
+            return {}
+        }
+
+        console.log(`[POAs] Found ${somData.length} SOM records for proposal ${proposalId}`)
+        console.log(`[POAs] Sample SOM data:`, somData.slice(0, 2).map(som => ({
+            id: som.id,
+            milestone: som.milestone,
+            current: som.current,
+            poas_count: som.poas?.length || 0
+        })))
+
+        // Group by milestone and get the current (most recent) SOM for each
+        const milestoneMap = new Map<number, any>()
+
+        for (const som of somData) {
+            if (!milestoneMap.has(som.milestone) || som.current) {
+                milestoneMap.set(som.milestone, som)
+            }
+        }
+
+        const milestonesContent: Record<string, string> = {}
+
+        for (const [milestone, currentSom] of milestoneMap) {
+            console.log(`[POAs] Processing milestone ${milestone} for proposal ${proposalId}`)
+
+            // Extract POAs content
+            if (currentSom.poas && currentSom.poas.length > 0) {
+                // Debug: Log the POAs data to see what we're working with
+                console.log(`[POAs] Raw POAs data for milestone ${milestone}:`, currentSom.poas.map((poa: any) => ({
+                    id: poa.id,
+                    current: poa.current,
+                    has_content: !!poa.content,
+                    content_length: poa.content?.length || 0
+                })))
+
+                // Filter for current POAs only
+                const currentPoas = currentSom.poas.filter((poa: any) => poa.current === true)
+                console.log(`[POAs] Found ${currentSom.poas.length} total POAs, ${currentPoas.length} current POAs for milestone ${milestone}`)
+
+                const milestoneContent: string[] = []
+
+                for (const poa of currentPoas) {
+                    console.log(`[POAs] Processing POA ${poa.id}, has content: ${!!poa.content}, content length: ${poa.content?.length || 0}`)
+                    if (poa.content) {
+                        const cleanedContent = cleanHtmlContent(poa.content)
+                        console.log(`[POAs] Cleaned content length: ${cleanedContent.length}`)
+                        if (cleanedContent) {
+                            milestoneContent.push(cleanedContent)
+                            console.log(`[POAs] Added ${cleanedContent.length} characters of cleaned content from current POA ${poa.id}`)
+                        } else {
+                            console.log(`[POAs] Cleaned content was empty for POA ${poa.id}`)
+                        }
+                    } else {
+                        console.log(`[POAs] No content found for POA ${poa.id}`)
+                    }
+                }
+
+                if (milestoneContent.length > 0) {
+                    const milestoneKey = `milestone_${milestone}`
+                    milestonesContent[milestoneKey] = milestoneContent.join('\n\n')
+                    console.log(`[POAs] Added milestone ${milestone} content (${milestoneContent.length} parts)`)
+                } else {
+                    console.log(`[POAs] No current POAs with content found for milestone ${milestone}`)
+                }
+            } else {
+                console.log(`[POAs] No POAs found for milestone ${milestone}`)
+            }
+        }
+
+        console.log(`[POAs] Successfully extracted ${Object.keys(milestonesContent).length} milestone contents for proposal ${proposalId}`)
+        return milestonesContent
+
+    } catch (error) {
+        console.error(`[POAs] Error extracting milestones content for proposal ${proposalId}:`, error)
+        return {}
+    }
+}
+
+/**
+ * Test function to verify HTML cleaning functionality.
+ * This can be called manually to test the cleanHtmlContent function.
+ */
+function testHtmlCleaning() {
+    const testHtml = `
+        <p><span style="background-color: transparent; color: rgb(0, 0, 0);">Hey there Milestone Reviewer, voters and everyone following the progress of this proposal.</span></p>
+        <p><span style="background-color: transparent; color: rgb(0, 0, 0);">So, this one went quicker than expected and we are glad to report on the successful completion of the second milestone of this proposal.</span></p>
+        <p><span style="background-color: transparent; color: rgb(0, 0, 0);">Here the completed milestone deliverables:</span></p>
+        <p><strong style="background-color: transparent;">Fully functional Hydra Provider</strong></p>
+        <ul>
+            <li><span style="background-color: transparent; color: rgb(0, 0, 0);">We successfully deployed the fully functional Hydra provider, continuing the efforts as achieved at Milestone 1, find the corresponding updated code of Mesh Hydra Provider at:</span></li>
+            <li><a href="https://github.com/MeshJS/mesh/blob/main/packages/hydra/src/hydra-provider.ts" rel="noopener noreferrer" target="_blank" style="background-color: transparent; color: rgb(17, 85, 204);">https://github.com/MeshJS/mesh/blob/main/packages/hydra/src/hydra-provider.ts</a><span style="background-color: transparent; color: rgb(0, 0, 0);">&nbsp;</span></li>
+        </ul>
+        <p><strong style="background-color: transparent;">Completed documentation: Reference to Hydra API:&nbsp;</strong></p>
+        <ul>
+            <li><span style="background-color: transparent; color: rgb(0, 0, 0);">The documentation reference to the Hydra API is successfully completed and combined with clear usage instructions and an end-to-end demo which can be found and used at this source:</span></li>
+            <li><a href="https://meshjs.dev/providers/hydra" rel="noopener noreferrer" target="_blank" style="background-color: transparent; color: rgb(17, 85, 204);">https://meshjs.dev/providers/hydra</a></li>
+        </ul>
+    `
+
+    const cleaned = cleanHtmlContent(testHtml)
+    console.log('🧪 HTML Cleaning Test:')
+    console.log('Original HTML length:', testHtml.length)
+    console.log('Cleaned content length:', cleaned.length)
+    console.log('Cleaned content preview:', cleaned.substring(0, 200) + '...')
+
+    return cleaned
+}
+
 export default async (req: Request, context: Context) => {
     console.log('🚀 Catalyst proposals background function started')
     console.log('📅 Timestamp:', new Date().toISOString())
@@ -512,6 +708,15 @@ export default async (req: Request, context: Context) => {
                 (m: any) => m.som_signoff_count > 0 && m.poa_signoff_count > 0
             ).length
 
+            // Extract and combine POAs content
+            const milestonesContent = await extractMilestonesContent(projectDetails.id)
+            if (milestonesContent && Object.keys(milestonesContent).length > 0) {
+                const totalContentLength = Object.values(milestonesContent).reduce((acc, content) => acc + content.length, 0)
+                console.log(`[POAs] ✅ Extracted ${Object.keys(milestonesContent).length} milestones with ${totalContentLength} total characters for proposal ${projectDetails.id}`)
+            } else {
+                console.log(`[POAs] ⚠️ No milestones content found for proposal ${projectDetails.id}`)
+            }
+
             // Prepare data for Supabase (but don't push yet)
             const supabaseData = {
                 id: projectDetails.id,
@@ -530,6 +735,7 @@ export default async (req: Request, context: Context) => {
                 finished: '',
                 voting: voting,
                 milestones_completed: milestonesCompleted,
+                milestones_content: milestonesContent,
                 updated_at: new Date().toISOString()
             }
 
@@ -603,6 +809,15 @@ export default async (req: Request, context: Context) => {
                         (m: any) => m.som_signoff_count > 0 && m.poa_signoff_count > 0
                     ).length
 
+                    // Extract and combine POAs content
+                    const milestonesContent = await extractMilestonesContent(projectDetails.id)
+                    if (milestonesContent && Object.keys(milestonesContent).length > 0) {
+                        const totalContentLength = Object.values(milestonesContent).reduce((acc, content) => acc + content.length, 0)
+                        console.log(`[POAs] ✅ Extracted ${Object.keys(milestonesContent).length} milestones with ${totalContentLength} total characters for proposal ${projectDetails.id}`)
+                    } else {
+                        console.log(`[POAs] ⚠️ No milestones content found for proposal ${projectDetails.id}`)
+                    }
+
                     // Prepare updated data for Supabase (but don't push yet)
                     const updatedSupabaseData = {
                         id: projectDetails.id,
@@ -621,6 +836,7 @@ export default async (req: Request, context: Context) => {
                         finished: '',
                         voting: voting,
                         milestones_completed: milestonesCompleted,
+                        milestones_content: milestonesContent,
                         updated_at: new Date().toISOString()
                     }
 
@@ -687,12 +903,14 @@ export default async (req: Request, context: Context) => {
         const projectsWithVoting = allSupabaseData.filter(p => p.voting).length
         const projectsWithoutVoting = allSupabaseData.length - projectsWithVoting
         const secondPassSuccesses = allSupabaseData.filter(p => p.voting && !PROJECT_IDS.includes(p.project_id)).length
+        const projectsWithMilestonesContent = allSupabaseData.filter(p => p.milestones_content && Object.keys(p.milestones_content).length > 0).length
 
         console.log(`\n🎉 Processing Complete!`)
         console.log(`📊 Summary:`)
         console.log(`   • Total projects processed: ${allSupabaseData.length}/${PROJECT_IDS.length}`)
         console.log(`   • Projects with voting data: ${projectsWithVoting}`)
         console.log(`   • Projects without voting data: ${projectsWithoutVoting}`)
+        console.log(`   • Projects with milestones content: ${projectsWithMilestonesContent}`)
         console.log(`   • Second pass successes: ${secondPassSuccesses}`)
         console.log(`   • Successful user IDs collected: ${successfulUserIds.size}`)
         console.log(`   • Failed titles retried: ${failedTitles.length}`)
