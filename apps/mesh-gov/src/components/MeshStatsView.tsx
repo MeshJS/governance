@@ -119,7 +119,12 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
     
     return (
         <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} barGap={8} margin={{ top: 10, right: 10, left: -15, bottom: 45 }}>
+            <BarChart 
+                data={data} 
+                barGap={8} 
+                margin={{ top: 10, right: 10, left: -15, bottom: 45 }}
+                key={`bar-chart-${chartId}`} // Stable key to prevent unnecessary re-renders
+            >
                 <defs>
                     <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#14B8A6" />
@@ -156,6 +161,9 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
                 maxBarSize={40}
                 onClick={handleBarClick}
                 style={{ cursor: 'pointer' }}
+                animationBegin={150}
+                animationDuration={1200}
+                animationEasing="ease-out"
             />
         </BarChart>
     </ResponsiveContainer>
@@ -574,21 +582,34 @@ export interface MeshStatsViewProps extends Omit<OriginalMeshStatsViewProps, 'me
 }
 
 const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats, meshPackagesData }) => {
+    // Chart ready state to prevent jarring animations on initial load
+    const [chartsReady, setChartsReady] = React.useState(false);
+    
     // Find the @meshsdk/core package
     const corePackage = meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core');
     // Find the @meshsdk/web3-sdk package
     const web3SdkPackage = meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/web3-sdk');
+    
+    // Set charts ready with a small delay to prevent immediate animation
+    React.useEffect(() => {
+        if (meshPackagesData?.packages && meshPackagesData.packages.length > 0) {
+            const timer = setTimeout(() => setChartsReady(true), 300);
+            return () => clearTimeout(timer);
+        }
+    }, [meshPackagesData]);
 
 
 
     // Use all package data for the package comparison chart (all-time downloads)
-    const packageData = meshPackagesData?.packages
-        ? meshPackagesData.packages.map(pkg => ({
-            name: pkg.name.replace('@meshsdk/', '').replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()),
-            downloads: pkg.last_12_months_downloads, // NPM's most comprehensive download data
-            packageName: pkg.name // Keep original package name for URL generation
-        }))
-        : [];
+    const packageData = useMemo(() => {
+        return meshPackagesData?.packages
+            ? meshPackagesData.packages.map(pkg => ({
+                name: pkg.name.replace('@meshsdk/', '').replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()),
+                downloads: pkg.last_12_months_downloads, // NPM's most comprehensive download data
+                packageName: pkg.name // Keep original package name for URL generation
+            }))
+            : [];
+    }, [meshPackagesData]);
 
     // Aggregate monthly downloads across all packages for current year
     const currentYear = new Date().getFullYear();
@@ -979,22 +1000,40 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
 
             {packageData.length > 0 && monthlyData.length > 0 && (
                 <>
-                    <div className={styles.chartsGrid}>
-                        <div className={styles.chartSection}>
-                            <h2>Package Downloads (All Time)</h2>
-                            <div className={styles.chart} style={{ height: '420px' }}>
-                                <CustomBarChart data={packageData} chartId="package" />
+                    {!chartsReady && (
+                        <div className={styles.chartsGrid}>
+                            <div className={styles.chartSection}>
+                                <h2>Package Downloads (All Time)</h2>
+                                <div className={styles.chart} style={{ height: '420px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px' }}>Loading chart...</div>
+                                </div>
+                            </div>
+                            <div className={styles.chartSection}>
+                                <h2>Monthly Downloads ({latestYear})</h2>
+                                <div className={styles.chart} style={{ height: '420px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px' }}>Loading chart...</div>
+                                </div>
                             </div>
                         </div>
+                    )}
+                    
+                    {chartsReady && (
+                        <div className={styles.chartsGrid}>
+                            <div className={styles.chartSection}>
+                                <h2>Package Downloads (All Time)</h2>
+                                <div className={styles.chart} style={{ height: '420px' }}>
+                                    <CustomBarChart data={packageData} chartId="package" />
+                                </div>
+                            </div>
 
-                        <div className={styles.chartSection}>
-                            <h2>Monthly Downloads ({latestYear})</h2>
-                            <div className={styles.chart} style={{ height: '420px' }}>
-                                <CustomBarChart data={monthlyData} chartId="monthly" />
+                            <div className={styles.chartSection}>
+                                <h2>Monthly Downloads ({latestYear})</h2>
+                                <div className={styles.chart} style={{ height: '420px' }}>
+                                    <CustomBarChart data={monthlyData} chartId="monthly" />
+                                </div>
                             </div>
                         </div>
-
-                    </div>
+                    )}
 
                     {/* Historical Package Downloads Chart */}
                     {historicalPackageDownloads.length > 0 && (

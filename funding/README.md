@@ -3,13 +3,13 @@
 List of funded proposals from MeshJS at Cardano's Project Catalyst.
 
 > **Data Source**: Real data from Catalyst
-> **Last Updated**: July 28, 2025 at 12:59 AM UTC
+> **Last Updated**: August 4, 2025 at 01:00 AM UTC
 
 ## Overall Progress
 
 | Milestones | Funding |
 |:-----------|:--------|
-| Total completed: 38/50 (76%)<br>`███████████████·····` 76% | Total distributed: ADA 1,497,429/2,018,429 (74%)<br>`███████████████·····` 74% |
+| Total completed: 38/50 (76%)<br>`███████████████·····` 76% | Total distributed: ADA 1,517,429/2,018,429 (75%)<br>`███████████████·····` 75% |
 
 ## Overview of All Proposals
 
@@ -17,7 +17,7 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 |:--------|:---|:-----------|:--------|
 | F10 - MeshJS SDK Operations: Supporting Open-Source Library Development, Developer Resources & Builder Community | 1000107 | `████████████████████` 100% | `████████████████████` 100% |
 | F11 - Sustain & Maintain MeshJS | 1100271 | `████████████████████` 100% | `████████████████████` 100% |
-| F12 - Mesh Software as a Service | 1200148 | `████████████████████` 100% | `████████████████····` 80% |
+| F12 - Mesh Software as a Service | 1200148 | `████████████████████` 100% | `████████████████████` 100% |
 | F12 - Mesh New Features to Improve Developer experience and Cardano Adoption | 1200147 | `████████████████████` 100% | `████████████████████` 100% |
 | F12 - Sustain and Maintain Mesh SDK | 1200220 | `████████████████████` 100% | `████████████████████` 100% |
 | F13 - Mesh: Hydra Tools for administrating & interacting with Hydra Heads | 1300135 | `████████············` 40% | `███████████·········` 56% |
@@ -74,8 +74,8 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | **Proposal Budget** | ADA 100,000 |
 | **Status** | ✅ In Progress |
 | **Milestones completed** | 5/5 (100%) |
-| **Funds distributed** | ADA 80,000 of 100,000 (80%) |
-| **Funding Progress** | `████████████████····` |
+| **Funds distributed** | ADA 100,000 of 100,000 (100%) |
+| **Funding Progress** | `████████████████████` |
 
 
 | Property | Value |
