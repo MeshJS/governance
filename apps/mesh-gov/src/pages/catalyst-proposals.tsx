@@ -12,7 +12,7 @@ import CatalystBudgetDonut from '../components/CatalystBudgetDonut';
 import VotesDonutChart from '../components/VotesDonutChart';
 import { useScrollRestoration } from '../hooks/useScrollRestoration';
 import MilestoneDeliveryChart from '../components/MilestoneDeliveryChart';
-import { MilestoneData } from '../utils/milestones';
+import { extractAllMilestonesFromProjects } from '../utils/catalystDataTransform';
 
 // Simple number formatting function that doesn't rely on locale settings
 const formatNumber = (num: number): string => {
@@ -69,9 +69,6 @@ export default function CatalystProposals() {
         filters: []
     });
     const shouldRestoreScroll = useRef(false);
-    const [milestones, setMilestones] = useState<MilestoneData[]>([]);
-    const [milestonesLoading, setMilestonesLoading] = useState<boolean>(false);
-    const [milestonesError, setMilestonesError] = useState<string | null>(null);
 
     // Enable scroll restoration
     useScrollRestoration();
@@ -97,32 +94,6 @@ export default function CatalystProposals() {
         }
     }, [catalystData]);
 
-    // Fetch all milestone data
-    const fetchAllMilestones = useCallback(async () => {
-        setMilestonesLoading(true);
-        setMilestonesError(null);
-        
-        try {
-            const response = await fetch('/api/milestones/all');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch milestones: ${response.status}`);
-            }
-            const data = await response.json();
-            setMilestones(data);
-        } catch (err) {
-            console.error('Error fetching milestones:', err);
-            setMilestonesError('Failed to load milestone data');
-            setMilestones([]);
-        } finally {
-            setMilestonesLoading(false);
-        }
-    }, []);
-
-    // Fetch milestones when component mounts
-    useEffect(() => {
-        fetchAllMilestones();
-    }, [fetchAllMilestones]);
-
     const handleCardClick = (projectId: number) => {
         // Save the current scroll position
         sessionStorage.setItem('scrollPosition', window.scrollY.toString());
@@ -133,6 +104,9 @@ export default function CatalystProposals() {
     // Get data early to avoid conditional access
     const data = catalystData?.catalystData;
     const allProjects = data?.projects || [];
+
+    // Extract milestones from catalyst data
+    const milestones = data?.projects ? extractAllMilestonesFromProjects(data.projects) : [];
 
     // Calculate stats based on all projects
     const stats = useMemo(() => ({
@@ -272,7 +246,7 @@ export default function CatalystProposals() {
                             className={styles.milestoneRow}
                             onClick={(e) => {
                                 e.preventDefault();
-                                handleCardClick(project.projectDetails.project_id);
+                                handleCardClick(parseInt(project.projectDetails.project_id));
                             }}
                             style={{ cursor: 'pointer' }}
                         >
@@ -309,7 +283,7 @@ export default function CatalystProposals() {
                         key={project.projectDetails.id}
                         className={`${styles.card} ${styles.clickable}`}
                         data-testid="proposal-item"
-                        onClick={() => handleCardClick(project.projectDetails.project_id)}
+                        onClick={() => handleCardClick(parseInt(project.projectDetails.project_id))}
                     >
                         {/* ... existing card content ... */}
                     </li>

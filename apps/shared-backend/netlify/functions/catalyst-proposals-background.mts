@@ -6,6 +6,22 @@ import axios from 'axios'
 
 dotenv()
 
+// TypeScript interfaces for milestone structure
+interface MilestoneContent {
+    budget: string
+    challenge: string
+    content: string
+    delivered: string
+    isCloseOut: boolean
+    link: string
+    number: number
+    projectId: string
+}
+
+interface MilestonesContentRecord {
+    [key: string]: MilestoneContent
+}
+
 // Initialize Supabase clients for different databases
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -430,9 +446,9 @@ function cleanHtmlContent(htmlContent: string): string {
 }
 
 /**
- * Extracts and combines POAs content for all milestones.
+ * Extracts and combines POAs content for all milestones with structured format.
  */
-async function extractMilestonesContent(proposalId: string): Promise<Record<string, string>> {
+async function extractMilestonesContent(proposalId: string, projectId: string): Promise<MilestonesContentRecord> {
     console.log(`[POAs] Extracting milestones content for proposal ${proposalId}`)
 
     try {
@@ -442,6 +458,8 @@ async function extractMilestonesContent(proposalId: string): Promise<Record<stri
             .select(`
                 id,
                 milestone,
+                completion,
+                cost,
                 current,
                 poas(
                     id,
@@ -487,7 +505,8 @@ async function extractMilestonesContent(proposalId: string): Promise<Record<stri
             }
         }
 
-        const milestonesContent: Record<string, string> = {}
+        const milestonesContent: MilestonesContentRecord = {}
+        let milestoneIndex = 0
 
         for (const [milestone, currentSom] of milestoneMap) {
             console.log(`[POAs] Processing milestone ${milestone} for proposal ${proposalId}`)
@@ -507,6 +526,7 @@ async function extractMilestonesContent(proposalId: string): Promise<Record<stri
                 console.log(`[POAs] Found ${currentSom.poas.length} total POAs, ${currentPoas.length} current POAs for milestone ${milestone}`)
 
                 const milestoneContent: string[] = []
+                let deliveredDate = ''
 
                 for (const poa of currentPoas) {
                     console.log(`[POAs] Processing POA ${poa.id}, has content: ${!!poa.content}, content length: ${poa.content?.length || 0}`)
@@ -522,12 +542,40 @@ async function extractMilestonesContent(proposalId: string): Promise<Record<stri
                     } else {
                         console.log(`[POAs] No content found for POA ${poa.id}`)
                     }
+
+                    // Get the delivered date from the POA's created_at
+                    if (poa.created_at && !deliveredDate) {
+                        deliveredDate = new Date(poa.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })
+                    }
                 }
 
                 if (milestoneContent.length > 0) {
-                    const milestoneKey = `milestone_${milestone}`
-                    milestonesContent[milestoneKey] = milestoneContent.join('\n\n')
-                    console.log(`[POAs] Added milestone ${milestone} content (${milestoneContent.length} parts)`)
+                    // Format budget as "ADA X,XXX.XX"
+                    const budget = currentSom.cost ? `ADA ${Number(currentSom.cost).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}` : 'ADA 0.00'
+
+                    // Determine if this is a closeout milestone (completion = 100)
+                    const isCloseOut = currentSom.completion === 100
+
+                    milestonesContent[milestoneIndex.toString()] = {
+                        budget: budget,
+                        challenge: '', // This will be filled in later from proposal details
+                        content: milestoneContent.join('\n\n'),
+                        delivered: deliveredDate,
+                        isCloseOut: isCloseOut,
+                        link: '', // This will be filled in later from proposal details
+                        number: milestone,
+                        projectId: String(projectId)
+                    } as MilestoneContent
+
+                    console.log(`[POAs] Added milestone ${milestone} content (${milestoneContent.length} parts) with structured format`)
+                    milestoneIndex++
                 } else {
                     console.log(`[POAs] No current POAs with content found for milestone ${milestone}`)
                 }
@@ -709,9 +757,16 @@ export default async (req: Request, context: Context) => {
             ).length
 
             // Extract and combine POAs content
-            const milestonesContent = await extractMilestonesContent(projectDetails.id)
+            const milestonesContent = await extractMilestonesContent(projectDetails.id, projectDetails.project_id)
             if (milestonesContent && Object.keys(milestonesContent).length > 0) {
-                const totalContentLength = Object.values(milestonesContent).reduce((acc, content) => acc + content.length, 0)
+                // Fill in challenge and link information for each milestone
+                const challengeTitle = (projectDetails.challenges as any)?.title || ''
+                for (const milestoneKey in milestonesContent) {
+                    milestonesContent[milestoneKey].challenge = challengeTitle
+                    milestonesContent[milestoneKey].link = url
+                }
+
+                const totalContentLength = Object.values(milestonesContent).reduce((acc, milestone) => acc + milestone.content.length, 0)
                 console.log(`[POAs] ✅ Extracted ${Object.keys(milestonesContent).length} milestones with ${totalContentLength} total characters for proposal ${projectDetails.id}`)
             } else {
                 console.log(`[POAs] ⚠️ No milestones content found for proposal ${projectDetails.id}`)
@@ -810,9 +865,16 @@ export default async (req: Request, context: Context) => {
                     ).length
 
                     // Extract and combine POAs content
-                    const milestonesContent = await extractMilestonesContent(projectDetails.id)
+                    const milestonesContent = await extractMilestonesContent(projectDetails.id, projectDetails.project_id)
                     if (milestonesContent && Object.keys(milestonesContent).length > 0) {
-                        const totalContentLength = Object.values(milestonesContent).reduce((acc, content) => acc + content.length, 0)
+                        // Fill in challenge and link information for each milestone
+                        const challengeTitle = (projectDetails.challenges as any)?.title || ''
+                        for (const milestoneKey in milestonesContent) {
+                            milestonesContent[milestoneKey].challenge = challengeTitle
+                            milestonesContent[milestoneKey].link = url
+                        }
+
+                        const totalContentLength = Object.values(milestonesContent).reduce((acc, milestone) => acc + milestone.content.length, 0)
                         console.log(`[POAs] ✅ Extracted ${Object.keys(milestonesContent).length} milestones with ${totalContentLength} total characters for proposal ${projectDetails.id}`)
                     } else {
                         console.log(`[POAs] ⚠️ No milestones content found for proposal ${projectDetails.id}`)

@@ -2,10 +2,9 @@ import { useRouter } from 'next/router';
 import { useData } from '../../contexts/DataContext';
 import styles from '../../styles/ProposalDetail.module.css';
 import PageHeader from '../../components/PageHeader';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { CatalystProject } from '../../types';
 import Link from 'next/link';
-import { MilestoneData } from '../../utils/milestones';
 import { ProposalDetails } from '../../components/ProposalDetails';
 import { ExternalLinks } from '../../components/ExternalLinks';
 import { MilestoneProgressBars } from '../../components/MilestoneProgressBars';
@@ -28,9 +27,6 @@ export default function ProposalDetail() {
     const { id } = router.query;
     const { catalystData, isLoading, error } = useData();
     const [proposal, setProposal] = useState<CatalystProject | null>(null);
-    const [milestones, setMilestones] = useState<MilestoneData[]>([]);
-    const [milestonesLoading, setMilestonesLoading] = useState(false);
-    const [milestonesError, setMilestonesError] = useState<string | null>(null);
 
     useEffect(() => {
         if (catalystData?.catalystData && id) {
@@ -38,36 +34,16 @@ export default function ProposalDetail() {
                 p => p.projectDetails.project_id.toString() === id
             );
             setProposal(foundProposal || null);
-
-            if (foundProposal) {
-                // Fetch milestones
-                setMilestonesLoading(true);
-                setMilestonesError(null);
-                
-                fetch(`/api/milestones/${id}`)
-                    .then(async response => {
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Received milestone data:', data);
-                        setMilestones(data);
-                    })
-                    .catch(err => {
-                        console.error('Error fetching milestones:', err);
-                        setMilestonesError(err.message);
-                    })
-                    .finally(() => {
-                        setMilestonesLoading(false);
-                    });
-            }
         }
     }, [catalystData, id]);
 
-    if (isLoading || milestonesLoading) {
+    // Extract milestones from the proposal's milestones_content
+    const milestones = useMemo(() => {
+        if (!proposal?.projectDetails.milestones_content) return [];
+        return Object.values(proposal.projectDetails.milestones_content);
+    }, [proposal?.projectDetails.milestones_content]);
+
+    if (isLoading) {
         return (
             <div className={styles.container}>
                 <div className={styles.loading}>Loading proposal data...</div>
@@ -105,7 +81,7 @@ export default function ProposalDetail() {
             <div className={styles.content}>
                 <div className={styles.mainInfo}>
                     {proposal && (
-                        <ProposalDetails 
+                        <ProposalDetails
                             details={{
                                 projectId: proposal.projectDetails.project_id.toString(),
                                 name: proposal.projectDetails.title,
@@ -127,41 +103,9 @@ export default function ProposalDetail() {
                         />
                     )}
 
-                    {milestonesError ? (
-                        <div className={styles.error}>
-                            Error loading milestones: {milestonesError}
-                            <button 
-                                className={styles.retryButton}
-                                onClick={() => {
-                                    setMilestonesError(null);
-                                    setMilestonesLoading(true);
-                                    fetch(`/api/milestones/${id}`)
-                                        .then(async response => {
-                                            if (!response.ok) {
-                                                const errorData = await response.json();
-                                                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                                            }
-                                            return response.json();
-                                        })
-                                        .then(data => {
-                                            console.log('Received milestone data:', data);
-                                            setMilestones(data);
-                                        })
-                                        .catch(err => {
-                                            console.error('Error fetching milestones:', err);
-                                            setMilestonesError(err.message);
-                                        })
-                                        .finally(() => {
-                                            setMilestonesLoading(false);
-                                        });
-                                }}
-                            >
-                                Retry
-                            </button>
-                        </div>
-                    ) : milestones.length > 0 ? (
+                    {milestones.length > 0 ? (
                         <>
-                            <MilestoneProgressBars 
+                            <MilestoneProgressBars
                                 milestones={milestones}
                                 completedCount={proposal.milestonesCompleted}
                                 projectTitle={proposal.projectDetails.title}
@@ -175,7 +119,7 @@ export default function ProposalDetail() {
                         </div>
                     )}
 
-                    <ExternalLinks 
+                    <ExternalLinks
                         projectLink={proposal.projectDetails.url}
                         milestonesLink={`https://milestones.projectcatalyst.io/projects/${proposal.projectDetails.project_id}`}
                     />

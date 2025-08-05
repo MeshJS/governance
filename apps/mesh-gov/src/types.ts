@@ -1,3 +1,19 @@
+// Interface for milestone content as stored in the database
+export interface MilestoneContent {
+    budget: string;
+    challenge: string;
+    content: string;
+    delivered: string;
+    isCloseOut: boolean;
+    link: string;
+    number: number;
+    projectId: string;
+}
+
+export interface MilestonesContentRecord {
+    [key: string]: MilestoneContent;
+}
+
 export interface CatalystProject {
     projectDetails: {
         id: number;
@@ -5,12 +21,13 @@ export interface CatalystProject {
         budget: number;
         milestones_qty: number;
         funds_distributed: number;
-        project_id: number;
+        project_id: string;
         name: string;
         category: string;
         url: string;
         status: 'In Progress' | 'Completed';
         finished: string;
+        milestones_content: MilestonesContentRecord | null;
         voting: {
             proposalId: number;
             yes_votes_count: number;
@@ -21,6 +38,8 @@ export interface CatalystProject {
     };
     milestonesCompleted: number;
 }
+
+
 
 export interface CatalystData {
     timestamp: string;
@@ -210,7 +229,7 @@ export interface CatalystProposal {
     finished: string;
     voting: CatalystProposalVoting | null;
     milestones_completed: number;
-    milestones_content?: Record<string, string> | null;
+    milestones_content?: MilestonesContentRecord | null;
     updated_at: string;
     isRecent?: boolean;
     timeSinceUpdate?: number;
