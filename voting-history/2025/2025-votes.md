@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Tempo for Cardono Governance - Maintenance & Development Budget for 2025](https://adastat.net/governances/495bd3cd44ea6bc0b4c2dbb1e4cdc7e214874c2c07490a4e2476a627ef91128000) |
+| Hash           | 495bd3cd44ea6bc0b4c2dbb1e4cdc7e214874c2c07490a4e2476a627ef91128000 |
+| Action ID      | gov_action1f9da8n2yaf4updxzmwc7fnw8ug2gwnpvqays5n3yw6nz0mu3z2qqq6ggge9 |
+| Type           | InfoAction |
+| Proposed Epoch | 569 |
+| Expires Epoch  | 576 |
+| Vote           | ❌No |
+| Vote Submitted | 8/2/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following on the governance action Cardano GovTool Budget - 12 months full active maintenance and development Yes: 0 votes No: 2 votes Abstain: 0 votes Therefore, we vote NO on the proposal. Rationale: Similar to our vote on the gov.tool proposal, we apply the same logic. We endorse and support projects building governance tooling (especially open source ones), yet we think that the current proposal lacks crucial information, detail and effort to submit a quality proposal which matches to tempo's spirit & stack. We highly recommend Tempo to provide more information on their proposal. Currently, detailed milestones, deliverables or actual detailed cost breakdown is totally missing from the proposal which makes it literally impossible to measure and assess concrete achieved objectives, deliverables, KPIs or OKRs. Please submit a refined version and you can be sure that our votes will be with you. Keep building Tempo. |
+|Link|https://adastat.net/transactions/aac1436231e10e3f2a84c85de7fb7c768bb2ef3f5b973742f08beee5f75c46ae |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Cardano GovTool Budget - 12 months full active maintenance and development](https://adastat.net/governances/9d213a57684d7ddf6f3350c80d042639ecbed5ccccc4a05bf54959a086593e7b00) |
 | Hash           | 9d213a57684d7ddf6f3350c80d042639ecbed5ccccc4a05bf54959a086593e7b00 |
 | Action ID      | gov_action1n5sn54mgf47a7men2ryq6ppx88kta4wvenz2qkl4f9v6ppje8easqxwm88m |
