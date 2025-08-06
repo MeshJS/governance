@@ -1,4 +1,4 @@
-import { CatalystProposal, CatalystProposalVoting, CatalystProject, CatalystData, MilestonesContentRecord, MilestoneContent } from '../types';
+import { CatalystProposal, CatalystProject, CatalystData, MilestoneContent } from '../types';
 
 
 

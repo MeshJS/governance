@@ -364,40 +364,6 @@ async function getProposalDetails(projectId: string) {
 }
 
 /**
- * Fetches milestone snapshot data.
- */
-async function fetchSnapshotData(projectId: string) {
-    console.log(`[Supabase RPC] Fetching snapshot data for project ${projectId}`)
-
-    try {
-        const response = await axios.post(
-            `${catalystSupabaseUrl}/rest/v1/rpc/getproposalsnapshot`,
-            { _project_id: projectId },
-            {
-                headers: {
-                    'apikey': catalystSupabaseKey,
-                    'Authorization': `Bearer ${catalystSupabaseKey}`,
-                    'Content-Type': 'application/json',
-                    'Content-Profile': 'public',
-                    'x-client-info': 'supabase-js/2.2.3'
-                }
-            }
-        )
-        console.log(`[Supabase RPC] Successfully retrieved ${response.data.length} milestone records`)
-        return response.data
-    } catch (error) {
-        console.error(`[Supabase RPC] Error fetching snapshot data for project ${projectId}:`, error)
-        if (axios.isAxiosError(error)) {
-            console.error(`[Supabase RPC] Response status: ${error.response?.status}`)
-            console.error(`[Supabase RPC] Response data:`, error.response?.data)
-        }
-        return []
-    }
-}
-
-
-
-/**
  * Cleans HTML content while preserving line breaks and formatting.
  */
 function cleanHtmlContent(htmlContent: string): string {
@@ -448,41 +414,10 @@ function cleanHtmlContent(htmlContent: string): string {
 /**
  * Extracts and combines POAs content for all milestones with structured format.
  */
-async function extractMilestonesContent(proposalId: string, projectId: string): Promise<MilestonesContentRecord> {
+function extractMilestonesContent(proposalId: string, projectId: string, somData: any[]): MilestonesContentRecord {
     console.log(`[POAs] Extracting milestones content for proposal ${proposalId}`)
 
     try {
-        // Get all SOMs with POAs data for this proposal in a single query
-        const { data: somData, error } = await supabaseFetch
-            .from('soms')
-            .select(`
-                id,
-                milestone,
-                completion,
-                cost,
-                current,
-                poas(
-                    id,
-                    content,
-                    created_at,
-                    current
-                )
-            `)
-            .eq('proposal_id', proposalId)
-            .order('milestone', { ascending: true })
-            .order('current', { ascending: false })
-            .order('created_at', { ascending: false })
-
-        if (error) {
-            console.error(`[POAs] Error fetching SOMs data for proposal ${proposalId}:`, error)
-            console.error(`[POAs] Error details:`, {
-                code: error.code,
-                message: error.message,
-                details: error.details
-            })
-            return {}
-        }
-
         if (!somData || somData.length === 0) {
             console.log(`[POAs] No SOMs found for proposal ${proposalId}`)
             return {}
@@ -594,33 +529,165 @@ async function extractMilestonesContent(proposalId: string, projectId: string): 
 }
 
 /**
- * Test function to verify HTML cleaning functionality.
- * This can be called manually to test the cleanHtmlContent function.
+ * Calculates milestone completion based on POA reviews instead of signoffs.
+ * A milestone is considered completed if all its current POAs have approved reviews.
  */
-function testHtmlCleaning() {
-    const testHtml = `
-        <p><span style="background-color: transparent; color: rgb(0, 0, 0);">Hey there Milestone Reviewer, voters and everyone following the progress of this proposal.</span></p>
-        <p><span style="background-color: transparent; color: rgb(0, 0, 0);">So, this one went quicker than expected and we are glad to report on the successful completion of the second milestone of this proposal.</span></p>
-        <p><span style="background-color: transparent; color: rgb(0, 0, 0);">Here the completed milestone deliverables:</span></p>
-        <p><strong style="background-color: transparent;">Fully functional Hydra Provider</strong></p>
-        <ul>
-            <li><span style="background-color: transparent; color: rgb(0, 0, 0);">We successfully deployed the fully functional Hydra provider, continuing the efforts as achieved at Milestone 1, find the corresponding updated code of Mesh Hydra Provider at:</span></li>
-            <li><a href="https://github.com/MeshJS/mesh/blob/main/packages/hydra/src/hydra-provider.ts" rel="noopener noreferrer" target="_blank" style="background-color: transparent; color: rgb(17, 85, 204);">https://github.com/MeshJS/mesh/blob/main/packages/hydra/src/hydra-provider.ts</a><span style="background-color: transparent; color: rgb(0, 0, 0);">&nbsp;</span></li>
-        </ul>
-        <p><strong style="background-color: transparent;">Completed documentation: Reference to Hydra API:&nbsp;</strong></p>
-        <ul>
-            <li><span style="background-color: transparent; color: rgb(0, 0, 0);">The documentation reference to the Hydra API is successfully completed and combined with clear usage instructions and an end-to-end demo which can be found and used at this source:</span></li>
-            <li><a href="https://meshjs.dev/providers/hydra" rel="noopener noreferrer" target="_blank" style="background-color: transparent; color: rgb(17, 85, 204);">https://meshjs.dev/providers/hydra</a></li>
-        </ul>
-    `
+function calculateMilestonesCompletedFromReviews(proposalId: string, somData: any[]): number {
+    console.log(`[Milestone Completion] Calculating completed milestones for proposal ${proposalId} based on POA reviews`)
 
-    const cleaned = cleanHtmlContent(testHtml)
-    console.log('🧪 HTML Cleaning Test:')
-    console.log('Original HTML length:', testHtml.length)
-    console.log('Cleaned content length:', cleaned.length)
-    console.log('Cleaned content preview:', cleaned.substring(0, 200) + '...')
+    try {
+        if (!somData || somData.length === 0) {
+            console.log(`[Milestone Completion] No SOMs found for proposal ${proposalId}`)
+            return 0
+        }
 
-    return cleaned
+        console.log(`[Milestone Completion] Found ${somData.length} SOM records for proposal ${proposalId}`)
+
+        // Group by milestone and get the current (most recent) SOM for each
+        const milestoneMap = new Map<number, any>()
+
+        for (const som of somData) {
+            if (som.current && (!milestoneMap.has(som.milestone) || som.current)) {
+                milestoneMap.set(som.milestone, som)
+            }
+        }
+
+        let completedMilestones = 0
+
+        for (const [milestone, currentSom] of milestoneMap) {
+            console.log(`[Milestone Completion] Checking milestone ${milestone} for proposal ${proposalId}`)
+
+            // Check if this milestone has POAs
+            if (currentSom.poas && currentSom.poas.length > 0) {
+                // Filter for current POAs only
+                const currentPoas = currentSom.poas.filter((poa: any) => poa.current === true)
+                console.log(`[Milestone Completion] Found ${currentPoas.length} current POAs for milestone ${milestone}`)
+
+                if (currentPoas.length === 0) {
+                    console.log(`[Milestone Completion] No current POAs found for milestone ${milestone} - marking as incomplete`)
+                    continue
+                }
+
+                // Check if all current POAs have approved reviews
+                let allPoasApproved = true
+                let poasWithReviews = 0
+
+                for (const poa of currentPoas) {
+                    if (poa.poas_reviews && poa.poas_reviews.length > 0) {
+                        // Filter for current reviews only
+                        const currentReviews = poa.poas_reviews.filter((review: any) => review.current === true)
+
+                        if (currentReviews.length === 0) {
+                            console.log(`[Milestone Completion] POA ${poa.id} has no current reviews - marking milestone ${milestone} as incomplete`)
+                            allPoasApproved = false
+                            break
+                        }
+
+                        // Check if all current reviews are approved
+                        const allReviewsApproved = currentReviews.every((review: any) => review.content_approved === true)
+
+                        if (!allReviewsApproved) {
+                            console.log(`[Milestone Completion] POA ${poa.id} has unapproved reviews - marking milestone ${milestone} as incomplete`)
+                            allPoasApproved = false
+                            break
+                        }
+
+                        poasWithReviews++
+                        console.log(`[Milestone Completion] POA ${poa.id} has ${currentReviews.length} approved current reviews`)
+                    } else {
+                        console.log(`[Milestone Completion] POA ${poa.id} has no reviews - marking milestone ${milestone} as incomplete`)
+                        allPoasApproved = false
+                        break
+                    }
+                }
+
+                if (allPoasApproved && poasWithReviews === currentPoas.length) {
+                    completedMilestones++
+                    console.log(`[Milestone Completion] ✅ Milestone ${milestone} marked as completed (${poasWithReviews} POAs with approved reviews)`)
+                } else {
+                    console.log(`[Milestone Completion] ❌ Milestone ${milestone} marked as incomplete`)
+                }
+            } else {
+                console.log(`[Milestone Completion] No POAs found for milestone ${milestone} - marking as incomplete`)
+            }
+        }
+
+        console.log(`[Milestone Completion] Total completed milestones for proposal ${proposalId}: ${completedMilestones} out of ${milestoneMap.size}`)
+        return completedMilestones
+
+    } catch (error) {
+        console.error(`[Milestone Completion] Error calculating completed milestones for proposal ${proposalId}:`, error)
+        return 0
+    }
+}
+
+/**
+ * Fetches SOM data once and processes both milestone completion and content extraction.
+ */
+async function processProposalMilestones(proposalId: string, projectId: string): Promise<{
+    milestonesCompleted: number;
+    milestonesContent: MilestonesContentRecord;
+}> {
+    console.log(`[SOM Processing] Fetching SOM data for proposal ${proposalId}`)
+
+    try {
+        // Get all SOMs with POAs and reviews data for this proposal in a single query
+        const { data: somData, error } = await supabaseFetch
+            .from('soms')
+            .select(`
+                id,
+                milestone,
+                completion,
+                cost,
+                current,
+                poas(
+                    id,
+                    content,
+                    created_at,
+                    current,
+                    poas_reviews(
+                        id,
+                        content_approved,
+                        current
+                    )
+                )
+            `)
+            .eq('proposal_id', proposalId)
+            .order('milestone', { ascending: true })
+            .order('current', { ascending: false })
+            .order('created_at', { ascending: false })
+
+        if (error) {
+            console.error(`[SOM Processing] Error fetching SOMs data for proposal ${proposalId}:`, error)
+            console.error(`[SOM Processing] Error details:`, {
+                code: error.code,
+                message: error.message,
+                details: error.details
+            })
+            return { milestonesCompleted: 0, milestonesContent: {} }
+        }
+
+        if (!somData || somData.length === 0) {
+            console.log(`[SOM Processing] No SOMs found for proposal ${proposalId}`)
+            return { milestonesCompleted: 0, milestonesContent: {} }
+        }
+
+        console.log(`[SOM Processing] Found ${somData.length} SOM records for proposal ${proposalId}`)
+
+        // Calculate milestone completion using the fetched data
+        const milestonesCompleted = calculateMilestonesCompletedFromReviews(proposalId, somData)
+
+        // Extract milestones content using the same data
+        const milestonesContent = extractMilestonesContent(proposalId, projectId, somData)
+
+        console.log(`[SOM Processing] ✅ Completed processing for proposal ${proposalId}: ${milestonesCompleted} completed milestones, ${Object.keys(milestonesContent).length} content records`)
+
+        return { milestonesCompleted, milestonesContent }
+
+    } catch (error) {
+        console.error(`[SOM Processing] Error processing milestones for proposal ${proposalId}:`, error)
+        return { milestonesCompleted: 0, milestonesContent: {} }
+    }
 }
 
 export default async (req: Request, context: Context) => {
@@ -750,16 +817,13 @@ export default async (req: Request, context: Context) => {
                 })
             }
 
-            // Fetch milestone data
-            const snapshotData = await fetchSnapshotData(projectId)
-            const milestonesCompleted = snapshotData.filter(
-                (m: any) => m.som_signoff_count > 0 && m.poa_signoff_count > 0
-            ).length
+            // Process milestones (calculate completion and extract content) in a single query
+            console.log(`[Main] Starting milestone processing for proposal ${projectDetails.id} (${projectDetails.title})`)
+            const { milestonesCompleted, milestonesContent } = await processProposalMilestones(projectDetails.id, projectDetails.project_id)
+            console.log(`[Main] ✅ Milestone processing finished: ${milestonesCompleted} completed milestones for proposal ${projectDetails.id}`)
 
-            // Extract and combine POAs content
-            const milestonesContent = await extractMilestonesContent(projectDetails.id, projectDetails.project_id)
+            // Fill in challenge and link information for each milestone
             if (milestonesContent && Object.keys(milestonesContent).length > 0) {
-                // Fill in challenge and link information for each milestone
                 const challengeTitle = (projectDetails.challenges as any)?.title || ''
                 for (const milestoneKey in milestonesContent) {
                     milestonesContent[milestoneKey].challenge = challengeTitle
@@ -858,14 +922,10 @@ export default async (req: Request, context: Context) => {
                         unique_wallets: bestMatch.unique_wallets
                     }
 
-                    // Fetch milestone data
-                    const snapshotData = await fetchSnapshotData(failedTitle.projectId)
-                    const milestonesCompleted = snapshotData.filter(
-                        (m: any) => m.som_signoff_count > 0 && m.poa_signoff_count > 0
-                    ).length
-
-                    // Extract and combine POAs content
-                    const milestonesContent = await extractMilestonesContent(projectDetails.id, projectDetails.project_id)
+                    // Process milestones (calculate completion and extract content) in a single query
+                    console.log(`[Main] Starting milestone processing for failed title proposal ${projectDetails.id} (${projectDetails.title})`)
+                    const { milestonesCompleted, milestonesContent } = await processProposalMilestones(projectDetails.id, projectDetails.project_id)
+                    console.log(`[Main] ✅ Milestone processing finished for failed title: ${milestonesCompleted} completed milestones for proposal ${projectDetails.id}`)
                     if (milestonesContent && Object.keys(milestonesContent).length > 0) {
                         // Fill in challenge and link information for each milestone
                         const challengeTitle = (projectDetails.challenges as any)?.title || ''

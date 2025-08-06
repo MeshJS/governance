@@ -14,19 +14,6 @@ import { useScrollRestoration } from '../hooks/useScrollRestoration';
 import MilestoneDeliveryChart from '../components/MilestoneDeliveryChart';
 import { extractAllMilestonesFromProjects } from '../utils/catalystDataTransform';
 
-// Simple number formatting function that doesn't rely on locale settings
-const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat('en-US').format(num);
-};
-
-// Format ADA amount with symbol
-const formatAda = (amount: number): string => {
-    return `₳ ${formatNumber(amount)}`;
-};
-
-// Store scroll position in sessionStorage to persist across page navigations
-const SCROLL_POSITION_KEY = 'catalyst-proposals-scroll';
-
 // Helper functions
 const calculateProgress = (completed: number, total: number): number => {
     if (!total) return 0;
@@ -62,8 +49,6 @@ export default function CatalystProposals() {
     const { catalystData, isLoading, error } = useData();
     const [filteredProjects, setFilteredProjects] = useState<CatalystProject[]>([]);
     const [isSearching, setIsSearching] = useState<boolean>(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
     const [filterConfig, setFilterConfig] = useState<SearchFilterConfig>({
         placeholder: "Search proposals...",
         filters: []
