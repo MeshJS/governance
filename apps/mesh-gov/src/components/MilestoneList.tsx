@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import styles from './MilestoneList.module.css';
-import { MilestoneData } from '../utils/milestones';
+import { MilestoneContent } from '../types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Components } from 'react-markdown';
 import type { AnchorHTMLAttributes } from 'react';
 
 interface MilestoneListProps {
-    milestones: MilestoneData[];
+    milestones: MilestoneContent[];
     completedCount: number;
 }
 

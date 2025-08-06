@@ -1,3 +1,19 @@
+// Interface for milestone content as stored in the database
+export interface MilestoneContent {
+    budget: string;
+    challenge: string;
+    content: string;
+    delivered: string;
+    isCloseOut: boolean;
+    link: string;
+    number: number;
+    projectId: string;
+}
+
+export interface MilestonesContentRecord {
+    [key: string]: MilestoneContent;
+}
+
 export interface CatalystProject {
     projectDetails: {
         id: number;
@@ -5,12 +21,13 @@ export interface CatalystProject {
         budget: number;
         milestones_qty: number;
         funds_distributed: number;
-        project_id: number;
+        project_id: string;
         name: string;
         category: string;
         url: string;
         status: 'In Progress' | 'Completed';
         finished: string;
+        milestones_content: MilestonesContentRecord | null;
         voting: {
             proposalId: number;
             yes_votes_count: number;
@@ -21,6 +38,8 @@ export interface CatalystProject {
     };
     milestonesCompleted: number;
 }
+
+
 
 export interface CatalystData {
     timestamp: string;
@@ -142,6 +161,22 @@ export interface PerRepoStats {
     pullRequests: any[];
 }
 
+// Individual contributor data types for better caching
+export interface ContributorSummaryData {
+    contributorSummary: any[];
+    lastFetched: number;
+}
+
+export interface ContributorRepoActivityData {
+    contributorRepoActivity: any[];
+    lastFetched: number;
+}
+
+export interface ContributorTimestampsData {
+    contributorTimestamps: Record<string, Record<string, { commit_timestamps: string[], pr_timestamps: string[] }>>;
+    lastFetched: number;
+}
+
 export interface ContributorStats {
     unique_count: number;
     contributors: Contributor[];
@@ -158,6 +193,10 @@ export interface DataContextType {
     catalystData: CatalystContextData | null;
     drepVotingData: DRepVotingData | null;
     discordStats: DiscordStats | null;
+    // Individual contributor data for better caching
+    contributorSummaryData: ContributorSummaryData | null;
+    contributorRepoActivityData: ContributorRepoActivityData | null;
+    contributorTimestampsData: ContributorTimestampsData | null;
     contributorStats: ContributorStats | null;
     isLoading: boolean;
     error: string | null;
@@ -166,15 +205,24 @@ export interface DataContextType {
     isLoadingCatalyst: boolean;
     isLoadingDRep: boolean;
     isLoadingDiscord: boolean;
+    isLoadingContributorSummary: boolean;
+    isLoadingContributorRepoActivity: boolean;
+    isLoadingContributorTimestamps: boolean;
     isLoadingContributors: boolean;
     // Individual error states
     meshError: string | null;
     catalystError: string | null;
     drepError: string | null;
     discordError: string | null;
+    contributorSummaryError: string | null;
+    contributorRepoActivityError: string | null;
+    contributorTimestampsError: string | null;
     contributorsError: string | null;
     refetchData: () => Promise<void>;
-    // Lazy loading function
+    // Lazy loading functions
+    loadContributorSummary: () => Promise<void>;
+    loadContributorRepoActivity: () => Promise<void>;
+    loadContributorTimestamps: () => Promise<void>;
     loadContributorStats: () => Promise<void>;
 }
 
@@ -210,7 +258,7 @@ export interface CatalystProposal {
     finished: string;
     voting: CatalystProposalVoting | null;
     milestones_completed: number;
-    milestones_content?: Record<string, string> | null;
+    milestones_content?: MilestonesContentRecord | null;
     updated_at: string;
     isRecent?: boolean;
     timeSinceUpdate?: number;

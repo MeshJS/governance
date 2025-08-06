@@ -1,17 +1,17 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { MilestoneData } from '../utils/milestones';
+import { MilestoneContent } from '../types';
 import styles from './MilestoneDeliveryChart.module.css';
 
 interface MilestoneDeliveryChartProps {
-    milestones: MilestoneData[];
+    milestones: MilestoneContent[];
 }
 
 interface MonthlyData {
     month: string;
     count: number;
     deliveries: string[];
-    milestones: MilestoneData[];
+    milestones: MilestoneContent[];
 }
 
 const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milestones }) => {
@@ -21,7 +21,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
     const monthlyData = useMemo(() => {
         // Group milestones by month
         const monthlyDeliveries: { [key: string]: string[] } = {};
-        const monthlyMilestones: { [key: string]: MilestoneData[] } = {};
+        const monthlyMilestones: { [key: string]: MilestoneContent[] } = {};
 
         milestones.forEach(milestone => {
             if (milestone.delivered && milestone.delivered.trim() !== '') {
@@ -232,8 +232,8 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                                 Milestones
                             </span>
                         </div>
-                        <span style={{ 
-                            color: 'rgba(56, 232, 225, 1)', 
+                        <span style={{
+                            color: 'rgba(56, 232, 225, 1)',
                             fontWeight: '600',
                             textShadow: '0 0 4px rgba(56, 232, 225, 0.4)'
                         }}>
@@ -269,7 +269,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
         : null;
 
     // Handle milestone card click to navigate to proposal page
-    const handleMilestoneClick = (milestone: MilestoneData) => {
+    const handleMilestoneClick = (milestone: MilestoneContent) => {
         const proposalUrl = `/catalyst-proposals/${milestone.projectId}`;
         window.open(proposalUrl, '_blank');
     };
@@ -364,7 +364,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                                     strokeWidth={1.5}
                                     strokeOpacity={0.85}
                                     dot={false}
-                                    activeDot={{ 
+                                    activeDot={{
                                         r: 4,
                                         fill: "rgba(56, 232, 225, 1)",
                                         stroke: 'rgba(255, 255, 255, 0.8)',
@@ -400,7 +400,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                             </div>
 
                             <div className={styles.milestoneList}>
-                                {displayedMonthData.milestones.map((milestone: MilestoneData, index: number) => (
+                                {displayedMonthData.milestones.map((milestone: MilestoneContent, index: number) => (
                                     <div
                                         key={`${milestone.projectId}-${milestone.number}-${index}`}
                                         className={styles.milestoneItem}

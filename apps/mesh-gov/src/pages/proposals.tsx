@@ -11,12 +11,13 @@ interface Proposal {
         budget: number;
         milestones_qty: number;
         funds_distributed: number;
-        project_id: number;
+        project_id: string;
         name: string;
         category: string;
         url: string;
         status: 'In Progress' | 'Completed';
         finished: string;
+        milestones_content: any | null;
         voting: {
             proposalId: number;
             yes_votes_count: number;

@@ -1,4 +1,22 @@
-import { CatalystProposal, CatalystProposalVoting, CatalystProject, CatalystData } from '../types';
+import { CatalystProposal, CatalystProject, CatalystData, MilestoneContent } from '../types';
+
+
+
+/**
+ * Extracts all milestones from catalyst projects
+ */
+export function extractAllMilestonesFromProjects(projects: CatalystProject[]): MilestoneContent[] {
+    const allMilestones: MilestoneContent[] = [];
+
+    projects.forEach(project => {
+        if (project.projectDetails.milestones_content) {
+            const projectMilestones = Object.values(project.projectDetails.milestones_content);
+            allMilestones.push(...projectMilestones);
+        }
+    });
+
+    return allMilestones;
+}
 
 /**
  * Transforms a CatalystProposal from the API to the CatalystProject structure used by the UI
@@ -11,12 +29,13 @@ export function transformCatalystProposalToProject(proposal: CatalystProposal): 
             budget: proposal.budget,
             milestones_qty: proposal.milestones_qty,
             funds_distributed: proposal.funds_distributed,
-            project_id: parseInt(proposal.project_id),
+            project_id: proposal.project_id,
             name: proposal.name,
             category: proposal.category,
             url: proposal.url,
             status: proposal.status as 'In Progress' | 'Completed',
             finished: proposal.finished,
+            milestones_content: proposal.milestones_content || null,
             voting: proposal.voting ? {
                 proposalId: proposal.voting.proposalId,
                 yes_votes_count: proposal.voting.yes_votes_count,
@@ -58,14 +77,14 @@ export async function fetchCatalystProposalsViaAPI(projectIds: string[]): Promis
 
         //console.log(`Fetching catalyst proposals for project IDs: ${projectIdsParam}`);
         const response = await fetch(url.toString());
-        
+
         if (!response.ok) {
             throw new Error(`Failed to fetch catalyst proposals: ${response.status} ${response.statusText}`);
         }
 
         const apiResponse = await response.json();
         //console.log('API response:', apiResponse);
-        
+
         if (!apiResponse.hasData || apiResponse.proposals.length === 0) {
             console.warn('No catalyst proposals found via API');
             return null;
@@ -74,7 +93,7 @@ export async function fetchCatalystProposalsViaAPI(projectIds: string[]): Promis
         //console.log(`Transforming ${apiResponse.proposals.length} proposals`);
         const transformedData = transformCatalystProposalsToData(apiResponse.proposals);
         //console.log('Transformed data:', transformedData);
-        
+
         return transformedData;
     } catch (error) {
         console.error('Error fetching catalyst proposals via API:', error);

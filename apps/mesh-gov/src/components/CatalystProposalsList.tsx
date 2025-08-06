@@ -61,7 +61,7 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
         return `${month}/${day}/${year}, ${hours}:${minutes} ${ampm} UTC`;
     };
 
-    const handleCardClick = (projectId: number) => {
+    const handleCardClick = (projectId: string) => {
         router.push(`/catalyst-proposals/${projectId}`);
     };
 
@@ -176,7 +176,7 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                                             <span className={styles.infoLabel}>Unique Voters</span>
                                             <span className={styles.infoValue}>{project.projectDetails.voting.unique_wallets}</span>
                                         </div>
-                                        
+
                                     </div>
 
                                     <div className={styles.projectIdBox}>

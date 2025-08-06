@@ -3,10 +3,10 @@ import styles from './MilestoneProgressBars.module.css';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Components } from 'react-markdown';
-import { MilestoneData } from '../utils/milestones';
+import { MilestoneContent } from '../types';
 
 interface Props {
-    milestones: MilestoneData[];
+    milestones: MilestoneContent[];
     completedCount: number;
     projectTitle: string;
     fundingRound: string;
@@ -16,14 +16,16 @@ interface Props {
 export function MilestoneProgressBars({ milestones, completedCount, projectTitle, fundingRound, totalMilestones }: Props) {
     const [expandedMilestone, setExpandedMilestone] = useState<number | null>(null);
 
-    // Create an array of all milestone numbers
-    const allMilestoneNumbers = Array.from({ length: totalMilestones }, (_, i) => i + 1);
+    // Filter out close-out milestones from regular milestones
+    const regularMilestones = milestones.filter(m => !m.isCloseOut);
+    const closeOutReport = milestones.find(m => m.isCloseOut);
+
+    // Calculate the actual number of regular milestones (excluding close-out)
+    const regularMilestoneCount = regularMilestones.length;
+    const allMilestoneNumbers = Array.from({ length: regularMilestoneCount }, (_, i) => i + 1);
 
     // Map existing milestone data to their numbers
-    const milestoneMap = new Map(milestones.map(m => [m.number, m]));
-
-    // Sort milestones by number, putting close-out report at the end
-    const closeOutReport = milestones.find(m => m.isCloseOut);
+    const milestoneMap = new Map(regularMilestones.map(m => [m.number, m]));
 
     const markdownComponents: Components = {
         a: ({ node, children, ...props }) => {
@@ -52,7 +54,7 @@ export function MilestoneProgressBars({ milestones, completedCount, projectTitle
                             <span className={styles.projectTitle}>{projectTitle}</span>
                         </div>
                         <div className={styles.milestoneCount}>
-                            {completedCount}/{totalMilestones}
+                            {completedCount}/{regularMilestoneCount}
                         </div>
                     </div>
                     <div className={styles.milestoneBars}>

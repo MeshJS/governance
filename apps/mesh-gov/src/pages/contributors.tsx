@@ -40,7 +40,24 @@ interface ContributorWithMetrics {
 }
 
 export default function Contributors() {
-    const { contributorStats, isLoadingContributors, contributorsError, loadContributorStats } = useData();
+    const {
+        contributorStats,
+        contributorSummaryData,
+        contributorRepoActivityData,
+        contributorTimestampsData,
+        isLoadingContributors,
+        isLoadingContributorSummary,
+        isLoadingContributorRepoActivity,
+        isLoadingContributorTimestamps,
+        contributorsError,
+        contributorSummaryError,
+        contributorRepoActivityError,
+        contributorTimestampsError,
+        loadContributorStats,
+        loadContributorSummary,
+        loadContributorRepoActivity,
+        loadContributorTimestamps
+    } = useData();
 
     // Trigger lazy loading when component mounts
     useEffect(() => {
@@ -222,7 +239,13 @@ export default function Contributors() {
         });
     };
 
-    if (isLoadingContributors) {
+    // Check if any contributor data is still loading
+    const isAnyContributorDataLoading = isLoadingContributorSummary || isLoadingContributorRepoActivity || isLoadingContributorTimestamps || isLoadingContributors;
+
+    // Check if there are any contributor data errors
+    const hasContributorDataError = contributorSummaryError || contributorRepoActivityError || contributorTimestampsError || contributorsError;
+
+    if (isAnyContributorDataLoading) {
         return (
             <div className={styles.container}>
                 <PageHeader
@@ -236,7 +259,7 @@ export default function Contributors() {
         );
     }
 
-    if (contributorsError) {
+    if (hasContributorDataError) {
         return (
             <div className={styles.container}>
                 <PageHeader
@@ -244,13 +267,16 @@ export default function Contributors() {
                     subtitle="Error loading contributor data"
                 />
                 <div className={styles.errorContainer}>
-                    <p>Error: {contributorsError}</p>
+                    <p>Error: {contributorSummaryError || contributorRepoActivityError || contributorTimestampsError || contributorsError}</p>
                 </div>
             </div>
         );
     }
 
-    if (!isOrgStats) {
+    // Check if we have all the required contributor data
+    const hasAllContributorData = contributorSummaryData && contributorRepoActivityData && contributorTimestampsData && contributorStats;
+
+    if (!hasAllContributorData) {
         return (
             <div className={styles.container}>
                 <PageHeader

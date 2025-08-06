@@ -38,50 +38,50 @@ export interface MilestoneData {
 
 function findMilestoneFiles(fundingDir: string, projectId: string): string[] {
     console.log(`Looking for milestone files for project ID ${projectId} in ${fundingDir}`);
-    
+
     const allFiles: string[] = [];
 
     try {
         // Search through all fund directories
         const fundDirs = fs.readdirSync(fundingDir)
             .filter(dir => dir.startsWith('catalyst-fund'));
-        
+
         console.log('Found fund directories:', fundDirs);
 
         for (const fundDir of fundDirs) {
             const fundPath = path.join(fundingDir, fundDir);
-            
+
             try {
                 const projectDirs = fs.readdirSync(fundPath);
                 console.log(`Checking fund directory ${fundDir}, found projects:`, projectDirs);
 
                 for (const projectDir of projectDirs) {
                     const projectPath = path.join(fundPath, projectDir);
-                    
+
                     try {
                         // Try to find files with new naming pattern first
                         let mdFiles = fs.readdirSync(projectPath)
                             .filter(file => file.startsWith(`${projectId}-`) && (file.endsWith('.md') || file === 'close-out'));
-                        
+
                         // If no files found with new pattern, check old pattern and verify project ID in content
                         if (mdFiles.length === 0) {
                             const oldFiles = fs.readdirSync(projectPath)
                                 .filter(file => (
-                                    file.startsWith('milestone') || 
-                                    file === 'close-out.md' || 
+                                    file.startsWith('milestone') ||
+                                    file === 'close-out.md' ||
                                     file === 'close-out'
                                 ) && (file.endsWith('.md') || file === 'close-out'));
-                            
+
                             if (oldFiles.length > 0) {
                                 // Check if any file contains the correct project ID
                                 for (const file of oldFiles) {
                                     try {
                                         const content = fs.readFileSync(path.join(projectPath, file), 'utf-8');
                                         const idMatch = content.match(/\|Project ID\|(\d+)\|/) ||
-                                                    content.match(/\| Project ID \|(\d+)\|/) ||
-                                                    content.match(/\|ProjectID\|(\d+)\|/) ||
-                                                    content.match(/\| ProjectID \|(\d+)\|/);
-                                        
+                                            content.match(/\| Project ID \|(\d+)\|/) ||
+                                            content.match(/\|ProjectID\|(\d+)\|/) ||
+                                            content.match(/\| ProjectID \|(\d+)\|/);
+
                                         if (idMatch && idMatch[1] === projectId) {
                                             mdFiles = oldFiles;
                                             break;
@@ -92,7 +92,7 @@ function findMilestoneFiles(fundingDir: string, projectId: string): string[] {
                                 }
                             }
                         }
-                        
+
                         if (mdFiles.length > 0) {
                             console.log(`Found milestone files in ${projectDir}:`, mdFiles);
                             allFiles.push(...mdFiles.map(file => path.join(projectPath, file)));
@@ -117,7 +117,7 @@ function extractContent(content: string): string {
     try {
         // Split by any heading that contains "Report" (with any number of #)
         const parts = content.split(/^#{1,6}\s+.*Report.*$/m);
-        
+
         if (parts.length > 1) {
             // Take everything after the first "Report" heading
             return parts.slice(1).join('\n').trim();
@@ -146,31 +146,31 @@ function extractContent(content: string): string {
 function parseMilestoneFile(content: string, fileName: string): Omit<MilestoneData, 'number'> | null {
     try {
         // Try different patterns for project ID, including nested markdown links
-        const projectIdMatch = content.match(/\|Project ID\|(\d+)\|/) || 
-                            content.match(/\| Project ID \|(\d+)\|/) ||
-                            content.match(/\|ProjectID\|(\d+)\|/) ||
-                            content.match(/\| ProjectID \|(\d+)\|/);
+        const projectIdMatch = content.match(/\|Project ID\|(\d+)\|/) ||
+            content.match(/\| Project ID \|(\d+)\|/) ||
+            content.match(/\|ProjectID\|(\d+)\|/) ||
+            content.match(/\| ProjectID \|(\d+)\|/);
 
         // Try different patterns for budget
-        const budgetMatch = content.match(/\|Milestone Budget\|(.*?)\|/) || 
-                        content.match(/\| Milestone Budget \|(.*?)\|/) ||
-                        content.match(/\|Budget\|(.*?)\|/) ||
-                        content.match(/\| Budget \|(.*?)\|/);
+        const budgetMatch = content.match(/\|Milestone Budget\|(.*?)\|/) ||
+            content.match(/\| Milestone Budget \|(.*?)\|/) ||
+            content.match(/\|Budget\|(.*?)\|/) ||
+            content.match(/\| Budget \|(.*?)\|/);
 
         // Try different patterns for delivery date
-        const deliveredMatch = content.match(/\|Delivered\|(.*?)\|/) || 
-                            content.match(/\| Delivered \|(.*?)\|/) ||
-                            content.match(/\|Milestone Delivered\|(.*?)\|/) ||
-                            content.match(/\| Milestone Delivered \|(.*?)\|/) ||
-                            content.match(/\|Due Date\|(.*?)\|/) ||
-                            content.match(/\| Due Date \|(.*?)\|/);
+        const deliveredMatch = content.match(/\|Delivered\|(.*?)\|/) ||
+            content.match(/\| Delivered \|(.*?)\|/) ||
+            content.match(/\|Milestone Delivered\|(.*?)\|/) ||
+            content.match(/\| Milestone Delivered \|(.*?)\|/) ||
+            content.match(/\|Due Date\|(.*?)\|/) ||
+            content.match(/\| Due Date \|(.*?)\|/);
 
         // Try different patterns for links, including nested markdown links
         const linkMatch = content.match(/\|(?:Milestone|Milestones|Link)\|\[(.*?)\](?:\((.*?)\)(?:\]\((.*?)\))?)\|/);
 
         // Try different patterns for challenge
         const challengeMatch = content.match(/\|Challenge\|(.*?)\|/) ||
-                            content.match(/\| Challenge \|(.*?)\|/);
+            content.match(/\| Challenge \|(.*?)\|/);
 
         if (!projectIdMatch) {
             console.log(`No project ID found in file ${fileName}`);
@@ -226,7 +226,7 @@ export default async function handler(
 
     try {
         console.log('Starting milestone search for project ID:', projectId);
-        
+
         let fundingDir;
         try {
             fundingDir = getFundingDir();
@@ -235,7 +235,7 @@ export default async function handler(
             res.status(500).json({ error: 'Funding directory not found' });
             return;
         }
-        
+
         const milestoneFiles = findMilestoneFiles(fundingDir, projectId);
         console.log('Found milestone files:', milestoneFiles);
 
@@ -250,11 +250,11 @@ export default async function handler(
         for (const filePath of milestoneFiles) {
             const fileName = path.basename(filePath);
             console.log(`Processing file: ${fileName}`);
-            
+
             try {
                 const content = fs.readFileSync(filePath, 'utf-8');
                 const milestone = parseMilestoneFile(content, fileName);
-                
+
                 if (milestone) {
                     console.log(`Successfully parsed milestone from ${fileName}`);
                     if (fileName.includes('close-out')) {
