@@ -1,0 +1,23 @@
+{
+    "name": "github-stats-action",
+    "version": "1.0.0",
+    "description": "GitHub Action to trigger GitHub stats collection",
+    "main": "getStats.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "github-action",
+        "github-stats",
+        "netlify"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "node-fetch": "^3.3.2"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
