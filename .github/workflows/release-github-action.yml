@@ -1,0 +1,35 @@
+name: Release GitHub Stats Action
+
+on:
+  push:
+    tags:
+      - 'github-stats-action@*'
+    paths:
+      - 'apps/shared-backend/github-actions/github-stats-action/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: GitHub Stats Action ${{ github.ref_name }}
+          body: |
+            Release of GitHub Stats Action
+            
+            Changes in this release:
+            - See commit history for details
+          draft: false
+          prerelease: false
+          files: |
+            apps/shared-backend/github-actions/github-stats-action/action.yml
+            apps/shared-backend/github-actions/github-stats-action/getStats.js
+            apps/shared-backend/github-actions/github-stats-action/package.json
