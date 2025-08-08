@@ -180,7 +180,28 @@ async function fetchAllMissingCommits(existingShasSet) {
                     if (!resp.ok) throw { status: resp.status, message: await resp.text() }
                     return resp.json()
                 })
-                results.push(details)
+                // Minify commit payload to only what the Netlify function needs
+                const filesCount = Array.isArray(details.files) ? details.files.length : 0
+                const parents = Array.isArray(details.parents) ? details.parents.map((p) => ({ sha: p.sha })) : []
+                results.push({
+                    sha: details.sha,
+                    author: details.author ? { login: details.author.login, avatar_url: details.author.avatar_url } : null,
+                    committer: details.committer ? { login: details.committer.login, avatar_url: details.committer.avatar_url } : null,
+                    commit: {
+                        message: details.commit?.message ?? null,
+                        author: { date: details.commit?.author?.date ?? null }
+                    },
+                    stats: details.stats
+                        ? {
+                            additions: details.stats.additions,
+                            deletions: details.stats.deletions,
+                            total: details.stats.total
+                        }
+                        : null,
+                    // Only send a small array to preserve length semantics expected by the function
+                    files: filesCount ? Array(filesCount).fill(0) : [],
+                    parents
+                })
             }
         }
         page += 1
@@ -264,26 +285,87 @@ async function main() {
     const missingIssues = await fetchAllMissingIssues(existingIssueNumbers)
     console.log(`🧮 Missing issues: ${missingIssues.length}`)
 
-    const payload = {
-        org: parsedOrg,
-        repo: parsedRepo,
-        commits: missingCommits,
-        pulls: missingPulls,
-        issues: missingIssues,
+    // Helper to chunk arrays
+    const chunkArray = (arr, size) => {
+        const chunks = []
+        for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size))
+        return chunks
     }
 
-    if (
-        (missingCommits && missingCommits.length) ||
-        (missingPulls && missingPulls.length) ||
-        (missingIssues && missingIssues.length)
-    ) {
-        console.log('📡 Sending new data to Netlify background function...')
-        const response = await makeRequest(parsedFunctionUrl, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-        })
-        console.log(`✅ Background function response: ${JSON.stringify(response, null, 2)}`)
-    } else {
+    // Use conservative batch sizes to avoid gateway limits
+    const COMMIT_BATCH_SIZE = 25
+    const PULL_BATCH_SIZE = 20
+    const ISSUE_BATCH_SIZE = 50
+
+    let sentSomething = false
+
+    if (missingCommits.length > 0) {
+        console.log(`📡 Sending ${missingCommits.length} commits in batches of ${COMMIT_BATCH_SIZE}...`)
+        const commitBatches = chunkArray(missingCommits, COMMIT_BATCH_SIZE)
+        for (let i = 0; i < commitBatches.length; i++) {
+            const batch = commitBatches[i]
+            console.log(`  ➤ Commit batch ${i + 1}/${commitBatches.length} (size=${batch.length})`)
+            const payload = {
+                org: parsedOrg,
+                repo: parsedRepo,
+                commits: batch,
+                pulls: [],
+                issues: []
+            }
+            const response = await makeRequest(parsedFunctionUrl, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            console.log(`    ✅ Response: ${JSON.stringify(response)}`)
+            sentSomething = true
+        }
+    }
+
+    if (missingPulls.length > 0) {
+        console.log(`📡 Sending ${missingPulls.length} pull requests in batches of ${PULL_BATCH_SIZE}...`)
+        const pullBatches = chunkArray(missingPulls, PULL_BATCH_SIZE)
+        for (let i = 0; i < pullBatches.length; i++) {
+            const batch = pullBatches[i]
+            console.log(`  ➤ PR batch ${i + 1}/${pullBatches.length} (size=${batch.length})`)
+            const payload = {
+                org: parsedOrg,
+                repo: parsedRepo,
+                commits: [],
+                pulls: batch,
+                issues: []
+            }
+            const response = await makeRequest(parsedFunctionUrl, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            console.log(`    ✅ Response: ${JSON.stringify(response)}`)
+            sentSomething = true
+        }
+    }
+
+    if (missingIssues.length > 0) {
+        console.log(`📡 Sending ${missingIssues.length} issues in batches of ${ISSUE_BATCH_SIZE}...`)
+        const issueBatches = chunkArray(missingIssues, ISSUE_BATCH_SIZE)
+        for (let i = 0; i < issueBatches.length; i++) {
+            const batch = issueBatches[i]
+            console.log(`  ➤ Issue batch ${i + 1}/${issueBatches.length} (size=${batch.length})`)
+            const payload = {
+                org: parsedOrg,
+                repo: parsedRepo,
+                commits: [],
+                pulls: [],
+                issues: batch
+            }
+            const response = await makeRequest(parsedFunctionUrl, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            console.log(`    ✅ Response: ${JSON.stringify(response)}`)
+            sentSomething = true
+        }
+    }
+
+    if (!sentSomething) {
         console.log('✅ No new data to send')
     }
 
