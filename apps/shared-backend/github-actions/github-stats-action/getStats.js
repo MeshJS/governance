@@ -85,7 +85,25 @@ async function makeRequest(url, options = {}) {
         })
 
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+            // read response body for better diagnostics
+            let errorBodyText = ''
+            try {
+                errorBodyText = await response.text()
+            } catch (_) {
+                // ignore
+            }
+            let parsedBody
+            try {
+                parsedBody = errorBodyText ? JSON.parse(errorBodyText) : undefined
+            } catch (_) {
+                parsedBody = undefined
+            }
+            const details = parsedBody ? JSON.stringify(parsedBody) : (errorBodyText ? errorBodyText.substring(0, 1000) : '')
+            const err = new Error(`HTTP ${response.status}: ${response.statusText}${details ? ` | Body: ${details}` : ''}`)
+            // Attach status for retry logic
+            // @ts-ignore
+            err.status = response.status
+            throw err
         }
 
         // Check if response has content

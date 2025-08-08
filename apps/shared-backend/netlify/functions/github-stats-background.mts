@@ -250,10 +250,12 @@ export const handler: Handler = async (event) => {
             body: JSON.stringify({ success: true })
         }
     } catch (err: any) {
-        console.error('github-stats-background error:', err?.message || err)
+        const errorMessage = err?.message || String(err)
+        const errorCode = err?.code || err?.status || undefined
+        console.error('github-stats-background error:', errorMessage)
         return {
             statusCode: 500,
-            body: JSON.stringify({ success: false, error: 'Internal Server Error' })
+            body: JSON.stringify({ success: false, error: 'Internal Server Error', details: errorMessage, code: errorCode })
         }
     }
 }
