@@ -3,13 +3,13 @@
 List of funded proposals from MeshJS at Cardano's Project Catalyst.
 
 > **Data Source**: Real data from Catalyst
-> **Last Updated**: August 4, 2025 at 01:00 AM UTC
+> **Last Updated**: August 11, 2025 at 12:57 AM UTC
 
 ## Overall Progress
 
 | Milestones | Funding |
 |:-----------|:--------|
-| Total completed: 38/50 (76%)<br>`███████████████·····` 76% | Total distributed: ADA 1,517,429/2,018,429 (75%)<br>`███████████████·····` 75% |
+| Total completed: 39/50 (78%)<br>`████████████████····` 78% | Total distributed: ADA 1,517,429/2,018,429 (75%)<br>`███████████████·····` 75% |
 
 ## Overview of All Proposals
 
@@ -21,7 +21,7 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | F12 - Mesh New Features to Improve Developer experience and Cardano Adoption | 1200147 | `████████████████████` 100% | `████████████████████` 100% |
 | F12 - Sustain and Maintain Mesh SDK | 1200220 | `████████████████████` 100% | `████████████████████` 100% |
 | F13 - Mesh: Hydra Tools for administrating & interacting with Hydra Heads | 1300135 | `████████············` 40% | `███████████·········` 56% |
-| F13 - Mesh: Cquisitor - Transaction Investigation Tool | 1300134 | `████················` 20% | `███████·············` 36% |
+| F13 - Mesh: Cquisitor - Transaction Investigation Tool | 1300134 | `████████············` 40% | `███████·············` 36% |
 | F13 - Maintain Mesh and Build Developer Community | 1300130 | `████████████████····` 80% | `████████████████····` 80% |
 | F13 - Cardano Multisig Platform by Mesh, Clarity DAO & Fluid Tokens | 1300050 | `███████·············` 33% | `██████████··········` 51% |
 | F13 - Cardano Builder Fest Asia by Mesh, Socious, SIDAN, Vietnam Cardano | 1300036 | `████████████████████` 100% | `████████████████████` 100% |
@@ -132,7 +132,7 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | **Funding Category** | F13: Cardano Open: Developers |
 | **Proposal Budget** | ADA 200,000 |
 | **Status** | 🚀 In Progress |
-| **Milestones completed** | 1/5 (20%) |
+| **Milestones completed** | 2/5 (40%) |
 | **Funds distributed** | ADA 72,000 of 200,000 (36%) |
 | **Funding Progress** | `███████·············` |
 
