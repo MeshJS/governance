@@ -16,6 +16,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 const CACHE_DURATION = process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE === 'false'
     ? 0
     : 5 * 60 * 1000;
+const DEV_CACHE_ENABLED = process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE !== 'false';
 const MESH_STORAGE_KEY = 'meshGovData';
 const CATALYST_STORAGE_KEY = 'catalystData';
 const DREP_VOTING_STORAGE_KEY = 'drepVotingData';
@@ -50,11 +51,20 @@ const safeGetItem = (key: string): string | null => {
 
 // Safe localStorage setItem
 const safeSetItem = (key: string, value: string): void => {
+    if (!DEV_CACHE_ENABLED) return;
     if (!isLocalStorageAvailable()) return;
+    // Rough guard to avoid exceeding typical 5MB quota (UTF-16 ~2 bytes/char)
+    // 4.5M chars ~ 9MB worst case; this is conservative. Skip if too large.
+    const MAX_CACHE_CHARS = 4_500_000;
+    if (value.length > MAX_CACHE_CHARS) {
+        console.warn(`Skipping cache for ${key}: payload too large (${value.length} chars)`);
+        return;
+    }
     try {
         localStorage.setItem(key, value);
     } catch (e) {
-        console.error(`Error writing ${key} to localStorage:`, e);
+        // Swallow quota errors in development to avoid crashing the app
+        console.warn(`Skipping cache for ${key} due to storage error:`, e);
     }
 };
 
