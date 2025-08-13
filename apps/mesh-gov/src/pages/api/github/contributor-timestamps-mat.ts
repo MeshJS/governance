@@ -20,18 +20,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(200).json({ contributorTimestamps: {} });
         }
 
-        // Use pre-fetched timestamps data from context
-        const timestampsData = context.contributorTimestampsData;
+        // Use pre-fetched yearly activity data from context (arrays per row)
+        const yearlyActivityData = context.contributorTimestampsData;
 
         // Build the timestamps data structure
         const contributorTimestamps: Record<string, Record<string, { commit_timestamps: string[], pr_timestamps: string[] }>> = {};
 
-        // Process timestamps data
-        timestampsData.forEach((activity: any) => {
-            const contributorLogin = context.contributorIdToLogin.get(activity.contributor_id);
-            const repoName = activity.repo_name;
+        // Process yearly activity rows and merge arrays across years
+        yearlyActivityData.forEach((row: any) => {
+            const contributorLogin = context.contributorIdToLogin.get(row.contributor_id);
+            const repoName = row.repo_name;
 
-            if (!contributorLogin || !repoName || !activity.timestamp) return;
+            if (!contributorLogin || !repoName) return;
 
             if (!contributorTimestamps[contributorLogin]) {
                 contributorTimestamps[contributorLogin] = {};
@@ -43,12 +43,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 };
             }
 
-            // Add timestamp to appropriate array based on activity type
-            if (activity.activity_type === 'commit') {
-                contributorTimestamps[contributorLogin][repoName].commit_timestamps.push(activity.timestamp);
-            } else if (activity.activity_type === 'pr') {
-                contributorTimestamps[contributorLogin][repoName].pr_timestamps.push(activity.timestamp);
-            }
+            const commitTimestamps = Array.isArray(row.commit_timestamps) ? row.commit_timestamps : [];
+            const prTimestamps = Array.isArray(row.pr_timestamps) ? row.pr_timestamps : [];
+
+            contributorTimestamps[contributorLogin][repoName].commit_timestamps.push(...commitTimestamps);
+            contributorTimestamps[contributorLogin][repoName].pr_timestamps.push(...prTimestamps);
         });
 
         return res.status(200).json({ contributorTimestamps });

@@ -51,12 +51,29 @@ export const getFilteredMetrics = (
     endDate: string | null
 ): FilteredContributorMetrics => {
     if (!startDate && !endDate) {
-        // No filtering - return all-time metrics
+        // No filtering - compute all-time metrics from the provided repositories
+        // This ensures correctness when a subset of repositories is supplied
+        let totalCommits = 0;
+        let totalPRs = 0;
+        let activeRepositories = 0;
+
+        contributor.repositories.forEach(repo => {
+            const repoCommits = typeof repo.commits === 'number' ? repo.commits : repo.commit_timestamps.length;
+            const repoPRs = typeof repo.pull_requests === 'number' ? repo.pull_requests : repo.pr_timestamps.length;
+
+            totalCommits += repoCommits;
+            totalPRs += repoPRs;
+
+            if (repoCommits > 0 || repoPRs > 0) {
+                activeRepositories++;
+            }
+        });
+
         return {
-            commits: contributor.commits,
-            pullRequests: contributor.pull_requests,
-            repositories: contributor.repositories.length,
-            contributions: contributor.contributions
+            commits: totalCommits,
+            pullRequests: totalPRs,
+            repositories: activeRepositories,
+            contributions: totalCommits + totalPRs
         };
     }
 

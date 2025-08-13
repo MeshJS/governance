@@ -66,11 +66,11 @@ export async function getGitHubApiContext(orgLogin: string): Promise<GitHubApiCo
                 .from('contributor_summary_mat')
                 .select('*'),
 
-            // Get contributor timestamps data
+            // Get contributor yearly activity data (includes aggregated timestamps arrays)
             supabase
-                .from('contributor_timestamps_mat')
-                .select('contributor_id, repo_name, timestamp, activity_type')
-                .in('repo_name', Array.from(repoIdToName.values()))
+                .from('contributor_activity_yearly_mat')
+                .select('contributor_id, repo_id, repo_name, commit_timestamps, pr_timestamps')
+                .in('repo_id', repoIds)
         ]);
 
         if (contributorRepoActivity.error) throw new Error(contributorRepoActivity.error.message);
@@ -114,7 +114,7 @@ export async function getGitHubApiContext(orgLogin: string): Promise<GitHubApiCo
             activity => contributorIds.has(activity.contributor_id)
         );
 
-        // Filter timestamps data to only include contributors for this org
+        // Filter yearly activity data to only include contributors for this org
         const filteredContributorTimestamps = (contributorTimestamps.data || []).filter(
             activity => contributorIds.has(activity.contributor_id)
         );
