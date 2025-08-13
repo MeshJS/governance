@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import styles from '../styles/Proposals.module.css';
-import { CatalystData } from '../types';
+import { CatalystData, CatalystProject } from '../types';
 import { useRouter } from 'next/router';
 
 // Simple number formatting function that doesn't rely on locale settings
@@ -35,10 +35,24 @@ const formatTitleForUrl = (title: string): string => {
         .replace(/^-+|-+$/g, '');
 };
 
-// Get funding round from category (first 3 characters)
+// Get funding round from category (e.g., "Fund 10")
 const getFundingRound = (category: string): string => {
     const match = category.match(/Fund \d+/i);
     return match ? match[0] : category;
+};
+
+// Extract numeric fund number from category string
+const getFundNumber = (category: string): number => {
+    if (!category) return Number.POSITIVE_INFINITY;
+    const startF = category.match(/^\s*F\s*(\d+)/i);
+    if (startF && startF[1]) return parseInt(startF[1], 10);
+    const startFund = category.match(/^\s*Fund\s+(\d+)/i);
+    if (startFund && startFund[1]) return parseInt(startFund[1], 10);
+    const anyF = category.match(/F\s*(\d+)/i);
+    if (anyF && anyF[1]) return parseInt(anyF[1], 10);
+    const anyFund = category.match(/Fund\s+(\d+)/i);
+    if (anyFund && anyFund[1]) return parseInt(anyFund[1], 10);
+    return Number.POSITIVE_INFINITY;
 };
 
 interface CatalystProposalsListProps {
@@ -65,12 +79,24 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
         router.push(`/catalyst-proposals/${projectId}`);
     };
 
+    // Build sorted list for milestone progress bars only
+    const order = [10, 11, 12, 13];
+    const buckets: Record<number, CatalystProject[]> = { 10: [], 11: [], 12: [], 13: [] } as any;
+    const others: CatalystProject[] = [];
+    data.projects.forEach(p => {
+        const num = getFundNumber(p.projectDetails.category);
+        if (Number.isFinite(num) && order.includes(num)) buckets[num as 10 | 11 | 12 | 13].push(p); else others.push(p);
+    });
+    order.forEach(n => buckets[n].sort((a,b)=> a.projectDetails.title.localeCompare(b.projectDetails.title)));
+    others.sort((a,b)=> a.projectDetails.title.localeCompare(b.projectDetails.title));
+    const sortedForMilestones = [...order.flatMap(n => buckets[n]), ...others];
+
     return (
         <>
             <div className={styles.milestoneOverview}>
                 <h3 className={styles.milestoneOverviewTitle}>Project Milestones Progress</h3>
                 <div className={styles.milestoneGrid}>
-                    {data.projects.map((project) => {
+                    {sortedForMilestones.map((project) => {
                         const progressPercent = calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty);
                         return (
                             <a

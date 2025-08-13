@@ -267,6 +267,7 @@ interface CustomMultiLineChartProps {
         name: string;
         stroke: string;
     }>;
+    highlightedKey?: string | null;
 }
 
 // Enhanced Repository Dependencies tooltip matching contributors page style
@@ -330,7 +331,7 @@ const CustomRepositoryTooltip = ({ active, payload, label }: any) => {
     );
 };
 
-const CustomMultiLineChart = ({ data, chartId, lines }: CustomMultiLineChartProps) => (
+const CustomMultiLineChart = ({ data, chartId, lines, highlightedKey = null }: CustomMultiLineChartProps) => (
     <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 15, right: 20, left: 15, bottom: 15 }}>
             <defs>
@@ -395,6 +396,7 @@ const CustomMultiLineChart = ({ data, chartId, lines }: CustomMultiLineChartProp
                     dataKey={line.dataKey}
                     fill={`url(#areaGradient-${chartId}-${line.dataKey})`}
                     stroke="none"
+                    fillOpacity={highlightedKey ? (line.dataKey === highlightedKey ? 0.25 : 0.06) : undefined}
                 />
             ))}
             {lines.map((line, index) => (
@@ -404,8 +406,8 @@ const CustomMultiLineChart = ({ data, chartId, lines }: CustomMultiLineChartProp
                     name={line.name}
                     dataKey={line.dataKey}
                     stroke={`url(#lineGradient-${chartId}-${line.dataKey})`}
-                    strokeWidth={1.5}
-                    strokeOpacity={0.85}
+                    strokeWidth={highlightedKey ? (line.dataKey === highlightedKey ? 2.5 : 1) : 1.5}
+                    strokeOpacity={highlightedKey ? (line.dataKey === highlightedKey ? 1 : 0.25) : 0.85}
                     dot={false}
                     activeDot={{ 
                         r: 4,
@@ -613,6 +615,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
 
     // Aggregate monthly downloads across all packages for current year
     const currentYear = new Date().getFullYear();
+    const currentMonthIndex1Based = new Date().getMonth() + 1;
     const monthlyData = useMemo(() => {
         if (!meshPackagesData?.packages) return [];
         
@@ -623,7 +626,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
         meshPackagesData.packages.forEach(pkg => {
             if (pkg.monthly_downloads) {
                 pkg.monthly_downloads
-                    .filter((monthObj: any) => monthObj.year === currentYear)
+                    .filter((monthObj: any) => monthObj.year === currentYear && monthObj.month < currentMonthIndex1Based)
                     .forEach((monthObj: any) => {
                         const monthNum = monthObj.month;
                         if (!monthlyTotals[monthNum]) {
@@ -645,7 +648,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                 const bMonth = monthNames.indexOf(b.name.split(' ')[0]) + 1;
                 return aMonth - bMonth;
             });
-    }, [meshPackagesData, currentYear]);
+    }, [meshPackagesData, currentYear, currentMonthIndex1Based]);
 
     // Get the latest year for display
     const latestYear = monthlyData.length > 0 ? monthlyData[monthlyData.length - 1].name.split(' ')[1] : '';
@@ -662,6 +665,13 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                 }
                 return false;
             })
+            .filter((stat: any) => {
+                if (typeof stat.month === 'string' && stat.month.length === 7) {
+                    const m = Number(stat.month.split('-')[1]);
+                    return m < currentMonthIndex1Based;
+                }
+                return true;
+            })
             .sort((a: any, b: any) => {
                 // sort by month number
                 const aMonth = typeof a.month === 'string' ? Number(a.month.split('-')[1]) : 0;
@@ -675,7 +685,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                     repositories: stat.github_dependents_count ?? 0
                 };
             });
-    }, [corePackage, currentYear]);
+    }, [corePackage, currentYear, currentMonthIndex1Based]);
 
     // web3SdkRepositoriesData: Use historical data + real database data
     const web3SdkRepositoriesData = useMemo(() => {
@@ -697,8 +707,8 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                     if (typeof stat.month === 'string' && stat.month.length === 7) {
                         const year = Number(stat.month.split('-')[0]);
                         const month = Number(stat.month.split('-')[1]);
-                        // Only include August 2025 and later
-                        return year === currentYear && month >= 8;
+                        // Only include August 2025 and later, but exclude current open month
+                        return year === currentYear && month >= 8 && month < currentMonthIndex1Based;
                     }
                     return false;
                 })
@@ -718,7 +728,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
 
         // Combine historical and database data
         return [...historicalData, ...databaseData];
-    }, [web3SdkPackage, currentYear]);
+    }, [web3SdkPackage, currentYear, currentMonthIndex1Based]);
 
     // Combined repositories data for both core and web3-sdk
     const combinedRepositoriesData = useMemo(() => {
@@ -789,7 +799,28 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
         });
     }, [meshPackagesData]);
 
-    // Generate monthly contribution data from timestamp arrays
+    // State to control highlighted package in historical downloads chart
+    const [highlightedPackageKey, setHighlightedPackageKey] = React.useState<string | null>(null);
+
+    // Badge options derived from the lines config used in the historical chart
+    const historicalLines = [
+        { name: 'Core', dataKey: 'core', stroke: 'rgba(56, 232, 225, 1)' },
+        { name: 'Core CST', dataKey: 'core_cst', stroke: 'rgba(12, 242, 180, 1)' },
+        { name: 'Common', dataKey: 'common', stroke: 'rgba(20, 184, 166, 1)' },
+        { name: 'Transaction', dataKey: 'transaction', stroke: 'rgba(45, 212, 191, 1)' },
+        { name: 'Wallet', dataKey: 'wallet', stroke: 'rgba(94, 234, 212, 1)' },
+        { name: 'React', dataKey: 'react', stroke: 'rgba(153, 246, 228, 1)' },
+        { name: 'Provider', dataKey: 'provider', stroke: 'rgba(204, 251, 241, 1)' },
+        { name: 'Web3 SDK', dataKey: 'web3_sdk', stroke: 'rgba(240, 253, 250, 1)' },
+        { name: 'Core CSL', dataKey: 'core_csl', stroke: 'rgba(255, 255, 255, 0.9)' },
+        { name: 'Contract', dataKey: 'contract', stroke: 'rgba(255, 255, 255, 0.7)' },
+    ];
+
+    const handleToggleBadge = (key: string | null) => {
+        setHighlightedPackageKey(prev => (prev === key ? null : key));
+    };
+
+// Generate monthly contribution data from timestamp arrays
     const contributionsData = useMemo(() => {
         if (!contributorStats?.contributors) return [];
 
@@ -1039,22 +1070,32 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                     {historicalPackageDownloads.length > 0 && (
                         <div className={styles.chartSection}>
                             <h2>Package Downloads per month 2025</h2>
+                            <div className={styles.badges}>
+                                <button
+                                    type="button"
+                                    className={`${styles.badge} ${!highlightedPackageKey ? styles.badgeSelected : ''}`}
+                                    onClick={() => handleToggleBadge(null)}
+                                >
+                                    All
+                                </button>
+                                {historicalLines.map(line => (
+                                    <button
+                                        key={line.dataKey}
+                                        type="button"
+                                        className={`${styles.badge} ${highlightedPackageKey === line.dataKey ? styles.badgeSelected : ''}`}
+                                        onClick={() => handleToggleBadge(line.dataKey)}
+                                        title={line.name}
+                                    >
+                                        {line.name}
+                                    </button>
+                                ))}
+                            </div>
                             <div className={styles.chart}>
                                 <CustomMultiLineChart
                                     data={historicalPackageDownloads}
                                     chartId="historical-downloads"
-                                    lines={[
-                                        { name: 'Core', dataKey: 'core', stroke: 'rgba(56, 232, 225, 1)' },
-                                        { name: 'Core CST', dataKey: 'core_cst', stroke: 'rgba(12, 242, 180, 1)' },
-                                        { name: 'Common', dataKey: 'common', stroke: 'rgba(20, 184, 166, 1)' },
-                                        { name: 'Transaction', dataKey: 'transaction', stroke: 'rgba(45, 212, 191, 1)' },
-                                        { name: 'Wallet', dataKey: 'wallet', stroke: 'rgba(94, 234, 212, 1)' },
-                                        { name: 'React', dataKey: 'react', stroke: 'rgba(153, 246, 228, 1)' },
-                                        { name: 'Provider', dataKey: 'provider', stroke: 'rgba(204, 251, 241, 1)' },
-                                        { name: 'Web3 SDK', dataKey: 'web3_sdk', stroke: 'rgba(240, 253, 250, 1)' },
-                                        { name: 'Core CSL', dataKey: 'core_csl', stroke: 'rgba(255, 255, 255, 0.9)' },
-                                        { name: 'Contract', dataKey: 'contract', stroke: 'rgba(255, 255, 255, 0.7)' },
-                                    ]}
+                                    lines={historicalLines}
+                                    highlightedKey={highlightedPackageKey}
                                 />
                             </div>
                         </div>
@@ -1153,20 +1194,6 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({ discordStats, contributorStats,
                 <>
                     <div className={styles.githubStats}>
                         <h2>Discord Community</h2>
-                        <div className={styles.statsGrid}>
-                            <div className={styles.stat}>
-                                <h3>Total Members</h3>
-                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].memberCount)}</p>
-                            </div>
-                            <div className={styles.stat}>
-                                <h3>Unique Posters</h3>
-                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].uniquePosters)}</p>
-                            </div>
-                            <div className={styles.stat}>
-                                <h3>Messages Last Month</h3>
-                                <p>{formatNumber(discordStatsData[discordStatsData.length - 1].totalMessages)}</p>
-                            </div>
-                        </div>
                     </div>
 
                     <div className={styles.chartsGrid}>
