@@ -33,6 +33,20 @@ const getFundingRound = (category: string): string => {
     return match ? match[0] : category;
 };
 
+// Extract numeric fund number from category string
+const getFundNumber = (category: string): number => {
+    if (!category) return Number.POSITIVE_INFINITY;
+    const startF = category.match(/^\s*F\s*(\d+)/i);
+    if (startF && startF[1]) return parseInt(startF[1], 10);
+    const startFund = category.match(/^\s*Fund\s+(\d+)/i);
+    if (startFund && startFund[1]) return parseInt(startFund[1], 10);
+    const anyF = category.match(/F\s*(\d+)/i);
+    if (anyF && anyF[1]) return parseInt(anyF[1], 10);
+    const anyFund = category.match(/Fund\s+(\d+)/i);
+    if (anyFund && anyFund[1]) return parseInt(anyFund[1], 10);
+    return Number.POSITIVE_INFINITY;
+};
+
 const formatDate = (timestamp: string): string => {
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-US', {
@@ -180,6 +194,23 @@ export default function CatalystProposals() {
         projects: isSearching ? filteredProjects : data.projects
     };
 
+    // Sort projects for milestone progress by fund group order (F10 -> F13), then others
+    const sourceForProgress = displayData.projects;
+    const order = [10, 11, 12, 13];
+    const buckets: Record<number, CatalystProject[]> = { 10: [], 11: [], 12: [], 13: [] } as any;
+    const others: CatalystProject[] = [];
+    sourceForProgress.forEach(p => {
+        const num = getFundNumber(p.projectDetails.category);
+        if (Number.isFinite(num) && order.includes(num)) {
+            buckets[num as 10 | 11 | 12 | 13].push(p);
+        } else {
+            others.push(p);
+        }
+    });
+    order.forEach(n => buckets[n].sort((a,b)=> a.projectDetails.title.localeCompare(b.projectDetails.title)));
+    others.sort((a,b)=> a.projectDetails.title.localeCompare(b.projectDetails.title));
+    const sortedProgressProjects = [...order.flatMap(n => buckets[n]), ...others];
+
     return (
         <div className={styles.container}>
             <PageHeader
@@ -221,59 +252,6 @@ export default function CatalystProposals() {
             )}
 
             <CatalystProposalsList data={displayData} />
-
-            <div className={styles.milestoneOverview}>
-                <h3 className={styles.milestoneOverviewTitle}>Project Milestones Progress</h3>
-                <div className={styles.milestoneGrid}>
-                    {filteredProjects.map((project) => (
-                        <a
-                            key={project.projectDetails.id}
-                            className={styles.milestoneRow}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleCardClick(parseInt(project.projectDetails.project_id));
-                            }}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <div className={styles.milestoneInfo}>
-                                <div className={styles.milestoneTitle}>
-                                    <span className={styles.fundTag}>{getFundingRound(project.projectDetails.category)}</span>
-                                    <span className={styles.projectTitle}>{project.projectDetails.title}</span>
-                                </div>
-                                <div className={styles.milestoneCount}>
-                                    {project.milestonesCompleted ?? 0}/{project.projectDetails.milestones_qty}
-                                </div>
-                            </div>
-                            <div className={styles.milestoneProgressBar}>
-                                <div
-                                    className={styles.milestoneProgressFill}
-                                    style={{
-                                        width: `${calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty)}%`,
-                                        background: calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty) === 100
-                                            ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
-                                            : calculateProgress(project.milestonesCompleted, project.projectDetails.milestones_qty) > 50
-                                                ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
-                                                : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))'
-                                    }}
-                                />
-                            </div>
-                        </a>
-                    ))}
-                </div>
-            </div>
-
-            <ul className={styles.list}>
-                {filteredProjects.map((project) => (
-                    <li
-                        key={project.projectDetails.id}
-                        className={`${styles.card} ${styles.clickable}`}
-                        data-testid="proposal-item"
-                        onClick={() => handleCardClick(parseInt(project.projectDetails.project_id))}
-                    >
-                        {/* ... existing card content ... */}
-                    </li>
-                ))}
-            </ul>
             <div className={styles.timestamp}>
                 Last updated: {formatDate(data.timestamp)}
             </div>

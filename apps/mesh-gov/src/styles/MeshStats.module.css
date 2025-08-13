@@ -504,3 +504,34 @@
         transform: translateY(0);
     }
 }
+
+.badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 0.75rem 0;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 999px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--hover-transition);
+}
+
+.badge:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.badgeSelected {
+    background: rgba(var(--status-success-rgb), 0.12);
+    border-color: rgba(var(--status-success-rgb), 0.5);
+    color: rgb(var(--status-success-rgb));
+}

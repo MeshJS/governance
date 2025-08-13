@@ -1,4 +1,4 @@
-import { LineChart, Line, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, Tooltip, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { useMemo } from 'react';
 
 interface ContributionTimelineProps {
@@ -106,7 +106,7 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
         });
 
         // Create a complete timeline from earliest to latest date
-        const timelineData = [];
+        const timelineData = [] as Array<{ date: string; commits: number; prs: number; total: number }>;
         const currentDate = new Date(earliestDate);
 
         while (currentDate <= latestDate) {
@@ -127,9 +127,44 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
         return timelineData;
     }, [commitTimestamps, prTimestamps, globalStartDate, globalEndDate]);
 
+    // Build month-start ticks from the data range; downsample to avoid label overlaps
+    const { monthTicks, monthStep } = useMemo(() => {
+        if (!data.length) return { monthTicks: [] as string[], monthStep: 1 };
+        const ticks: string[] = [];
+        const start = new Date(data[0].date);
+        start.setDate(1);
+        const end = new Date(data[data.length - 1].date);
+        const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+        while (cursor <= end) {
+            ticks.push(cursor.toISOString().split('T')[0]);
+            cursor.setMonth(cursor.getMonth() + 1);
+        }
+        // Limit to ~12 labels
+        const maxLabels = 12;
+        let step = 1;
+        if (ticks.length > maxLabels) {
+            step = Math.ceil(ticks.length / maxLabels);
+        }
+        const downsampled = ticks.filter((_, idx) => idx % step === 0);
+        if (downsampled[downsampled.length - 1] !== ticks[ticks.length - 1]) {
+            downsampled.push(ticks[ticks.length - 1]);
+        }
+        return { monthTicks: downsampled, monthStep: step };
+    }, [data]);
+
+    const monthTickFormatter = (value: string) => {
+        const d = new Date(value);
+        const isJanuary = d.getMonth() === 0;
+        const month = d.toLocaleString('en-US', { month: 'short' });
+        if (monthStep > 1 || isJanuary) {
+            return `${month} ${String(d.getFullYear()).slice(2)}`;
+        }
+        return month;
+    };
+
     return (
         <ResponsiveContainer width="100%" height={height}>
-            <LineChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+            <LineChart data={data} margin={{ top: 4, right: 8, left: 8, bottom: showAxis ? 28 : 0 }}>
                 <defs>
                     <filter id="glow">
                         <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
@@ -139,6 +174,21 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
                         </feMerge>
                     </filter>
                 </defs>
+                {showAxis && (
+                    <>
+                        <CartesianGrid strokeDasharray="2 2" stroke="rgba(255, 255, 255, 0.08)" horizontal={true} vertical={false} />
+                        <XAxis
+                            dataKey="date"
+                            ticks={monthTicks}
+                            tickFormatter={monthTickFormatter}
+                            stroke="rgba(255, 255, 255, 0.6)"
+                            fontSize={10}
+                            height={28}
+                            interval={0}
+                        />
+                        <YAxis hide domain={[0, 'auto']} />
+                    </>
+                )}
                 <Line
                     type="monotone"
                     dataKey="total"
@@ -150,7 +200,7 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
                 <Tooltip
                     content={({ active, payload }) => {
                         if (active && payload && payload.length) {
-                            const data = payload[0].payload;
+                            const data = payload[0].payload as any;
                             return (
                                 <div style={{
                                     backgroundColor: 'rgba(0, 0, 0, 0.85)',

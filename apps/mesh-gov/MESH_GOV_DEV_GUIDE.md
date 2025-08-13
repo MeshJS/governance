@@ -1,5 +1,7 @@
 # Mesh Governance Dashboard - Complete Development Guide
 
+helpful guide to kickstart ai dev sessions
+
 ## 🎯 Overview
 
 The Mesh Governance Dashboard is a sophisticated Next.js 15 application showcasing Mesh's governance activities, SDK adoption, and community metrics. Built with a modern glassmorphism dark theme and comprehensive data visualization capabilities.
