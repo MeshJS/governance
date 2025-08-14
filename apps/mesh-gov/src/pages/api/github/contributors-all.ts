@@ -8,7 +8,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         const orgLogin = req.query.org as string | undefined;
         if (!orgLogin) {
-            return res.status(200).json({ contributorTimestamps: {} });
+            return res.status(200).json({
+                contributorSummary: [],
+                contributorRepoActivity: [],
+                contributorTimestamps: {}
+            });
         }
 
         const context = await getGitHubApiContext(orgLogin);
@@ -16,23 +20,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(404).json({ error: 'Organization not found' });
         }
 
-        if (context.contributorIds.length === 0) {
-            return res.status(200).json({ contributorTimestamps: {} });
+        if (context.repoIds.length === 0 || context.contributorIds.length === 0) {
+            return res.status(200).json({
+                contributorSummary: [],
+                contributorRepoActivity: [],
+                contributorTimestamps: {}
+            });
         }
 
-        // Use pre-fetched yearly activity data from context (arrays per row)
+        // Prefetched datasets from context
+        const contributorSummary = context.contributorSummaryData;
+        const contributorRepoActivity = context.contributorRepoActivityData;
         const yearlyActivityData = context.contributorTimestampsData;
 
-        // Build the timestamps data structure
-        const contributorTimestamps: Record<string, Record<string, { commit_timestamps: string[], pr_timestamps: string[] }>> = {};
+        // Filter out zero-activity entries for summary
+        const activeContributors = (contributorSummary || []).filter(
+            (c: any) => c.commits_count > 0 || c.prs_count > 0
+        );
 
-        // Process yearly activity rows and merge arrays across years
-        yearlyActivityData.forEach((row: any) => {
+        // Filter out zero-activity entries and null contributor IDs for repo activity
+        const activeActivity = (contributorRepoActivity || []).filter(
+            (activity: any) => (activity.commits_in_repo > 0 || activity.prs_in_repo > 0) && activity.contributor_id !== null
+        );
+
+        // Build merged timestamps keyed by contributor login and repo name
+        const contributorTimestamps: Record<string, Record<string, { commit_timestamps: string[]; pr_timestamps: string[] }>> = {};
+        (yearlyActivityData || []).forEach((row: any) => {
             const contributorLogin = context.contributorIdToLogin.get(row.contributor_id);
             const repoName = row.repo_name;
-
             if (!contributorLogin || !repoName) return;
-
             if (!contributorTimestamps[contributorLogin]) {
                 contributorTimestamps[contributorLogin] = {};
             }
@@ -42,17 +58,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     pr_timestamps: []
                 };
             }
-
             const commitTimestamps = Array.isArray(row.commit_timestamps) ? row.commit_timestamps : [];
             const prTimestamps = Array.isArray(row.pr_timestamps) ? row.pr_timestamps : [];
-
             contributorTimestamps[contributorLogin][repoName].commit_timestamps.push(...commitTimestamps);
             contributorTimestamps[contributorLogin][repoName].pr_timestamps.push(...prTimestamps);
         });
 
-        return res.status(200).json({ contributorTimestamps });
+        // Helpful cache headers for edge/CDN layers
+        res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+
+        return res.status(200).json({
+            contributorSummary: activeContributors,
+            contributorRepoActivity: activeActivity,
+            contributorTimestamps
+        });
     } catch (err) {
         console.error('API error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }
-} 
+}
+

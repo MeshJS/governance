@@ -76,11 +76,9 @@ export default function Contributors() {
 	// Defensive: treat as no data if contributorStats is a legacy yearly record (object with numeric keys, not .contributors array)
 	const isOrgStats = contributorStats && typeof contributorStats === 'object' && 'contributors' in contributorStats && Array.isArray(contributorStats.contributors);
 
-	// Filter out bot accounts (e.g., github-actions[bot])
-	const isBotLogin = (login: string) => login === 'github-actions[bot]' || login.endsWith('[bot]');
 	const humanContributors = useMemo(() => {
 		if (!isOrgStats) return [] as Contributor[];
-		return (contributorStats.contributors as Contributor[]).filter(c => !isBotLogin(c.login));
+		return contributorStats.contributors as Contributor[];
 	}, [contributorStats, isOrgStats]);
 
 	// Calculate global earliest contribution date across all contributors

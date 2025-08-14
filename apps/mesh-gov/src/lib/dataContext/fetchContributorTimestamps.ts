@@ -3,6 +3,7 @@
  * Accepts context-specific helpers and state setters as arguments.
  */
 import config from '../../../config';
+import { getContributorsAllOnce } from '../contributorsAllFetcher';
 
 const organizationName = config.mainOrganization.name;
 
@@ -18,13 +19,7 @@ export async function fetchContributorTimestampsForContext({
     CONTRIBUTOR_TIMESTAMPS_STORAGE_KEY: string;
 }) {
     try {
-        const response = await fetch(`/api/github/contributor-timestamps-mat?org=${encodeURIComponent(organizationName)}`);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await getContributorsAllOnce(organizationName);
         const contributorTimestampsData = {
             contributorTimestamps: data.contributorTimestamps,
             lastFetched: Date.now()

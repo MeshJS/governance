@@ -1,27 +1,28 @@
--- 1) New MV: contributor_activity_yearly_mat
+-- contributor_activity_yearly_mat: exclude bots and actions-user at the source
+
 CREATE MATERIALIZED VIEW IF NOT EXISTS contributor_activity_yearly_mat AS
 WITH
   commits_cte AS (
     SELECT
-      c.author_id                         AS contributor_id,
+      c.author_id                       AS contributor_id,
       c.repo_id,
-      date_part('year', c.date)::int      AS year,
-      COUNT(*)                            AS commit_count,
-      MIN(c.date)                         AS first_commit_at,
-      MAX(c.date)                         AS last_commit_at,
-      ARRAY_AGG(c.date ORDER BY c.date)   AS commit_timestamps
+      date_part('year', c.date)::int    AS year,
+      COUNT(*)                          AS commit_count,
+      MIN(c.date)                       AS first_commit_at,
+      MAX(c.date)                       AS last_commit_at,
+      ARRAY_AGG(c.date ORDER BY c.date) AS commit_timestamps
     FROM commits c
     WHERE c.date IS NOT NULL
     GROUP BY 1,2,3
   ),
   prs_cte AS (
     SELECT
-      pr.user_id                          AS contributor_id,
+      pr.user_id                                AS contributor_id,
       pr.repo_id,
-      date_part('year', pr.merged_at)::int AS year,
-      COUNT(*)                            AS pr_count,
-      MIN(pr.merged_at)                   AS first_pr_at,
-      MAX(pr.merged_at)                   AS last_pr_at,
+      date_part('year', pr.merged_at)::int      AS year,
+      COUNT(*)                                  AS pr_count,
+      MIN(pr.merged_at)                         AS first_pr_at,
+      MAX(pr.merged_at)                         AS last_pr_at,
       ARRAY_AGG(pr.merged_at ORDER BY pr.merged_at) AS pr_timestamps
     FROM pull_requests pr
     WHERE pr.merged_at IS NOT NULL
@@ -58,21 +59,20 @@ SELECT
   m.pr_timestamps
 FROM merged m
 JOIN contributors u ON u.id = m.contributor_id
-JOIN github_repos r ON r.id = m.repo_id;
+JOIN github_repos r ON r.id = m.repo_id
+WHERE lower(u.login) <> 'actions-user'
+  AND lower(u.login) NOT LIKE '%[bot]';
 
--- 2) Deterministic indexes for fast lookups
+-- Deterministic and helper indexes
 CREATE UNIQUE INDEX IF NOT EXISTS contributor_activity_yearly_key_idx
   ON contributor_activity_yearly_mat (contributor_id, repo_id, year);
 
--- Filter by actor quickly
 CREATE INDEX IF NOT EXISTS contributor_activity_yearly_contributor_idx
   ON contributor_activity_yearly_mat (contributor_id);
 
--- Filter by repo quickly
 CREATE INDEX IF NOT EXISTS contributor_activity_yearly_repo_idx
   ON contributor_activity_yearly_mat (repo_id);
 
--- Time-window filters (first/last activity)
 CREATE INDEX IF NOT EXISTS contributor_activity_yearly_first_last_idx
   ON contributor_activity_yearly_mat (first_activity_at, last_activity_at);
 

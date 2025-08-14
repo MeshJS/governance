@@ -3,6 +3,7 @@
  * Accepts context-specific helpers and state setters as arguments.
  */
 import config from '../../../config';
+import { getContributorsAllOnce } from '../contributorsAllFetcher';
 
 const organizationName = config.mainOrganization.name;
 
@@ -18,13 +19,7 @@ export async function fetchContributorRepoActivityForContext({
     CONTRIBUTOR_REPO_ACTIVITY_STORAGE_KEY: string;
 }) {
     try {
-        const response = await fetch(`/api/github/contributor-repo-activity?org=${encodeURIComponent(organizationName)}`);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await getContributorsAllOnce(organizationName);
         const contributorRepoActivityData = {
             contributorRepoActivity: data.contributorRepoActivity,
             lastFetched: Date.now()
