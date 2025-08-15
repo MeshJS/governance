@@ -219,10 +219,7 @@ export interface DataContextType {
     contributorTimestampsError: string | null;
     contributorsError: string | null;
     refetchData: () => Promise<void>;
-    // Lazy loading functions
-    loadContributorSummary: () => Promise<void>;
-    loadContributorRepoActivity: () => Promise<void>;
-    loadContributorTimestamps: () => Promise<void>;
+    // Lazy loading function
     loadContributorStats: () => Promise<void>;
 }
 

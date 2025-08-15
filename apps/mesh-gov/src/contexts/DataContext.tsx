@@ -435,10 +435,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             contributorTimestampsError,
             contributorsError,
             refetchData,
-            // Lazy loading functions
-            loadContributorSummary,
-            loadContributorRepoActivity,
-            loadContributorTimestamps,
+            // Lazy loading function
             loadContributorStats
         }}>
             {children}

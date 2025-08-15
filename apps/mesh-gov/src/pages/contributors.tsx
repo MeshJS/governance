@@ -53,10 +53,7 @@ export default function Contributors() {
 		contributorSummaryError,
 		contributorRepoActivityError,
 		contributorTimestampsError,
-		loadContributorStats,
-		loadContributorSummary,
-		loadContributorRepoActivity,
-		loadContributorTimestamps
+		loadContributorStats
 	} = useData();
 
 	// Trigger lazy loading when component mounts
@@ -278,11 +275,11 @@ export default function Contributors() {
 			</div>
 		);
 	}
-
+    /*
 	// Check if we have all the required contributor data
 	const hasAllContributorData = contributorSummaryData && contributorRepoActivityData && contributorTimestampsData && contributorStats;
 
-	if (!hasAllContributorData) {
+	if (!hasAllContributorData && !isAnyContributorDataLoading) {
 		return (
 			<div className={styles.container}>
 				<PageHeader
@@ -294,7 +291,7 @@ export default function Contributors() {
 				</div>
 			</div>
 		);
-	}
+	}*/
 
 	const handleCardClick = (contributor: Contributor) => {
 		setSelectedContributor(contributor);
