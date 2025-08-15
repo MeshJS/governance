@@ -42,17 +42,8 @@ interface ContributorWithMetrics {
 export default function Contributors() {
 	const {
 		contributorStats,
-		contributorSummaryData,
-		contributorRepoActivityData,
-		contributorTimestampsData,
 		isLoadingContributors,
-		isLoadingContributorSummary,
-		isLoadingContributorRepoActivity,
-		isLoadingContributorTimestamps,
 		contributorsError,
-		contributorSummaryError,
-		contributorRepoActivityError,
-		contributorTimestampsError,
 		loadContributorStats
 	} = useData();
 
@@ -242,13 +233,10 @@ export default function Contributors() {
 		});
 	};
 
-	// Check if any contributor data is still loading
-	const isAnyContributorDataLoading = isLoadingContributorSummary || isLoadingContributorRepoActivity || isLoadingContributorTimestamps || isLoadingContributors;
-
 	// Check if there are any contributor data errors
-	const hasContributorDataError = contributorSummaryError || contributorRepoActivityError || contributorTimestampsError || contributorsError;
+	const hasContributorDataError = contributorsError;
 
-	if (isAnyContributorDataLoading) {
+	if ((isLoadingContributors || !contributorStats) && !hasContributorDataError) {
 		return (
 			<div className={styles.container}>
 				<PageHeader
@@ -270,28 +258,11 @@ export default function Contributors() {
 					subtitle="Error loading contributor data"
 				/>
 				<div className={styles.errorContainer}>
-					<p>Error: {contributorSummaryError || contributorRepoActivityError || contributorTimestampsError || contributorsError}</p>
+					<p>Error: {contributorsError}</p>
 				</div>
 			</div>
 		);
 	}
-    /*
-	// Check if we have all the required contributor data
-	const hasAllContributorData = contributorSummaryData && contributorRepoActivityData && contributorTimestampsData && contributorStats;
-
-	if (!hasAllContributorData && !isAnyContributorDataLoading) {
-		return (
-			<div className={styles.container}>
-				<PageHeader
-					title={<>Mesh <span>Contributors</span></>}
-					subtitle="No contributor data available"
-				/>
-				<div className={styles.errorContainer}>
-					<p>No contributor data is currently available.</p>
-				</div>
-			</div>
-		);
-	}*/
 
 	const handleCardClick = (contributor: Contributor) => {
 		setSelectedContributor(contributor);
