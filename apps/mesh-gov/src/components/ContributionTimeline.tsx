@@ -31,12 +31,12 @@ const isTimestampInRange = (timestamp: string, startDate: string | null, endDate
     const date = new Date(timestamp);
     const start = startDate ? parseDate(startDate) : null;
     const end = endDate ? parseDate(endDate) : null;
-    
+
     // For end date, include the entire day
     if (end) {
         end.setHours(23, 59, 59, 999);
     }
-    
+
     return (!start || date >= start) && (!end || date <= end);
 };
 
@@ -64,11 +64,11 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
                 if (allTimestamps.length === 0) return [];
                 earliestDate = new Date(allTimestamps[0]);
             }
-            
+
             if (globalEndDate) {
                 latestDate = parseDate(globalEndDate);
             } else {
-                latestDate = allTimestamps.length > 0 
+                latestDate = allTimestamps.length > 0
                     ? new Date(allTimestamps[allTimestamps.length - 1])
                     : new Date();
             }
@@ -80,11 +80,11 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
         }
 
         // Filter timestamps to only include those within the time window
-        const filteredCommitTimestamps = commitTimestamps.filter(timestamp => 
+        const filteredCommitTimestamps = commitTimestamps.filter(timestamp =>
             isTimestampInRange(timestamp, globalStartDate || null, globalEndDate || null)
         );
 
-        const filteredPrTimestamps = prTimestamps.filter(timestamp => 
+        const filteredPrTimestamps = prTimestamps.filter(timestamp =>
             isTimestampInRange(timestamp, globalStartDate || null, globalEndDate || null)
         );
 
@@ -167,10 +167,10 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
             <LineChart data={data} margin={{ top: 4, right: 8, left: 8, bottom: showAxis ? 28 : 0 }}>
                 <defs>
                     <filter id="glow">
-                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                         <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
                         </feMerge>
                     </filter>
                 </defs>

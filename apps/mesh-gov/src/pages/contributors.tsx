@@ -42,21 +42,9 @@ interface ContributorWithMetrics {
 export default function Contributors() {
 	const {
 		contributorStats,
-		contributorSummaryData,
-		contributorRepoActivityData,
-		contributorTimestampsData,
 		isLoadingContributors,
-		isLoadingContributorSummary,
-		isLoadingContributorRepoActivity,
-		isLoadingContributorTimestamps,
 		contributorsError,
-		contributorSummaryError,
-		contributorRepoActivityError,
-		contributorTimestampsError,
-		loadContributorStats,
-		loadContributorSummary,
-		loadContributorRepoActivity,
-		loadContributorTimestamps
+		loadContributorStats
 	} = useData();
 
 	// Trigger lazy loading when component mounts
@@ -76,11 +64,9 @@ export default function Contributors() {
 	// Defensive: treat as no data if contributorStats is a legacy yearly record (object with numeric keys, not .contributors array)
 	const isOrgStats = contributorStats && typeof contributorStats === 'object' && 'contributors' in contributorStats && Array.isArray(contributorStats.contributors);
 
-	// Filter out bot accounts (e.g., github-actions[bot])
-	const isBotLogin = (login: string) => login === 'github-actions[bot]' || login.endsWith('[bot]');
 	const humanContributors = useMemo(() => {
 		if (!isOrgStats) return [] as Contributor[];
-		return (contributorStats.contributors as Contributor[]).filter(c => !isBotLogin(c.login));
+		return contributorStats.contributors as Contributor[];
 	}, [contributorStats, isOrgStats]);
 
 	// Calculate global earliest contribution date across all contributors
@@ -247,13 +233,10 @@ export default function Contributors() {
 		});
 	};
 
-	// Check if any contributor data is still loading
-	const isAnyContributorDataLoading = isLoadingContributorSummary || isLoadingContributorRepoActivity || isLoadingContributorTimestamps || isLoadingContributors;
-
 	// Check if there are any contributor data errors
-	const hasContributorDataError = contributorSummaryError || contributorRepoActivityError || contributorTimestampsError || contributorsError;
+	const hasContributorDataError = contributorsError;
 
-	if (isAnyContributorDataLoading) {
+	if ((isLoadingContributors || !contributorStats) && !hasContributorDataError) {
 		return (
 			<div className={styles.container}>
 				<PageHeader
@@ -275,24 +258,7 @@ export default function Contributors() {
 					subtitle="Error loading contributor data"
 				/>
 				<div className={styles.errorContainer}>
-					<p>Error: {contributorSummaryError || contributorRepoActivityError || contributorTimestampsError || contributorsError}</p>
-				</div>
-			</div>
-		);
-	}
-
-	// Check if we have all the required contributor data
-	const hasAllContributorData = contributorSummaryData && contributorRepoActivityData && contributorTimestampsData && contributorStats;
-
-	if (!hasAllContributorData) {
-		return (
-			<div className={styles.container}>
-				<PageHeader
-					title={<>Mesh <span>Contributors</span></>}
-					subtitle="No contributor data available"
-				/>
-				<div className={styles.errorContainer}>
-					<p>No contributor data is currently available.</p>
+					<p>Error: {contributorsError}</p>
 				</div>
 			</div>
 		);

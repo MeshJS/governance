@@ -1,136 +1,255 @@
 import { supabase } from './supabase';
 
-export interface GitHubApiContext {
-    orgId: number;
-    repoIds: number[];
-    contributorIds: number[];
-    contributorIdToLogin: Map<number, string>;
-    repoIdToName: Map<number, string>;
-    // Pre-fetched materialized view data
-    contributorSummaryData: any[];
-    contributorRepoActivityData: any[];
-    contributorTimestampsData: any[];
-}
-
-export async function getGitHubApiContext(orgLogin: string): Promise<GitHubApiContext | null> {
+// Single-pass org contributor stats aggregation using the yearly materialized view
+// Returns data in the final ContributorStats shape to avoid redundant transformations elsewhere
+export async function getOrgContributorStats(orgLogin: string) {
     try {
-        // Get org id
+        // Resolve org id
         const { data: orgs, error: orgError } = await supabase
             .from('github_orgs')
             .select('id')
             .eq('login', orgLogin);
-
         if (orgError) throw new Error(orgError.message);
         if (!orgs || orgs.length === 0) {
-            return null;
+            return {
+                total_commits: 0,
+                total_pull_requests: 0,
+                total_issues: 0,
+                total_contributions: 0,
+                unique_count: 0,
+                lastFetched: Date.now(),
+                contributors: [],
+                perRepo: {}
+            };
         }
 
         const orgId = orgs[0].id;
 
-        // Get repo ids and names for this org
+        // Get repos for this org
         const { data: repos, error: repoError } = await supabase
             .from('github_repos')
             .select('id, name')
             .eq('org_id', orgId);
-
         if (repoError) throw new Error(repoError.message);
         const repoIds = repos?.map(r => r.id) ?? [];
-        const repoIdToName = new Map<number, string>();
-        repos?.forEach(repo => {
-            repoIdToName.set(repo.id, repo.name);
-        });
-
         if (repoIds.length === 0) {
             return {
-                orgId,
-                repoIds: [],
-                contributorIds: [],
-                contributorIdToLogin: new Map(),
-                repoIdToName: new Map(),
-                contributorSummaryData: [],
-                contributorRepoActivityData: [],
-                contributorTimestampsData: []
+                total_commits: 0,
+                total_pull_requests: 0,
+                total_issues: 0,
+                total_contributions: 0,
+                unique_count: 0,
+                lastFetched: Date.now(),
+                contributors: [],
+                perRepo: {}
             };
         }
 
-        // Get all materialized view data in parallel for this org's repos
-        const [contributorRepoActivity, contributorSummary, contributorTimestamps] = await Promise.all([
-            // Get contributor repo activity data
-            supabase
-                .from('contributor_repo_activity_mat')
-                .select('*')
-                .in('repo_id', repoIds),
+        // Pull yearly activity rows (single source of truth)
+        const yearlyActivity = await supabase
+            .from('contributor_activity_yearly_mat')
+            .select('contributor_id, login, repo_id, repo_name, commit_count, pr_count, commit_timestamps, pr_timestamps')
+            .in('repo_id', repoIds);
+        if (yearlyActivity.error) throw new Error(yearlyActivity.error.message);
 
-            // Get contributor summary data
-            supabase
-                .from('contributor_summary_mat')
-                .select('*'),
+        const rows = yearlyActivity.data || [];
+        if (rows.length === 0) {
+            return {
+                total_commits: 0,
+                total_pull_requests: 0,
+                total_issues: 0,
+                total_contributions: 0,
+                unique_count: 0,
+                lastFetched: Date.now(),
+                contributors: [],
+                perRepo: {}
+            };
+        }
 
-            // Get contributor timestamps data
-            supabase
-                .from('contributor_timestamps_mat')
-                .select('contributor_id, repo_name, timestamp, activity_type')
-                .in('repo_name', Array.from(repoIdToName.values()))
-        ]);
-
-        if (contributorRepoActivity.error) throw new Error(contributorRepoActivity.error.message);
-        if (contributorSummary.error) throw new Error(contributorSummary.error.message);
-        if (contributorTimestamps.error) throw new Error(contributorTimestamps.error.message);
-
-        // Extract contributor IDs from repo activity data
-        const contributorIds = new Set<number>();
-        (contributorRepoActivity.data || []).forEach(row => {
-            if (row.contributor_id) contributorIds.add(row.contributor_id);
+        // Collect contributor ids and avatar URLs
+        const contributorIds = Array.from(new Set(rows.map(r => r.contributor_id).filter(Boolean)));
+        const contributorsInfo = contributorIds.length > 0
+            ? await supabase
+                .from('contributors')
+                .select('id, login, avatar_url')
+                .in('id', contributorIds)
+            : { data: [], error: null } as any;
+        if (contributorsInfo.error) throw new Error(contributorsInfo.error.message);
+        const contributorIdToAvatar = new Map<number, string>();
+        const contributorIdToLogin = new Map<number, string>();
+        (contributorsInfo.data || []).forEach((c: any) => {
+            contributorIdToAvatar.set(c.id, c.avatar_url || '');
+            if (c.login) contributorIdToLogin.set(c.id, c.login);
         });
 
-        if (contributorIds.size === 0) {
-            return {
-                orgId,
-                repoIds,
-                contributorIds: [],
-                contributorIdToLogin: new Map(),
-                repoIdToName,
-                contributorSummaryData: [],
-                contributorRepoActivityData: [],
-                contributorTimestampsData: []
-            };
-        }
+        // Aggregation structures
+        const contributorMap = new Map<string, {
+            login: string;
+            avatar_url: string;
+            commits: number;
+            pull_requests: number;
+            contributions: number;
+            repositories: Array<{
+                name: string;
+                commits: number;
+                pull_requests: number;
+                contributions: number;
+                commit_timestamps: string[];
+                pr_timestamps: string[];
+            }>;
+            repoNames: string[];
+        }>();
 
-        // Build contributor ID to login mapping from summary data (which includes login and avatar_url)
-        const contributorIdToLogin = new Map<number, string>();
-        (contributorSummary.data || []).forEach(contributor => {
-            if (contributorIds.has(contributor.contributor_id)) {
-                contributorIdToLogin.set(contributor.contributor_id, contributor.login);
+        const perRepoMap = new Map<string, {
+            total_commits: number;
+            total_pull_requests: number;
+            total_issues: number;
+            contributors: Map<string, {
+                login: string;
+                avatar_url: string;
+                commits: number;
+                pull_requests: number;
+                contributions: number;
+                repositories: any[];
+                repoNames: string[];
+            }>;
+            issues: any[];
+            commits: any[];
+            pullRequests: any[];
+        }>();
+
+        let total_commits = 0;
+        let total_pull_requests = 0;
+        let total_issues = 0;
+
+        // Single pass over rows
+        rows.forEach(row => {
+            const contributorId = row.contributor_id as number;
+            const login = (row.login || contributorIdToLogin.get(contributorId) || `unknown-${contributorId}`) as string;
+            const avatar_url = contributorIdToAvatar.get(contributorId) || '';
+            const repoName = row.repo_name as string | null;
+            const commits = row.commit_count || 0;
+            const prs = row.pr_count || 0;
+
+            // Org totals
+            total_commits += commits;
+            total_pull_requests += prs;
+
+            // Contributor bucket
+            if (!contributorMap.has(login)) {
+                contributorMap.set(login, {
+                    login,
+                    avatar_url,
+                    commits: 0,
+                    pull_requests: 0,
+                    contributions: 0,
+                    repositories: [],
+                    repoNames: []
+                });
+            }
+            const contributor = contributorMap.get(login)!;
+            contributor.commits += commits;
+            contributor.pull_requests += prs;
+            contributor.contributions += commits + prs;
+
+            if (repoName) {
+                let repoStats = contributor.repositories.find(r => r.name === repoName);
+                if (!repoStats) {
+                    repoStats = {
+                        name: repoName,
+                        commits: 0,
+                        pull_requests: 0,
+                        contributions: 0,
+                        commit_timestamps: [],
+                        pr_timestamps: []
+                    };
+                    contributor.repositories.push(repoStats);
+                }
+                repoStats.commits += commits;
+                repoStats.pull_requests += prs;
+                repoStats.contributions += commits + prs;
+                if (Array.isArray(row.commit_timestamps)) {
+                    repoStats.commit_timestamps.push(...row.commit_timestamps);
+                }
+                if (Array.isArray(row.pr_timestamps)) {
+                    repoStats.pr_timestamps.push(...row.pr_timestamps);
+                }
+                if (!contributor.repoNames.includes(repoName)) {
+                    contributor.repoNames.push(repoName);
+                }
+
+                // Per-repo aggregation
+                if (!perRepoMap.has(repoName)) {
+                    perRepoMap.set(repoName, {
+                        total_commits: 0,
+                        total_pull_requests: 0,
+                        total_issues: 0,
+                        contributors: new Map(),
+                        issues: [],
+                        commits: [],
+                        pullRequests: []
+                    });
+                }
+                const repoAgg = perRepoMap.get(repoName)!;
+                repoAgg.total_commits += commits;
+                repoAgg.total_pull_requests += prs;
+                if (!repoAgg.contributors.has(login)) {
+                    repoAgg.contributors.set(login, {
+                        login,
+                        avatar_url,
+                        commits: 0,
+                        pull_requests: 0,
+                        contributions: 0,
+                        repositories: [],
+                        repoNames: []
+                    });
+                }
+                const repoContributor = repoAgg.contributors.get(login)!;
+                repoContributor.commits += commits;
+                repoContributor.pull_requests += prs;
+                repoContributor.contributions += commits + prs;
             }
         });
 
-        // Filter summary data to only include contributors for this org
-        const filteredContributorSummary = (contributorSummary.data || []).filter(
-            contributor => contributorIds.has(contributor.contributor_id)
-        );
+        // Build outputs
+        const contributors = Array.from(contributorMap.values())
+            .filter(c => c.commits > 0 || c.pull_requests > 0);
+        const unique_count = contributors.length;
 
-        // Filter repo activity data to only include contributors for this org
-        const filteredContributorRepoActivity = (contributorRepoActivity.data || []).filter(
-            activity => contributorIds.has(activity.contributor_id)
-        );
-
-        // Filter timestamps data to only include contributors for this org
-        const filteredContributorTimestamps = (contributorTimestamps.data || []).filter(
-            activity => contributorIds.has(activity.contributor_id)
-        );
+        const perRepo: Record<string, any> = {};
+        perRepoMap.forEach((val, name) => {
+            perRepo[name] = {
+                total_commits: val.total_commits,
+                total_pull_requests: val.total_pull_requests,
+                total_issues: val.total_issues,
+                contributors: Array.from(val.contributors.values()),
+                issues: val.issues,
+                commits: val.commits,
+                pullRequests: val.pullRequests
+            };
+        });
 
         return {
-            orgId,
-            repoIds,
-            contributorIds: Array.from(contributorIds),
-            contributorIdToLogin,
-            repoIdToName,
-            contributorSummaryData: filteredContributorSummary,
-            contributorRepoActivityData: filteredContributorRepoActivity,
-            contributorTimestampsData: filteredContributorTimestamps
+            total_commits,
+            total_pull_requests,
+            total_issues,
+            total_contributions: total_commits + total_pull_requests,
+            unique_count,
+            lastFetched: Date.now(),
+            contributors,
+            perRepo
         };
     } catch (err) {
-        console.error('Error getting GitHub API context:', err);
-        return null;
+        console.error('Error getting org contributor stats:', err);
+        return {
+            total_commits: 0,
+            total_pull_requests: 0,
+            total_issues: 0,
+            total_contributions: 0,
+            unique_count: 0,
+            lastFetched: Date.now(),
+            contributors: [],
+            perRepo: {}
+        };
     }
 }
