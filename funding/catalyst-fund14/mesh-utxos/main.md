@@ -11,13 +11,15 @@ Entity (Incorporated)
 
 [GENERAL] Requested Funds in Ada
 
+490
+
 [GENERAL] Please specify how many months you expect your project to last (from 2-12 months)
 Minimum 2 months - Maximum 12 months.
-0
+8
 
 
 [GENERAL] Please indicate if your proposal has been auto-translated into English from another language.
-Yes
+
 No
 
 [GENERAL] What is the exact problem you want to solve? (200-character limit including spaces)
@@ -31,12 +33,12 @@ Link 2: https://github.com/MeshJS/web3-sdk
 Link 3: 
 [GENERAL] Does your project have any dependencies on other organizations, technical or otherwise?
 Yes
-No
+
 
 [GENERAL] If YES, please describe what the dependency is and why you believe it is essential for your project’s delivery. If NO, please write “No dependencies.”
 Our success depends on our network of collaborators who will integrate and adopt UTXOS. Since adoption is measured by active business use, their engagement is essential.
 [GENERAL] Will your project’s output/s be fully open source?
-Yes
+
 No
 
 [GENERAL] Please provide here more information on the open source status of your project outputs
