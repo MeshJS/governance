@@ -28,9 +28,6 @@
         "governance": "governance",
         "dependentsCountRepo": "mesh"
     },
-    "excludedRepositories": [],
-    "extendedOrgName": [],
-    "extendedOrgExcludedRepos": [],
     "poolId": "",
     "drepId": "drep1yv4uesaj92wk8ljlsh4p7jzndnzrflchaz5fzug3zxg4naqkpeas3",
     "catalystProjectIds": "1000107,1100271,1200148,1200147,1200220,1300135,1300134,1300130,1300050,1300036",

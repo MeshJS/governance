@@ -1,0 +1,32 @@
+name: Fetch Community Catalyst Projects
+
+on:
+  schedule:
+    - cron: '10 0 * * *' # Daily at 00:10 UTC
+  workflow_dispatch:
+
+jobs:
+  fetch-community-catalyst-projects:
+    if: github.repository == 'MeshJS/governance'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch Catalyst Project IDs from registry
+        id: fetch
+        run: |
+          node scripts/community-config/output-catalyst-project-ids.mjs | cat
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Catalyst-Stats Action
+        uses: ./apps/shared-backend/github-actions/catalyst-stats-action
+        with:
+          project_ids: ${{ steps.fetch.outputs.project_ids }}
+
+

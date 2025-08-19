@@ -1,10 +1,10 @@
 name: Update Catalyst Stats
 
 on:
-  schedule:
-    - cron: '10 0 * * 1'  # Runs at 00:10 UTC every Monday
-    - cron: '10 0 * * 3'  # Runs at 00:10 UTC every Wednesday
-    - cron: '10 0 * * 5'  # Runs at 00:10 UTC every Friday
+  #schedule:
+  #  - cron: '10 0 * * 1'  # Runs at 00:10 UTC every Monday
+  #  - cron: '10 0 * * 3'  # Runs at 00:10 UTC every Wednesday
+  #  - cron: '10 0 * * 5'  # Runs at 00:10 UTC every Friday
   workflow_dispatch: # Manual trigger from GitHub Actions tab
 
 jobs:

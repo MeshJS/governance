@@ -1,0 +1,145 @@
+{
+    "$id": "https://example.com/schemas/community-config.schema.json",
+    "type": "object",
+    "required": ["mainOrganization", "repositories"],
+    "additionalProperties": true,
+    "properties": {
+      "schemaVersion": { "type": "integer", "minimum": 1, "default": 1 },
+      "mainOrganization": {
+        "type": "object",
+        "required": ["name", "displayName"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "displayName": { "type": "string", "minLength": 1 },
+          "logo": {
+            "type": "object",
+            "properties": {
+              "src": { "type": "string", "minLength": 1 },
+              "width": { "type": "integer", "minimum": 1 },
+              "height": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "logoWithName": {
+            "type": "object",
+            "properties": {
+              "src": { "type": "string", "minLength": 1 },
+              "width": { "type": "integer", "minimum": 1 },
+              "height": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "excludedRepos": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "extendedOrganizations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "displayName"],
+          "properties": {
+            "name": { "type": "string" },
+            "displayName": { "type": "string" },
+            "excludedRepos": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      },
+      "repositories": {
+        "type": "object",
+        "required": ["governance"],
+        "properties": {
+          "governance": { "type": "string" },
+          "dependentsCountRepo": { "type": "string" }
+        },
+        "additionalProperties": true
+      },
+      "poolId": { "type": "string" },
+      "drepId": {
+        "type": "string",
+        "pattern": "^drep1[0-9a-z]{20,}$"
+      },
+      "catalystProjectIds": {
+        "oneOf": [
+          {
+            "type": "array",
+            "items": { "type": ["integer", "string"], "pattern": "^[0-9]+$" }
+          },
+          { "type": "string" } 
+        ]
+      },
+      "discordGuildId": { "type": "string", "pattern": "^[0-9]{5,}$" },
+      "discordStats": {
+        "type": "object",
+        "properties": {
+          "useApiAction": { "type": "boolean", "default": false },
+          "description": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "npmPackages": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["key", "name"],
+          "properties": {
+            "key": { "type": "string" },
+            "name": { "type": "string" },
+            "github_package_id": { "type": "string" },
+            "dependents_url": { "type": "string" }
+          }
+        }
+      },
+      "socialLinks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "url"],
+          "properties": {
+            "name": { "type": "string" },
+            "url": { "type": "string" }
+          }
+        }
+      },
+      "builderProjects": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "icon", "url"],
+          "properties": {
+            "id": { "type": "string" },
+            "icon": { "type": "string" },
+            "url": { "type": "string" }
+          }
+        }
+      },
+      "highlightedProjects": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "name", "description", "icon", "url"],
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "icon": { "type": "string" },
+            "url": { "type": "string" },
+            "category": { "type": "string" }
+          }
+        }
+      },
+      "showcaseRepos": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "name", "description", "icon", "url", "category"],
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "icon": { "type": "string" },
+            "url": { "type": "string" },
+            "category": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+  
