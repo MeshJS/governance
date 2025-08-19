@@ -16,7 +16,7 @@
         "displayName": "Sidan",
         "config": {
           "repo": "sidan-lab/DRep",   
-          "path": "org-stats-config.json",               
+          "path": "org-stats-config-new-format.json",               
           "ref": "main"
         },
         "schemaVersion": 1,

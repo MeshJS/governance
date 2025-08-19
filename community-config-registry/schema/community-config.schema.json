@@ -51,9 +51,6 @@
         },
         "additionalProperties": true
       },
-      "excludedRepositories": { "type": "array", "items": { "type": "string" } },
-      "extendedOrgName": { "type": "array", "items": { "type": "string" } },
-      "extendedOrgExcludedRepos": { "type": "array", "items": { "type": "string" } },
       "poolId": { "type": "string" },
       "drepId": {
         "type": "string",
