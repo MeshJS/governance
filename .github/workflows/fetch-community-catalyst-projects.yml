@@ -2,11 +2,12 @@ name: Fetch Community Catalyst Projects
 
 on:
   schedule:
-    - cron: '20 0 * * *' # Daily at 00:20 UTC
+    - cron: '10 0 * * *' # Daily at 00:10 UTC
   workflow_dispatch:
 
 jobs:
   fetch-community-catalyst-projects:
+    if: github.repository == 'MeshJS/governance'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
