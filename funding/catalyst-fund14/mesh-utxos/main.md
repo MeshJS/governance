@@ -11,7 +11,7 @@ Entity (Incorporated)
 
 [GENERAL] Requested Funds in Ada
 
-490
+490,000 Ada
 
 [GENERAL] Please specify how many months you expect your project to last (from 2-12 months)
 Minimum 2 months - Maximum 12 months.
