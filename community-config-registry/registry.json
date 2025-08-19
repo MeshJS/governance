@@ -1,0 +1,27 @@
+[
+    {
+      "slug": "meshjs",
+      "displayName": "MeshJS",
+      "config": {
+        "repo": "MeshJS/governance",   
+        "path": "org-stats-config.json",               
+        "ref": "main"
+      },
+      "schemaVersion": 1,
+      "enabled": true,
+      "tags": ["cardano", "sdk"]
+    },
+    {
+        "slug": "sidan-lab",
+        "displayName": "Sidan",
+        "config": {
+          "repo": "sidan-lab/DRep",   
+          "path": "org-stats-config.json",               
+          "ref": "main"
+        },
+        "schemaVersion": 1,
+        "enabled": true,
+        "tags": ["cardano", "sdk"]
+      }
+  ]
+  

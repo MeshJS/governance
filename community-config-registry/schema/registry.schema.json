@@ -1,0 +1,24 @@
+{
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["slug", "displayName", "config"],
+      "properties": {
+        "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "displayName": { "type": "string" },
+        "enabled": { "type": "boolean", "default": true },
+        "schemaVersion": { "type": "integer", "minimum": 1, "default": 1 },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "config": {
+          "type": "object",
+          "required": ["repo", "path", "ref"],
+          "properties": {
+            "repo": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
+            "path": { "type": "string" },
+            "ref":  { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+  

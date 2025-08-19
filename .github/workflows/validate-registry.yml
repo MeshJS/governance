@@ -1,0 +1,42 @@
+name: Validate Registry and Community Configs
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "community-config-registry/registry.json"
+      - "community-config-registry/schema/**"
+      - "scripts/validate-configs.ts"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm i ajv ajv-formats axios @actions/core @actions/github tsx
+
+      - name: Validate registry.json against schema
+        working-directory: community-config-registry
+        run: |
+          node -e "
+          const fs=require('fs');
+          const Ajv=require('ajv'); const addFormats=require('ajv-formats');
+          const ajv=new Ajv({allErrors:true}); addFormats(ajv);
+          const schema=JSON.parse(fs.readFileSync('schema/registry.schema.json','utf8'));
+          const data=JSON.parse(fs.readFileSync('registry.json','utf8'));
+          const validate=ajv.compile(schema);
+          if(!validate(data)){ console.error(validate.errors); process.exit(1); }"
+
+      - name: Validate referenced community configs
+        working-directory: community-config-registry
+        run: npx tsx ../scripts/validate-configs.ts
