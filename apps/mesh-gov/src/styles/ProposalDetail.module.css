@@ -2,265 +2,726 @@
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.loading,
+.error {
+    padding: 2rem;
+    text-align: center;
+    font-size: 1.125rem;
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-color);
+}
+
+.error {
+    color: rgba(255, 76, 76, 0.95);
+    background: rgba(255, 76, 76, 0.1);
+    border-color: rgba(255, 76, 76, 0.3);
+}
+
+.proposalHeader {
+    margin-bottom: 2rem;
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 2rem;
 }
 
-.backLink {
-    display: inline-flex;
+.headerTop {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-size: 0.875rem;
-    margin-bottom: 2rem;
-    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
 }
 
-.backLink:hover {
-    color: rgba(255, 255, 255, 0.9);
-    transform: translateX(-4px);
+.badges {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.status {
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statusProposed {
+    background: rgba(12, 242, 180, 0.15);
+    color: rgba(12, 242, 180, 0.95);
+    border: 1px solid rgba(12, 242, 180, 0.3);
+    text-shadow: 0 0 10px rgba(12, 242, 180, 0.3);
+}
+
+.statusDraft {
+    background: rgba(142, 142, 147, 0.15);
+    color: rgba(142, 142, 147, 0.95);
+    border: 1px solid rgba(142, 142, 147, 0.3);
+}
+
+.statusUnderReview {
+    background: rgba(255, 193, 7, 0.15);
+    color: rgba(255, 193, 7, 0.95);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.statusVoting {
+    background: rgba(0, 122, 255, 0.15);
+    color: rgba(0, 122, 255, 0.95);
+    border: 1px solid rgba(0, 122, 255, 0.3);
+}
+
+.statusApproved {
+    background: rgba(12, 242, 180, 0.15);
+    color: rgba(12, 242, 180, 0.95);
+    border: 1px solid rgba(12, 242, 180, 0.3);
+    text-shadow: 0 0 10px rgba(12, 242, 180, 0.3);
+}
+
+.statusRejected {
+    background: rgba(255, 76, 76, 0.15);
+    color: rgba(255, 76, 76, 0.95);
+    border: 1px solid rgba(255, 76, 76, 0.3);
+}
+
+.fundRound {
+    padding: 0.375rem 0.75rem;
+    background: rgba(12, 242, 180, 0.08);
+    border: 1px solid rgba(12, 242, 180, 0.2);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(12, 242, 180, 0.9);
+}
+
+.backButton {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.backButton:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+}
+
+.shortDescription {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
 }
 
 .content {
-    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
 }
 
-.mainInfo {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 2rem;
+.mainContent {
     display: flex;
     flex-direction: column;
     gap: 2rem;
 }
 
-.statusBar {
+.imageSection {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.proposalImage {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
+.keyFeaturesSection {
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.milestonesSection {
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.sectionHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
-.status {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
+.sectionHeader h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.featuresGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.featureCard {
+    background: rgba(12, 242, 180, 0.03);
+    border: 1px solid rgba(12, 242, 180, 0.08);
+    border-radius: 12px;
+    padding: 1.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    aspect-ratio: 1 / 1.618;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px;
+}
+
+.featureCard:hover {
+    background: rgba(12, 242, 180, 0.06);
+    border-color: rgba(12, 242, 180, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(12, 242, 180, 0.1);
+}
+
+.featureCard h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 1rem 0;
+    line-height: 1.3;
+}
+
+.featureCard p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.featureList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.featureList span {
+    background: rgba(12, 242, 180, 0.1);
+    color: rgba(12, 242, 180, 0.9);
+    padding: 0.35rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.roadmapContainer {
+    position: relative;
+}
+
+.roadmapTimeline {
+    position: relative;
+}
+
+.roadmapItem {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.clickableRoadmapItem {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.clickableRoadmapItem:hover {
+    transform: translateX(8px);
+}
+
+.clickableRoadmapItem:hover .roadmapContent {
+    background: rgba(12, 242, 180, 0.04);
+    border-color: rgba(12, 242, 180, 0.12);
+    box-shadow: 0 4px 20px rgba(12, 242, 180, 0.08);
+}
+
+.roadmapIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+}
+
+.milestoneRoman {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(12, 242, 180, 0.15), rgba(12, 242, 180, 0.05));
+    border: 2px solid rgba(12, 242, 180, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: rgba(12, 242, 180, 0.95);
+    font-family: 'Times New Roman', serif;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.roadmapItem:hover .milestoneRoman {
+    background: linear-gradient(135deg, rgba(12, 242, 180, 0.25), rgba(12, 242, 180, 0.1));
+    border-color: rgba(12, 242, 180, 0.4);
+    transform: scale(1.05);
+}
+
+.roadmapContent {
+    flex: 1;
+    background: rgba(12, 242, 180, 0.02);
+    border: 1px solid rgba(12, 242, 180, 0.06);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.roadmapHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.roadmapHeader h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+    flex: 1;
+    min-width: 200px;
+}
+
+.roadmapMeta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.roadmapBudget {
+    font-family: var(--font-mono, monospace);
+    font-weight: 600;
+    color: rgba(12, 242, 180, 0.95);
+    font-size: 0.875rem;
+}
+
+.roadmapDate {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.roadmapDescription {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+}
+
+.roadmapTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.roadmapTag {
+    background: rgba(12, 242, 180, 0.08);
+    color: rgba(12, 242, 180, 0.9);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 500;
+}
+
+.clickHint {
+    color: rgba(12, 242, 180, 0.6);
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.clickableRoadmapItem:hover .clickHint {
+    opacity: 1;
+}
+
+.roadmapConnector {
+    position: absolute;
+    left: 39px;
+    top: 80px;
+    bottom: -32px;
+    width: 2px;
+    background: linear-gradient(180deg, 
+        rgba(12, 242, 180, 0.3) 0%, 
+        rgba(12, 242, 180, 0.1) 100%
+    );
+}
+
+.descriptionSection h2,
+.milestonesSection h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 1.5rem 0;
+}
+
+.descriptionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.descriptionHeader h2 {
+    margin: 0;
+}
+
+.readFullProposalButton {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(165deg,
+        rgba(12, 242, 180, 0.15) 0%,
+        rgba(12, 242, 180, 0.08) 100%
+    );
+    border: 1px solid rgba(12, 242, 180, 0.3);
+    border-radius: 8px;
+    color: rgba(12, 242, 180, 0.95);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-.completed {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+.readFullProposalButton:hover {
+    background: linear-gradient(165deg,
+        rgba(12, 242, 180, 0.25) 0%,
+        rgba(12, 242, 180, 0.15) 100%
+    );
+    border-color: rgba(12, 242, 180, 0.5);
+    color: rgba(12, 242, 180, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(12, 242, 180, 0.2);
 }
 
-.inprogress {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+.fullDescription p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
 }
 
-.pending {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.fullDescription p:last-child {
+    margin-bottom: 0;
 }
 
-.projectId {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.statsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
-.statCard {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 1rem;
+.milestonesList {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
 }
 
-.statCard h3 {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 0;
-    font-weight: 500;
-}
-
-.statValue {
-    font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 600;
-}
-
-.milestoneProgress {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
+.milestoneCard {
+    background: rgba(12, 242, 180, 0.03);
+    border: 1px solid rgba(12, 242, 180, 0.08);
+    border-radius: 12px;
     padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.milestoneCard:hover {
+    background: rgba(12, 242, 180, 0.05);
+    border-color: rgba(12, 242, 180, 0.15);
 }
 
 .milestoneHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
-.milestoneHeader h3 {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0;
-    font-weight: 500;
+.milestoneNumber {
+    background: rgba(12, 242, 180, 0.15);
+    color: rgba(12, 242, 180, 0.95);
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
-.milestoneCount {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
+.milestoneBudget {
+    font-family: var(--font-mono, monospace);
+    font-weight: 600;
+    color: var(--text-color);
 }
 
-.progressBar {
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-    overflow: hidden;
+.milestoneTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 0.5rem 0;
 }
 
-.progressFill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.3s ease;
+.milestoneDescription {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
 }
 
-.links {
+.milestoneDetails {
     display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
 }
 
-.externalLink {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.milestoneSection {
+    margin: 1rem 0;
+}
+
+.milestoneSection h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.milestoneSection ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style-type: disc;
+}
+
+.milestoneSection li {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.infoCard,
+.linksCard {
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.5rem;
+}
+
+.infoCard h3,
+.linksCard h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 1rem 0;
+}
+
+.infoGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.infoItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.infoLabel {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.infoValue {
+    font-size: 0.875rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.linksList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.resourceLink {
+    padding: 0.75rem 1rem;
+    background: rgba(12, 242, 180, 0.05);
+    border: 1px solid rgba(12, 242, 180, 0.1);
     border-radius: 8px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(12, 242, 180, 0.9);
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.externalLink:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-}
-
-.loading, .error {
+    transition: all 0.3s ease;
     text-align: center;
-    padding: 2rem;
-    color: rgba(255, 255, 255, 0.7);
 }
 
-.error {
-    background: rgba(255, 59, 48, 0.1);
-    border: 1px solid rgba(255, 59, 48, 0.2);
-    border-radius: 12px;
-    padding: 1rem;
-    color: rgba(255, 59, 48, 0.9);
-    margin: 1rem 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+.resourceLink:hover {
+    background: rgba(12, 242, 180, 0.1);
+    border-color: rgba(12, 242, 180, 0.2);
+    color: rgba(12, 242, 180, 1);
 }
 
-.retryButton {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    color: rgba(255, 255, 255, 0.9);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
-    white-space: nowrap;
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .sidebar {
+        order: -1;
+    }
 }
 
-.retryButton:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.noMilestones {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.95rem;
+@media (max-width: 1024px) and (min-width: 769px) {
+    .featuresGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
 }
 
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
     }
-
-    .mainInfo {
+    
+    .proposalHeader {
         padding: 1.5rem;
-        gap: 1.5rem;
     }
-
-    .statsGrid {
-        grid-template-columns: repeat(2, 1fr);
+    
+    .headerTop {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
     }
-
-    .statCard {
-        padding: 0.875rem;
+    
+    .title {
+        font-size: 1.5rem;
     }
-
-    .statValue {
-        font-size: 1.25rem;
+    
+    .shortDescription {
+        font-size: 1rem;
     }
-
-    .milestoneProgress {
+    
+    .descriptionSection,
+    .milestonesSection,
+    .infoCard,
+    .linksCard {
         padding: 1.25rem;
     }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 0.75rem;
+    
+    .milestoneCard {
+        padding: 1.25rem;
     }
-
-    .statsGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .links {
+    
+    .milestoneHeader {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
-
-    .externalLink {
-        width: 100%;
-        justify-content: center;
+    
+    .featuresGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .featureCard {
+        aspect-ratio: auto;
+        min-height: auto;
+    }
+    
+    .roadmapItem {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .roadmapIcon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .roadmapConnector {
+        display: none;
+    }
+    
+    .roadmapHeader {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .roadmapMeta {
+        align-items: center;
     }
 } 

@@ -1,0 +1,278 @@
+.card {
+    background: linear-gradient(165deg, 
+        rgba(12, 242, 180, 0.08) 0%,
+        rgba(0, 0, 0, 0.95) 30%,
+        rgba(0, 0, 0, 1) 70%,
+        rgba(12, 242, 180, 0.05) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 20px;
+    border: 1px solid rgba(12, 242, 180, 0.12);
+    box-shadow: 
+        0 2px 12px -1px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(12, 242, 180, 0.06) inset;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    min-height: 500px;
+    aspect-ratio: 1 / 1.8;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(165deg,
+        rgba(12, 242, 180, 0.06) 0%,
+        rgba(12, 242, 180, 0) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    inset: -100%;
+    background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(12, 242, 180, 0.08) 30%,
+        rgba(12, 242, 180, 0.15) 50%,
+        rgba(12, 242, 180, 0.08) 70%,
+        transparent 100%
+    );
+    transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(-100%) rotate(45deg);
+    pointer-events: none;
+}
+
+.card:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: rgba(12, 242, 180, 0.25);
+    box-shadow: 
+        0 12px 40px -4px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(12, 242, 180, 0.15) inset,
+        0 0 20px rgba(12, 242, 180, 0.1);
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+.card:hover::after {
+    transform: translateX(100%) rotate(45deg);
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:focus {
+    outline: 2px solid rgba(12, 242, 180, 0.5);
+    outline-offset: 2px;
+}
+
+.cardInner {
+    padding: 1.618rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.236rem;
+    position: relative;
+    z-index: 1;
+    height: 100%;
+}
+
+.cardHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 0.764rem;
+}
+
+.headerTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.statusDraft {
+    background: rgba(142, 142, 147, 0.15);
+    color: rgba(142, 142, 147, 0.95);
+    border: 1px solid rgba(142, 142, 147, 0.3);
+}
+
+.statusUnderReview {
+    background: rgba(255, 193, 7, 0.15);
+    color: rgba(255, 193, 7, 0.95);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.statusVoting {
+    background: rgba(0, 122, 255, 0.15);
+    color: rgba(0, 122, 255, 0.95);
+    border: 1px solid rgba(0, 122, 255, 0.3);
+}
+
+.statusApproved {
+    background: rgba(12, 242, 180, 0.15);
+    color: rgba(12, 242, 180, 0.95);
+    border: 1px solid rgba(12, 242, 180, 0.3);
+    text-shadow: 0 0 10px rgba(12, 242, 180, 0.3);
+}
+
+.statusRejected {
+    background: rgba(255, 76, 76, 0.15);
+    color: rgba(255, 76, 76, 0.95);
+    border: 1px solid rgba(255, 76, 76, 0.3);
+}
+
+.statusProposed {
+    background: rgba(12, 242, 180, 0.15);
+    color: rgba(12, 242, 180, 0.95);
+    border: 1px solid rgba(12, 242, 180, 0.3);
+    text-shadow: 0 0 10px rgba(12, 242, 180, 0.3);
+}
+
+.fundRound {
+    padding: 0.25rem 0.5rem;
+    background: rgba(12, 242, 180, 0.08);
+    border: 1px solid rgba(12, 242, 180, 0.2);
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: rgba(12, 242, 180, 0.9);
+    white-space: nowrap;
+}
+
+.title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cardContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.764rem;
+    flex: 1;
+}
+
+.description {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.imageContainer {
+    margin: 0.5rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(12, 242, 180, 0.02);
+    border: 1px solid rgba(12, 242, 180, 0.06);
+}
+
+.cardImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0.9;
+}
+
+.card:hover .cardImage {
+    opacity: 1;
+    transform: scale(1.02);
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.618rem;
+    margin-top: auto;
+}
+
+.infoBox {
+    background: rgba(12, 242, 180, 0.03);
+    border: 1px solid rgba(12, 242, 180, 0.08);
+    border-radius: 6px;
+    padding: 0.625rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.infoBox:hover {
+    background: rgba(12, 242, 180, 0.05);
+    border-color: rgba(12, 242, 180, 0.15);
+}
+
+.infoLabel {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.infoValue {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+    text-align: right;
+}
+
+.categoryBox {
+    grid-column: span 2;
+}
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+    .infoGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.618rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cardInner {
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+    
+    .title {
+        font-size: 1rem;
+    }
+    
+    .headerTop {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+} 

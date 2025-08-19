@@ -3,9 +3,11 @@ import styles from './ProposalFullContentModal.module.css';
 import { FaTimes } from 'react-icons/fa';
 
 interface Props {
-    projectId: string;
+    projectId?: string;
+    milestoneData?: any;
     isOpen: boolean;
     onClose: () => void;
+    title?: string;
 }
 
 interface Section {
@@ -13,7 +15,7 @@ interface Section {
     id: string;
 }
 
-export function ProposalFullContentModal({ projectId, isOpen, onClose }: Props) {
+export function ProposalFullContentModal({ projectId, milestoneData, isOpen, onClose, title }: Props) {
     const [content, setContent] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -46,36 +48,71 @@ export function ProposalFullContentModal({ projectId, isOpen, onClose }: Props) 
     }, [content]);
 
     useEffect(() => {
-        if (isOpen && projectId) {
+        if (isOpen) {
             setIsLoading(true);
             setError(null);
             
-            fetch(`/api/proposals/${projectId}/full-content`)
-                .then(async response => {
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then(data => {
-                    setContent(data);
-                    setIsLoading(false);
-                    // Set first section as active by default
-                    if (data) {
-                        const firstSection = data.split('\n').find(line => line.startsWith('[') && line.endsWith(']'));
-                        if (firstSection) {
-                            setActiveSection(firstSection.slice(1, -1).toLowerCase().replace(/\s+/g, '-'));
+            if (milestoneData) {
+                // Handle milestone data directly
+                const milestoneContent = formatMilestoneContent(milestoneData);
+                setContent(milestoneContent);
+                setIsLoading(false);
+                setActiveSection('overview');
+            } else if (projectId) {
+                // Handle project content via API
+                fetch(`/api/proposals/${projectId}/full-content`)
+                    .then(async response => {
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                         }
-                    }
-                })
-                .catch(err => {
-                    console.error('Error fetching proposal content:', err);
-                    setError(err.message || 'Failed to load proposal content');
-                    setIsLoading(false);
-                });
+                        return response.text();
+                    })
+                    .then(data => {
+                        setContent(data);
+                        setIsLoading(false);
+                        // Set first section as active by default
+                        if (data) {
+                            const firstSection = data.split('\n').find(line => line.startsWith('[') && line.endsWith(']'));
+                            if (firstSection) {
+                                setActiveSection(firstSection.slice(1, -1).toLowerCase().replace(/\s+/g, '-'));
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching proposal content:', err);
+                        setError(err.message || 'Failed to load proposal content');
+                        setIsLoading(false);
+                    });
+            }
         }
-    }, [projectId, isOpen]);
+    }, [projectId, milestoneData, isOpen]);
+
+    const formatMilestoneContent = (milestone: any) => {
+        return `[Overview]
+**Milestone ${milestone.id}: ${milestone.title}**
+
+**Budget:** ₳${milestone.budget.toLocaleString()}
+**Timeline:** ${milestone.duration}
+
+**Description:**
+${milestone.description}
+
+[Outcomes]
+**Expected Outcomes:**
+
+${milestone.outcomes.map((outcome: string, idx: number) => `${idx + 1}. ${outcome}`).join('\n')}
+
+[Acceptance Criteria]
+**Acceptance Criteria:**
+
+${milestone.acceptanceCriteria.map((criteria: string, idx: number) => `${idx + 1}. ${criteria}`).join('\n')}
+
+[Evidence]
+**Evidence of Completion:**
+
+${milestone.evidenceOfCompletion.map((evidence: string, idx: number) => `${idx + 1}. ${evidence}`).join('\n')}`;
+    };
 
     const handleSectionClick = (sectionId: string) => {
         setActiveSection(sectionId);
@@ -91,7 +128,7 @@ export function ProposalFullContentModal({ projectId, isOpen, onClose }: Props) 
         <div className={styles.modalOverlay}>
             <div className={styles.modal}>
                 <div className={styles.modalHeader}>
-                    <h2>Full Proposal Content</h2>
+                    <h2>{title || (milestoneData ? `Milestone ${milestoneData.id} Details` : 'Full Proposal Content')}</h2>
                     <button className={styles.closeButton} onClick={onClose}>
                         <FaTimes />
                     </button>
@@ -103,20 +140,22 @@ export function ProposalFullContentModal({ projectId, isOpen, onClose }: Props) 
                         <div className={styles.error}>{error}</div>
                     ) : (
                         <>
-                            <div className={styles.sectionSidebar}>
-                                <div className={styles.sectionList}>
-                                    {sections.map((section) => (
-                                        <button
-                                            key={section.id}
-                                            className={`${styles.sectionLink} ${activeSection === section.id ? styles.active : ''}`}
-                                            onClick={() => handleSectionClick(section.id)}
-                                        >
-                                            {section.title}
-                                        </button>
-                                    ))}
+                            {!milestoneData && (
+                                <div className={styles.sectionSidebar}>
+                                    <div className={styles.sectionList}>
+                                        {sections.map((section) => (
+                                            <button
+                                                key={section.id}
+                                                className={`${styles.sectionLink} ${activeSection === section.id ? styles.active : ''}`}
+                                                onClick={() => handleSectionClick(section.id)}
+                                            >
+                                                {section.title}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className={styles.modalContent}>
+                            )}
+                            <div className={`${styles.modalContent} ${milestoneData ? styles.modalContentFullWidth : ''}`}>
                                 <div className={styles.proposalContent}>
                                     {content.split('\n').map((line, index) => {
                                         // Updated regex to match the same pattern as above

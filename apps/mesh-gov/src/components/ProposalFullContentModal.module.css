@@ -164,6 +164,11 @@
     color: rgba(255, 255, 255, 0.9);
 }
 
+.modalContentFullWidth {
+    padding: 2rem;
+    max-width: none;
+}
+
 .modalContent h3 {
     color: rgba(255, 255, 255, 0.7);
 }
