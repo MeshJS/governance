@@ -7,6 +7,7 @@ import { filterProposals, generateCatalystProposalsFilterConfig } from '../confi
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { CatalystProject } from '../types';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import CatalystMilestonesDonut from '../components/CatalystMilestonesDonut';
 import CatalystBudgetDonut from '../components/CatalystBudgetDonut';
 import VotesDonutChart from '../components/VotesDonutChart';
@@ -217,6 +218,12 @@ export default function CatalystProposals() {
                 title={<>Catalyst Proposal <span>Dashboard</span></>}
                 subtitle="Mesh received strong support from Ada voters at Cardano's Project Catalyst. We are greatful for every support and want to make sure that our supporters have easy overview and insights on the progress of our funded proposals"
             />
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+                <Link href="/new-proposals" className={styles.cardButton}>
+                    View New Proposals
+                </Link>
+            </div>
 
             <SearchFilterBar
                 config={filterConfig}
