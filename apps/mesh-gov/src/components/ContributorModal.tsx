@@ -145,7 +145,26 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
         onClose();
     };
 
-    // Sort repositories by contributions in descending order
+    // Calculate filtered repository data for the selected time window
+    const filteredRepoData = useMemo(() => {
+        return contributor.repositories.map(repo => {
+            // Calculate filtered metrics for this specific repository
+            const repoFilteredMetrics = getFilteredMetrics(
+                { ...contributor, repositories: [repo] } as Contributor,
+                localStartDate || null,
+                localEndDate || null
+            );
+            
+            return {
+                name: repo.name,
+                commits: repoFilteredMetrics.commits,
+                pull_requests: repoFilteredMetrics.pullRequests,
+                contributions: repoFilteredMetrics.contributions
+            };
+        }).filter(repo => repo.contributions > 0); // Only include repos with contributions in the time window
+    }, [contributor, localStartDate, localEndDate]);
+
+    // Sort repositories by contributions in descending order (for table display)
     const sortedRepos = [...contributor.repositories].sort((a, b) => b.contributions - a.contributions);
 
     return (
@@ -258,7 +277,7 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
 
                     <h3 className={styles.sectionTitle}>Repository Contributions</h3>
                     <div className={styles.donutChartContainer}>
-                        <RepoDonutChart repositories={sortedRepos} />
+                        <RepoDonutChart repositories={filteredRepoData} />
                     </div>
 
                     <div className={styles.repoDetailList}>

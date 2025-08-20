@@ -28,7 +28,7 @@ export default function MidnightProposal() {
         // Additional Details
         fullDescription: "We will create four modular smart contracts with integrated UI, API, and testing: Tokenization (minting, burning, fractionalizing assets), Staking (delegation mechanics and rewards distribution), Identity (DID flows and provider integration), and Oracles (secure on-chain data feed consumption). These will be reusable templates, delivered within a structured framework that streamlines the full development lifecycle.",
         githubRepo: "https://github.com/MeshJS/midnight-starter-template",
-        website: "https://midnight.meshjs.dev/en",
+        website: "https://meshjs.dev/",
         
         // Milestones Array
         milestoneDetails: [
@@ -228,9 +228,6 @@ export default function MidnightProposal() {
                             <a href={proposalData.website} target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
                                 Project Website
                             </a>
-                            <a href="https://github.com/midnightntwrk/midnight-awesome-dapps" target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
-                                Midnight Awesome dApps
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -246,41 +243,21 @@ export default function MidnightProposal() {
                     <div className={styles.featureCard}>
                         <h3>Tokenization Framework</h3>
                         <p>Complete smart contract solution for minting, burning, and fractionalizing assets with integrated UI components</p>
-                        <div className={styles.featureList}>
-                            <span>Token Minting</span>
-                            <span>Asset Fractionalization</span>
-                            <span>Burn Mechanics</span>
-                        </div>
                     </div>
                     
                     <div className={styles.featureCard}>
                         <h3>Staking Infrastructure</h3>
                         <p>Delegation mechanics and rewards distribution system with comprehensive testing framework</p>
-                        <div className={styles.featureList}>
-                            <span>Delegation Logic</span>
-                            <span>Rewards Distribution</span>
-                            <span>Staking Management</span>
-                        </div>
                     </div>
                     
                     <div className={styles.featureCard}>
                         <h3>Identity Solutions</h3>
                         <p>DID flows and provider integration for privacy-preserving identity management on Midnight</p>
-                        <div className={styles.featureList}>
-                            <span>DID Integration</span>
-                            <span>Provider Support</span>
-                            <span>Privacy Controls</span>
-                        </div>
                     </div>
                     
                     <div className={styles.featureCard}>
                         <h3>Oracle Integration</h3>
                         <p>Secure on-chain data feed consumption with reliable external data integration patterns</p>
-                        <div className={styles.featureList}>
-                            <span>Data Feeds</span>
-                            <span>Security Framework</span>
-                            <span>API Integration</span>
-                        </div>
                     </div>
                 </div>
             </div>

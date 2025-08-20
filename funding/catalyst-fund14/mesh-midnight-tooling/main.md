@@ -1,38 +1,9 @@
-
-
 [GENERAL] Proposal title  
 Mesh: Privacy-Enabled Smart Contracts and UI for Midnight
 
 
-
-[GENERAL] Name and surname of main applicant  
-(Not specified in data — please provide main applicant's name here)
-
-
-
-[GENERAL] Are you delivering this project as an individual or as an entity (whether formally incorporated or not)  
-Entity (Incorporated)
-
-
-
-[GENERAL] Co proposers and Additional applicants  
-(Not specified in data — add co-proposers if applicable)
-
-
-
-[GENERAL] Requested Funds in Ada  
-60,000 ADA
-
-
-
-[GENERAL] Please specify how many months you expect your project to last (from 2-12 months)  
-10 months
-
-
-
-[GENERAL] Please indicate if your proposal has been auto-translated into English from another language.  
-No
-
+[GENERAL] Budget
+60,000 Ada
 
 
 [GENERAL] What is the exact problem you want to solve? (200-character limit including spaces)  

@@ -315,41 +315,21 @@ This step-by-step approach guarantees that the SDK will not only be cross-chain 
                     <div className={styles.featureCard}>
                         <h3>Standardized Interfaces</h3>
                         <p>Multi-chain wallet interfaces for Bitcoin, Cardano, and CIP30 protocols</p>
-                        <div className={styles.featureList}>
-                            <span>Multi-chain wallets</span>
-                            <span>Core Bitcoin & Cardano</span>
-                            <span>CIP30 interface</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Core Implementation</h3>
                         <p>Essential wallet logic with secure key management and transaction handling</p>
-                        <div className={styles.featureList}>
-                            <span>Key generation</span>
-                            <span>Address creation</span>
-                            <span>Transaction signing</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Developer-Friendly Tools</h3>
                         <p>Headless wallets optimized for testing and seamless dApp integration</p>
-                        <div className={styles.featureList}>
-                            <span>CIP30 headless wallet</span>
-                            <span>Bitcoin standard wallet</span>
-                            <span>Easy integration</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Production Ready</h3>
                         <p>Complete packaging with comprehensive docs and NPM publishing</p>
-                        <div className={styles.featureList}>
-                            <span>NPM package</span>
-                            <span>Full documentation</span>
-                            <span>Video tutorials</span>
-                        </div>
                     </div>
                 </div>
             </div>

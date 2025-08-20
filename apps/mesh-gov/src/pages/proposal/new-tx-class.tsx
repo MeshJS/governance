@@ -266,41 +266,21 @@ export default function NewTxClassProposal() {
                     <div className={styles.featureCard}>
                         <h3>Unified Transaction Building</h3>
                         <p>Consolidate fragmented tx-builders across Whisky, core-csl, and core-cst into a single, coherent framework with consistent APIs and patterns.</p>
-                        <div className={styles.featureList}>
-                            <span>Whisky Integration</span>
-                            <span>Core-CSL Alignment</span>
-                            <span>Core-CST Refactoring</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>New Tx Class Design</h3>
                         <p>Implement a modular, extensible Tx class built on solid design principles that makes transaction building intuitive and maintainable for developers.</p>
-                        <div className={styles.featureList}>
-                            <span>Modular Architecture</span>
-                            <span>Clear Design Principles</span>
-                            <span>Developer-Friendly APIs</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Enhanced Documentation</h3>
                         <p>Create comprehensive, AI-optimized documentation that serves both human developers and AI models, accelerating adoption and reducing learning curves.</p>
-                        <div className={styles.featureList}>
-                            <span>Human-Readable Docs</span>
-                            <span>AI Model Optimization</span>
-                            <span>Interactive Examples</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Developer Experience</h3>
                         <p>Eliminate duplication, reduce complexity, and provide consistent patterns that make extending and maintaining transaction logic straightforward.</p>
-                        <div className={styles.featureList}>
-                            <span>Reduced Complexity</span>
-                            <span>Consistent Patterns</span>
-                            <span>Better Maintainability</span>
-                        </div>
                     </div>
                 </div>
             </div>

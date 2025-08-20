@@ -1,27 +1,16 @@
 
-Proposal Template
 
 [GENERAL] Proposal title
 Mesh: New Tx Class for Mesh SDK
+
+
 [GENERAL] Name and surname of main applicant
 Mesh
-[GENERAL] Are you delivering this project as an individual or as an entity (whether formally incorporated or not)
 
-Entity (Incorporated)
-
-
-[GENERAL] Co proposers and Additional applicants
 
 [GENERAL] Requested Funds in Ada
 100,000 Ada
-[GENERAL] Please specify how many months you expect your project to last (from 2-12 months)
-Minimum 2 months - Maximum 12 months.
-0
 
-
-[GENERAL] Please indicate if your proposal has been auto-translated into English from another language.
-Yes
-No
 
 [GENERAL] What is the exact problem you want to solve? (200-character limit including spaces)
 
@@ -29,37 +18,6 @@ Mesh transaction building is (at times) fragmented, inconsistent, and lacks clea
 
 [GENERAL] Summarize your solution to the problem (200-character limit including spaces)
 This proposal will unify and refactor our TxBuilder with clear design principles, adds a new Tx class, and finally an updated documentation for Devs
-[GENERAL] Website/ GitHub repository, or any other relevant link
-Link: https://github.com/MeshJS/mesh 
-Link 2: 
-Link 3: 
-[GENERAL] Does your project have any dependencies on other organizations, technical or otherwise?
-Yes
-No
-
-[GENERAL] If YES, please describe what the dependency is and why you believe it is essential for your project's delivery. If NO, please write "No dependencies."
-
-[GENERAL] Will your project's output/s be fully open source?
-Yes
-No
-
-[GENERAL] Please provide here more information on the open source status of your project outputs
-All respective code will be licenced under an Apache 2.0 open source license on the MeshJS github organisation
-
-Category Questions
-Mention your open source license and describe your open source license rationale.
-All code of this project will be published under the already existing Apache 2.0 Open source licence which covers all code of our open source Mesh SDK
-https://github.com/MeshJS/mesh 
-
-How do you make sure your source code is accessible to the public from project start, and people are informed?
-Since there are already more than 800 projects using our SDK, the way from deployment to use is very short and effective. To inform developers we will provide additional announcements on our Mesh Discord server as well as on our Mesh Twitter account.
-How will you provide high quality documentation?
-The Mesh Docs are already well advanced and will be accordingly updated, furthermore we aim to optimise our Docs not only for human developers, but also for Ai models to ensure that developers using ai have high quality Docs for their ai models available.
-[METADATA] Themes:
-Choose the most relevant tags that can help identify and categorize your project.
-
-[METADATA] SDG rating
-This field is optional. You can use the SDG Proposer Tool to help you include any relevant UN ...
 
 [SOLUTION] Please describe your proposed solution.
 Our Mesh SDK is great, tho surely not perfect. As we are well aware of its current limitations we know that we  need a more unified, modular, and developer-friendly transaction building framework. Today, tx-builders across Whisky, core-csl, and core-cst are fragmented, inconsistent, and lack clear design principles. This slows developers down, creates duplication, and makes extending or maintaining transaction logic unnecessarily complex, so yes, we definitely know that we can and have to improve, this proposal enables funds for us to do so..
