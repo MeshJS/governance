@@ -3,9 +3,22 @@
 
 [GENERAL] Proposal title
 Mesh UTXOS: Supercharge Business Onboarding to Cardano
+[GENERAL] Name and surname of main applicant
+Mesh
+[GENERAL] Are you delivering this project as an individual or as an entity (whether formally incorporated or not)
 
-[GENERAL] Budget
-490,000 Ada
+Entity (Incorporated)
+
+[GENERAL] Requested Funds in Ada
+
+[GENERAL] Please specify how many months you expect your project to last (from 2-12 months)
+Minimum 2 months - Maximum 12 months.
+0
+
+
+[GENERAL] Please indicate if your proposal has been auto-translated into English from another language.
+Yes
+No
 
 [GENERAL] What is the exact problem you want to solve? (200-character limit including spaces)
 Cardano and Bitcoin lack business-ready onboarding tools such as non custodial wallets, social logins and gasless transactions, leaving them behind ecosystems like Ethereum.
@@ -14,6 +27,45 @@ Cardano and Bitcoin lack business-ready onboarding tools such as non custodial w
 UTXOS provides wallet-as-a-service, transaction sponsorship, and fiat on-ramp, enabling seamless onboarding and adoption for Cardano and Bitcoin apps.
 
 [GENERAL] Website/ GitHub repository, or any other relevant link
+Link: https://utxos.dev/ 
+Link 2: https://github.com/MeshJS/web3-sdk 
+Link 3: 
+[GENERAL] Does your project have any dependencies on other organizations, technical or otherwise?
+Yes
+No
+
+[GENERAL] If YES, please describe what the dependency is and why you believe it is essential for your project’s delivery. If NO, please write “No dependencies.”
+Our success depends on our network of collaborators who will integrate and adopt UTXOS. Since adoption is measured by active business use, their engagement is essential.
+[GENERAL] Will your project’s output/s be fully open source?
+Yes
+No
+
+[GENERAL] Please provide here more information on the open source status of your project outputs
+All core building blocks of UTXOS are based on the open-source Mesh SDK. The UTXOS SDK will remain open source, while the commercial UTXOS platform itself will not be fully open source.
+[METADATA] Themes:
+Choose the most relevant tags that can help identify and categorize your project.
+
+[METADATA] SDG rating
+This field is optional. You can use the SDG Proposer Tool to help you include any relevant UN ...
+
+
+Describe your Collaborations
+With Mesh, we have a strong and healthy ecosystem around us with which we regularly team up to join forces at dedicated proposals. For this proposal, direct collaboration with Dev Teams at Mercuryo and Checkpoint will help to ensure smooth and effective integrations to our proposal collaborators. 
+
+Furthermore, direct collaborations with other cardano dev projects will be enacted to enable additional developer capacity while direct collaboration with well experienced Business Developers helps us to bring UTXOS from code to client
+
+Describe Funding Commitments
+We are fully committed to delivering UTXOS regardless of funding outcome. Catalyst funding accelerates our timeline and scope, but we are already investing significant internal resources, including developer time & our Ada funds into the initial build up of UTXOS.
+External partners (Mercuryo and Checkpoint) are also engaged without any heavy costs. Their involvement reduces both technical and financial risk.
+
+Describe your key performance metrics
+Our key metrics through which we will measure the proposal success are:
+Number of clients using UTXOS
+Range & diversity of clients using UTXOS
+Development activity of the UTXOS github code base
+Dependencies of the UTXOS SDK via nmpjs.com
+
+All the measurements and metrics will be included on the Mesh Dashboard to provide public assessment of UTXOS usage and development data
 
 [SOLUTION] Please describe your proposed solution.
 Building on Cardano and Bitcoin today feels like Ethereum in 2016. Apps are coming, but the user experience is still broken. No social logins, no gasless transactions, and users drop off before onboarding.
