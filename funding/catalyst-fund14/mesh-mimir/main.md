@@ -1,10 +1,11 @@
-Mesh: Mimir - Your AI Copilot for Cardano Development
 
-[GENERAL]
+[GENERAL] Proposal title  
+Mesh - Mimir: Optimising open source Docs & Tools for AI use
 
-[GENERAL] Please specify how many months you expect your project to last (from 2-12 months)
 
-6 months
+[GENERAL] Budget
+100,000 Ada
+
 
 [GENERAL] Problem Statement
 
@@ -14,21 +15,6 @@ More and more devs using AI models in day to day coding tasks, yet, due to lack 
 
 With Mesh Mimir, we build solutions to optimise and upgrade open source tools and docs for ai models, ensuring that ai is able to provide more accurate quality code when building on cardano
 
-[GENERAL] Does your project have any dependencies on other organizations, technical or otherwise?
-
-No
-
-[GENERAL] If YES, please describe what the dependency is and why you believe it is essential for your project's delivery. If NO, please write "No dependencies."
-
-No dependencies.
-
-[GENERAL] Please provide here more information on the open source status of your project outputs
-
-All code will be fully open source on a publicly accessible Mesh github repository
-
-[METADATA]
-
-[METADATA] Horizons
 
 [SOLUTION]
 

@@ -19,7 +19,7 @@ export default function UtxosProposal() {
         title: "Mesh UTXOS: Supercharge Business Onboarding to Cardano",
         description: "UTXOS provides wallet-as-a-service, transaction sponsorship, and fiat on-ramp, enabling seamless onboarding and adoption for Cardano and Bitcoin apps",
         category: "Cardano Use Cases: Products & Partnerships",
-        budget: 445000, // in ADA
+        budget: 490000, // in ADA
         proposer: "Mesh",
         status: "Proposed",
         fundRound: "Fund 14",
@@ -269,41 +269,21 @@ export default function UtxosProposal() {
                     <div className={styles.featureCard}>
                         <h3>Wallet-as-a-Service</h3>
                         <p>Complete wallet infrastructure with social logins, recoverable wallets, white label solutions, and third-party authentication support for seamless user onboarding.</p>
-                        <div className={styles.featureList}>
-                            <span>Social Logins</span>
-                            <span>Recoverable Wallets</span>
-                            <span>White Label Solution</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Transaction Sponsorship</h3>
                         <p>Enable gasless transactions through transaction sponsorship, allowing businesses to cover transaction costs for their users and remove onboarding friction.</p>
-                        <div className={styles.featureList}>
-                            <span>Gasless Transactions</span>
-                            <span>Sponsored Payments</span>
-                            <span>Business Integration</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Fiat On-Ramp & Security</h3>
                         <p>Integrated fiat-to-crypto conversion through Mercuryo partnership and advanced security features with Checkpoint integration for wallet protection.</p>
-                        <div className={styles.featureList}>
-                            <span>Mercuryo Integration</span>
-                            <span>KYC Processes</span>
-                            <span>Security Screening</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Business Onboarding</h3>
                         <p>Comprehensive SDK and documentation designed for business adoption, enabling rapid integration and scaling of Cardano and Bitcoin applications.</p>
-                        <div className={styles.featureList}>
-                            <span>Business SDK</span>
-                            <span>Developer Docs</span>
-                            <span>Client Support</span>
-                        </div>
                     </div>
                 </div>
             </div>

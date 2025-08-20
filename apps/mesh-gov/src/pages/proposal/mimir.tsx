@@ -27,7 +27,7 @@ export default function MimirProposal() {
         
         // Additional Details
         fullDescription: "More and more devs using AI models in day to day coding tasks, yet, due to lack of ai-compatible tools & docs, ai models often output low quality making it difficult to use ai for onchain development. With Mesh Mimir, we build solutions to optimise and upgrade open source tools and docs for ai models, ensuring that ai is able to provide more accurate quality code when building on cardano.",
-        githubRepo: "https://github.com/MeshJS/mesh",
+        githubRepo: "https://github.com/MeshJS/mimir",
         website: "https://meshjs.dev",
         
         // Milestones Array
@@ -270,41 +270,21 @@ export default function MimirProposal() {
                     <div className={styles.featureCard}>
                         <h3>AI-Optimized Documentation</h3>
                         <p>Refactor and reformat documentation at all levels to meet AI requirements, including inline code documentation and web docs optimized for AI scraping and understanding.</p>
-                        <div className={styles.featureList}>
-                            <span>Inline Documentation</span>
-                            <span>AI-Compatible Formats</span>
-                            <span>Scrapable Web Docs</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>RAG-Powered AI Assistant</h3>
                         <p>Develop Retrieval-Augmented Generation system with contextual retrieval to provide accurate, up-to-date information and reduce AI hallucination in Cardano development.</p>
-                        <div className={styles.featureList}>
-                            <span>Contextual Retrieval</span>
-                            <span>Live Documentation</span>
-                            <span>Embedded AI Chat</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>MCP Server Integration</h3>
                         <p>Build Model Context Protocol servers enabling AI agents to interact directly with blockchain through Mesh functionalities, supporting providers, core features, and transactions.</p>
-                        <div className={styles.featureList}>
-                            <span>Blockchain Querying</span>
-                            <span>Transaction Building</span>
-                            <span>Agent Integration</span>
-                        </div>
                     </div>
 
                     <div className={styles.featureCard}>
                         <h3>Collaborative Testing</h3>
                         <p>Comprehensive testing framework with peer collaboration, Discord bot showcase, and integration tests to ensure reliable AI-assisted Cardano development tools.</p>
-                        <div className={styles.featureList}>
-                            <span>Peer Testing</span>
-                            <span>Discord Bot Demo</span>
-                            <span>Integration Tests</span>
-                        </div>
                     </div>
                 </div>
             </div>

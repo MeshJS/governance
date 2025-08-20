@@ -55,7 +55,7 @@ export default function NewProposals() {
             title: "Mesh UTXOS: Supercharge Business Onboarding to Cardano",
             description: "UTXOS provides wallet-as-a-service, transaction sponsorship, and fiat on-ramp, enabling seamless onboarding and adoption for Cardano and Bitcoin apps",
             category: "Cardano Use Cases: Products & Partnerships",
-            budget: 445000,
+            budget: 490000,
             milestones: "5",
             status: "Proposed" as const,
             fundRound: "Fund14",

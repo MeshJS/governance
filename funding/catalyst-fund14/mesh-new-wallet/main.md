@@ -1,65 +1,19 @@
 
-Proposal Template
-Cardano Open: Developers
 
 [GENERAL] Proposal title
 Mesh: Cross Chain production-ready wallet SDK
 [GENERAL] Name and surname of main applicant
 Mesh
-[GENERAL] Are you delivering this project as an individual or as an entity (whether formally incorporated or not)
 
-Entity (Incorporated)
-
-
-[GENERAL] Co proposers and Additional applicants
-
-[GENERAL] Requested Funds in Ada
-100k
-[GENERAL] Please specify how many months you expect your project to last (from 2-12 months)
-Minimum 2 months - Maximum 12 months.
-0
-
-
-[GENERAL] Please indicate if your proposal has been auto-translated into English from another language.
-Yes
-No
+[GENERAL] Budget
+100,000 Ada
 
 [GENERAL] What is the exact problem you want to solve? (200-character limit including spaces)
 Developers face fragmented wallet integrations across Cardano and Bitcoin, with no unified, developer-friendly SDK for multi-chain wallet interfaces and modules
 
 [GENERAL] Summarize your solution to the problem (200-character limit including spaces)
 Deliver a cross-chain wallet SDK with unified interfaces, Cardano & Bitcoin core modules, developer-friendly wallets, docs & packaging
-[GENERAL] Website/ GitHub repository, or any other relevant link
-Link:
-Link 2:
-Link 3: 
-[GENERAL] Does your project have any dependencies on other organizations, technical or otherwise?
-Yes
-No
 
-[GENERAL] If YES, please describe what the dependency is and why you believe it is essential for your project’s delivery. If NO, please write “No dependencies.”
-
-[GENERAL] Will your project’s output/s be fully open source?
-Yes
-No
-
-[GENERAL] Please provide here more information on the open source status of your project outputs
-
-[METADATA] Themes:
-Choose the most relevant tags that can help identify and categorize your project.
-
-Category Questions
-Mention your open source license and describe your open source license rationale.
-
-All code of this project will be published under the already existing Apache 2.0 Open source licence which covers all code of our open source Mesh SDK
-https://github.com/MeshJS/mesh 
-How do you make sure your source code is accessible to the public from project start, and people are informed?
-Since there are already more than 800 projects using our SDK, the way from deployment to use is very short and effective. To inform developers we will provide additional announcements on our Mesh Discord server as well as on our Mesh Twitter account.
-How will you provide high quality documentation?
-The Mesh Docs are already well advanced and will be accordingly updated, furthermore we aim to optimise our Docs not only for human developers, but also for Ai models to ensure that developers using ai have high quality Docs for their ai models available.
-
-[METADATA] SDG rating
-This field is optional. You can use the SDG Proposer Tool to help you include any relevant UN ...
 
 [SOLUTION] Please describe your proposed solution.
 
