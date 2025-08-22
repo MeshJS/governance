@@ -1,7 +1,7 @@
 # Detailed Milestones for Mesh UTXOS
 
 ## Milestone 1
-**Budget:** ₳130,000
+**Budget:** ₳145,000
 **Timeline:** Dec-Jan
 
 **Outcomes:**
@@ -25,7 +25,7 @@
 - Public link to Twitter/X Post to inform the public
 
 ## Milestone 2
-**Budget:** ₳130,000
+**Budget:** ₳145,000
 **Timeline:** Feb-Mar
 
 **Outcomes:**
@@ -41,7 +41,7 @@
 - Public link to Twitter/X Post to inform the public
 
 ## Milestone 3
-**Budget:** ₳130,000
+**Budget:** ₳145,000
 **Timeline:** Apr-May
 
 **Outcomes:**
