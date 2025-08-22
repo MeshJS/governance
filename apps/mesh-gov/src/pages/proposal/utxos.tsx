@@ -36,7 +36,7 @@ export default function UtxosProposal() {
                 id: 1,
                 title: "Wallet as a Service & Transaction Sponsorship",
                 description: "Develop wallet-as-a-service with social logins, recoverable wallets, white label solution, and transaction sponsorship capabilities",
-                budget: 130000,
+                budget: 145000,
                 duration: "Dec-Jan",
                 outcomes: [
                     "Wallet as a service",
@@ -62,7 +62,7 @@ export default function UtxosProposal() {
                 id: 2,
                 title: "Fiat On-Ramp & KYC Integration",
                 description: "Develop and deploy full integration with Mercuryo for fiat on-ramp and KYC processes to enable seamless fiat-to-crypto conversion",
-                budget: 130000,
+                budget: 145000,
                 duration: "Feb-Mar",
                 outcomes: [
                     "Fiat on-ramp",
@@ -81,7 +81,7 @@ export default function UtxosProposal() {
                 id: 3,
                 title: "Wallet Security Implementation",
                 description: "Secure user wallets with web security provider (preferably Checkpoint) and implement real-time threat intelligence",
-                budget: 130000,
+                budget: 145000,
                 duration: "Apr-May",
                 outcomes: [
                     "Secure users wallets with web security provider (preferably Checkpoint)",
