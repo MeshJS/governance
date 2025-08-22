@@ -268,21 +268,33 @@ export default function MimirProposal() {
                 
                 <div className={styles.featuresGrid}>
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.aiDocsIcon}></div>
+                        </div>
                         <h3>AI-Optimized Documentation</h3>
                         <p>Refactor and reformat documentation at all levels to meet AI requirements, including inline code documentation and web docs optimized for AI scraping and understanding.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.ragIcon}></div>
+                        </div>
                         <h3>RAG-Powered AI Assistant</h3>
                         <p>Develop Retrieval-Augmented Generation system with contextual retrieval to provide accurate, up-to-date information and reduce AI hallucination in Cardano development.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.mcpIcon}></div>
+                        </div>
                         <h3>MCP Server Integration</h3>
                         <p>Build Model Context Protocol servers enabling AI agents to interact directly with blockchain through Mesh functionalities, supporting providers, core features, and transactions.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.testingIcon}></div>
+                        </div>
                         <h3>Collaborative Testing</h3>
                         <p>Comprehensive testing framework with peer collaboration, Discord bot showcase, and integration tests to ensure reliable AI-assisted Cardano development tools.</p>
                     </div>

@@ -264,21 +264,33 @@ export default function NewTxClassProposal() {
                 
                 <div className={styles.featuresGrid}>
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.unifyIcon}></div>
+                        </div>
                         <h3>Unified Transaction Building</h3>
                         <p>Consolidate fragmented tx-builders across Whisky, core-csl, and core-cst into a single, coherent framework with consistent APIs and patterns.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.txClassIcon}></div>
+                        </div>
                         <h3>New Tx Class Design</h3>
                         <p>Implement a modular, extensible Tx class built on solid design principles that makes transaction building intuitive and maintainable for developers.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.docsIcon}></div>
+                        </div>
                         <h3>Enhanced Documentation</h3>
                         <p>Create comprehensive, AI-optimized documentation that serves both human developers and AI models, accelerating adoption and reducing learning curves.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.experienceIcon}></div>
+                        </div>
                         <h3>Developer Experience</h3>
                         <p>Eliminate duplication, reduce complexity, and provide consistent patterns that make extending and maintaining transaction logic straightforward.</p>
                     </div>

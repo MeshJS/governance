@@ -241,21 +241,33 @@ export default function MidnightProposal() {
                 
                 <div className={styles.featuresGrid}>
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.tokenIcon}></div>
+                        </div>
                         <h3>Tokenization Framework</h3>
                         <p>Complete smart contract solution for minting, burning, and fractionalizing assets with integrated UI components</p>
                     </div>
                     
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.stakingIcon}></div>
+                        </div>
                         <h3>Staking Infrastructure</h3>
                         <p>Delegation mechanics and rewards distribution system with comprehensive testing framework</p>
                     </div>
                     
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.identityIcon}></div>
+                        </div>
                         <h3>Identity Solutions</h3>
                         <p>DID flows and provider integration for privacy-preserving identity management on Midnight</p>
                     </div>
                     
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.oracleIcon}></div>
+                        </div>
                         <h3>Oracle Integration</h3>
                         <p>Secure on-chain data feed consumption with reliable external data integration patterns</p>
                     </div>

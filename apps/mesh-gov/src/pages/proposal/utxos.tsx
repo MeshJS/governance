@@ -267,21 +267,33 @@ export default function UtxosProposal() {
                 
                 <div className={styles.featuresGrid}>
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.walletIcon}></div>
+                        </div>
                         <h3>Wallet-as-a-Service</h3>
                         <p>Complete wallet infrastructure with social logins, recoverable wallets, white label solutions, and third-party authentication support for seamless user onboarding.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.transactionIcon}></div>
+                        </div>
                         <h3>Transaction Sponsorship</h3>
                         <p>Enable gasless transactions through transaction sponsorship, allowing businesses to cover transaction costs for their users and remove onboarding friction.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.securityIcon}></div>
+                        </div>
                         <h3>Fiat On-Ramp & Security</h3>
                         <p>Integrated fiat-to-crypto conversion through Mercuryo partnership and advanced security features with Checkpoint integration for wallet protection.</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.businessIcon}></div>
+                        </div>
                         <h3>Business Onboarding</h3>
                         <p>Comprehensive SDK and documentation designed for business adoption, enabling rapid integration and scaling of Cardano and Bitcoin applications.</p>
                     </div>

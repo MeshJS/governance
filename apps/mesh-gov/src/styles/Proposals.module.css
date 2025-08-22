@@ -766,6 +766,195 @@
     z-index: 2;
 }
 
+/* Fund 14 Promotional Section */
+.fund14Section {
+    margin-bottom: 3rem;
+    background: linear-gradient(165deg, 
+        rgba(12, 242, 180, 0.08) 0%,
+        rgba(12, 242, 180, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 20px;
+    border: 1px solid rgba(12, 242, 180, 0.15);
+    box-shadow: 
+        0 8px 32px -4px rgba(12, 242, 180, 0.1),
+        0 0 0 1px rgba(12, 242, 180, 0.05) inset;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.fund14Section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(12, 242, 180, 0.1) 0%, transparent 70%);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.fund14Content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.fund14Text {
+    flex: 1;
+}
+
+.fund14Title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 1rem 0;
+    background: linear-gradient(135deg, rgba(12, 242, 180, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.fund14Description {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 600px;
+}
+
+.fund14Action {
+    flex-shrink: 0;
+}
+
+.fund14Button {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(135deg,
+        rgba(12, 242, 180, 0.2) 0%,
+        rgba(12, 242, 180, 0.1) 100%
+    );
+    border: 2px solid rgba(12, 242, 180, 0.3);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 4px 16px -2px rgba(12, 242, 180, 0.2),
+        0 0 0 1px rgba(12, 242, 180, 0.1) inset;
+}
+
+.fund14Button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(12, 242, 180, 0.3) 50%,
+        transparent 100%
+    );
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+.fund14Button:hover {
+    background: linear-gradient(135deg,
+        rgba(12, 242, 180, 0.3) 0%,
+        rgba(12, 242, 180, 0.15) 100%
+    );
+    border-color: rgba(12, 242, 180, 0.5);
+    box-shadow: 
+        0 8px 32px -4px rgba(12, 242, 180, 0.3),
+        0 0 0 1px rgba(12, 242, 180, 0.2) inset,
+        0 0 0 3px rgba(12, 242, 180, 0.1);
+    transform: translateY(-2px);
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.fund14Button:hover::before {
+    left: 100%;
+}
+
+.fund14Button:active {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg,
+        rgba(12, 242, 180, 0.25) 0%,
+        rgba(12, 242, 180, 0.12) 100%
+    );
+    box-shadow: 
+        0 6px 24px -4px rgba(12, 242, 180, 0.25),
+        0 0 0 1px rgba(12, 242, 180, 0.15) inset;
+}
+
+.fund14Button > * {
+    position: relative;
+    z-index: 2;
+}
+
+.fund14Button svg {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fund14Button:hover svg {
+    transform: translateX(2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .fund14Section {
+        padding: 2rem;
+    }
+    
+    .fund14Content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .fund14Title {
+        font-size: 1.5rem;
+    }
+    
+    .fund14Description {
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .fund14Section {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .fund14Title {
+        font-size: 1.25rem;
+    }
+    
+    .fund14Button {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
 .detailsTable {
     width: 100%;
     background: rgba(255, 255, 255, 0.03);
