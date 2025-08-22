@@ -313,21 +313,33 @@ This step-by-step approach guarantees that the SDK will not only be cross-chain 
                 
                 <div className={styles.featuresGrid}>
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.interfaceIcon}></div>
+                        </div>
                         <h3>Standardized Interfaces</h3>
                         <p>Multi-chain wallet interfaces for Bitcoin, Cardano, and CIP30 protocols</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.coreModuleIcon}></div>
+                        </div>
                         <h3>Core Implementation</h3>
                         <p>Essential wallet logic with secure key management and transaction handling</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.developerIcon}></div>
+                        </div>
                         <h3>Developer-Friendly Tools</h3>
                         <p>Headless wallets optimized for testing and seamless dApp integration</p>
                     </div>
 
                     <div className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <div className={styles.packageIcon}></div>
+                        </div>
                         <h3>Production Ready</h3>
                         <p>Complete packaging with comprehensive docs and NPM publishing</p>
                     </div>

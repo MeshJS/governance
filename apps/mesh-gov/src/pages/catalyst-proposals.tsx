@@ -219,10 +219,24 @@ export default function CatalystProposals() {
                 subtitle="Mesh received strong support from Ada voters at Cardano's Project Catalyst. We are greatful for every support and want to make sure that our supporters have easy overview and insights on the progress of our funded proposals"
             />
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
-                <Link href="/new-proposals" className={styles.cardButton}>
-                    View New Proposals
-                </Link>
+            {/* New Fund 14 Proposals Section */}
+            <div className={styles.fund14Section}>
+                <div className={styles.fund14Content}>
+                    <div className={styles.fund14Text}>
+                        <h2 className={styles.fund14Title}>New Proposals for Catalyst Fund 14</h2>
+                        <p className={styles.fund14Description}>
+                            Here our proposals for Project Catalyst Fund14, to level up the Mesh SDK, to build our very first Product, to start bridging our tools to midnight and to optimize open source docs & tools towards ai-models.
+                        </p>
+                    </div>
+                    <div className={styles.fund14Action}>
+                        <Link href="/new-proposals" className={styles.fund14Button}>
+                            <span>View New Proposals</span>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </Link>
+                    </div>
+                </div>
             </div>
 
             <SearchFilterBar
