@@ -128,21 +128,40 @@ async function makeRequest(url, options = {}) {
     }
 }
 
-// Retry helper for GitHub API calls
+// Retry helper for GitHub API calls (handles transient network errors like "Premature close")
 async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
     let attempt = 0
     let delay = initialDelayMs
+    const maxDelayMs = 30000
     // eslint-disable-next-line no-constant-condition
     while (true) {
         try {
             return await fn()
         } catch (error) {
-            const status = error.status || error.code || error?.response?.status
-            if (attempt < maxRetries && (status === 403 || status === 429 || (typeof status === 'number' && status >= 500))) {
+            const status = error?.status || error?.response?.status
+            const code = error?.code || error?.errno
+            const message = typeof error?.message === 'string' ? error.message : ''
+
+            const isStatusRetriable = status === 403 || status === 429 || (typeof status === 'number' && status >= 500)
+            const isNetworkRetriable =
+                message.includes('Premature close') ||
+                message.includes('socket hang up') ||
+                message.includes('ECONNRESET') ||
+                message.includes('ETIMEDOUT') ||
+                message.includes('EAI_AGAIN') ||
+                message.includes('network timeout') ||
+                message.includes('NetworkError') ||
+                message.includes('fetch failed') ||
+                message.includes('Invalid response body')
+
+            const shouldRetry = attempt < maxRetries && (isStatusRetriable || isNetworkRetriable)
+
+            if (shouldRetry) {
                 attempt += 1
-                console.warn(`Retrying after error ${status} (attempt ${attempt}/${maxRetries})...`)
-                await new Promise((r) => setTimeout(r, delay))
-                delay *= 2
+                const jitter = Math.floor(Math.random() * 250)
+                console.warn(`Retrying after error ${status || code || message} (attempt ${attempt}/${maxRetries})...`)
+                await new Promise((r) => setTimeout(r, delay + jitter))
+                delay = Math.min(delay * 2, maxDelayMs)
                 continue
             }
             throw error
@@ -152,8 +171,10 @@ async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
 
 function ghHeaders() {
     return {
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': `token ${parsedGithubToken}`
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${parsedGithubToken}`,
+        'User-Agent': 'mesh-gov-stats-action/1.0 (+https://gov.meshjs.dev)',
+        'X-GitHub-Api-Version': '2022-11-28'
     }
 }
 
