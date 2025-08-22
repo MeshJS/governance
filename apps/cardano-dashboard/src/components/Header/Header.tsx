@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { FaQuestionCircle } from 'react-icons/fa';
 import styles from '../../styles/Header.module.css';
 import HelpModal from '../HelpModal/HelpModal';
+import WalletConnect from '../WalletConnect/WalletConnect';
+
 
 interface HeaderProps {
     title?: string;
@@ -23,9 +25,7 @@ export default function Header({ title = 'Cardano Dashboard' }: HeaderProps) {
                 </Link>
 
                 <div className={styles.right}>
-                    <button className={styles.walletButton}>
-                        Connect Wallet
-                    </button>
+                    <WalletConnect />
 
                     <div className={styles.userMenu}>
                         <button

@@ -3,10 +3,12 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Layout from "@/components/Layout";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { DataProvider } from "@/contexts/DataContext";
+import { WalletProvider } from "@/contexts/WalletContext";
 import 'leaflet/dist/leaflet.css';
+import { MeshProvider } from "@meshsdk/react";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -22,7 +24,7 @@ const queryClient = new QueryClient({
 
 // Set up cache persistence
 if (typeof window !== 'undefined') {
-    const persister = createSyncStoragePersister({
+    const persister = createAsyncStoragePersister({
         storage: window.localStorage,
     });
 
@@ -35,13 +37,17 @@ if (typeof window !== 'undefined') {
 
 function App({ Component, pageProps }: AppProps) {
     return (
-        <QueryClientProvider client={queryClient}>
-            <DataProvider fetchOptions={{ fetchChainTip: true }}>
-                <Layout>
-                    <Component {...pageProps} />
-                </Layout>
-            </DataProvider>
-        </QueryClientProvider>
+        <MeshProvider>
+            <QueryClientProvider client={queryClient}>
+                <WalletProvider>
+                    <DataProvider fetchOptions={{ fetchChainTip: true }}>
+                        <Layout>
+                            <Component {...pageProps} />
+                        </Layout>
+                    </DataProvider>
+                </WalletProvider>
+            </QueryClientProvider>
+        </MeshProvider>
     );
 }
 

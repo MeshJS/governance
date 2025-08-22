@@ -11,18 +11,21 @@ import DRepStats from "@/components/DRepStats";
 
 // Type adapter to convert DRepDetailedData to the format expected by DRepDelegationTreemap
 const adaptDRepData = (drepData: DRepDetailedData[]) => {
-    return drepData.map(drep => ({
-        drep_id: drep.drep_id,
-        total_delegated_amount: parseFloat(drep.amount),
-        total_delegators: drep.total_delegators,
-        meta_json: drep.meta_json ? {
-            body: {
-                givenName: typeof drep.meta_json.body.givenName === 'string'
-                    ? drep.meta_json.body.givenName
-                    : drep.meta_json.body.givenName['@value']
-            }
-        } : null
-    }));
+    return drepData.map(drep => {
+        const rawGivenName = drep.meta_json?.body?.givenName as unknown;
+        const givenName = typeof rawGivenName === 'string'
+            ? rawGivenName
+            : (typeof rawGivenName === 'object' && rawGivenName !== null && '@value' in (rawGivenName as Record<string, unknown>)
+                ? (rawGivenName as Record<string, unknown>)['@value'] as string
+                : undefined);
+
+        return {
+            drep_id: drep.drep_id,
+            total_delegated_amount: parseFloat(drep.amount),
+            total_delegators: drep.total_delegators,
+            meta_json: givenName ? { body: { givenName } } : null,
+        };
+    });
 };
 
 function DRepActivityContent() {
