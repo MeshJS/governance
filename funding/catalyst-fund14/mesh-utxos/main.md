@@ -55,7 +55,7 @@ We have the technical expertise, ecosystem trust, and partner network to validat
 
 [Project Milestones] What are the key milestones you need to achieve in order to complete your project successfully?
 ## Milestone 1
-**Budget:** ₳130,000
+**Budget:** ₳145,000
 **Timeline:** Dec-Jan
 
 **Outcomes:**
@@ -79,7 +79,7 @@ We have the technical expertise, ecosystem trust, and partner network to validat
 - Public link to Twitter/X Post to inform the public
 
 ## Milestone 2
-**Budget:** ₳130,000
+**Budget:** ₳145,000
 **Timeline:** Feb-Mar
 
 **Outcomes:**
@@ -95,7 +95,7 @@ We have the technical expertise, ecosystem trust, and partner network to validat
 - Public link to Twitter/X Post to inform the public
 
 ## Milestone 3
-**Budget:** ₳130,000
+**Budget:** ₳145,000
 **Timeline:** Apr-May
 
 **Outcomes:**
@@ -178,13 +178,13 @@ Finally, direct collaboration with Dev Teams at Mercuryo and Checkpoint will hel
 The budget breakdown, as already outlined in the proposal milestones consists of:
 
 Milestone 1: Wallet as a service & Tx Sponsorship
-Budget: 130,000.00 Ada
+Budget: 145,000.00 Ada
 
 Milestone 2: Fiat on-ramp & KYC
-Budget: 130,000.00 Ada
+Budget: 145,000.00 Ada
 
 Milestone 3: Wallet Security
-Budget: 130,000.00 Ada
+Budget: 145,000.00 Ada
 
 Milestone 4: Product Launch
 Budget: 45,000.00 Ada
