@@ -255,6 +255,9 @@ export default function MimirProposal() {
                             <a href={proposalData.website} target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
                                 Project Website
                             </a>
+                            <a href="https://projectcatalyst.io/funds/14/cardano-use-cases-concepts/mesh-tools-and-docs-for-ai-modelsworkflows" target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
+                                Proposal On Catalyst
+                            </a>
                         </div>
                     </div>
                 </div>

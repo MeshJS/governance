@@ -251,6 +251,9 @@ export default function NewTxClassProposal() {
                             <a href={proposalData.website} target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
                                 Project Website
                             </a>
+                            <a href="https://projectcatalyst.io/funds/14/cardano-open-developers/mesh-transaction-v2-unified-serialization-feat-pallas" target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
+                                Proposal On Catalyst
+                            </a>
                         </div>
                     </div>
                 </div>
