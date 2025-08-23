@@ -4,6 +4,24 @@ import PageHeader from '../components/PageHeader';
 import NewProposalCard from '../components/NewProposalCard';
 import { useRouter } from 'next/router';
 
+// YouTube Video Component
+const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
+    return (
+        <div className={styles.videoContainer}>
+            <div className={styles.videoWrapper}>
+                <iframe
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className={styles.videoIframe}
+                />
+            </div>
+        </div>
+    );
+};
+
 export default function NewProposals() {
     const { isLoading, error } = useData();
     const router = useRouter();
@@ -79,7 +97,7 @@ export default function NewProposals() {
             title: "Mesh: Privacy-Enabled Smart Contracts and UI for Midnight",
             description: "Build and deliver modular smart contracts and UI templates, supported by a reusable framework, enabling developers to deploy privacy-enabled apps and reuse them across real-world cases",
             category: "Cardano Open: Developers",
-            budget: 60000,
+            budget: 65000,
             milestones: "4",
             status: "Proposed" as const,
             fundRound: "Fund14",
@@ -92,8 +110,11 @@ export default function NewProposals() {
         <div className={styles.container}>
             <PageHeader
                 title={<>New <span>Proposals</span></>}
-                subtitle="Explore upcoming and newly submitted Catalyst proposals"
+                subtitle="Our proposals for Project Catalyst Fund14, doing our part to make the Cardano ecosystem grow."
             />
+            
+            {/* YouTube Video Embed */}
+            <YouTubeEmbed videoId="4dFVI35ta0s" />
             
             <div className={styles.list}>
                 {proposals.map((proposal) => (

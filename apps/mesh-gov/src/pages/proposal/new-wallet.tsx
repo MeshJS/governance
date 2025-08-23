@@ -301,6 +301,9 @@ This step-by-step approach guarantees that the SDK will not only be cross-chain 
                             <a href="https://meshjs.dev/apis/wallets" target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
                                 Project Website
                             </a>
+                            <a href="https://projectcatalyst.io/funds/14/cardano-open-developers/mesh-cross-chain-production-ready-wallet-sdk" target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
+                                Proposal On Catalyst
+                            </a>
                         </div>
                     </div>
                 </div>

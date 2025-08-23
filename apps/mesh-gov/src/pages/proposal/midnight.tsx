@@ -19,7 +19,7 @@ export default function MidnightProposal() {
         title: "Mesh: Privacy-Enabled Smart Contracts and UI for Midnight",
         description: "Build and deliver modular smart contracts and UI templates, supported by a reusable framework, enabling developers to deploy privacy-enabled apps and reuse them across real-world cases",
         category: "Cardano Open: Developers",
-        budget: 60000, // in ADA
+        budget: 65000, // in ADA
         proposer: "Mesh Core Team",
         status: "Proposed",
         fundRound: "Fund 14",
@@ -80,7 +80,7 @@ export default function MidnightProposal() {
                 id: 3,
                 title: "Identity & Oracle Contracts",
                 description: "Develop DID flows, provider integration, and secure on-chain data feed consumption with complete testing suite",
-                budget: 15000,
+                budget: 20000,
                 duration: "Month 9",
                 outcomes: [
                     "Smart contract logic and witness code for both Identity and Oracle contracts",
@@ -227,6 +227,9 @@ export default function MidnightProposal() {
                             </a>
                             <a href={proposalData.website} target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
                                 Project Website
+                            </a>
+                            <a href="https://projectcatalyst.io/funds/14/cardano-open-developers/mesh-privacy-enabled-smart-contracts-and-ui-for-midnight" target="_blank" rel="noopener noreferrer" className={styles.resourceLink}>
+                                Proposal On Catalyst
                             </a>
                         </div>
                     </div>
