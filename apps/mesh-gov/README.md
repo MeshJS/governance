@@ -2,24 +2,24 @@
 
 A comprehensive Next.js dashboard that provides transparency into Mesh's governance activities by visualizing data from multiple sources including Project Catalyst proposals, DRep voting decisions, and Mesh SDK usage statistics.
 
-## 🎯 Purpose
+## Purpose
 
 This dashboard serves as a central hub for tracking and visualizing:
 
 - Project Catalyst proposal funding and milestone completion status
 - DRep voting decisions with detailed rationales
 - Mesh SDK usage metrics and GitHub contributor statistics
+- Project (repo) activities
 
-The data is automatically refreshed weekly through Incremental Static Regeneration (ISR), pulling from GitHub-hosted JSON files.
 
-## 🔍 Key Features
+## Key Features
 
 - **Catalyst Proposals**: Track funded proposals, budget distribution, and milestone progress
 - **DRep Voting**: View voting history, rationales, and epoch information
 - **Mesh Stats**: Monitor SDK usage trends, GitHub contributions, and dependency statistics
 - **Responsive Design**: Mobile-friendly interface with modern UI/UX
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Next.js 14 with App Router
 - **Styling**: CSS Modules
