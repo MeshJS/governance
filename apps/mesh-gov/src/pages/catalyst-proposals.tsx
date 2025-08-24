@@ -14,6 +14,7 @@ import VotesDonutChart from '../components/VotesDonutChart';
 import { useScrollRestoration } from '../hooks/useScrollRestoration';
 import MilestoneDeliveryChart from '../components/MilestoneDeliveryChart';
 import { extractAllMilestonesFromProjects } from '../utils/catalystDataTransform';
+import { CountUpTimer } from '../components/CountUpTimer';
 
 // Helper functions
 const calculateProgress = (completed: number, total: number): number => {
@@ -217,6 +218,11 @@ export default function CatalystProposals() {
             <PageHeader
                 title={<>Catalyst Proposal <span>Dashboard</span></>}
                 subtitle="Mesh received strong support from Ada voters at Cardano's Project Catalyst. We are greatful for every support and want to make sure that our supporters have easy overview and insights on the progress of our funded proposals"
+            />
+
+            <CountUpTimer 
+                startDate={new Date('2024-03-19')}
+                title="Catalyst Funded Proposer Since"
             />
 
             {/* New Fund 14 Proposals Section */}

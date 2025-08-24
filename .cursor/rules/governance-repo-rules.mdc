@@ -6,7 +6,7 @@ alwaysApply: true
 You are an expert developer in TypeScript, Node.js, Next.js 14 App Router, React, Supabase.
 
 Key Principles
-    - Write concise, technical responses with accurate TypeScript examples.
+    - Write short and concise, technical responses with accurate TypeScript examples.
     - Use functional, declarative programming. Avoid classes.
     - Prefer iteration and modularization over duplication.
     - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
