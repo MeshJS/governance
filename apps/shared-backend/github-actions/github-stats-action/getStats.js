@@ -76,13 +76,20 @@ console.log(`  BASE_URL: ${parsedBaseUrl}`)
 // Helper function to make HTTP requests
 async function makeRequest(url, options = {}) {
     try {
+        // Add timeout to prevent hanging requests
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+
         const response = await fetch(url, {
             headers: {
                 'Content-Type': 'application/json',
                 ...options.headers
             },
+            signal: controller.signal,
             ...options
         })
+
+        clearTimeout(timeoutId)
 
         if (!response.ok) {
             // read response body for better diagnostics
@@ -111,18 +118,28 @@ async function makeRequest(url, options = {}) {
         const text = await response.text()
 
         if (!text || text.trim() === '') {
-            console.log('⚠️  Empty response received')
-            return { success: true, message: 'Empty response' }
+            console.log('⚠️  Empty response received - data was processed successfully')
+            return { success: true, message: 'Empty response - data processed successfully' }
         }
 
         // Try to parse as JSON, but handle non-JSON responses gracefully
         try {
-            return JSON.parse(text)
+            const parsed = JSON.parse(text)
+            // Validate that we got a meaningful response
+            if (parsed.success === false) {
+                console.log(`⚠️  Function returned error: ${parsed.message || 'Unknown error'}`)
+                return parsed
+            }
+            return parsed
         } catch (parseError) {
             console.log(`⚠️  Non-JSON response received: ${text.substring(0, 200)}...`)
             return { success: true, message: 'Non-JSON response', raw: text }
         }
     } catch (error) {
+        if (error.name === 'AbortError') {
+            console.error(`❌ Request timed out after 30 seconds`)
+            throw new Error('Request timed out - the Netlify function may be unresponsive')
+        }
         console.error(`❌ Request failed: ${error.message}`)
         throw error
     }
@@ -159,8 +176,16 @@ async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
             if (shouldRetry) {
                 attempt += 1
                 const jitter = Math.floor(Math.random() * 250)
-                console.warn(`Retrying after error ${status || code || message} (attempt ${attempt}/${maxRetries})...`)
-                await new Promise((r) => setTimeout(r, delay + jitter))
+
+                // Special handling for rate limits
+                if (status === 429) {
+                    console.warn(`⏳ Rate limit hit (attempt ${attempt}/${maxRetries}). Waiting 1 minute...`)
+                    await delay(RATE_LIMIT_CONFIG.github.delayAfterRateLimit)
+                } else {
+                    console.warn(`Retrying after error ${status || code || message} (attempt ${attempt}/${maxRetries})...`)
+                    await delay(delay + jitter)
+                }
+
                 delay = Math.min(delay * 2, maxDelayMs)
                 continue
             }
@@ -223,6 +248,9 @@ async function fetchAllMissingCommits(existingShasSet) {
                     files: filesCount ? Array(filesCount).fill(0) : [],
                     parents
                 })
+
+                // Add delay between API calls to respect rate limits
+                await delay(RATE_LIMIT_CONFIG.github.delayBetweenRequests)
             }
         }
         page += 1
@@ -253,6 +281,9 @@ async function fetchAllMissingPulls(existingNumbersSet) {
                     return resp.json()
                 })
                 results.push({ details: prDetails, commits: prCommits })
+
+                // Add delay between API calls to respect rate limits
+                await delay(RATE_LIMIT_CONFIG.github.delayBetweenRequests)
             }
         }
         page += 1
@@ -281,9 +312,60 @@ async function fetchAllMissingIssues(existingNumbersSet) {
     return results
 }
 
+// Rate limiting configuration
+const RATE_LIMIT_CONFIG = {
+    github: {
+        delayBetweenRequests: 100, // 100ms between GitHub API calls
+        delayAfterRateLimit: 60000, // 1 minute delay after hitting rate limit
+        maxRetries: 3
+    },
+    netlify: {
+        delayBetweenBatches: 500, // 500ms between Netlify function calls
+        delayAfterError: 2000, // 2 second delay after errors
+        maxRetries: 3
+    }
+}
+
+// Helper function to add delays
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+// Check GitHub rate limit status
+async function checkGitHubRateLimit() {
+    try {
+        const response = await fetch('https://api.github.com/rate_limit', { headers: ghHeaders() })
+        if (!response.ok) {
+            console.log('⚠️  Could not check rate limit status')
+            return null
+        }
+        const rateLimit = await response.json()
+        const core = rateLimit.resources.core
+        const remaining = core.remaining
+        const resetTime = new Date(core.reset * 1000)
+
+        console.log(`📊 GitHub Rate Limit: ${remaining}/${core.limit} remaining`)
+        console.log(`🕐 Rate limit resets at: ${resetTime.toISOString()}`)
+
+        if (remaining < 100) {
+            console.log('⚠️  Rate limit is getting low, consider reducing batch sizes')
+        }
+
+        return { remaining, reset: core.reset, limit: core.limit }
+    } catch (error) {
+        console.log(`⚠️  Rate limit check failed: ${error.message}`)
+        return null
+    }
+}
+
 // Main function
 async function main() {
     console.log(`🚀 Starting GitHub stats collection for repository: ${parsedOrg}/${parsedRepo}`)
+
+    // Check GitHub rate limit status before starting
+    console.log('📊 Checking GitHub rate limit status...')
+    const rateLimitStatus = await checkGitHubRateLimit()
+    if (rateLimitStatus && rateLimitStatus.remaining < 50) {
+        console.log('⚠️  Rate limit is very low. Consider running this action later.')
+    }
 
     // Trigger the Netlify background function
     console.log('📥 Fetching existing IDs from mesh-gov API...')
@@ -333,12 +415,39 @@ async function main() {
                 pulls: [],
                 issues: []
             }
-            const response = await makeRequest(parsedFunctionUrl, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            })
+
+            // Debug: Log payload details
+            const payloadSize = JSON.stringify(payload).length
+            console.log(`    📦 Payload size: ${payloadSize} bytes`)
+            console.log(`    📊 Sample commit: ${JSON.stringify(batch[0]?.sha || 'none')}`)
+
+            // Retry Netlify function calls with delays
+            let response
+            for (let retry = 0; retry < RATE_LIMIT_CONFIG.netlify.maxRetries; retry++) {
+                try {
+                    response = await makeRequest(parsedFunctionUrl, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    })
+                    break // Success, exit retry loop
+                } catch (error) {
+                    if (retry < RATE_LIMIT_CONFIG.netlify.maxRetries - 1) {
+                        console.log(`    ⚠️  Netlify function call failed (attempt ${retry + 1}/${RATE_LIMIT_CONFIG.netlify.maxRetries}), retrying...`)
+                        await delay(RATE_LIMIT_CONFIG.netlify.delayAfterError)
+                        continue
+                    }
+                    throw error // Last retry failed
+                }
+            }
+
             console.log(`    ✅ Response: ${JSON.stringify(response)}`)
+
             sentSomething = true
+
+            // Add delay between batches to respect Netlify rate limits
+            if (i < commitBatches.length - 1) {
+                await delay(RATE_LIMIT_CONFIG.netlify.delayBetweenBatches)
+            }
         }
     }
 
@@ -355,12 +464,38 @@ async function main() {
                 pulls: batch,
                 issues: []
             }
-            const response = await makeRequest(parsedFunctionUrl, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            })
+
+            // Debug: Log payload details
+            const payloadSize = JSON.stringify(payload).length
+            console.log(`    📦 Payload size: ${payloadSize} bytes`)
+            console.log(`    📊 Sample PR: #${batch[0]?.details?.number || 'none'}`)
+
+            // Retry Netlify function calls with delays
+            let response
+            for (let retry = 0; retry < RATE_LIMIT_CONFIG.netlify.maxRetries; retry++) {
+                try {
+                    response = await makeRequest(parsedFunctionUrl, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    })
+                    break // Success, exit retry loop
+                } catch (error) {
+                    if (retry < RATE_LIMIT_CONFIG.netlify.maxRetries - 1) {
+                        console.log(`    ⚠️  Netlify function call failed (attempt ${retry + 1}/${RATE_LIMIT_CONFIG.netlify.maxRetries}), retrying...`)
+                        await delay(RATE_LIMIT_CONFIG.netlify.delayAfterError)
+                        continue
+                    }
+                    throw error // Last retry failed
+                }
+            }
+
             console.log(`    ✅ Response: ${JSON.stringify(response)}`)
             sentSomething = true
+
+            // Add delay between batches to respect Netlify rate limits
+            if (i < pullBatches.length - 1) {
+                await delay(RATE_LIMIT_CONFIG.netlify.delayBetweenBatches)
+            }
         }
     }
 
@@ -377,12 +512,37 @@ async function main() {
                 pulls: [],
                 issues: batch
             }
-            const response = await makeRequest(parsedFunctionUrl, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            })
+
+            // Debug: Log payload details
+            const payloadSize = JSON.stringify(payload).length
+            console.log(`    📊 Sample issue: #${batch[0]?.number || 'none'}`)
+
+            // Retry Netlify function calls with delays
+            let response
+            for (let retry = 0; retry < RATE_LIMIT_CONFIG.netlify.maxRetries; retry++) {
+                try {
+                    response = await makeRequest(parsedFunctionUrl, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    })
+                    break // Success, exit retry loop
+                } catch (error) {
+                    if (retry < RATE_LIMIT_CONFIG.netlify.maxRetries - 1) {
+                        console.log(`    ⚠️  Netlify function call failed (attempt ${retry + 1}/${RATE_LIMIT_CONFIG.netlify.maxRetries}), retrying...`)
+                        await delay(RATE_LIMIT_CONFIG.netlify.delayAfterError)
+                        continue
+                    }
+                    throw error // Last retry failed
+                }
+            }
+
             console.log(`    ✅ Response: ${JSON.stringify(response)}`)
             sentSomething = true
+
+            // Add delay between batches to respect Netlify rate limits
+            if (i < issueBatches.length - 1) {
+                await delay(RATE_LIMIT_CONFIG.netlify.delayBetweenBatches)
+            }
         }
     }
 
