@@ -2,6 +2,7 @@ import { useData } from '../contexts/DataContext';
 import styles from '../styles/Dashboard.module.css';
 import Image from 'next/image';
 import Link from 'next/link';
+import { CountUpTimer } from '../components/CountUpTimer';
 
 export default function Dashboard() {
     const {
@@ -59,6 +60,10 @@ export default function Dashboard() {
                     className={styles.meshLogo}
                     priority
                     style={{ width: 'auto', height: 'auto' }}
+                />
+                <CountUpTimer 
+                    startDate={new Date('2021-01-01')}
+                    title="Building on Cardano Since"
                 />
             </header>
 

@@ -1,0 +1,90 @@
+.timerContainer {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border-radius: 16px;
+    margin: 2rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    width: 100%;
+    max-width: 800px;
+}
+
+.timerTitle {
+    color: #fff;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: linear-gradient(90deg, #fff, #aaa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.timerUnits {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    min-width: 100px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.unit:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    min-width: 2.5ch;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    font-variant-numeric: tabular-nums;
+}
+
+.label {
+    font-size: 0.9rem;
+    color: #aaa;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+    .timerContainer {
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .timerUnits {
+        gap: 1rem;
+    }
+
+    .unit {
+        min-width: 80px;
+        padding: 0.75rem;
+    }
+
+    .value {
+        font-size: 2rem;
+    }
+
+    .label {
+        font-size: 0.8rem;
+    }
+} 
