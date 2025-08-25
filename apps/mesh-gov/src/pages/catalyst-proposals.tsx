@@ -7,12 +7,14 @@ import { filterProposals, generateCatalystProposalsFilterConfig } from '../confi
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { CatalystProject } from '../types';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import CatalystMilestonesDonut from '../components/CatalystMilestonesDonut';
 import CatalystBudgetDonut from '../components/CatalystBudgetDonut';
 import VotesDonutChart from '../components/VotesDonutChart';
 import { useScrollRestoration } from '../hooks/useScrollRestoration';
 import MilestoneDeliveryChart from '../components/MilestoneDeliveryChart';
 import { extractAllMilestonesFromProjects } from '../utils/catalystDataTransform';
+import { CountUpTimer } from '../components/CountUpTimer';
 
 // Helper functions
 const calculateProgress = (completed: number, total: number): number => {
@@ -217,6 +219,31 @@ export default function CatalystProposals() {
                 title={<>Catalyst Proposal <span>Dashboard</span></>}
                 subtitle="Mesh received strong support from Ada voters at Cardano's Project Catalyst. We are greatful for every support and want to make sure that our supporters have easy overview and insights on the progress of our funded proposals"
             />
+
+            <CountUpTimer 
+                startDate={new Date('2024-03-19')}
+                title="Catalyst Funded Proposer Since"
+            />
+
+            {/* New Fund 14 Proposals Section */}
+            <div className={styles.fund14Section}>
+                <div className={styles.fund14Content}>
+                    <div className={styles.fund14Text}>
+                        <h2 className={styles.fund14Title}>New Proposals for Catalyst Fund 14</h2>
+                        <p className={styles.fund14Description}>
+                            Here our proposals for Project Catalyst Fund14, to level up the Mesh SDK, to build our very first Product, to start bridging our tools to midnight and to optimize open source docs & tools towards ai-models.
+                        </p>
+                    </div>
+                    <div className={styles.fund14Action}>
+                        <Link href="/new-proposals" className={styles.fund14Button}>
+                            <span>View New Proposals</span>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </Link>
+                    </div>
+                </div>
+            </div>
 
             <SearchFilterBar
                 config={filterConfig}

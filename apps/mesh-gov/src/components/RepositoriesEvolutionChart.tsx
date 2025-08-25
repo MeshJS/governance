@@ -371,9 +371,18 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
         });
 
         // Convert to array and sort by total contributions
-        const topRepositories = Array.from(repositoryMap.values())
-            .sort((a, b) => b.contributions - a.contributions)
-            .slice(0, maxRepositories);
+        const allRepositories = Array.from(repositoryMap.values())
+            .sort((a, b) => b.contributions - a.contributions);
+        
+        // Ensure mimir repository is always included
+        const mimirRepo = allRepositories.find(repo => repo.name.toLowerCase() === 'mimir');
+        let topRepositories = allRepositories.slice(0, maxRepositories);
+        
+        // If mimir exists but isn't in top repositories, replace the last one with mimir
+        if (mimirRepo && !topRepositories.some(repo => repo.name.toLowerCase() === 'mimir')) {
+            topRepositories = topRepositories.slice(0, maxRepositories - 1);
+            topRepositories.push(mimirRepo);
+        }
 
         if (topRepositories.length === 0) return null;
 

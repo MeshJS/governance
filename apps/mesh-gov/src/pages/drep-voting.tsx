@@ -11,6 +11,7 @@ import VotingParticipationDonut from '../components/VotingParticipationDonut';
 import DRepMetricsSection from '../components/DRepMetricsSection';
 import DRepImageSection from '../components/DRepImageSection';
 import { CopyIcon } from '../components/Icons';
+import { CountUpTimer } from '../components/CountUpTimer';
 
 interface VoteData {
     proposalId: string;
@@ -176,6 +177,11 @@ export default function DRepVoting() {
             <PageHeader
                 title="Mesh DRep Dashboard"
                 subtitle="Overview and Insights on Mesh DRep voting activities at Cardano onchain Governance"
+            />
+
+            <CountUpTimer 
+                startDate={new Date('2024-11-09')}
+                title="Active DRep Since"
             />
 
             <DRepImageSection />

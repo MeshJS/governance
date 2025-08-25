@@ -27,8 +27,7 @@ const TIME_WINDOW_PRESETS = [
     { label: 'Last year', value: '1y' },
     { label: 'Last 6 months', value: '6m' },
     { label: 'Last 3 months', value: '3m' },
-    { label: 'Last 30 days', value: '30d' },
-    { label: 'Custom range', value: 'custom' }
+    { label: 'Last 30 days', value: '30d' }
 ];
 
 export const ContributorModal: React.FC<ContributorModalProps> = ({
@@ -39,13 +38,13 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
 }) => {
     const modalRef = useRef<HTMLDivElement>(null);
 
-    // Establish initial window (inherit from page if provided)
+    // Establish initial window (inherit from page if provided, but default to 'all' since custom is removed)
     const [timeWindow, setTimeWindow] = useState<TimeWindow>({
-        startDate: globalStartDate || null,
-        endDate: globalEndDate || null,
-        preset: globalStartDate || globalEndDate ? 'custom' : 'all',
+        startDate: null,
+        endDate: null,
+        preset: 'all',
     });
-    const [showCustomDatePicker, setShowCustomDatePicker] = useState(timeWindow.preset === 'custom');
+    const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
 
     // Earliest contribution date for this contributor
     const earliestDate = useMemo(() => {
@@ -61,9 +60,6 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
 
     // Compute local time window boundaries
     const { localStartDate, localEndDate } = useMemo(() => {
-        if (timeWindow.preset === 'custom') {
-            return { localStartDate: timeWindow.startDate, localEndDate: timeWindow.endDate };
-        }
         if (timeWindow.preset === 'all') {
             return { localStartDate: null, localEndDate: null };
         }
@@ -93,23 +89,10 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
 
     const handleTimeWindowPresetChange = (preset: string) => {
         setTimeWindow(prev => ({ ...prev, preset }));
-        setShowCustomDatePicker(preset === 'custom');
+        setShowCustomDatePicker(false);
     };
 
-    const handleCustomDateChange = (field: 'startDate' | 'endDate', value: string) => {
-        setTimeWindow(prev => {
-            const updated = { ...prev, [field]: value, preset: 'custom' } as TimeWindow;
-            if (updated.startDate && updated.endDate) {
-                const start = new Date(updated.startDate);
-                const end = new Date(updated.endDate);
-                if (start > end) {
-                    if (field === 'startDate') updated.endDate = value; else updated.startDate = value;
-                }
-            }
-            return updated;
-        });
-        setShowCustomDatePicker(true);
-    };
+
 
     // Calculate filtered metrics for the selected time window
     const filteredMetrics = useMemo(() => {
@@ -145,7 +128,26 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
         onClose();
     };
 
-    // Sort repositories by contributions in descending order
+    // Calculate filtered repository data for the selected time window
+    const filteredRepoData = useMemo(() => {
+        return contributor.repositories.map(repo => {
+            // Calculate filtered metrics for this specific repository
+            const repoFilteredMetrics = getFilteredMetrics(
+                { ...contributor, repositories: [repo] } as Contributor,
+                localStartDate || null,
+                localEndDate || null
+            );
+            
+            return {
+                name: repo.name,
+                commits: repoFilteredMetrics.commits,
+                pull_requests: repoFilteredMetrics.pullRequests,
+                contributions: repoFilteredMetrics.contributions
+            };
+        }).filter(repo => repo.contributions > 0); // Only include repos with contributions in the time window
+    }, [contributor, localStartDate, localEndDate]);
+
+    // Sort repositories by contributions in descending order (for table display)
     const sortedRepos = [...contributor.repositories].sort((a, b) => b.contributions - a.contributions);
 
     return (
@@ -220,45 +222,23 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
                             </div>
                             <div className={styles.timeWindowControls}>
                                 <div className={styles.presetButtons}>
-                                    {TIME_WINDOW_PRESETS.map((preset) => (
-                                        <button
-                                            key={preset.value}
-                                            className={`${styles.presetButton} ${timeWindow.preset === preset.value ? styles.active : ''}`}
-                                            onClick={() => handleTimeWindowPresetChange(preset.value)}
-                                        >
-                                            {preset.label}
-                                        </button>
-                                    ))}
-                                </div>
-                                {showCustomDatePicker && (
-                                    <div className={styles.customDatePicker}>
-                                        <div className={styles.dateField}>
-                                            <label>Start Date:</label>
-                                            <input
-                                                type="date"
-                                                value={timeWindow.startDate || ''}
-                                                onChange={(e) => handleCustomDateChange('startDate', e.target.value)}
-                                                className={styles.dateInput}
-                                            />
-                                        </div>
-                                        <div className={styles.dateField}>
-                                            <label>End Date:</label>
-                                            <input
-                                                type="date"
-                                                value={timeWindow.endDate || ''}
-                                                onChange={(e) => handleCustomDateChange('endDate', e.target.value)}
-                                                className={styles.dateInput}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
+                                                                    {TIME_WINDOW_PRESETS.map((preset) => (
+                                    <button
+                                        key={preset.value}
+                                        className={`${styles.presetButton} ${timeWindow.preset === preset.value ? styles.active : ''}`}
+                                        onClick={() => handleTimeWindowPresetChange(preset.value)}
+                                    >
+                                        {preset.label}
+                                    </button>
+                                ))}
+                            </div>
                             </div>
                         </div>
                     </div>
 
                     <h3 className={styles.sectionTitle}>Repository Contributions</h3>
                     <div className={styles.donutChartContainer}>
-                        <RepoDonutChart repositories={sortedRepos} />
+                        <RepoDonutChart repositories={filteredRepoData} />
                     </div>
 
                     <div className={styles.repoDetailList}>

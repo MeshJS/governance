@@ -6,13 +6,17 @@
 
 .mainHeader {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    gap: 2rem;
     padding: 3rem 0;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), transparent);
 }
 
 .meshLogo {
+    max-width: 300px;
     height: auto;
     filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
     transition: filter 0.3s ease;

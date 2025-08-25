@@ -325,13 +325,13 @@ export default function Contributors() {
 					<div className={styles.chartWrapper}>
 						<h3 className={styles.chartTitle}>Top Contributors</h3>
 						<p className={styles.chartSubtitle}>
-							Monthly activity trends for top {isOrgStats ? Math.min(10, humanContributors.length) : 10} contributors
+							Monthly activity trends for top {isOrgStats ? Math.min(15, humanContributors.length) : 15} contributors
 						</p>
 						<div className={styles.chartContainer}>
 							<ContributorsEvolutionChart
 								contributors={isOrgStats ? humanContributors : []}
 								height={400}
-								maxContributors={10}
+								maxContributors={15}
 								globalStartDate={timelineDisplayBoundaries.startDate || undefined}
 								globalEndDate={timelineDisplayBoundaries.endDate || undefined}
 							/>
