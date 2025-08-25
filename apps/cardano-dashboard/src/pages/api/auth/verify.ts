@@ -1,22 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import crypto from 'crypto';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
 import type { DataSignature } from '@meshsdk/core';
 import { checkSignature } from '@meshsdk/core';
+import { signAuthPayload } from '@/utils/authCookie';
 
 // Nonce is already a hex string from the server
 
-function setAuthCookie(res: NextApiResponse, payload: object) {
-    const secret = process.env.AUTH_SECRET as string;
-    if (!secret) return; // skip cookie if not configured
-
-    const json = JSON.stringify(payload);
-    const b64 = Buffer.from(json, 'utf8').toString('base64url');
-    const sig = crypto.createHmac('sha256', secret).update(b64).digest('base64url');
-    const value = `${b64}.${sig}`;
-
+function setAuthCookie(res: NextApiResponse, address: string) {
+    const value = signAuthPayload({ address, ts: Date.now() });
+    if (!value) return;
     const isProd = process.env.NODE_ENV === 'production';
-    res.setHeader('Set-Cookie', `cd_auth=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; ${isProd ? 'Secure; ' : ''}`);
+    // In dev, allow reading cookie in DevTools by omitting HttpOnly
+    const httpOnly = isProd ? 'HttpOnly; ' : '';
+    res.setHeader('Set-Cookie', `cd_auth=${value}; Path=/; ${httpOnly}SameSite=Lax; Max-Age=2592000; ${isProd ? 'Secure; ' : ''}`);
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -67,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .update({ verified_at: new Date().toISOString(), nonce: null, nonce_expires_at: null, last_seen_at: new Date().toISOString() })
             .eq('address', address);
 
-        setAuthCookie(res, { address, ts: Date.now() });
+        setAuthCookie(res, address);
         return res.status(200).json({ ok: true });
     } catch (e) {
         const message = e instanceof Error ? e.message : 'Verification failed';

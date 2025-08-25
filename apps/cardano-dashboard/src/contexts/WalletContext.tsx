@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/router';
 import { BrowserWallet } from '@meshsdk/core';
 import { supabase } from './supabaseClient';
 
@@ -56,6 +57,7 @@ interface WalletProviderProps {
 }
 
 export function WalletProvider({ children }: WalletProviderProps) {
+    const router = useRouter();
     const [availableWallets, setAvailableWallets] = useState<WalletInfo[]>([]);
     const [isLoadingWallets, setIsLoadingWallets] = useState(false);
     const [connectedWallet, setConnectedWallet] = useState<ConnectedWallet | null>(null);
@@ -138,7 +140,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
                 balance,
                 networkId,
             };
-
+            console.log(connectedWalletData)
             setConnectedWallet(connectedWalletData);
 
             // Upsert user record in Supabase for wallet login tracking
@@ -165,6 +167,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
                     const nonceResp = await fetch('/api/auth/nonce', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
                         body: JSON.stringify({ address, walletName: walletInfo.name, networkId }),
                     });
                     const nonceJson = await nonceResp.json();
@@ -177,12 +180,18 @@ export function WalletProvider({ children }: WalletProviderProps) {
                     const verifyResp = await fetch('/api/auth/verify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
                         body: JSON.stringify({ address, signature: signed, }),
                     });
                     const verifyJson = await verifyResp.json();
                     if (!verifyResp.ok) throw new Error(verifyJson?.error || 'Failed to verify signature');
 
                     setConnectedWallet(prev => prev ? { ...prev, isVerified: true } : prev);
+
+                    // Refresh current page to re-run getServerSideProps (e.g., /members)
+                    try {
+                        await router.replace(router.asPath, undefined, { scroll: false });
+                    } catch { }
                 }
             } catch (authErr) {
                 console.error('Wallet signature verification failed:', authErr);
@@ -216,6 +225,15 @@ export function WalletProvider({ children }: WalletProviderProps) {
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('cardano-dashboard-connected-wallet');
             }
+
+            // Clear auth cookie on server so SSR pages no longer show address
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                try {
+                    await router.replace(router.asPath, undefined, { scroll: false });
+                } catch { }
+            } catch { }
+
         } catch (err) {
             console.error('Failed to disconnect wallet:', err);
             setError('Failed to disconnect wallet');
@@ -228,35 +246,72 @@ export function WalletProvider({ children }: WalletProviderProps) {
         setError(null);
     };
 
-    // Check for existing connection on mount
+    // Check auth cookie and silently re-enable wallet on mount/availability
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        let cancelled = false;
+        async function init() {
+            if (typeof window === 'undefined') return;
             const savedConnection = localStorage.getItem('cardano-dashboard-connected-wallet');
-            if (savedConnection) {
-                try {
-                    const { name, timestamp } = JSON.parse(savedConnection);
-                    const connectionAge = Date.now() - timestamp;
+            const meResp = await fetch('/api/auth/me', { credentials: 'same-origin' });
+            const me = await meResp.json();
 
-                    // Only restore connection if it's less than 1 hour old
-                    if (connectionAge < 60 * 60 * 1000) {
-                        // Check if wallet is still available
-                        const walletExists = availableWallets.some(w => w.name === name);
-                        if (walletExists) {
-                            connectWallet(name);
-                        } else {
-                            // Clear invalid saved connection
-                            localStorage.removeItem('cardano-dashboard-connected-wallet');
-                        }
-                    } else {
-                        // Clear expired connection
-                        localStorage.removeItem('cardano-dashboard-connected-wallet');
-                    }
-                } catch (err) {
-                    console.error('Failed to restore wallet connection:', err);
+            if (!savedConnection || !me?.authenticated) return;
+            try {
+                const { name, timestamp } = JSON.parse(savedConnection);
+                const connectionAge = Date.now() - timestamp;
+                if (connectionAge >= 2 * 60 * 60 * 1000) { // 2 hours
                     localStorage.removeItem('cardano-dashboard-connected-wallet');
+                    return;
                 }
+                const walletExists = availableWallets.some(w => w.name === name);
+                if (!walletExists) return;
+
+                // Silently re-enable selected wallet without re-sign; keep session from cookie
+                setIsConnecting(true);
+                const walletInfo = availableWallets.find(w => w.name === name);
+                if (!walletInfo) return;
+                const wallet = await BrowserWallet.enable(walletInfo.id);
+
+                let address: string | undefined;
+                let balance: string | undefined;
+                let networkId: number | undefined;
+                try {
+                    const change = await wallet.getChangeAddress();
+                    if (change) {
+                        address = change;
+                    } else {
+                        const used = await wallet.getUsedAddresses();
+                        if (used?.length) address = used[0];
+                        if (!address) {
+                            const unused = await wallet.getUnusedAddresses();
+                            if (unused?.length) address = unused[0];
+                        }
+                    }
+                    const lovelace = await wallet.getLovelace();
+                    balance = (parseInt(lovelace) / 1000000).toString();
+                    networkId = await wallet.getNetworkId();
+                } catch { }
+
+                const connectedWalletData: ConnectedWallet = {
+                    wallet,
+                    id: walletInfo.id,
+                    name: walletInfo.name,
+                    icon: walletInfo.icon,
+                    version: walletInfo.version,
+                    address,
+                    balance,
+                    networkId,
+                    isVerified: !!me?.authenticated,
+                };
+                if (!cancelled) setConnectedWallet(connectedWalletData);
+            } catch (err) {
+                console.error('Silent wallet restore failed:', err);
+            } finally {
+                if (!cancelled) setIsConnecting(false);
             }
         }
+        init();
+        return () => { cancelled = true; };
     }, [availableWallets]);
 
     const value: WalletContextType = {
