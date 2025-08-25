@@ -17,7 +17,7 @@ Evidence of Completion:
 - Public link to post on Twitter/X to inform the Public
 
 ## Milestone 2
-Budget: 20,000.00 Ada
+Budget: 30,000.00 Ada
 
 Milestone outcomes:
 Refactor tx-buidler at whisky
@@ -35,7 +35,7 @@ Evidence of Completion:
 - Public link to post on Twitter/X to inform the Public
 
 ## Milestone 3
-Budget: 20,000.00 Ada
+Budget: 30,000.00 Ada
 
 Milestone outcomes:
 Refactor tx-buidler at core-cst

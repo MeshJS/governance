@@ -23,7 +23,7 @@ export default function NewTxClassProposal() {
         proposer: "Mesh",
         status: "Proposed",
         fundRound: "Fund 14",
-        expectedDuration: "2-12 months",
+        expectedDuration: "5 months",
         
         // Additional Details
         fullDescription: "Mesh transaction building is fragmented, inconsistent, and lacks clear principles, making it harder for developers to build, extend, and maintain dApps efficiently. This proposal will unify and refactor our TxBuilder with clear design principles, adds a new Tx class, and provides updated documentation for developers.",
@@ -37,7 +37,7 @@ export default function NewTxClassProposal() {
                 title: "Research & Design Principles",
                 description: "Research existing libraries and patterns, gather developer feedback, and define solid design principles for the new transaction building framework",
                 budget: 10000,
-                duration: "Month 1",
+                duration: "December 2025",
                 outcomes: [
                     "Research on existing libraries and patterns",
                     "Developer feedback collection on current pain points", 
@@ -57,8 +57,8 @@ export default function NewTxClassProposal() {
                 id: 2,
                 title: "Refactor Whisky TxBuilder",
                 description: "Implement the updated tx-builder at Whisky as groundwork for the new tx class, including adaptor updates if needed",
-                budget: 20000,
-                duration: "Month 2-3",
+                budget: 30000,
+                duration: "January 2026",
                 outcomes: [
                     "Implement updated tx-builder as ground work of new tx class",
                     "Update adaptor if needed",
@@ -79,8 +79,8 @@ export default function NewTxClassProposal() {
                 id: 3,
                 title: "Refactor Core-CST TxBuilder", 
                 description: "Implement equivalent refactoring from core-csl at core-cst to eliminate fragmentation between transaction building components",
-                budget: 20000,
-                duration: "Month 4-5",
+                budget: 30000,
+                duration: "February 2026",
                 outcomes: [
                     "Implement equivalent refactoring from core-csl at core-cst",
                     "Eliminate fragmentation between tx-builders",
@@ -101,7 +101,7 @@ export default function NewTxClassProposal() {
                 title: "Update Mesh TxBuilder",
                 description: "Update Mesh's own TxBuilder to align with the new design principles and provide updated documentation for developers",
                 budget: 20000,
-                duration: "Month 6-8",
+                duration: "March 2026",
                 outcomes: [
                     "Update Mesh TxBuilder with new design principles",
                     "Update documentation for developers",
@@ -121,8 +121,8 @@ export default function NewTxClassProposal() {
                 id: 5,
                 title: "New Tx Class & Documentation",
                 description: "Implement the new Tx class design, create comprehensive developer documentation, and deliver close-out report and video",
-                budget: 30000,
-                duration: "Month 9-12",
+                budget: 10000,
+                duration: "April 2026",
                 outcomes: [
                     "Implement new Tx class design & implementation",
                     "Create comprehensive developer documentation",
