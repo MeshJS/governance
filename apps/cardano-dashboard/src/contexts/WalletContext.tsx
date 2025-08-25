@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { BrowserWallet } from '@meshsdk/core';
+import { supabase } from './supabaseClient';
 
 export interface WalletInfo {
     id: string;
@@ -17,6 +18,7 @@ export interface ConnectedWallet {
     address?: string;
     balance?: string;
     networkId?: number;
+    isVerified?: boolean;
 }
 
 interface WalletContextType {
@@ -102,10 +104,18 @@ export function WalletProvider({ children }: WalletProviderProps) {
             let networkId: number | undefined;
 
             try {
-                // Get first unused address
-                const addresses = await wallet.getUnusedAddresses();
-                if (addresses.length > 0) {
-                    address = addresses[0];
+                // Try to obtain a bech32 payment address ('addr...' or 'addr_test...')
+                const candidates: string[] = [];
+                try { const a = await wallet.getChangeAddress(); if (a) candidates.push(a); } catch { }
+                try { const used = await wallet.getUsedAddresses(); if (used?.length) candidates.push(...used); } catch { }
+                try { const unused = await wallet.getUnusedAddresses(); if (unused?.length) candidates.push(...unused); } catch { }
+                try { const rewards = await wallet.getRewardAddresses(); if (rewards?.length) candidates.push(...rewards); } catch { }
+
+                const bech32Addr = candidates.find((a) => typeof a === 'string' && (a.startsWith('addr') || a.startsWith('addr_test')))
+                    ?? candidates.find((a) => typeof a === 'string' && (a.startsWith('stake') || a.startsWith('stake_test')));
+
+                if (bech32Addr) {
+                    address = bech32Addr;
                 }
 
                 // Get ADA balance
@@ -130,6 +140,53 @@ export function WalletProvider({ children }: WalletProviderProps) {
             };
 
             setConnectedWallet(connectedWalletData);
+
+            // Upsert user record in Supabase for wallet login tracking
+            try {
+                if (address) {
+                    await supabase
+                        .from('wallet_users')
+                        .upsert({
+                            address,
+                            wallet_name: walletInfo.name,
+                            network_id: networkId,
+                            last_seen_at: new Date().toISOString(),
+                        }, { onConflict: 'address' });
+                }
+            } catch (dbErr) {
+                // Non-fatal: log for diagnostics, do not block UI
+                console.error('Failed to upsert wallet user to Supabase:', dbErr);
+            }
+
+            // Nonce → signData → verify flow
+            try {
+                if (address) {
+                    // 1) Request nonce
+                    const nonceResp = await fetch('/api/auth/nonce', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ address, walletName: walletInfo.name, networkId }),
+                    });
+                    const nonceJson = await nonceResp.json();
+                    if (!nonceResp.ok) throw new Error(nonceJson?.error || 'Failed to get nonce');
+
+                    const nonce: string = nonceJson.nonce; // human-readable message from server
+                    // 2) Sign message with CIP-8: signData(message, address)
+                    const signed = await wallet.signData(nonce, address);
+                    // 3) Verify server-side, set session cookie
+                    const verifyResp = await fetch('/api/auth/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ address, signature: signed, }),
+                    });
+                    const verifyJson = await verifyResp.json();
+                    if (!verifyResp.ok) throw new Error(verifyJson?.error || 'Failed to verify signature');
+
+                    setConnectedWallet(prev => prev ? { ...prev, isVerified: true } : prev);
+                }
+            } catch (authErr) {
+                console.error('Wallet signature verification failed:', authErr);
+            }
 
             // Store connection in localStorage for persistence
             if (typeof window !== 'undefined') {
