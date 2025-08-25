@@ -148,7 +148,7 @@ async function makeRequest(url, options = {}) {
 // Retry helper for GitHub API calls (handles transient network errors like "Premature close")
 async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
     let attempt = 0
-    let delay = initialDelayMs
+    let backoffMs = initialDelayMs
     const maxDelayMs = 30000
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -183,10 +183,10 @@ async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
                     await delay(RATE_LIMIT_CONFIG.github.delayAfterRateLimit)
                 } else {
                     console.warn(`Retrying after error ${status || code || message} (attempt ${attempt}/${maxRetries})...`)
-                    await delay(delay + jitter)
+                    await delay(backoffMs + jitter)
                 }
 
-                delay = Math.min(delay * 2, maxDelayMs)
+                backoffMs = Math.min(backoffMs * 2, maxDelayMs)
                 continue
             }
             throw error
