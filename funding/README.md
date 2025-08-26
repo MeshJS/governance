@@ -3,13 +3,13 @@
 List of funded proposals from MeshJS at Cardano's Project Catalyst.
 
 > **Data Source**: Real data from Catalyst
-> **Last Updated**: August 18, 2025 at 12:56 AM UTC
+> **Last Updated**: August 25, 2025 at 12:51 AM UTC
 
 ## Overall Progress
 
 | Milestones | Funding |
 |:-----------|:--------|
-| Total completed: 40/50 (80%)<br>`████████████████····` 80% | Total distributed: ADA 1,597,429/2,018,429 (79%)<br>`████████████████····` 79% |
+| Total completed: 42/50 (84%)<br>`█████████████████···` 84% | Total distributed: ADA 1,597,429/2,018,429 (79%)<br>`████████████████····` 79% |
 
 ## Overview of All Proposals
 
@@ -20,8 +20,8 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | F12 - Mesh Software as a Service | 1200148 | `████████████████████` 100% | `████████████████████` 100% |
 | F12 - Mesh New Features to Improve Developer experience and Cardano Adoption | 1200147 | `████████████████████` 100% | `████████████████████` 100% |
 | F12 - Sustain and Maintain Mesh SDK | 1200220 | `████████████████████` 100% | `████████████████████` 100% |
-| F13 - Mesh: Hydra Tools for administrating & interacting with Hydra Heads | 1300135 | `████████············` 40% | `███████████·········` 56% |
-| F13 - Mesh: Cquisitor - Transaction Investigation Tool | 1300134 | `████████············` 40% | `███████████·········` 56% |
+| F13 - Mesh: Hydra Tools for administrating & interacting with Hydra Heads | 1300135 | `████████████········` 60% | `███████████·········` 56% |
+| F13 - Mesh: Cquisitor - Transaction Investigation Tool | 1300134 | `████████████········` 60% | `███████████·········` 56% |
 | F13 - Maintain Mesh and Build Developer Community | 1300130 | `████████████████████` 100% | `████████████████████` 100% |
 | F13 - Cardano Multisig Platform by Mesh, Clarity DAO & Fluid Tokens | 1300050 | `███████·············` 33% | `██████████··········` 51% |
 | F13 - Cardano Builder Fest Asia by Mesh, Socious, SIDAN, Vietnam Cardano | 1300036 | `████████████████████` 100% | `████████████████████` 100% |
@@ -117,8 +117,8 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | **Milestones** | [Milestones](https://milestones.projectcatalyst.io/projects/1300135) |
 | **Funding Category** | F13: Cardano Open: Developers |
 | **Proposal Budget** | ADA 200,000 |
-| **Status** | 🚀 In Progress |
-| **Milestones completed** | 2/5 (40%) |
+| **Status** | 🔄 In Progress |
+| **Milestones completed** | 3/5 (60%) |
 | **Funds distributed** | ADA 112,000 of 200,000 (56%) |
 | **Funding Progress** | `███████████·········` |
 
@@ -131,8 +131,8 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | **Milestones** | [Milestones](https://milestones.projectcatalyst.io/projects/1300134) |
 | **Funding Category** | F13: Cardano Open: Developers |
 | **Proposal Budget** | ADA 200,000 |
-| **Status** | 🚀 In Progress |
-| **Milestones completed** | 2/5 (40%) |
+| **Status** | 🔄 In Progress |
+| **Milestones completed** | 3/5 (60%) |
 | **Funds distributed** | ADA 112,000 of 200,000 (56%) |
 | **Funding Progress** | `███████████·········` |
 
