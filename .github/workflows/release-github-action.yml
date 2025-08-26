@@ -4,8 +4,7 @@ on:
   push:
     tags:
       - 'github-stats-action@*'
-    paths:
-      - 'apps/shared-backend/github-actions/github-stats-action/**'
+  workflow_dispatch:
 
 jobs:
   release:
