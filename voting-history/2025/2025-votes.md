@@ -2,6 +2,38 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Cardano Global Listing Expansion - Powered by Snek](https://adastat.net/governances/4ff43f1eab5252ef00ba6f1429dc23715e3899834f10c067e8065c8364d5559a00) |
+| Hash           | 4ff43f1eab5252ef00ba6f1429dc23715e3899834f10c067e8065c8364d5559a00 |
+| Action ID      | gov_action1fl6r784t2ffw7q96du2znhprw90r3xvrfugvqelgqewgxex42kdqq9tgrd5 |
+| Type           | TreasuryWithdrawals |
+| Proposed Epoch | 573 |
+| Expires Epoch  | 580 |
+| Vote           | ❌No |
+| Vote Submitted | 8/25/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following: Yes: 0 votes No: 2 votes Abstain: 0 votes Therefore, we vote NO. Rationale: While we support projects which drive ecosystem adoption, we do not support treasury funding to finance development/maintenance/enhancements such as listings of any meme-coins. Furthermore, the proposer did not follow the given requirements for submitting treasury withdrawal proposals after an initial info-action as stated in the constitution. Finally, ecosystem treasuries investing in meme-coins has been already proven to be a bad idea, e.g Polkadot and its DED meme coin. Sometimes its helpful to learn from other ecosystems and to avoid repeating mistakes. Anyway, we hope the SNEK team doesn't take our No vote personally, we don't have anything against SNEK and some of our members are even holders, so ye, keep building guys, but to take treasury funds, thats a nope from us :). |
+|Link|https://adastat.net/transactions/c007b4ae876a267514b33a15da05b364f8995721be720cedbf2117d45084c102 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
+| Proposal Title | [Replace Interim Constitutional Committee](https://adastat.net/governances/47a0e7a4f9383b1afc2192b23b41824d65ac978d7741aca61fc1fa16833d111100) |
+| Hash           | 47a0e7a4f9383b1afc2192b23b41824d65ac978d7741aca61fc1fa16833d111100 |
+| Action ID      | gov_action1g7sw0f8e8qa34lppj2erksvzf4j6e9udwaq6efslc8apdqeazygsq2spyyt |
+| Type           | NewCommittee |
+| Proposed Epoch | 573 |
+| Expires Epoch  | 580 |
+| Vote           | ✅Yes |
+| Vote Submitted | 8/22/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following on tis proposal Yes: 2 votes No: 0 votes Abstain: 0 votes Therefore, we vote YES on the proposal. Rationale: Since the replacement of the interim Constitutional Committee (hence interim) was planned and even found its place in the Cardano Constitution we are glad to see the process being followed as intended. The respective voting process for electing the new members has been launched and is concluded so everything ready for this proposal to pass and to get the new committee up and running. |
+|Link|https://adastat.net/transactions/b875378dbc6c10e0745fc23f28a587d2a81c60127aefd34a007fa784b4a63c06 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Tempo for Cardono Governance - Maintenance & Development Budget for 2025](https://adastat.net/governances/495bd3cd44ea6bc0b4c2dbb1e4cdc7e214874c2c07490a4e2476a627ef91128000) |
 | Hash           | 495bd3cd44ea6bc0b4c2dbb1e4cdc7e214874c2c07490a4e2476a627ef91128000 |
 | Action ID      | gov_action1f9da8n2yaf4updxzmwc7fnw8ug2gwnpvqays5n3yw6nz0mu3z2qqq6ggge9 |
