@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
 import fetch from 'node-fetch'
+import https from 'node:https'
 
 // —— Config from env / GitHub Action inputs ——
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 10000 })
 const ORG = process.env.ORG
 const REPO = process.env.REPO
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
@@ -85,6 +87,7 @@ async function makeRequest(url, options = {}) {
                 'Content-Type': 'application/json',
                 ...options.headers
             },
+            agent: httpsAgent,
             signal: controller.signal,
             ...options
         })
@@ -146,7 +149,7 @@ async function makeRequest(url, options = {}) {
 }
 
 // Retry helper for GitHub API calls (handles transient network errors like "Premature close")
-async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
+async function retryWithBackoff(fn, maxRetries = 8, initialDelayMs = 1000) {
     let attempt = 0
     let backoffMs = initialDelayMs
     const maxDelayMs = 30000
@@ -162,6 +165,7 @@ async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
             const isStatusRetriable = status === 403 || status === 429 || (typeof status === 'number' && status >= 500)
             const isNetworkRetriable =
                 message.includes('Premature close') ||
+                message.includes('ERR_STREAM_PREMATURE_CLOSE') ||
                 message.includes('socket hang up') ||
                 message.includes('ECONNRESET') ||
                 message.includes('ETIMEDOUT') ||
