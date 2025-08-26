@@ -188,7 +188,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
                     setConnectedWallet(prev => prev ? { ...prev, isVerified: true } : prev);
 
-                    // Refresh current page to re-run getServerSideProps (e.g., /members)
+                    // Refresh current page to re-run getServerSideProps (e.g., /profile)
                     try {
                         await router.replace(router.asPath, undefined, { scroll: false });
                     } catch { }

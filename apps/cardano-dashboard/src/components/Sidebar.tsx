@@ -14,7 +14,7 @@ const navItems = [
     { name: "npmjs Activity", icon: <FaNpm />, href: "/npmjs-activity" },
     { name: "CIP Activity", icon: <FaFileAlt />, href: "/cip-activity" },
     { name: "Catalyst", icon: <FaLightbulb />, href: "/catalyst" },
-    { name: "Profile Pages", icon: <FaUser />, href: "/profile-pages" },
+    { name: "Profile", icon: <FaUser />, href: "/profile" },
 ];
 
 const Sidebar = () => {

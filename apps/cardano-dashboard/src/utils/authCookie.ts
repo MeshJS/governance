@@ -8,10 +8,6 @@ export interface AuthPayload {
 export function signAuthPayload(payload: AuthPayload): string {
     const secret = process.env.AUTH_SECRET as string;
     const b64 = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
-    if (!secret) {
-        // Dev mode: unsigned cookie to enable local testing
-        return `${b64}.dev`;
-    }
     const sig = crypto.createHmac('sha256', secret).update(b64).digest('base64url');
     return `${b64}.${sig}`;
 }
