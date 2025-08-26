@@ -50,7 +50,18 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following:
+
+Yes: 0 votes 
+No: 2 votes 
+Abstain: 0 votes  
+
+Therefore, we vote NO.
+
+Rationale:
+While we support projects which drive ecosystem adoption, we do not support treasury funding to finance development/maintenance/enhancements such as listings of any meme-coins. Furthermore, the proposer did not follow the given requirements for submitting treasury withdrawal proposals after an initial info-action as stated in the constitution. Finally, ecosystem treasuries investing in meme-coins has been already proven to be a bad idea, e.g Polkadot and its DED meme coin. Sometimes its helpful to learn from other ecosystems and to avoid repeating mistakes.
+
+Anyway, we hope the SNEK team doesn't take our No vote personally, we don't have anything against SNEK and some of our members are even holders, so ye, keep building guys, but to take treasury funds, thats a nope from us :). "
   },
   "hashAlgorithm": "blake2b-256"
 }
