@@ -207,6 +207,30 @@ function ghHeaders() {
     }
 }
 
+// Fetch minimal org and repo metadata (for private repos, use action token)
+async function fetchRepoMetadata() {
+    const org = await retryWithBackoff(async () => {
+        const resp = await fetch(`https://api.github.com/orgs/${parsedOrg}`, { headers: ghHeaders() })
+        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+        return resp.json()
+    })
+
+    const repo = await retryWithBackoff(async () => {
+        const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}`, { headers: ghHeaders() })
+        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+        return resp.json()
+    })
+
+    const orgInfo = {
+        login: typeof org?.login === 'string' ? org.login : parsedOrg,
+    }
+    const repoInfo = {
+        name: typeof repo?.name === 'string' ? repo.name : parsedRepo,
+        is_private: !!repo?.private
+    }
+    return { orgInfo, repoInfo }
+}
+
 async function fetchExistingIds() {
     const url = `${parsedBaseUrl}/api/github/existing-ids?org=${encodeURIComponent(parsedOrg)}&repo=${encodeURIComponent(parsedRepo)}`
     return await makeRequest(url, { method: 'GET' })
@@ -303,7 +327,34 @@ async function fetchAllMissingPulls(existingNumbersSet) {
                     console.warn(`⚠️  Skipping PR #${pr.number} commits after retries: ${e?.message || e}`)
                     continue
                 }
-                results.push({ details: prDetails, commits: prCommits })
+                // Minify PR payload to only fields used by the Netlify function
+                const minDetails = {
+                    number: prDetails.number,
+                    title: prDetails.title,
+                    body: prDetails.body ?? null,
+                    state: prDetails.state,
+                    created_at: prDetails.created_at,
+                    updated_at: prDetails.updated_at,
+                    closed_at: prDetails.closed_at,
+                    merged_at: prDetails.merged_at,
+                    additions: prDetails.additions ?? null,
+                    deletions: prDetails.deletions ?? null,
+                    changed_files: prDetails.changed_files ?? null,
+                    commits: prDetails.commits ?? null,
+                    user: prDetails.user ? { login: prDetails.user.login, avatar_url: prDetails.user.avatar_url } : null,
+                    merged_by: prDetails.merged_by ? { login: prDetails.merged_by.login, avatar_url: prDetails.merged_by.avatar_url } : null,
+                    requested_reviewers: Array.isArray(prDetails.requested_reviewers)
+                        ? prDetails.requested_reviewers.map((r) => ({ login: r.login, avatar_url: r.avatar_url }))
+                        : [],
+                    assignees: Array.isArray(prDetails.assignees)
+                        ? prDetails.assignees.map((a) => ({ login: a.login, avatar_url: a.avatar_url }))
+                        : [],
+                    labels: Array.isArray(prDetails.labels)
+                        ? prDetails.labels.map((l) => ({ name: l.name }))
+                        : []
+                }
+                const minCommits = Array.isArray(prCommits) ? prCommits.map((c) => ({ sha: c.sha })) : []
+                results.push({ details: minDetails, commits: minCommits })
 
                 // Add delay between API calls to respect rate limits
                 await delay(RATE_LIMIT_CONFIG.github.delayBetweenRequests)
@@ -327,7 +378,21 @@ async function fetchAllMissingIssues(existingNumbersSet) {
         for (const issue of data) {
             if (issue.pull_request) continue // skip PRs
             if (!existingNumbersSet.has(issue.number)) {
-                results.push(issue)
+                // Minify issue payload to only fields used by the Netlify function
+                results.push({
+                    number: issue.number,
+                    title: issue.title,
+                    body: issue.body ?? null,
+                    state: issue.state,
+                    created_at: issue.created_at,
+                    updated_at: issue.updated_at,
+                    closed_at: issue.closed_at,
+                    comments: issue.comments ?? null,
+                    milestone: issue.milestone ? { title: issue.milestone.title } : null,
+                    user: issue.user ? { login: issue.user.login, avatar_url: issue.user.avatar_url } : null,
+                    assignees: Array.isArray(issue.assignees) ? issue.assignees.map((a) => ({ login: a.login, avatar_url: a.avatar_url })) : [],
+                    labels: Array.isArray(issue.labels) ? issue.labels.map((l) => ({ name: l.name })) : []
+                })
             }
         }
         page += 1
@@ -390,6 +455,10 @@ async function main() {
         console.log('⚠️  Rate limit is very low. Consider running this action later.')
     }
 
+    // Fetch org/repo info (minified) for background function to ensure DB entries exist
+    console.log('📥 Fetching org/repo metadata...')
+    const { orgInfo, repoInfo } = await fetchRepoMetadata()
+
     // Trigger the Netlify background function
     console.log('📥 Fetching existing IDs from mesh-gov API...')
     const existing = await fetchExistingIds()
@@ -420,7 +489,7 @@ async function main() {
 
     // Use conservative batch sizes to avoid gateway limits
     const COMMIT_BATCH_SIZE = 25
-    const PULL_BATCH_SIZE = 20
+    const PULL_BATCH_SIZE = 5
     const ISSUE_BATCH_SIZE = 50
 
     let sentSomething = false
@@ -434,6 +503,8 @@ async function main() {
             const payload = {
                 org: parsedOrg,
                 repo: parsedRepo,
+                orgInfo,
+                repoInfo,
                 commits: batch,
                 pulls: [],
                 issues: []
@@ -483,6 +554,8 @@ async function main() {
             const payload = {
                 org: parsedOrg,
                 repo: parsedRepo,
+                orgInfo,
+                repoInfo,
                 commits: [],
                 pulls: batch,
                 issues: []
@@ -531,6 +604,8 @@ async function main() {
             const payload = {
                 org: parsedOrg,
                 repo: parsedRepo,
+                orgInfo,
+                repoInfo,
                 commits: [],
                 pulls: [],
                 issues: batch
