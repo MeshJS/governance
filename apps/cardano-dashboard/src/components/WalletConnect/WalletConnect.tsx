@@ -9,6 +9,7 @@ export default function WalletConnect() {
     connectedWallet,
     isConnecting,
     isDisconnecting,
+    sessionAddress,
     connectWallet,
     disconnectWallet,
     error,
@@ -97,6 +98,54 @@ export default function WalletConnect() {
         >
           {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
         </button>
+      </div>
+    );
+  }
+
+  // If session exists (signed in) but wallet not enabled, prompt to enable
+  if (sessionAddress && availableWallets.length > 0) {
+    return (
+      <div className={styles.walletConnectContainer} ref={dropdownRef}>
+        <button
+          onClick={toggleDropdown}
+          disabled={isConnecting}
+          className={styles.walletButton}
+        >
+          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        </button>
+        {isDropdownOpen && (
+          <div className={styles.dropdown}>
+            <div className={styles.dropdownHeader}>
+              <span>Select Wallet</span>
+            </div>
+            {availableWallets.map((wallet) => (
+              <button
+                key={wallet.name}
+                onClick={() => handleConnectWallet(wallet.name)}
+                className={styles.walletOption}
+                disabled={isConnecting}
+              >
+                <img
+                  src={wallet.icon}
+                  alt={wallet.name}
+                  className={styles.walletOptionIcon}
+                />
+                <div className={styles.walletOptionInfo}>
+                  <span className={styles.walletOptionName}>{wallet.name}</span>
+                  <span className={styles.walletOptionVersion}>v{wallet.version}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+        {error && (
+          <div className={styles.errorToast}>
+            <span>{error}</span>
+            <button onClick={clearError} className={styles.errorClose}>
+              ×
+            </button>
+          </div>
+        )}
       </div>
     );
   }

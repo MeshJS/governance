@@ -3,27 +3,32 @@ import { ChainTip } from '../../../types/network';
 export class ChainTipApi {
     async fetchFromKoios(): Promise<ChainTip[]> {
         const url = '/api/koios-chain-tip';
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to fetch chain tip');
-        const data = await response.json();
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                console.warn('Failed to fetch chain tip: HTTP', response.status);
+                return [];
+            }
 
-        // Validate that we received an array
-        if (!Array.isArray(data)) {
-            throw new Error('Invalid chain tip data format');
+            const isStale = response.headers.get('x-data-stale') === 'true';
+            const lastUpdated = response.headers.get('x-last-updated');
+            if (isStale) {
+                console.warn('Chain tip served from stale cache', lastUpdated ? `(${lastUpdated})` : '');
+            }
+
+            const data = await response.json();
+
+            if (Array.isArray(data) && data.length > 0 && this.isValidChainTip(data[0])) {
+                console.info('Chain tip fetch successful', isStale ? '(stale)' : '(fresh)');
+                return data;
+            }
+
+            console.warn('Chain tip response invalid or empty; returning empty array');
+            return [];
+        } catch (error) {
+            console.error('Error fetching chain tip:', error);
+            return [];
         }
-
-        // Validate that we have at least one item
-        if (data.length === 0) {
-            throw new Error('No chain tip data received');
-        }
-
-        // Validate the first item has the required properties
-        const firstItem = data[0];
-        if (!this.isValidChainTip(firstItem)) {
-            throw new Error('Invalid chain tip data structure');
-        }
-
-        return data;
     }
 
     private isValidChainTip(data: unknown): data is ChainTip {
