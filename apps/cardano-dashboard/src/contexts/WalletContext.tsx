@@ -31,6 +31,8 @@ interface WalletContextType {
     connectedWallet: ConnectedWallet | null;
     isConnecting: boolean;
     isDisconnecting: boolean;
+    // Session (cookie) state
+    sessionAddress: string | null;
 
     // Actions
     refreshAvailableWallets: () => Promise<void>;
@@ -64,6 +66,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
     const [isConnecting, setIsConnecting] = useState(false);
     const [isDisconnecting, setIsDisconnecting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [sessionAddress, setSessionAddress] = useState<string | null>(null);
 
     // Load available wallets on mount
     useEffect(() => {
@@ -197,10 +200,11 @@ export function WalletProvider({ children }: WalletProviderProps) {
                 console.error('Wallet signature verification failed:', authErr);
             }
 
-            // Store connection in localStorage for persistence
+            // Store connection in localStorage for persistence (include id for reliable restore)
             if (typeof window !== 'undefined') {
                 localStorage.setItem('cardano-dashboard-connected-wallet', JSON.stringify({
-                    name: walletName,
+                    id: walletInfo.id,
+                    name: walletInfo.name,
                     timestamp: Date.now(),
                 }));
             }
@@ -254,22 +258,23 @@ export function WalletProvider({ children }: WalletProviderProps) {
             const savedConnection = localStorage.getItem('cardano-dashboard-connected-wallet');
             const meResp = await fetch('/api/auth/me', { credentials: 'same-origin' });
             const me = await meResp.json();
+            setSessionAddress(me?.authenticated ? (me?.address ?? null) : null);
 
             if (!savedConnection || !me?.authenticated) return;
             try {
-                const { name, timestamp } = JSON.parse(savedConnection);
+                const { id, name, timestamp } = JSON.parse(savedConnection);
+                const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000; // Align with auth cookie Max-Age
                 const connectionAge = Date.now() - timestamp;
-                if (connectionAge >= 2 * 60 * 60 * 1000) { // 2 hours
+                if (connectionAge >= THIRTY_DAYS_MS) {
                     localStorage.removeItem('cardano-dashboard-connected-wallet');
                     return;
                 }
-                const walletExists = availableWallets.some(w => w.name === name);
-                if (!walletExists) return;
+                // Prefer id match (new data), fallback to name (backward compatibility)
+                const walletInfo = availableWallets.find(w => (id ? w.id === id : w.name === name));
+                if (!walletInfo) return;
 
                 // Silently re-enable selected wallet without re-sign; keep session from cookie
                 setIsConnecting(true);
-                const walletInfo = availableWallets.find(w => w.name === name);
-                if (!walletInfo) return;
                 const wallet = await BrowserWallet.enable(walletInfo.id);
 
                 let address: string | undefined;
@@ -320,6 +325,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         connectedWallet,
         isConnecting,
         isDisconnecting,
+        sessionAddress,
         refreshAvailableWallets,
         connectWallet,
         disconnectWallet,

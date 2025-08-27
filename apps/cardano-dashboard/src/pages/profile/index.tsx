@@ -21,6 +21,26 @@ type WalletSummary = {
         ticker?: string;
         decimals?: number;
         quantity: string;
+        kind: 'fungible' | 'nft';
+        formattedQuantity: string;
+        displayName: string;
+        imageUrl?: string | null;
+        meta?: {
+            policy_id: string;
+            asset_name: string;
+            asset_name_ascii?: string | null;
+            fingerprint?: string;
+            total_supply?: string;
+            token_registry_metadata?: {
+                name?: string;
+                ticker?: string;
+                decimals?: number;
+                description?: string;
+                url?: string;
+                logo?: string;
+            } | null;
+            minting_tx_metadata?: unknown;
+        };
     }>;
 };
 
@@ -33,7 +53,8 @@ export default function Profile({ auth }: Props) {
     const [isFetching, setIsFetching] = useState(false);
 
     const loadBalance = useCallback(async () => {
-        const address = connectedWallet?.address || auth?.address;
+        // Only load when wallet is actually enabled; do not use cookie-only address
+        const address = connectedWallet?.wallet ? connectedWallet.address : undefined;
         if (!address) return;
         setIsFetching(true);
         try {
@@ -59,21 +80,30 @@ export default function Profile({ auth }: Props) {
             }
             if ('error' in data) throw new Error(data.error);
             const summary = data;
+            console.log('wallet/summary', summary);
+            // Client-side logging of Koios metadata per asset
+            try {
+                for (const a of summary.assets) {
+                    if (a.meta) {
+                        console.log('Asset meta', { unit: a.unit, policyId: a.policyId, assetNameHex: a.assetNameHex, meta: a.meta });
+                    }
+                }
+            } catch { /* ignore logging errors */ }
             setAda(summary.ada);
             setAssets(summary.assets);
         } finally {
             setIsFetching(false);
         }
-    }, [connectedWallet?.address, connectedWallet?.wallet, auth?.address]);
+    }, [connectedWallet?.address, connectedWallet?.wallet]);
 
     useEffect(() => {
-        if (connectedWallet?.address || auth?.address) {
+        if (connectedWallet?.wallet && connectedWallet?.address) {
             void loadBalance();
         } else {
             setAda('N/A');
             setAssets([]);
         }
-    }, [connectedWallet?.address, auth?.address, loadBalance]);
+    }, [connectedWallet?.wallet, connectedWallet?.address, loadBalance]);
     if (!auth) {
         return (
             <div style={{ padding: 24 }}>
@@ -103,18 +133,51 @@ export default function Profile({ auth }: Props) {
     return (
         <div style={{ padding: 24 }}>
             <h1>Profile</h1>
-            <p>Welcome, {auth.address}</p>
+            <p>Welcome{connectedWallet?.wallet && connectedWallet.address ? `, ${connectedWallet.address}` : ''}</p>
             <div style={{ marginTop: 12 }}>
-                <button onClick={loadBalance} disabled={!(connectedWallet?.wallet || auth?.address) || isFetching}>
+                <button onClick={loadBalance} disabled={!(connectedWallet?.wallet) || isFetching}>
                     {isFetching ? 'Loading…' : 'Refresh balance'}
                 </button>
-                <p style={{ marginTop: 12 }}>Wallet balance (ADA): {ada}</p>
-                {assets.length > 0 && (
-                    <ul>
-                        {assets.map((a) => (
-                            <li key={a.unit}>{a.name}{a.ticker ? ` (${a.ticker})` : ''}: {a.quantity}</li>
-                        ))}
-                    </ul>
+                {connectedWallet?.wallet && (
+                    <p style={{ marginTop: 12 }}>Wallet balance (ADA): {ada}</p>
+                )}
+                {connectedWallet?.wallet && assets.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 12 }}>
+                        <div>
+                            <h3>Fungible tokens</h3>
+                            <ul style={{ listStyle: 'none', padding: 0 }}>
+                                {assets.filter((a) => a.kind === 'fungible').map((a) => (
+                                    <li key={a.unit} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                        {a.imageUrl ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img src={a.imageUrl} alt={a.displayName} width={24} height={24} style={{ borderRadius: 4, objectFit: 'cover' }} />
+                                        ) : (
+                                            <div style={{ width: 24, height: 24, background: '#eee', borderRadius: 4 }} />
+                                        )}
+                                        <span style={{ fontWeight: 600 }}>{a.displayName}</span>
+                                        <span style={{ marginLeft: 'auto' }}>{a.formattedQuantity}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>NFTs</h3>
+                            <ul style={{ listStyle: 'none', padding: 0 }}>
+                                {assets.filter((a) => a.kind === 'nft').map((a) => (
+                                    <li key={a.unit} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                        {a.imageUrl ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img src={a.imageUrl} alt={a.displayName} width={36} height={36} style={{ borderRadius: 4, objectFit: 'cover' }} />
+                                        ) : (
+                                            <div style={{ width: 36, height: 36, background: '#eee', borderRadius: 4 }} />
+                                        )}
+                                        <span style={{ fontWeight: 600 }}>{a.displayName}</span>
+                                        <span style={{ marginLeft: 'auto' }}>{a.quantity}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>
