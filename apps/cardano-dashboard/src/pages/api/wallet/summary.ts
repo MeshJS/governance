@@ -292,8 +292,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             : [];
         const unitToMeta = new Map<string, KoiosAssetInfoItem>();
         for (const m of meta) {
-            // Server-side log to inspect Koios asset info entries
-            console.log('Koios asset meta:', m);
             unitToMeta.set(`${m.policy_id}${m.asset_name}`, m);
         }
 

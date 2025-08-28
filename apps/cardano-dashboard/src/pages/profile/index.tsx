@@ -3,6 +3,7 @@ import type { GetServerSideProps } from 'next';
 import type { AuthPayload } from '@/utils/authCookie';
 import { verifyAuthCookie } from '@/utils/authCookie';
 import { useWallet } from '@/contexts/WalletContext';
+import styles from './index.module.css';
 
 interface Props {
     auth: AuthPayload | null;
@@ -81,14 +82,6 @@ export default function Profile({ auth }: Props) {
             if ('error' in data) throw new Error(data.error);
             const summary = data;
             console.log('wallet/summary', summary);
-            // Client-side logging of Koios metadata per asset
-            try {
-                for (const a of summary.assets) {
-                    if (a.meta) {
-                        console.log('Asset meta', { unit: a.unit, policyId: a.policyId, assetNameHex: a.assetNameHex, meta: a.meta });
-                    }
-                }
-            } catch { /* ignore logging errors */ }
             setAda(summary.ada);
             setAssets(summary.assets);
         } finally {
@@ -139,40 +132,48 @@ export default function Profile({ auth }: Props) {
                     {isFetching ? 'Loading…' : 'Refresh balance'}
                 </button>
                 {connectedWallet?.wallet && (
-                    <p style={{ marginTop: 12 }}>Wallet balance (ADA): {ada}</p>
+                    <p style={{ marginTop: 12 }}>Wallet balance (ADA): {(() => { const n = Number(ada); return Number.isFinite(n) ? Math.floor(n).toString() : ada; })()}</p>
                 )}
                 {connectedWallet?.wallet && assets.length > 0 && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 12 }}>
-                        <div>
-                            <h3>Fungible tokens</h3>
-                            <ul style={{ listStyle: 'none', padding: 0 }}>
-                                {assets.filter((a) => a.kind === 'fungible').map((a) => (
-                                    <li key={a.unit} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                                        {a.imageUrl ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={a.imageUrl} alt={a.displayName} width={24} height={24} style={{ borderRadius: 4, objectFit: 'cover' }} />
-                                        ) : (
-                                            <div style={{ width: 24, height: 24, background: '#eee', borderRadius: 4 }} />
-                                        )}
-                                        <span style={{ fontWeight: 600 }}>{a.displayName}</span>
-                                        <span style={{ marginLeft: 'auto' }}>{a.formattedQuantity}</span>
-                                    </li>
-                                ))}
+                    <div className={styles.cardsGrid}>
+                        <div className={styles.card}>
+                            <h3 className={styles.cardTitle}>Fungible tokens</h3>
+                            <ul className={`${styles.tokenGrid} ${styles.fungibleGrid}`} style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {assets.filter((a) => a.kind === 'fungible').map((a) => {
+                                    const full = a.formattedQuantity;
+                                    const integer = (() => {
+                                        const n = Number(full);
+                                        return Number.isFinite(n) ? Math.floor(n).toString() : full.split('.')[0] ?? full;
+                                    })();
+                                    return (
+                                        <li key={a.unit} className={styles.tokenItem}>
+                                            {a.imageUrl ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img src={a.imageUrl} alt={a.displayName} className={styles.tokenImage} />
+                                            ) : (
+                                                <div className={styles.tokenImage} />
+                                            )}
+                                            <span className={styles.amountBadge}>{integer}</span>
+                                            <div className={styles.tooltipContent} role="tooltip">
+                                                <div className={styles.tooltipTitle}>{a.displayName}</div>
+                                                <div className={styles.tooltipAmount}>{full}</div>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         </div>
-                        <div>
-                            <h3>NFTs</h3>
-                            <ul style={{ listStyle: 'none', padding: 0 }}>
+                        <div className={styles.card}>
+                            <h3 className={styles.cardTitle}>NFTs</h3>
+                            <ul className={`${styles.tokenGrid} ${styles.nftGrid}`} style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                                 {assets.filter((a) => a.kind === 'nft').map((a) => (
-                                    <li key={a.unit} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                    <li key={a.unit} className={styles.tokenItem} title={a.displayName}>
                                         {a.imageUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={a.imageUrl} alt={a.displayName} width={36} height={36} style={{ borderRadius: 4, objectFit: 'cover' }} />
+                                            <img src={a.imageUrl} alt={a.displayName} className={styles.nftImage} />
                                         ) : (
-                                            <div style={{ width: 36, height: 36, background: '#eee', borderRadius: 4 }} />
+                                            <div className={styles.nftImage} />
                                         )}
-                                        <span style={{ fontWeight: 600 }}>{a.displayName}</span>
-                                        <span style={{ marginLeft: 'auto' }}>{a.quantity}</span>
                                     </li>
                                 ))}
                             </ul>

@@ -1,0 +1,102 @@
+.cardsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 12px;
+}
+
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    background: var(--bg-secondary);
+}
+
+.cardTitle {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.tokenGrid {
+    display: grid;
+    gap: 8px;
+}
+
+.fungibleGrid {
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+}
+
+.nftGrid {
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+}
+
+.tokenItem {
+    position: relative;
+}
+
+.tokenImage {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--bg-overlay);
+    display: block;
+}
+
+.nftImage {
+    width: 72px;
+    height: 72px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--bg-overlay);
+    display: block;
+}
+
+.amountBadge {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    background: rgba(0, 0, 0, 0.75);
+    color: var(--text-primary);
+    font-size: 12px;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+/* Tooltip for fungible tokens */
+.tooltipContent {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 8px);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 20px var(--shadow-color);
+    padding: 8px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms ease, transform 120ms ease;
+    z-index: 20;
+}
+
+.tokenItem:hover .tooltipContent {
+    opacity: 1;
+    transform: translate(-50%, 12px);
+}
+
+.tooltipTitle {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.tooltipAmount {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
