@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
 import fetch from 'node-fetch'
+import https from 'node:https'
 
 // —— Config from env / GitHub Action inputs ——
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 10000 })
 const ORG = process.env.ORG
 const REPO = process.env.REPO
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
@@ -85,6 +87,7 @@ async function makeRequest(url, options = {}) {
                 'Content-Type': 'application/json',
                 ...options.headers
             },
+            agent: httpsAgent,
             signal: controller.signal,
             ...options
         })
@@ -146,7 +149,7 @@ async function makeRequest(url, options = {}) {
 }
 
 // Retry helper for GitHub API calls (handles transient network errors like "Premature close")
-async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
+async function retryWithBackoff(fn, maxRetries = 8, initialDelayMs = 1000) {
     let attempt = 0
     let backoffMs = initialDelayMs
     const maxDelayMs = 30000
@@ -162,6 +165,7 @@ async function retryWithBackoff(fn, maxRetries = 5, initialDelayMs = 1000) {
             const isStatusRetriable = status === 403 || status === 429 || (typeof status === 'number' && status >= 500)
             const isNetworkRetriable =
                 message.includes('Premature close') ||
+                message.includes('ERR_STREAM_PREMATURE_CLOSE') ||
                 message.includes('socket hang up') ||
                 message.includes('ECONNRESET') ||
                 message.includes('ETIMEDOUT') ||
@@ -203,6 +207,30 @@ function ghHeaders() {
     }
 }
 
+// Fetch minimal org and repo metadata (for private repos, use action token)
+async function fetchRepoMetadata() {
+    const org = await retryWithBackoff(async () => {
+        const resp = await fetch(`https://api.github.com/orgs/${parsedOrg}`, { headers: ghHeaders() })
+        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+        return resp.json()
+    })
+
+    const repo = await retryWithBackoff(async () => {
+        const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}`, { headers: ghHeaders() })
+        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+        return resp.json()
+    })
+
+    const orgInfo = {
+        login: typeof org?.login === 'string' ? org.login : parsedOrg,
+    }
+    const repoInfo = {
+        name: typeof repo?.name === 'string' ? repo.name : parsedRepo,
+        is_private: !!repo?.private
+    }
+    return { orgInfo, repoInfo }
+}
+
 async function fetchExistingIds() {
     const url = `${parsedBaseUrl}/api/github/existing-ids?org=${encodeURIComponent(parsedOrg)}&repo=${encodeURIComponent(parsedRepo)}`
     return await makeRequest(url, { method: 'GET' })
@@ -213,7 +241,7 @@ async function fetchAllMissingCommits(existingShasSet) {
     let page = 1
     while (true) {
         const data = await retryWithBackoff(async () => {
-            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/commits?per_page=100&page=${page}`, { headers: ghHeaders() })
+            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/commits?per_page=50&page=${page}`, { headers: ghHeaders() })
             if (!resp.ok) throw { status: resp.status, message: await resp.text() }
             return resp.json()
         })
@@ -221,11 +249,18 @@ async function fetchAllMissingCommits(existingShasSet) {
         for (const item of data) {
             if (!existingShasSet.has(item.sha)) {
                 // Ensure we have full commit details
-                const details = await retryWithBackoff(async () => {
-                    const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/commits/${item.sha}`, { headers: ghHeaders() })
-                    if (!resp.ok) throw { status: resp.status, message: await resp.text() }
-                    return resp.json()
-                })
+                let details
+                try {
+                    details = await retryWithBackoff(async () => {
+                        const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/commits/${item.sha}`, { headers: ghHeaders() })
+                        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+                        return resp.json()
+                    })
+                } catch (e) {
+                    console.warn(`⚠️  Skipping commit ${item.sha} after retries: ${e?.message || e}`)
+                    // Skip this item and continue with the next
+                    continue
+                }
                 // Minify commit payload to only what the Netlify function needs
                 const filesCount = Array.isArray(details.files) ? details.files.length : 0
                 const parents = Array.isArray(details.parents) ? details.parents.map((p) => ({ sha: p.sha })) : []
@@ -263,24 +298,63 @@ async function fetchAllMissingPulls(existingNumbersSet) {
     let page = 1
     while (true) {
         const data = await retryWithBackoff(async () => {
-            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls?state=all&per_page=100&page=${page}`, { headers: ghHeaders() })
+            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls?state=all&per_page=50&page=${page}`, { headers: ghHeaders() })
             if (!resp.ok) throw { status: resp.status, message: await resp.text() }
             return resp.json()
         })
         if (!Array.isArray(data) || data.length === 0) break
         for (const pr of data) {
             if (!existingNumbersSet.has(pr.number)) {
-                const prDetails = await retryWithBackoff(async () => {
-                    const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls/${pr.number}`, { headers: ghHeaders() })
-                    if (!resp.ok) throw { status: resp.status, message: await resp.text() }
-                    return resp.json()
-                })
-                const prCommits = await retryWithBackoff(async () => {
-                    const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls/${pr.number}/commits`, { headers: ghHeaders() })
-                    if (!resp.ok) throw { status: resp.status, message: await resp.text() }
-                    return resp.json()
-                })
-                results.push({ details: prDetails, commits: prCommits })
+                let prDetails
+                try {
+                    prDetails = await retryWithBackoff(async () => {
+                        const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls/${pr.number}`, { headers: ghHeaders() })
+                        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+                        return resp.json()
+                    })
+                } catch (e) {
+                    console.warn(`⚠️  Skipping PR #${pr.number} details after retries: ${e?.message || e}`)
+                    continue
+                }
+                let prCommits
+                try {
+                    prCommits = await retryWithBackoff(async () => {
+                        const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls/${pr.number}/commits`, { headers: ghHeaders() })
+                        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+                        return resp.json()
+                    })
+                } catch (e) {
+                    console.warn(`⚠️  Skipping PR #${pr.number} commits after retries: ${e?.message || e}`)
+                    continue
+                }
+                // Minify PR payload to only fields used by the Netlify function
+                const minDetails = {
+                    number: prDetails.number,
+                    title: prDetails.title,
+                    body: prDetails.body ?? null,
+                    state: prDetails.state,
+                    created_at: prDetails.created_at,
+                    updated_at: prDetails.updated_at,
+                    closed_at: prDetails.closed_at,
+                    merged_at: prDetails.merged_at,
+                    additions: prDetails.additions ?? null,
+                    deletions: prDetails.deletions ?? null,
+                    changed_files: prDetails.changed_files ?? null,
+                    commits: prDetails.commits ?? null,
+                    user: prDetails.user ? { login: prDetails.user.login, avatar_url: prDetails.user.avatar_url } : null,
+                    merged_by: prDetails.merged_by ? { login: prDetails.merged_by.login, avatar_url: prDetails.merged_by.avatar_url } : null,
+                    requested_reviewers: Array.isArray(prDetails.requested_reviewers)
+                        ? prDetails.requested_reviewers.map((r) => ({ login: r.login, avatar_url: r.avatar_url }))
+                        : [],
+                    assignees: Array.isArray(prDetails.assignees)
+                        ? prDetails.assignees.map((a) => ({ login: a.login, avatar_url: a.avatar_url }))
+                        : [],
+                    labels: Array.isArray(prDetails.labels)
+                        ? prDetails.labels.map((l) => ({ name: l.name }))
+                        : []
+                }
+                const minCommits = Array.isArray(prCommits) ? prCommits.map((c) => ({ sha: c.sha })) : []
+                results.push({ details: minDetails, commits: minCommits })
 
                 // Add delay between API calls to respect rate limits
                 await delay(RATE_LIMIT_CONFIG.github.delayBetweenRequests)
@@ -296,7 +370,7 @@ async function fetchAllMissingIssues(existingNumbersSet) {
     let page = 1
     while (true) {
         const data = await retryWithBackoff(async () => {
-            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/issues?state=all&per_page=100&page=${page}`, { headers: ghHeaders() })
+            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/issues?state=all&per_page=50&page=${page}`, { headers: ghHeaders() })
             if (!resp.ok) throw { status: resp.status, message: await resp.text() }
             return resp.json()
         })
@@ -304,7 +378,21 @@ async function fetchAllMissingIssues(existingNumbersSet) {
         for (const issue of data) {
             if (issue.pull_request) continue // skip PRs
             if (!existingNumbersSet.has(issue.number)) {
-                results.push(issue)
+                // Minify issue payload to only fields used by the Netlify function
+                results.push({
+                    number: issue.number,
+                    title: issue.title,
+                    body: issue.body ?? null,
+                    state: issue.state,
+                    created_at: issue.created_at,
+                    updated_at: issue.updated_at,
+                    closed_at: issue.closed_at,
+                    comments: issue.comments ?? null,
+                    milestone: issue.milestone ? { title: issue.milestone.title } : null,
+                    user: issue.user ? { login: issue.user.login, avatar_url: issue.user.avatar_url } : null,
+                    assignees: Array.isArray(issue.assignees) ? issue.assignees.map((a) => ({ login: a.login, avatar_url: a.avatar_url })) : [],
+                    labels: Array.isArray(issue.labels) ? issue.labels.map((l) => ({ name: l.name })) : []
+                })
             }
         }
         page += 1
@@ -367,6 +455,10 @@ async function main() {
         console.log('⚠️  Rate limit is very low. Consider running this action later.')
     }
 
+    // Fetch org/repo info (minified) for background function to ensure DB entries exist
+    console.log('📥 Fetching org/repo metadata...')
+    const { orgInfo, repoInfo } = await fetchRepoMetadata()
+
     // Trigger the Netlify background function
     console.log('📥 Fetching existing IDs from mesh-gov API...')
     const existing = await fetchExistingIds()
@@ -397,7 +489,7 @@ async function main() {
 
     // Use conservative batch sizes to avoid gateway limits
     const COMMIT_BATCH_SIZE = 25
-    const PULL_BATCH_SIZE = 20
+    const PULL_BATCH_SIZE = 5
     const ISSUE_BATCH_SIZE = 50
 
     let sentSomething = false
@@ -411,6 +503,8 @@ async function main() {
             const payload = {
                 org: parsedOrg,
                 repo: parsedRepo,
+                orgInfo,
+                repoInfo,
                 commits: batch,
                 pulls: [],
                 issues: []
@@ -460,6 +554,8 @@ async function main() {
             const payload = {
                 org: parsedOrg,
                 repo: parsedRepo,
+                orgInfo,
+                repoInfo,
                 commits: [],
                 pulls: batch,
                 issues: []
@@ -508,6 +604,8 @@ async function main() {
             const payload = {
                 org: parsedOrg,
                 repo: parsedRepo,
+                orgInfo,
+                repoInfo,
                 commits: [],
                 pulls: [],
                 issues: batch

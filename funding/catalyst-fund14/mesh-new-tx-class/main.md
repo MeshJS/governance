@@ -57,7 +57,7 @@ Evidence of Completion:
 - Public link to post on Twitter/X to inform the Public
 
 ## Milestone 2
-Budget: 20,000.00 Ada
+Budget: 30,000.00 Ada
 
 Milestone outcomes:
 Refactor tx-buidler at whisky
@@ -75,7 +75,7 @@ Evidence of Completion:
 - Public link to post on Twitter/X to inform the Public
 
 ## Milestone 3
-Budget: 20,000.00 Ada
+Budget: 30,000.00 Ada
 
 Milestone outcomes:
 Refactor tx-buidler at core-cst
@@ -143,19 +143,19 @@ https://gov.meshjs.dev/contributors
 The budget breakdown of the proposal deliverables, already outlined in the Proposal Milestones, consists of: 
 
 Milestone 1: Gather info
-Budget: 20,000.00 Ada
+Budget: 10,000.00 Ada
 
 Milestone 2: Refactor tx-buidler at whisky
-Budget: 20,000.00 Ada
+Budget: 30,000.00 Ada
 
 Milestone 3: Refactor tx-buidler at core-cst
-Budget: 20,000.00 Ada
+Budget: 30,000.00 Ada
 
 Milestone 4: Update Mesh TxBuilder
 Budget: 20,000.00 Ada
 
 Milestone 5: Design & implement TX class, update Docs
-Budget: 20,000.00 Ada
+Budget: 10,000.00 Ada
 [VALUE FOR MONEY] How does the cost of the project represent value for money for the Cardano ecosystem?
 
 The most reliable way for open-source tools to show their "value for money" is by looking at real usage data-checking how actively the code is used across the developer ecosystem and identifying how many, and what kind of, projects build with our tooling. At Mesh, we currently see over 800 dependent projects making use of our SDK, with around 10k npm downloads every month. This makes Mesh one of the most widely adopted Cardano open-source stacks, supporting projects across the entire spectrum to build on Cardano. These numbers show clearly that the budgets we receive translate into strong metrics, proving that treasury funds are effectively used to deliver solutions that are practical, useful, and solve real developer problems.

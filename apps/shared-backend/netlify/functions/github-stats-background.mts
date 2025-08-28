@@ -49,6 +49,38 @@ async function getRepo(org: string, repo: string) {
     return { orgId, repoId: repos[0].id as number }
 }
 
+async function ensureOrgAndRepo(orgLogin: string, repoName: string, orgInfo?: any, repoInfo?: any) {
+    // Try to find existing first
+    const { orgId, repoId } = await getRepo(orgLogin, repoName)
+    if (repoId) return { orgId, repoId }
+
+    // Upsert org by login
+    const resolvedOrgLogin = (orgInfo?.login as string) || orgLogin
+    let ensuredOrgId: number | null = orgId
+    if (!ensuredOrgId) {
+        const { data: upsertedOrg, error: upsertOrgErr } = await supabase
+            .from('github_orgs')
+            .upsert({ login: resolvedOrgLogin }, { onConflict: 'login' })
+            .select('id')
+            .single()
+        if (upsertOrgErr) throw upsertOrgErr
+        ensuredOrgId = upsertedOrg?.id ?? null
+    }
+
+    if (!ensuredOrgId) return { orgId: null, repoId: null }
+
+    // Upsert repo by (org_id, name)
+    const resolvedRepoName = (repoInfo?.name as string) || repoName
+    const { data: upsertedRepo, error: upsertRepoErr } = await supabase
+        .from('github_repos')
+        .upsert({ org_id: ensuredOrgId, name: resolvedRepoName }, { onConflict: 'org_id,name' })
+        .select('id')
+        .single()
+    if (upsertRepoErr) throw upsertRepoErr
+
+    return { orgId: ensuredOrgId, repoId: upsertedRepo?.id ?? null }
+}
+
 export const handler: Handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return {
@@ -69,11 +101,14 @@ export const handler: Handler = async (event) => {
 
         const org = (body.org as string) || ''
         const repo = (body.repo as string) || ''
+        const orgInfo = body.orgInfo || null
+        const repoInfo = body.repoInfo || null
         const commits = (body.commits as any[]) || []
         const pulls = (body.pulls as any[]) || []
         const issues = (body.issues as any[]) || []
 
-        const { repoId } = await getRepo(org, repo)
+        // Ensure org/repo exist in Supabase; create if missing using metadata from action
+        const { repoId } = await ensureOrgAndRepo(org, repo, orgInfo, repoInfo)
         if (!repoId) {
             return { statusCode: 404, body: JSON.stringify({ error: 'Repository not found in Supabase' }) }
         }
