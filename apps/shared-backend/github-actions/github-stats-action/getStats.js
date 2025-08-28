@@ -207,7 +207,7 @@ function ghHeaders() {
     }
 }
 
-// Fetch minimal org and repo metadata (for private repos, use action token)
+// Fetch org and repo metadata (including numeric IDs) for background function to ensure DB entries exist
 async function fetchRepoMetadata() {
     const org = await retryWithBackoff(async () => {
         const resp = await fetch(`https://api.github.com/orgs/${parsedOrg}`, { headers: ghHeaders() })
@@ -222,11 +222,21 @@ async function fetchRepoMetadata() {
     })
 
     const orgInfo = {
+        id: typeof org?.id === 'number' ? org.id : undefined,
         login: typeof org?.login === 'string' ? org.login : parsedOrg,
+        name: typeof org?.name === 'string' ? org.name : undefined,
+        description: typeof org?.description === 'string' ? org.description : undefined,
+        avatar_url: typeof org?.avatar_url === 'string' ? org.avatar_url : undefined,
+        html_url: typeof org?.html_url === 'string' ? org.html_url : undefined
     }
     const repoInfo = {
+        id: typeof repo?.id === 'number' ? repo.id : undefined,
         name: typeof repo?.name === 'string' ? repo.name : parsedRepo,
-        is_private: !!repo?.private
+        full_name: typeof repo?.full_name === 'string' ? repo.full_name : `${parsedOrg}/${parsedRepo}`,
+        private: !!repo?.private,
+        fork: !!repo?.fork,
+        html_url: typeof repo?.html_url === 'string' ? repo.html_url : undefined,
+        description: typeof repo?.description === 'string' ? repo.description : undefined
     }
     return { orgInfo, repoInfo }
 }
@@ -455,9 +465,11 @@ async function main() {
         console.log('⚠️  Rate limit is very low. Consider running this action later.')
     }
 
-    // Fetch org/repo info (minified) for background function to ensure DB entries exist
+    // Fetch org/repo info (with IDs) for background function to ensure DB entries exist
     console.log('📥 Fetching org/repo metadata...')
     const { orgInfo, repoInfo } = await fetchRepoMetadata()
+    console.log(`🆔 GitHub org id: ${orgInfo?.id ?? 'unknown'}`)
+    console.log(`🆔 GitHub repo id: ${repoInfo?.id ?? 'unknown'}`)
 
     // Trigger the Netlify background function
     console.log('📥 Fetching existing IDs from mesh-gov API...')

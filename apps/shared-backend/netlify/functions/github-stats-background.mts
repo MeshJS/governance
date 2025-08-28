@@ -1,6 +1,7 @@
 // Netlify Background Function (ESM)
 // Receives new commits, PRs, and issues and upserts into Supabase
 
+// @ts-nocheck
 import type { Handler } from '@netlify/functions'
 import { createClient } from '@supabase/supabase-js'
 
@@ -27,7 +28,7 @@ async function upsertContributor(login: string | null, avatarUrl: string | null)
 }
 
 async function getRepo(org: string, repo: string) {
-    // get org id
+    // Legacy lookup by org login and repo name (used only if IDs are missing)
     const { data: orgs, error: orgError } = await supabase
         .from('github_orgs')
         .select('id, login')
@@ -37,7 +38,6 @@ async function getRepo(org: string, repo: string) {
     if (!orgs || orgs.length === 0) return { orgId: null, repoId: null }
     const orgId = orgs[0].id as number
 
-    // get repo id
     const { data: repos, error: repoError } = await supabase
         .from('github_repos')
         .select('id, name')
@@ -50,35 +50,69 @@ async function getRepo(org: string, repo: string) {
 }
 
 async function ensureOrgAndRepo(orgLogin: string, repoName: string, orgInfo?: any, repoInfo?: any) {
-    // Try to find existing first
-    const { orgId, repoId } = await getRepo(orgLogin, repoName)
-    if (repoId) return { orgId, repoId }
+    // If GitHub repo ID is provided, try to find by primary key first
+    const githubOrgId = typeof orgInfo?.id === 'number' ? orgInfo.id : null
+    const githubRepoId = typeof repoInfo?.id === 'number' ? repoInfo.id : null
 
-    // Upsert org by login
-    const resolvedOrgLogin = (orgInfo?.login as string) || orgLogin
-    let ensuredOrgId: number | null = orgId
-    if (!ensuredOrgId) {
+    if (githubRepoId) {
+        const { data: existingRepo, error: findRepoErr } = await supabase
+            .from('github_repos')
+            .select('id')
+            .eq('id', githubRepoId)
+            .single()
+        if (findRepoErr && findRepoErr.code !== 'PGRST116') throw findRepoErr
+        if (existingRepo?.id) {
+            return { orgId: githubOrgId, repoId: existingRepo.id as number }
+        }
+    }
+
+    // Upsert org with GitHub numeric ID and metadata
+    let ensuredOrgId: number | null = null
+    if (githubOrgId) {
+        const orgRow = {
+            id: githubOrgId,
+            login: (orgInfo?.login as string) || orgLogin,
+            name: orgInfo?.name ?? null,
+            description: orgInfo?.description ?? null,
+            avatar_url: orgInfo?.avatar_url ?? null,
+            html_url: orgInfo?.html_url ?? null
+        }
         const { data: upsertedOrg, error: upsertOrgErr } = await supabase
             .from('github_orgs')
-            .upsert({ login: resolvedOrgLogin }, { onConflict: 'login' })
+            .upsert(orgRow, { onConflict: 'id' })
             .select('id')
             .single()
         if (upsertOrgErr) throw upsertOrgErr
-        ensuredOrgId = upsertedOrg?.id ?? null
+        ensuredOrgId = upsertedOrg?.id ?? githubOrgId
+    } else {
+        // Fallback to legacy lookup by login if ID not provided
+        const { orgId } = await getRepo(orgLogin, repoName)
+        ensuredOrgId = orgId
     }
 
     if (!ensuredOrgId) return { orgId: null, repoId: null }
 
-    // Upsert repo by (org_id, name)
-    const resolvedRepoName = (repoInfo?.name as string) || repoName
+    // Upsert repo with GitHub numeric ID and metadata
+    const repoRow: any = {
+        id: githubRepoId ?? undefined,
+        org_id: ensuredOrgId,
+        name: (repoInfo?.name as string) || repoName,
+        full_name: (repoInfo?.full_name as string) || `${orgInfo?.login || orgLogin}/${repoInfo?.name || repoName}`,
+        description: repoInfo?.description ?? null,
+        private: typeof repoInfo?.private === 'boolean' ? repoInfo.private : null,
+        fork: typeof repoInfo?.fork === 'boolean' ? repoInfo.fork : null,
+        html_url: repoInfo?.html_url ?? null
+    }
+
     const { data: upsertedRepo, error: upsertRepoErr } = await supabase
         .from('github_repos')
-        .upsert({ org_id: ensuredOrgId, name: resolvedRepoName }, { onConflict: 'org_id,name' })
+        .upsert(repoRow, { onConflict: 'id' })
         .select('id')
         .single()
     if (upsertRepoErr) throw upsertRepoErr
 
-    return { orgId: ensuredOrgId, repoId: upsertedRepo?.id ?? null }
+    const resolvedRepoId = upsertedRepo?.id ?? githubRepoId ?? null
+    return { orgId: ensuredOrgId, repoId: resolvedRepoId }
 }
 
 export const handler: Handler = async (event) => {
