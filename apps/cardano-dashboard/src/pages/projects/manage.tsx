@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import pageStyles from '@/styles/PageLayout.module.css';
 import styles from './manage.module.css';
+import { useWallet } from '@/contexts/WalletContext';
 
 type ProjectInput = {
     id?: string;
@@ -54,10 +55,14 @@ type OrgStatsConfig = {
 };
 
 export default function ManageProjects() {
+    const { sessionAddress } = useWallet();
     const [projects, setProjects] = useState<ProjectRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [editors, setEditors] = useState<{ editor_address: string }[]>([]);
+    const [newEditor, setNewEditor] = useState('');
+    const [newOwner, setNewOwner] = useState('');
     const defaultConfig: OrgStatsConfig = useMemo(() => ({
         mainOrganization: {
             name: '',
@@ -90,11 +95,33 @@ export default function ManageProjects() {
         is_active: true,
     });
 
+    // Keep displayName in sync with project name to avoid duplicate inputs
+    useEffect(() => {
+        setConfigForm((prev) => {
+            if (prev.mainOrganization.displayName === form.name) return prev;
+            return {
+                ...prev,
+                mainOrganization: {
+                    ...prev.mainOrganization,
+                    displayName: form.name,
+                },
+            };
+        });
+    }, [form.name]);
+
+    // Keep icon_url in sync with mainOrganization.logo.src
+    useEffect(() => {
+        const logoSrc = configForm.mainOrganization.logo.src;
+        setForm((prev) => (prev.icon_url === logoSrc ? prev : { ...prev, icon_url: logoSrc }));
+    }, [configForm.mainOrganization.logo.src]);
+
     const resetForm = useCallback(() => {
         setForm({ slug: '', name: '', description: '', url: '', icon_url: '', category: '', is_active: true });
         setEditingId(null);
         setConfigForm(defaultConfig);
-    }, []);
+        setEditors([]);
+        setNewEditor('');
+    }, [defaultConfig]);
 
     const loadProjects = useCallback(async () => {
         setIsLoading(true);
@@ -127,8 +154,37 @@ export default function ManageProjects() {
         e.preventDefault();
         setError(null);
         try {
+            const deriveSlug = (projectName: string): string => {
+                return (projectName || '').toLowerCase().trim().replace(/\s+/g, '-');
+            };
+            const derivePackageKey = (pkgName: string): string => {
+                if (!pkgName) return '';
+                const afterSlash = pkgName.includes('/') ? pkgName.split('/').pop() ?? '' : pkgName;
+                return afterSlash.trim();
+            };
+            const configToSave: OrgStatsConfig = {
+                ...configForm,
+                npmPackages: configForm.npmPackages.map((pkg) => ({
+                    ...pkg,
+                    key: derivePackageKey(pkg.name),
+                })),
+                builderProjects: configForm.builderProjects.map((b, i) => ({
+                    ...b,
+                    id: `b${i + 1}`,
+                })),
+                highlightedProjects: configForm.highlightedProjects.map((h) => ({
+                    ...h,
+                    id: h.name,
+                })),
+                showcaseRepos: configForm.showcaseRepos.map((r, i) => ({
+                    ...r,
+                    id: String(i + 1),
+                })),
+            };
             const method = editingId ? 'PUT' : 'POST';
-            const body = editingId ? { id: editingId, ...form, config: configForm } : { ...form, config: configForm };
+            const body = editingId
+                ? { id: editingId, ...form, slug: deriveSlug(form.name), config: configToSave }
+                : { ...form, slug: deriveSlug(form.name), config: configToSave };
             const resp = await fetch('/api/projects', {
                 method,
                 headers: { 'Content-Type': 'application/json' },
@@ -141,7 +197,7 @@ export default function ManageProjects() {
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Save failed');
         }
-    }, [editingId, form, loadProjects, resetForm]);
+    }, [editingId, form, configForm, loadProjects, resetForm]);
 
     const onEdit = useCallback((p: ProjectRecord) => {
         setEditingId(p.id);
@@ -154,42 +210,56 @@ export default function ManageProjects() {
             category: p.category ?? '',
             is_active: p.is_active,
         });
-        const cfg = (p.config ?? {}) as any;
+        const cfg = (p.config ?? {}) as Partial<OrgStatsConfig>;
         setConfigForm({
             mainOrganization: {
-                name: cfg?.mainOrganization?.name ?? '',
-                displayName: cfg?.mainOrganization?.displayName ?? '',
+                name: cfg.mainOrganization?.name ?? '',
+                displayName: cfg.mainOrganization?.displayName ?? '',
                 logo: {
-                    src: cfg?.mainOrganization?.logo?.src ?? '',
-                    width: cfg?.mainOrganization?.logo?.width ?? 40,
-                    height: cfg?.mainOrganization?.logo?.height ?? 40,
+                    src: cfg.mainOrganization?.logo?.src ?? '',
+                    width: cfg.mainOrganization?.logo?.width ?? 40,
+                    height: cfg.mainOrganization?.logo?.height ?? 40,
                 },
                 logoWithName: {
-                    src: cfg?.mainOrganization?.logoWithName?.src ?? '',
-                    width: cfg?.mainOrganization?.logoWithName?.width ?? 120,
-                    height: cfg?.mainOrganization?.logoWithName?.height ?? 120,
+                    src: cfg.mainOrganization?.logoWithName?.src ?? '',
+                    width: cfg.mainOrganization?.logoWithName?.width ?? 120,
+                    height: cfg.mainOrganization?.logoWithName?.height ?? 120,
                 },
-                excludedRepos: cfg?.mainOrganization?.excludedRepos ?? [],
+                excludedRepos: cfg.mainOrganization?.excludedRepos ?? [],
             },
-            extendedOrganizations: cfg?.extendedOrganizations ?? [],
+            extendedOrganizations: cfg.extendedOrganizations ?? [],
             repositories: {
-                governance: cfg?.repositories?.governance ?? '',
-                dependentsCountRepo: cfg?.repositories?.dependentsCountRepo ?? '',
+                governance: cfg.repositories?.governance ?? '',
+                dependentsCountRepo: cfg.repositories?.dependentsCountRepo ?? '',
             },
-            poolId: cfg?.poolId ?? '',
-            drepId: cfg?.drepId ?? '',
-            catalystProjectIds: cfg?.catalystProjectIds ?? '',
-            discordGuildId: cfg?.discordGuildId ?? '',
+            poolId: cfg.poolId ?? '',
+            drepId: cfg.drepId ?? '',
+            catalystProjectIds: cfg.catalystProjectIds ?? '',
+            discordGuildId: cfg.discordGuildId ?? '',
             discordStats: {
-                useApiAction: cfg?.discordStats?.useApiAction ?? false,
-                description: cfg?.discordStats?.description ?? '',
+                useApiAction: cfg.discordStats?.useApiAction ?? false,
+                description: cfg.discordStats?.description ?? '',
             },
-            npmPackages: cfg?.npmPackages ?? [],
-            socialLinks: cfg?.socialLinks ?? [],
-            builderProjects: cfg?.builderProjects ?? [],
-            highlightedProjects: cfg?.highlightedProjects ?? [],
-            showcaseRepos: cfg?.showcaseRepos ?? [],
+            npmPackages: cfg.npmPackages ?? [],
+            socialLinks: cfg.socialLinks ?? [],
+            builderProjects: cfg.builderProjects ?? [],
+            highlightedProjects: cfg.highlightedProjects ?? [],
+            showcaseRepos: cfg.showcaseRepos ?? [],
         });
+        // Attempt to load editors; API will enforce owner check
+        (async () => {
+            try {
+                const resp = await fetch(`/api/projects/editors?project_id=${encodeURIComponent(p.id)}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    setEditors((data?.editors ?? []).map((e: { editor_address: string }) => ({ editor_address: e.editor_address })));
+                } else {
+                    setEditors([]);
+                }
+            } catch {
+                setEditors([]);
+            }
+        })();
     }, []);
 
     // Config form helpers
@@ -214,7 +284,7 @@ export default function ManageProjects() {
     const removeExtendedOrg = (i: number) => setConfigForm((p) => ({ ...p, extendedOrganizations: removeItem(p.extendedOrganizations, i) }));
     const updateExtendedOrg = (i: number, field: keyof ExtendedOrganization, value: string) => setConfigForm((p) => ({
         ...p,
-        extendedOrganizations: p.extendedOrganizations.map((it, idx) => idx === i ? { ...it, [field]: field === 'excludedRepos' ? (value as unknown as string).split(',').map((s) => s.trim()).filter(Boolean) : value } as any : it),
+        extendedOrganizations: p.extendedOrganizations.map((it, idx) => idx === i ? { ...it, [field]: field === 'excludedRepos' ? value.split(',').map((s) => s.trim()).filter(Boolean) : value } : it),
     }));
 
     const updateRepositories = (field: keyof Repositories, value: string) => setConfigForm((p) => ({ ...p, repositories: { ...p.repositories, [field]: value } }));
@@ -273,6 +343,55 @@ export default function ManageProjects() {
     }, [editingId, loadProjects, resetForm]);
 
     const formTitle = useMemo(() => (editingId ? 'Edit Project' : 'Add Project'), [editingId]);
+    const canSubmit = Boolean(sessionAddress);
+    const canManageEditors = Boolean(editingId && sessionAddress);
+
+    const addEditor = useCallback(async () => {
+        if (!editingId || !newEditor.trim()) return;
+        try {
+            const resp = await fetch('/api/projects/editors', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_id: editingId, editor_address: newEditor.trim() }),
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error(data?.error || 'Failed to add editor');
+            setNewEditor('');
+            setEditors((prev) => [...prev, { editor_address: data.editor.editor_address }]);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Failed to add editor');
+        }
+    }, [editingId, newEditor]);
+
+    const removeEditor = useCallback(async (addr: string) => {
+        if (!editingId) return;
+        try {
+            const resp = await fetch(`/api/projects/editors?project_id=${encodeURIComponent(editingId)}&editor_address=${encodeURIComponent(addr)}`, { method: 'DELETE' });
+            if (!resp.ok && resp.status !== 204) {
+                const data = await resp.json().catch(() => ({}));
+                throw new Error(data?.error || 'Failed to remove editor');
+            }
+            setEditors((prev) => prev.filter((e) => e.editor_address !== addr));
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Failed to remove editor');
+        }
+    }, [editingId]);
+
+    const transferOwner = useCallback(async () => {
+        if (!editingId || !newOwner.trim()) return;
+        try {
+            const resp = await fetch('/api/projects/owner', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_id: editingId, new_owner_address: newOwner.trim() }),
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error(data?.error || 'Failed to transfer owner');
+            setNewOwner('');
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Failed to transfer owner');
+        }
+    }, [editingId, newOwner]);
 
     return (
         <div className={pageStyles.pageContainer}>
@@ -285,11 +404,11 @@ export default function ManageProjects() {
                     <form className={styles.form} onSubmit={onSubmit}>
                         <h2 className={styles.formTitle}>{formTitle}</h2>
                         {error && <div className={styles.error}>{error}</div>}
+                        {!sessionAddress && (
+                            <div className={styles.muted}>Connect and verify a wallet to create or edit projects.</div>
+                        )}
                         <div className={styles.grid}>
-                            <label className={styles.field}>
-                                <span>Slug</span>
-                                <input name="slug" value={form.slug} onChange={onChange} placeholder="unique-slug" required />
-                            </label>
+                            {/* Slug is auto-generated from Name */}
                             <label className={styles.field}>
                                 <span>Name</span>
                                 <input name="name" value={form.name} onChange={onChange} placeholder="Project Name" required />
@@ -297,10 +416,6 @@ export default function ManageProjects() {
                             <label className={styles.field}>
                                 <span>URL</span>
                                 <input name="url" value={form.url} onChange={onChange} placeholder="https://example.com" required />
-                            </label>
-                            <label className={styles.field}>
-                                <span>Icon URL</span>
-                                <input name="icon_url" value={form.icon_url} onChange={onChange} placeholder="/images/icon.png or https://..." />
                             </label>
                             <label className={styles.field}>
                                 <span>Category</span>
@@ -318,7 +433,6 @@ export default function ManageProjects() {
                                 <span>Main Organization</span>
                                 <div className={styles.grid}>
                                     <label className={styles.field}><span>Name</span><input value={configForm.mainOrganization.name} onChange={(e) => onChangeMainOrg('name', e.target.value)} /></label>
-                                    <label className={styles.field}><span>Display Name</span><input value={configForm.mainOrganization.displayName} onChange={(e) => onChangeMainOrg('displayName', e.target.value)} /></label>
                                     <label className={styles.field}><span>Logo Src</span><input value={configForm.mainOrganization.logo.src} onChange={(e) => onChangeLogo('logo', 'src', e.target.value)} /></label>
                                     <label className={styles.field}><span>Logo Width</span><input type="number" value={configForm.mainOrganization.logo.width} onChange={(e) => onChangeLogo('logo', 'width', e.target.value)} /></label>
                                     <label className={styles.field}><span>Logo Height</span><input type="number" value={configForm.mainOrganization.logo.height} onChange={(e) => onChangeLogo('logo', 'height', e.target.value)} /></label>
@@ -358,7 +472,6 @@ export default function ManageProjects() {
                                 <span>NPM Packages</span>
                                 {configForm.npmPackages.map((pkg, i) => (
                                     <div key={i} className={styles.grid}>
-                                        <label className={styles.field}><span>Key</span><input value={pkg.key} onChange={(e) => updateNpmPackage(i, 'key', e.target.value)} /></label>
                                         <label className={styles.field}><span>Name</span><input value={pkg.name} onChange={(e) => updateNpmPackage(i, 'name', e.target.value)} /></label>
                                         <label className={styles.field}><span>GitHub Package ID</span><input value={pkg.github_package_id ?? ''} onChange={(e) => updateNpmPackage(i, 'github_package_id', e.target.value)} /></label>
                                         <label className={styles.field}><span>Dependents URL</span><input value={pkg.dependents_url ?? ''} onChange={(e) => updateNpmPackage(i, 'dependents_url', e.target.value)} /></label>
@@ -382,7 +495,6 @@ export default function ManageProjects() {
                                 <span>Builder Projects</span>
                                 {configForm.builderProjects.map((b, i) => (
                                     <div key={i} className={styles.grid}>
-                                        <label className={styles.field}><span>ID</span><input value={b.id} onChange={(e) => updateBuilder(i, 'id', e.target.value)} /></label>
                                         <label className={styles.field}><span>Icon</span><input value={b.icon} onChange={(e) => updateBuilder(i, 'icon', e.target.value)} /></label>
                                         <label className={styles.field}><span>URL</span><input value={b.url} onChange={(e) => updateBuilder(i, 'url', e.target.value)} /></label>
                                         <div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => removeBuilder(i)}>Remove</button></div>
@@ -394,7 +506,6 @@ export default function ManageProjects() {
                                 <span>Highlighted Projects</span>
                                 {configForm.highlightedProjects.map((h, i) => (
                                     <div key={i} className={styles.grid}>
-                                        <label className={styles.field}><span>ID</span><input value={h.id} onChange={(e) => updateHighlighted(i, 'id', e.target.value)} /></label>
                                         <label className={styles.field}><span>Name</span><input value={h.name} onChange={(e) => updateHighlighted(i, 'name', e.target.value)} /></label>
                                         <label className={styles.field}><span>Description</span><input value={h.description} onChange={(e) => updateHighlighted(i, 'description', e.target.value)} /></label>
                                         <label className={styles.field}><span>Icon</span><input value={h.icon} onChange={(e) => updateHighlighted(i, 'icon', e.target.value)} /></label>
@@ -409,7 +520,6 @@ export default function ManageProjects() {
                                 <span>Showcase Repos</span>
                                 {configForm.showcaseRepos.map((r, i) => (
                                     <div key={i} className={styles.grid}>
-                                        <label className={styles.field}><span>ID</span><input value={r.id} onChange={(e) => updateShowcase(i, 'id', e.target.value)} /></label>
                                         <label className={styles.field}><span>Name</span><input value={r.name} onChange={(e) => updateShowcase(i, 'name', e.target.value)} /></label>
                                         <label className={styles.field}><span>Description</span><input value={r.description} onChange={(e) => updateShowcase(i, 'description', e.target.value)} /></label>
                                         <label className={styles.field}><span>Icon</span><input value={r.icon} onChange={(e) => updateShowcase(i, 'icon', e.target.value)} /></label>
@@ -422,7 +532,7 @@ export default function ManageProjects() {
                             </div>
                         </div>
                         <div className={styles.actions}>
-                            <button type="submit" className={styles.primary} disabled={isLoading}>{editingId ? 'Update' : 'Create'}</button>
+                            <button type="submit" className={styles.primary} disabled={isLoading || !canSubmit}>{editingId ? 'Update' : 'Create'}</button>
                             {editingId && (
                                 <button type="button" className={styles.secondary} onClick={resetForm}>Cancel</button>
                             )}
@@ -455,7 +565,7 @@ export default function ManageProjects() {
                                             <td>{p.category ?? ''}</td>
                                             <td>{p.is_active ? 'Yes' : 'No'}</td>
                                             <td>
-                                                <a href={p.url} target="_blank" rel="noreferrer">link</a>
+                                                <a href={`/projects/${encodeURIComponent(p.slug)}`}>link</a>
                                             </td>
                                             <td>
                                                 <button className={styles.linkBtn} onClick={() => onEdit(p)}>Edit</button>
@@ -469,6 +579,47 @@ export default function ManageProjects() {
                         </div>
                     )}
                 </div>
+
+                {editingId && (
+                    <div className={pageStyles.section}>
+                        <h2 className={styles.sectionTitle}>Editors</h2>
+                        {!canManageEditors ? (
+                            <p className={styles.muted}>Only the project owner can manage editors.</p>
+                        ) : (
+                            <div className={styles.grid} style={{ gridColumn: '1 / -1' }}>
+                                <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
+                                    <span>Add editor wallet address</span>
+                                    <input value={newEditor} onChange={(e) => setNewEditor(e.target.value)} placeholder="addr... or stake..." />
+                                    <div className={styles.actions}>
+                                        <button type="button" className={styles.secondary} onClick={addEditor}>Add Editor</button>
+                                    </div>
+                                </div>
+                                <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
+                                    <span>Current editors</span>
+                                    {editors.length === 0 ? (
+                                        <div className={styles.muted}>None</div>
+                                    ) : (
+                                        <ul>
+                                            {editors.map((e) => (
+                                                <li key={e.editor_address}>
+                                                    {e.editor_address}
+                                                    <button className={styles.linkBtnDanger} onClick={() => removeEditor(e.editor_address)}>Remove</button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                                <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
+                                    <span>Transfer ownership to wallet</span>
+                                    <input value={newOwner} onChange={(e) => setNewOwner(e.target.value)} placeholder="addr... or stake..." />
+                                    <div className={styles.actions}>
+                                        <button type="button" className={styles.secondary} onClick={transferOwner}>Transfer Owner</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
             </main>
         </div>
     );
