@@ -216,16 +216,18 @@ function resolveNameFromMeta(m: KoiosAssetInfoItem | null | undefined): string |
     return null;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<WalletSummaryResponse | { error: string }>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<WalletSummaryResponse | { error: string }>): Promise<void> {
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
-        return res.status(405).json({ error: 'Method Not Allowed' });
+        res.status(405).json({ error: 'Method Not Allowed' });
+        return;
     }
 
     const { address, stakeAddress } = req.body as { address?: string; stakeAddress?: string };
     const input = (stakeAddress || address || '').trim();
     if (!input || typeof input !== 'string') {
-        return res.status(400).json({ error: 'address or stakeAddress is required' });
+        res.status(400).json({ error: 'address or stakeAddress is required' });
+        return;
     }
 
     const base = getKoiosBase(input);
@@ -292,8 +294,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             : [];
         const unitToMeta = new Map<string, KoiosAssetInfoItem>();
         for (const m of meta) {
-            // Server-side log to inspect Koios asset info entries
-            console.log('Koios asset meta:', m);
             unitToMeta.set(`${m.policy_id}${m.asset_name}`, m);
         }
 
@@ -337,10 +337,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             ada,
             assets: resultAssets,
         };
-        return res.status(200).json(payload);
+        res.status(200).json(payload);
+        return;
     } catch (e: unknown) {
         const message = e instanceof Error ? e.message : 'Failed to query Koios';
-        return res.status(500).json({ error: message });
+        res.status(500).json({ error: message });
+        return;
     }
 }
 

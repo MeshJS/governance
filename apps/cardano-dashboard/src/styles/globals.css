@@ -92,6 +92,10 @@ body {
         Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+html {
+    color-scheme: dark;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
