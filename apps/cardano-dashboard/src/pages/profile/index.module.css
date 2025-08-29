@@ -100,3 +100,47 @@
     font-size: 12px;
     color: var(--text-secondary);
 }
+
+/* Projects table (reused from manage page styles) */
+.sectionTitle {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+}
+
+.tableWrap {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    border-bottom: 1px solid #333;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.muted {
+    color: #aaa;
+}
+
+.actionsRow {
+    display: flex;
+    gap: 8px;
+}
+
+.linkBtn {
+    background: none;
+    color: #60a5fa;
+    border: none;
+    padding: 0 6px;
+    cursor: pointer;
+}
+
+.linkAnchor {
+    color: #60a5fa;
+    text-decoration: none;
+}

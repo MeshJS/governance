@@ -17,7 +17,7 @@ type ProjectRecord = {
     config?: unknown;
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
     const supabase = getSupabaseServerClient();
 
     type JsonObject = Record<string, unknown>;
@@ -53,34 +53,92 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     if (req.method === 'GET') {
-        const { include_inactive } = req.query as { include_inactive?: string };
+        const { include_inactive, only_editable } = req.query as { include_inactive?: string; only_editable?: string };
+        const { address } = getAuthContext(req);
+
+        // If requesting only projects the current wallet can edit, require auth and merge owner + editor projects
+        if (only_editable === 'true') {
+            if (!address) {
+                res.status(401).json({ error: 'Authentication required' });
+                return;
+            }
+
+            const activeFilter = include_inactive === 'true' ? undefined : true;
+
+            // Fetch project_ids where the caller is an editor
+            const { data: editorRows, error: editorErr } = await supabase
+                .from('cardano_project_editors')
+                .select('project_id')
+                .eq('editor_address', address);
+            if (editorErr) {
+                res.status(500).json({ error: editorErr.message });
+                return;
+            }
+            const editableProjectIds = (editorRows ?? []).map((r: { project_id: string }) => r.project_id);
+
+            // Owner projects
+            let ownerQuery = supabase
+                .from('cardano_projects')
+                .select('*')
+                .eq('owner_address', address);
+            if (activeFilter !== undefined) ownerQuery = ownerQuery.eq('is_active', activeFilter);
+            const { data: ownerProjects, error: ownerErr } = await ownerQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
+            if (ownerErr) { res.status(500).json({ error: ownerErr.message }); return; }
+
+            // Editor projects
+            let editorProjects: ProjectRecord[] = [];
+            if (editableProjectIds.length > 0) {
+                let editorQuery = supabase
+                    .from('cardano_projects')
+                    .select('*')
+                    .in('id', editableProjectIds);
+                if (activeFilter !== undefined) editorQuery = editorQuery.eq('is_active', activeFilter);
+                const { data: edProjects, error: edErr } = await editorQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
+                if (edErr) { res.status(500).json({ error: edErr.message }); return; }
+                editorProjects = edProjects ?? [];
+            }
+
+            // Merge + dedupe by id and sort by created_at desc
+            const map = new Map<string, ProjectRecord>();
+            for (const p of [...(ownerProjects ?? []), ...editorProjects]) {
+                map.set(p.id, p);
+            }
+            const merged = Array.from(map.values()).sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+            res.status(200).json({ projects: merged });
+            return;
+        }
+
+        // Otherwise, list projects (optionally including inactive if authenticated)
         const query = supabase
             .from('cardano_projects')
             .select('*')
             .order('created_at', { ascending: false });
 
         // Only allow inactive listing for authenticated sessions
-        const { address } = getAuthContext(req);
         if (include_inactive !== 'true' || !address) {
             query.eq('is_active', true);
         }
 
         const { data, error } = await query as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
-        if (error) return res.status(500).json({ error: error.message });
-        return res.status(200).json({ projects: data ?? [] });
+        if (error) {
+            res.status(500).json({ error: error.message });
+            return;
+        }
+        res.status(200).json({ projects: data ?? [] });
+        return;
     }
 
     if (req.method === 'POST') {
         const { slug, name, description, url, icon_url, category, is_active, config } = req.body as Partial<ProjectRecord> & { config?: unknown };
         const { address } = getAuthContext(req);
-        if (!address) return res.status(401).json({ error: 'Authentication required' });
-        if (!isValidSlug(slug)) return res.status(400).json({ error: 'Invalid slug' });
-        if (!within(name, MAX_STR)) return res.status(400).json({ error: 'Invalid name' });
-        if (description !== undefined && !within(description ?? '', 4000)) return res.status(400).json({ error: 'Invalid description' });
-        if (!isValidUrl(url)) return res.status(400).json({ error: 'Invalid url' });
-        if (icon_url !== undefined && icon_url !== null && icon_url !== '' && !isValidUrl(icon_url)) return res.status(400).json({ error: 'Invalid icon_url' });
-        if (category !== undefined && !within(category ?? '', MAX_STR)) return res.status(400).json({ error: 'Invalid category' });
-        if (!configSizeOk(config)) return res.status(400).json({ error: 'Config too large' });
+        if (!address) { res.status(401).json({ error: 'Authentication required' }); return; }
+        if (!isValidSlug(slug)) { res.status(400).json({ error: 'Invalid slug' }); return; }
+        if (!within(name, MAX_STR)) { res.status(400).json({ error: 'Invalid name' }); return; }
+        if (description !== undefined && !within(description ?? '', 4000)) { res.status(400).json({ error: 'Invalid description' }); return; }
+        if (!isValidUrl(url)) { res.status(400).json({ error: 'Invalid url' }); return; }
+        if (icon_url !== undefined && icon_url !== null && icon_url !== '' && !isValidUrl(icon_url)) { res.status(400).json({ error: 'Invalid icon_url' }); return; }
+        if (category !== undefined && !within(category ?? '', MAX_STR)) { res.status(400).json({ error: 'Invalid category' }); return; }
+        if (!configSizeOk(config)) { res.status(400).json({ error: 'Config too large' }); return; }
 
         const normalizedConfig: JsonObject = normalizeJson(config);
         const { data, error } = await supabase
@@ -91,18 +149,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (error) {
             const msg = (error as unknown as { message?: string }).message || '';
             if (/duplicate key/i.test(msg) && /slug/i.test(msg)) {
-                return res.status(409).json({ error: 'Slug already exists' });
+                res.status(409).json({ error: 'Slug already exists' });
+                return;
             }
-            return res.status(500).json({ error: msg || 'Insert failed' });
+            res.status(500).json({ error: msg || 'Insert failed' });
+            return;
         }
-        return res.status(201).json({ project: data });
+        res.status(201).json({ project: data });
+        return;
     }
 
     if (req.method === 'PUT') {
         const { id, ...rest } = req.body as Partial<ProjectRecord> & { id?: string } & { config?: unknown };
-        if (!id) return res.status(400).json({ error: 'id is required' });
+        if (!id) { res.status(400).json({ error: 'id is required' }); return; }
         const { address } = getAuthContext(req);
-        if (!address) return res.status(401).json({ error: 'Authentication required' });
+        if (!address) { res.status(401).json({ error: 'Authentication required' }); return; }
 
         // Authorization: owner or listed editor can update
         const { data: ownerRow, error: ownerErr } = await supabase
@@ -110,7 +171,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .select('owner_address')
             .eq('id', id)
             .single();
-        if (ownerErr || !ownerRow) return res.status(404).json({ error: 'Project not found' });
+        if (ownerErr || !ownerRow) { res.status(404).json({ error: 'Project not found' }); return; }
         const isOwner = (ownerRow as { owner_address: string | null }).owner_address === address;
         let isEditor = false;
         if (!isOwner) {
@@ -122,7 +183,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 .maybeSingle();
             if (!edErr && ed) isEditor = true;
         }
-        if (!isOwner && !isEditor) return res.status(403).json({ error: 'Not authorized to edit this project' });
+        if (!isOwner && !isEditor) { res.status(403).json({ error: 'Not authorized to edit this project' }); return; }
 
         type UpdatableKeys = 'slug' | 'name' | 'description' | 'url' | 'icon_url' | 'category' | 'is_active' | 'config';
         const update: Partial<Record<UpdatableKeys, unknown>> = {};
@@ -131,19 +192,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (Object.prototype.hasOwnProperty.call(rest, key)) {
                 const val = (rest as Record<string, unknown>)[key];
                 if (key === 'slug') {
-                    if (!isValidSlug(val)) return res.status(400).json({ error: 'Invalid slug' });
+                    if (!isValidSlug(val)) { res.status(400).json({ error: 'Invalid slug' }); return; }
                 } else if (key === 'name') {
-                    if (!within(val, MAX_STR)) return res.status(400).json({ error: 'Invalid name' });
+                    if (!within(val, MAX_STR)) { res.status(400).json({ error: 'Invalid name' }); return; }
                 } else if (key === 'description') {
-                    if (val !== undefined && !within((val as string) ?? '', 4000)) return res.status(400).json({ error: 'Invalid description' });
+                    if (val !== undefined && !within((val as string) ?? '', 4000)) { res.status(400).json({ error: 'Invalid description' }); return; }
                 } else if (key === 'url') {
-                    if (!isValidUrl(val)) return res.status(400).json({ error: 'Invalid url' });
+                    if (!isValidUrl(val)) { res.status(400).json({ error: 'Invalid url' }); return; }
                 } else if (key === 'icon_url') {
-                    if (val !== undefined && val !== null && val !== '' && !isValidUrl(val)) return res.status(400).json({ error: 'Invalid icon_url' });
+                    if (val !== undefined && val !== null && val !== '' && !isValidUrl(val)) { res.status(400).json({ error: 'Invalid icon_url' }); return; }
                 } else if (key === 'category') {
-                    if (val !== undefined && !within((val as string) ?? '', MAX_STR)) return res.status(400).json({ error: 'Invalid category' });
+                    if (val !== undefined && !within((val as string) ?? '', MAX_STR)) { res.status(400).json({ error: 'Invalid category' }); return; }
                 } else if (key === 'config') {
-                    if (!configSizeOk(val)) return res.status(400).json({ error: 'Config too large' });
+                    if (!configSizeOk(val)) { res.status(400).json({ error: 'Config too large' }); return; }
                     update[key] = normalizeJson(val);
                     continue;
                 }
@@ -160,38 +221,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (error) {
             const msg = (error as unknown as { message?: string }).message || '';
             if (/duplicate key/i.test(msg) && /slug/i.test(msg)) {
-                return res.status(409).json({ error: 'Slug already exists' });
+                res.status(409).json({ error: 'Slug already exists' });
+                return;
             }
-            return res.status(500).json({ error: msg || 'Update failed' });
+            res.status(500).json({ error: msg || 'Update failed' });
+            return;
         }
-        return res.status(200).json({ project: data });
+        res.status(200).json({ project: data });
+        return;
     }
 
     if (req.method === 'DELETE') {
         const { id } = req.query as { id?: string };
-        if (!id) return res.status(400).json({ error: 'id is required' });
+        if (!id) { res.status(400).json({ error: 'id is required' }); return; }
         const { address } = getAuthContext(req);
-        if (!address) return res.status(401).json({ error: 'Authentication required' });
+        if (!address) { res.status(401).json({ error: 'Authentication required' }); return; }
 
         const { data: ownerRow, error: ownerErr } = await supabase
             .from('cardano_projects')
             .select('owner_address')
             .eq('id', id)
             .single();
-        if (ownerErr || !ownerRow) return res.status(404).json({ error: 'Project not found' });
+        if (ownerErr || !ownerRow) { res.status(404).json({ error: 'Project not found' }); return; }
         const isOwner = (ownerRow as { owner_address: string | null }).owner_address === address;
-        if (!isOwner) return res.status(403).json({ error: 'Only owner can delete the project' });
+        if (!isOwner) { res.status(403).json({ error: 'Only owner can delete the project' }); return; }
 
         const { error } = await supabase
             .from('cardano_projects')
             .delete()
             .eq('id', id);
-        if (error) return res.status(500).json({ error: error.message });
-        return res.status(204).end();
+        if (error) { res.status(500).json({ error: error.message }); return; }
+        res.status(204).end();
+        return;
     }
 
     res.setHeader('Allow', 'GET, POST, PUT, DELETE');
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    res.status(405).json({ error: 'Method Not Allowed' });
 }
 
 

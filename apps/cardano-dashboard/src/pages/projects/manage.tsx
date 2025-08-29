@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 import pageStyles from '@/styles/PageLayout.module.css';
 import styles from './manage.module.css';
 import { useWallet } from '@/contexts/WalletContext';
@@ -55,6 +56,7 @@ type OrgStatsConfig = {
 };
 
 export default function ManageProjects() {
+    const router = useRouter();
     const { sessionAddress } = useWallet();
     const [projects, setProjects] = useState<ProjectRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -124,10 +126,14 @@ export default function ManageProjects() {
     }, [defaultConfig]);
 
     const loadProjects = useCallback(async () => {
+        if (!sessionAddress) {
+            setProjects([]);
+            return;
+        }
         setIsLoading(true);
         setError(null);
         try {
-            const resp = await fetch('/api/projects?include_inactive=true');
+            const resp = await fetch('/api/projects?only_editable=true&include_inactive=true');
             const data = await resp.json();
             if (!resp.ok) throw new Error(data?.error || 'Failed to load projects');
             setProjects(data.projects ?? []);
@@ -136,11 +142,13 @@ export default function ManageProjects() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [sessionAddress]);
 
     useEffect(() => {
         void loadProjects();
     }, [loadProjects]);
+
+
 
     const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target as HTMLInputElement;
@@ -261,6 +269,17 @@ export default function ManageProjects() {
             }
         })();
     }, []);
+
+    // Auto-enter edit mode when arriving with ?edit=<slug|id>
+    useEffect(() => {
+        if (!router.isReady) return;
+        const q = router.query?.edit;
+        if (!q || editingId) return;
+        const queryVal = Array.isArray(q) ? q[0] : q;
+        if (!queryVal) return;
+        const match = projects.find((p) => p.id === queryVal || p.slug === queryVal);
+        if (match) onEdit(match);
+    }, [router.isReady, router.query?.edit, projects, editingId, onEdit]);
 
     // Config form helpers
     const onChangeMainOrg = useCallback((field: keyof MainOrganization, value: unknown) => {

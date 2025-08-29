@@ -7,15 +7,17 @@ function makeNonce(): string {
     return generateNonce('Sign in to Cardano Dashboard: ');
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
-        return res.status(405).json({ error: 'Method Not Allowed' });
+        res.status(405).json({ error: 'Method Not Allowed' });
+        return;
     }
 
     const { address, walletName, networkId } = req.body as { address?: string; walletName?: string; networkId?: number };
     if (!address || typeof address !== 'string') {
-        return res.status(400).json({ error: 'address is required' });
+        res.status(400).json({ error: 'address is required' });
+        return;
     }
 
     const nonce = makeNonce();
@@ -35,14 +37,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }, { onConflict: 'address' });
 
         if (error) {
-            return res.status(500).json({ error: error.message });
+            res.status(500).json({ error: error.message });
+            return;
         }
 
         // Client will sign the nonce (as bytes) via CIP-30 signData
-        return res.status(200).json({ nonce });
+        res.status(200).json({ nonce });
+        return;
     } catch (e: unknown) {
         const message = e instanceof Error ? e.message : 'Server error';
-        return res.status(500).json({ error: message });
+        res.status(500).json({ error: message });
+        return;
     }
 }
 

@@ -1,13 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { verifyAuthCookie } from '@/utils/authCookie';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default function handler(req: NextApiRequest, res: NextApiResponse): void {
     const cookie = req.cookies['cd_auth'];
     const auth = verifyAuthCookie(cookie);
     if (auth) {
-        return res.status(200).json({ authenticated: true, address: auth.address });
+        res.status(200).json({ authenticated: true, address: auth.address });
+        return;
     }
-    return res.status(200).json({ authenticated: false });
+    res.status(200).json({ authenticated: false });
 }
 
 

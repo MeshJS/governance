@@ -15,10 +15,11 @@ function setAuthCookie(res: NextApiResponse, address: string) {
     res.setHeader('Set-Cookie', `cd_auth=${value}; Path=/; ${httpOnly}SameSite=Lax; Max-Age=2592000; ${isProd ? 'Secure; ' : ''}`);
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
-        return res.status(405).json({ error: 'Method Not Allowed' });
+        res.status(405).json({ error: 'Method Not Allowed' });
+        return;
     }
 
     const { address, signature } = req.body as {
@@ -27,7 +28,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     if (!address || !signature?.signature || !signature?.key) {
-        return res.status(400).json({ error: 'address and signature object are required' });
+        res.status(400).json({ error: 'address and signature object are required' });
+        return;
     }
 
     const supabase = getSupabaseServerClient();
@@ -39,23 +41,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .single();
 
     if (error || !userRecord) {
-        return res.status(400).json({ error: 'No nonce issued for this address' });
+        res.status(400).json({ error: 'No nonce issued for this address' });
+        return;
     }
 
     const { nonce, nonce_expires_at } = userRecord as { nonce: string; nonce_expires_at: string | null };
     if (!nonce) {
-        return res.status(400).json({ error: 'Missing nonce' });
+        res.status(400).json({ error: 'Missing nonce' });
+        return;
     }
 
     if (nonce_expires_at && new Date(nonce_expires_at).getTime() < Date.now()) {
-        return res.status(400).json({ error: 'Nonce expired, request a new one' });
+        res.status(400).json({ error: 'Nonce expired, request a new one' });
+        return;
     }
 
     try {
         const isValid = checkSignature(nonce, signature, address);
 
         if (!isValid) {
-            return res.status(401).json({ error: 'Invalid signature' });
+            res.status(401).json({ error: 'Invalid signature' });
+            return;
         }
 
         await supabase
@@ -64,10 +70,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .eq('address', address);
 
         setAuthCookie(res, address);
-        return res.status(200).json({ ok: true });
+        res.status(200).json({ ok: true });
+        return;
     } catch (e) {
         const message = e instanceof Error ? e.message : 'Verification failed';
-        return res.status(500).json({ error: message });
+        res.status(500).json({ error: message });
+        return;
     }
 }
 

@@ -2,15 +2,19 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
 import { getAuthContext } from '@/utils/apiAuth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
-        return res.status(405).json({ error: 'Method Not Allowed' });
+        res.status(405).json({ error: 'Method Not Allowed' });
+        return;
     }
 
     const supabase = getSupabaseServerClient();
     const { address } = getAuthContext(req);
-    if (!address) return res.status(401).json({ error: 'Authentication required' });
+    if (!address) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+    }
 
     const { project_id, new_owner_address } = req.body as { project_id?: string; new_owner_address?: string };
 
@@ -23,9 +27,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return s;
     };
 
-    if (!isUuid(project_id)) return res.status(400).json({ error: 'Invalid project_id' });
+    if (!isUuid(project_id)) {
+        res.status(400).json({ error: 'Invalid project_id' });
+        return;
+    }
     const nextOwner = normAddr(new_owner_address);
-    if (!nextOwner) return res.status(400).json({ error: 'Invalid new_owner_address' });
+    if (!nextOwner) {
+        res.status(400).json({ error: 'Invalid new_owner_address' });
+        return;
+    }
 
     // Verify caller is current owner
     const { data: proj, error: projErr } = await supabase
@@ -33,13 +43,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .select('owner_address')
         .eq('id', project_id!)
         .single();
-    if (projErr || !proj) return res.status(404).json({ error: 'Project not found' });
+    if (projErr || !proj) {
+        res.status(404).json({ error: 'Project not found' });
+        return;
+    }
     if ((proj as { owner_address: string | null }).owner_address !== address) {
-        return res.status(403).json({ error: 'Only owner can transfer ownership' });
+        res.status(403).json({ error: 'Only owner can transfer ownership' });
+        return;
     }
 
     if (address === nextOwner) {
-        return res.status(400).json({ error: 'New owner is the same as current owner' });
+        res.status(400).json({ error: 'New owner is the same as current owner' });
+        return;
     }
 
     // Update owner
@@ -50,8 +65,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .select('id, owner_address')
         .single();
 
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ project: data });
+    if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+    }
+    res.status(200).json({ project: data });
+    return;
 }
 
 

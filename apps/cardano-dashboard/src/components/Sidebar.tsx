@@ -9,7 +9,7 @@ const navItems = [
     { name: "SPOs Activity", icon: <FaChartLine />, href: "/spos-activity" },
     { name: "DRep Activity", icon: <FaUsers />, href: "/drep-activity" },
     { name: "Constitutional Committee", icon: <FaGavel />, href: "/constitutional-committee" },
-    { name: "Cardano Projects", icon: <FaProjectDiagram />, href: "/cardano-projects" },
+    { name: "Cardano Projects", icon: <FaProjectDiagram />, href: "/projects" },
     { name: "GitHub Activity", icon: <FaGithub />, href: "/github-activity" },
     { name: "npmjs Activity", icon: <FaNpm />, href: "/npmjs-activity" },
     { name: "CIP Activity", icon: <FaFileAlt />, href: "/cip-activity" },
