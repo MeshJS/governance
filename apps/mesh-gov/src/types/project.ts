@@ -3,4 +3,4 @@ export interface Project {
   description: string;
   url: string;
   category?: string;
-} 
+}

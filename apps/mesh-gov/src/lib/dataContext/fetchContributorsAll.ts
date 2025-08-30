@@ -16,69 +16,66 @@ let lastFetchedAt: number | null = null;
 const IN_MEMORY_TTL_MS = 60 * 1000;
 
 export const getContributorsAllOnce = async (
-    orgName: string = organizationName
+  orgName: string = organizationName
 ): Promise<ContributorStats> => {
-    const now = Date.now();
-    if (lastValue && lastFetchedAt && now - lastFetchedAt < IN_MEMORY_TTL_MS) {
-        return lastValue;
+  const now = Date.now();
+  if (lastValue && lastFetchedAt && now - lastFetchedAt < IN_MEMORY_TTL_MS) {
+    return lastValue;
+  }
+  if (inFlight) return inFlight;
+
+  inFlight = (async () => {
+    const response = await fetch(`/api/github/contributors-all?org=${encodeURIComponent(orgName)}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    if (inFlight) return inFlight;
+    const data = (await response.json()) as ContributorStats;
+    lastValue = data;
+    lastFetchedAt = Date.now();
+    return data;
+  })().finally(() => {
+    inFlight = null;
+  });
 
-    inFlight = (async () => {
-        const response = await fetch(`/api/github/contributors-all?org=${encodeURIComponent(orgName)}`);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const data = (await response.json()) as ContributorStats;
-        lastValue = data;
-        lastFetchedAt = Date.now();
-        return data;
-    })()
-        .finally(() => {
-            inFlight = null;
-        });
-
-    return inFlight;
+  return inFlight;
 };
 
 export interface FetchContributorsAllArgs {
-    safeSetItem: (key: string, value: string) => void;
-    setContributorStats: (data: ContributorStats | null) => void;
-    setError: (err: string | null) => void;
-    CONTRIBUTOR_STATS_STORAGE_KEY: string;
+  safeSetItem: (key: string, value: string) => void;
+  setContributorStats: (data: ContributorStats | null) => void;
+  setError: (err: string | null) => void;
+  CONTRIBUTOR_STATS_STORAGE_KEY: string;
 }
 
 export async function fetchContributorsAllForContext({
-    safeSetItem,
-    setContributorStats,
-    setError,
-    CONTRIBUTOR_STATS_STORAGE_KEY,
+  safeSetItem,
+  setContributorStats,
+  setError,
+  CONTRIBUTOR_STATS_STORAGE_KEY,
 }: FetchContributorsAllArgs) {
-    try {
-        const data = await getContributorsAllOnce(organizationName);
-        const nowTs = Date.now();
+  try {
+    const data = await getContributorsAllOnce(organizationName);
+    const nowTs = Date.now();
 
-        // API already returns aggregated ContributorStats
-        const contributorStats: ContributorStats = data;
-        setContributorStats(contributorStats);
+    // API already returns aggregated ContributorStats
+    const contributorStats: ContributorStats = data;
+    setContributorStats(contributorStats);
 
-        // Persist aggregated stats only (safeSetItem is a no-op if disabled/unavailable)
-        safeSetItem(
-            CONTRIBUTOR_STATS_STORAGE_KEY,
-            JSON.stringify({ ...contributorStats, lastFetched: nowTs })
-        );
+    // Persist aggregated stats only (safeSetItem is a no-op if disabled/unavailable)
+    safeSetItem(
+      CONTRIBUTOR_STATS_STORAGE_KEY,
+      JSON.stringify({ ...contributorStats, lastFetched: nowTs })
+    );
 
-        setError(null);
+    setError(null);
 
-        return {
-            contributorStats,
-        };
-    } catch (err) {
-        console.error('Error fetching contributors-all data:', err);
-        // Keep individual states untouched on failure to preserve last good render
-        setError('Failed to fetch contributors data');
-        return null;
-    }
+    return {
+      contributorStats,
+    };
+  } catch (err) {
+    console.error('Error fetching contributors-all data:', err);
+    // Keep individual states untouched on failure to preserve last good render
+    setError('Failed to fetch contributors data');
+    return null;
+  }
 }
-
-

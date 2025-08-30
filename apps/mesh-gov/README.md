@@ -11,7 +11,6 @@ This dashboard serves as a central hub for tracking and visualizing:
 - Mesh SDK usage metrics and GitHub contributor statistics
 - Project (repo) activities
 
-
 ## Key Features
 
 - **Catalyst Proposals**: Track funded proposals, budget distribution, and milestone progress

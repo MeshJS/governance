@@ -5,64 +5,86 @@ import { useMemo, useEffect } from 'react';
 import PageHeader from '../components/PageHeader';
 
 export default function MeshStatsPage() {
-    const { meshData, discordStats, contributorStats, isLoading, error, loadContributorStats } = useData();
+  const { meshData, discordStats, contributorStats, isLoading, error, loadContributorStats } =
+    useData();
 
-    // Load contributor stats when component mounts
-    useEffect(() => {
-        loadContributorStats();
-    }, [loadContributorStats]);
+  // Load contributor stats when component mounts
+  useEffect(() => {
+    loadContributorStats();
+  }, [loadContributorStats]);
 
-    // Version subtitle for PageHeader
-    const versionSubtitle = useMemo(() => {
-        if (!meshData || !meshData.meshPackagesData || !Array.isArray(meshData.meshPackagesData.packages)) {
-            return undefined;
-        }
-        const corePackage = meshData.meshPackagesData.packages.find(pkg => pkg.name === '@meshsdk/core');
-        return corePackage?.latest_version ? `@meshsdk/core Version: ${corePackage.latest_version}` : undefined;
-    }, [meshData]);
-
-    if (isLoading) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.stat}>
-                    <p>Loading mesh statistics...</p>
-                </div>
-            </div>
-        );
+  // Version subtitle for PageHeader
+  const versionSubtitle = useMemo(() => {
+    if (
+      !meshData ||
+      !meshData.meshPackagesData ||
+      !Array.isArray(meshData.meshPackagesData.packages)
+    ) {
+      return undefined;
     }
-
-    if (error) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.stat}>
-                    <p className={styles.error}>{error}</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!meshData || !meshData.meshPackagesData || !Array.isArray(meshData.meshPackagesData.packages) || meshData.meshPackagesData.packages.length === 0) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.stat}>
-                    <p>No mesh statistics available</p>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className={styles.container}>
-            <PageHeader
-                title={<>Mesh Usage <span>Statistics</span></>}
-                subtitle="Tracking downloads of Mesh npm packages via npmjs.com"
-            />
-
-            <MeshStatsView
-                discordStats={discordStats || undefined}
-                contributorStats={contributorStats?.unique_count || contributorStats?.total_contributions ? contributorStats : undefined}
-                meshPackagesData={meshData.meshPackagesData}
-            />
-        </div>
+    const corePackage = meshData.meshPackagesData.packages.find(
+      pkg => pkg.name === '@meshsdk/core'
     );
-} 
+    return corePackage?.latest_version
+      ? `@meshsdk/core Version: ${corePackage.latest_version}`
+      : undefined;
+  }, [meshData]);
+
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.stat}>
+          <p>Loading mesh statistics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.stat}>
+          <p className={styles.error}>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    !meshData ||
+    !meshData.meshPackagesData ||
+    !Array.isArray(meshData.meshPackagesData.packages) ||
+    meshData.meshPackagesData.packages.length === 0
+  ) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.stat}>
+          <p>No mesh statistics available</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+      <PageHeader
+        title={
+          <>
+            Mesh Usage <span>Statistics</span>
+          </>
+        }
+        subtitle="Tracking downloads of Mesh npm packages via npmjs.com"
+      />
+
+      <MeshStatsView
+        discordStats={discordStats || undefined}
+        contributorStats={
+          contributorStats?.unique_count || contributorStats?.total_contributions
+            ? contributorStats
+            : undefined
+        }
+        meshPackagesData={meshData.meshPackagesData}
+      />
+    </div>
+  );
+}

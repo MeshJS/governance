@@ -288,3 +288,31 @@ h6 {
     font-size: 0.875rem !important;
     font-weight: 500 !important;
 }
+
+/* Activity Panel Scrollbar Styling */
+.activity-scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(12, 242, 180, 0.6) transparent;
+}
+
+.activity-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.activity-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.activity-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(12, 242, 180, 0.4);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+.activity-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(12, 242, 180, 0.8);
+}
+
+.activity-scroll-container::-webkit-scrollbar-corner {
+    background: transparent;
+}

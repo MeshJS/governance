@@ -1,4 +1,4 @@
-import type { NextConfig } from 'next'
+import type { NextConfig } from 'next';
 
 const config: NextConfig = {
   images: {
@@ -6,11 +6,11 @@ const config: NextConfig = {
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
-        port: '',          // leave empty string for default ports
-        pathname: '/**',   // allow any path under this host
+        port: '', // leave empty string for default ports
+        pathname: '/**', // allow any path under this host
       },
     ],
   },
-}
+};
 
-export default config
+export default config;

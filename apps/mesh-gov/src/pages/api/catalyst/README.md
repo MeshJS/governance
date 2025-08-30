@@ -16,11 +16,13 @@ GET /api/catalyst/proposals
 ## Example Usage
 
 ### Fetch multiple proposals
+
 ```bash
 GET /api/catalyst/proposals?projectIds=1000107,1100271,1200148
 ```
 
 ### Fetch proposals updated after a specific time
+
 ```bash
 GET /api/catalyst/proposals?projectIds=1000107&since=2024-01-01T00:00:00Z
 ```
@@ -29,43 +31,43 @@ GET /api/catalyst/proposals?projectIds=1000107&since=2024-01-01T00:00:00Z
 
 ```typescript
 interface CatalystProposalsResponse {
-    status: 'completed' | 'partial' | 'stale';
-    message: string;
-    hasData: boolean;
-    proposals: CatalystProposal[];
-    missingProjectIds: string[];
-    totalRequested: number;
-    totalFound: number;
+  status: 'completed' | 'partial' | 'stale';
+  message: string;
+  hasData: boolean;
+  proposals: CatalystProposal[];
+  missingProjectIds: string[];
+  totalRequested: number;
+  totalFound: number;
 }
 
 interface CatalystProposal {
-    id: number;
-    title: string;
-    budget: number;
-    milestones_qty: number;
-    funds_distributed: number;
-    project_id: string;
-    challenges: any;
-    name: string;
-    category: string;
-    category_slug: string | null;
-    fund_number: string | null;
-    url: string;
-    status: string;
-    finished: string;
-    voting: CatalystProposalVoting | null;
-    milestones_completed: number;
-    updated_at: string;
-    isRecent?: boolean;
-    timeSinceUpdate?: number;
+  id: number;
+  title: string;
+  budget: number;
+  milestones_qty: number;
+  funds_distributed: number;
+  project_id: string;
+  challenges: any;
+  name: string;
+  category: string;
+  category_slug: string | null;
+  fund_number: string | null;
+  url: string;
+  status: string;
+  finished: string;
+  voting: CatalystProposalVoting | null;
+  milestones_completed: number;
+  updated_at: string;
+  isRecent?: boolean;
+  timeSinceUpdate?: number;
 }
 
 interface CatalystProposalVoting {
-    proposalId: number;
-    yes_votes_count: number;
-    no_votes_count: number;
-    abstain_votes_count: number;
-    unique_wallets: number;
+  proposalId: number;
+  yes_votes_count: number;
+  no_votes_count: number;
+  abstain_votes_count: number;
+  unique_wallets: number;
 }
 ```
 
@@ -104,4 +106,4 @@ This API fetches data from the `catalyst_proposals` table in Supabase, which is 
 
 ## Example Component
 
-See `src/components/CatalystProposalsExample.tsx` for a complete example of how to use this API in a React component. 
+See `src/components/CatalystProposalsExample.tsx` for a complete example of how to use this API in a React component.
