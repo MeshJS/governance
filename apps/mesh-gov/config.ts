@@ -3,75 +3,75 @@ import config from '../../org-stats-config.json';
 
 // Type definitions for the config
 interface SocialLink {
-    name: string;
-    url: string;
+  name: string;
+  url: string;
 }
 
 interface BuilderProject {
-    id: string;
-    icon: string;
-    url: string;
+  id: string;
+  icon: string;
+  url: string;
 }
 
 interface HighlightedProject {
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    url: string;
-    category?: string;
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  url: string;
+  category?: string;
 }
 
 interface ShowcaseRepo {
-    name: string;
-    description: string;
-    icon: string;
-    url: string;
+  name: string;
+  description: string;
+  icon: string;
+  url: string;
 }
 
 interface NpmPackage {
-    key: string;
-    name: string;
-    github_package_id?: string;
-    dependents_url?: string;
+  key: string;
+  name: string;
+  github_package_id?: string;
+  dependents_url?: string;
 }
 
 interface LogoConfig {
-    src: string;
-    width: number;
-    height: number;
+  src: string;
+  width: number;
+  height: number;
 }
 
 interface Organization {
-    name: string;
-    displayName: string;
-    logo: LogoConfig;
-    logoWithName: LogoConfig;
-    excludedRepos: string[];
+  name: string;
+  displayName: string;
+  logo: LogoConfig;
+  logoWithName: LogoConfig;
+  excludedRepos: string[];
 }
 
 interface ExtendedOrganization {
-    name: string;
-    displayName: string;
-    excludedRepos: string[];
+  name: string;
+  displayName: string;
+  excludedRepos: string[];
 }
 
 interface OrgStatsConfig {
-    mainOrganization: Organization;
-    extendedOrganizations: ExtendedOrganization[];
-    socialLinks: SocialLink[];
-    repositories: {
-        governance: string;
-        dependentsCountRepo: string;
-    };
-    poolId: string;
-    drepId: string;
-    catalystProjectIds: string;
-    discordGuildId: string;
-    npmPackages: NpmPackage[];
-    builderProjects: BuilderProject[];
-    highlightedProjects: HighlightedProject[];
-    showcaseRepos: ShowcaseRepo[];
+  mainOrganization: Organization;
+  extendedOrganizations: ExtendedOrganization[];
+  socialLinks: SocialLink[];
+  repositories: {
+    governance: string;
+    dependentsCountRepo: string;
+  };
+  poolId: string;
+  drepId: string;
+  catalystProjectIds: string;
+  discordGuildId: string;
+  npmPackages: NpmPackage[];
+  builderProjects: BuilderProject[];
+  highlightedProjects: HighlightedProject[];
+  showcaseRepos: ShowcaseRepo[];
 }
 
-export default config as OrgStatsConfig; 
+export default config as OrgStatsConfig;

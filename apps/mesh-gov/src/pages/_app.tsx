@@ -6,15 +6,15 @@ import Router from 'next/router';
 
 // Disable Next.js scroll restoration
 if (typeof window !== 'undefined') {
-    window.history.scrollRestoration = 'manual';
+  window.history.scrollRestoration = 'manual';
 }
 
 export default function App({ Component, pageProps }: AppProps) {
-    return (
-        <DataProvider>
-            <Layout>
-                <Component {...pageProps} />
-            </Layout>
-        </DataProvider>
-    );
-} 
+  return (
+    <DataProvider>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </DataProvider>
+  );
+}

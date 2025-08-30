@@ -30,4 +30,4 @@ When adding new database tables or Supabase-related types:
 - Include all required fields from your Supabase schema
 - Add JSDoc comments for complex types
 - Follow the existing naming conventions
-- Re-export table types with original names for backward compatibility 
+- Re-export table types with original names for backward compatibility

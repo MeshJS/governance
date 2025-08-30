@@ -5,12 +5,15 @@ This directory contains API routes for fetching Discord statistics from the Supa
 ## Routes
 
 ### GET `/api/discord/stats/[guildId]`
+
 Fetches Discord stats for a specific guild ID.
 
 **Parameters:**
+
 - `guildId` (string): The Discord guild ID
 
 **Response:**
+
 ```json
 {
   "guild_id": "907191435864977459",
@@ -31,6 +34,7 @@ Fetches Discord stats for a specific guild ID.
 ```
 
 **Error Responses:**
+
 - `404`: Guild stats not found
 - `400`: Invalid guild ID parameter
 - `500`: Internal server error
@@ -57,4 +61,4 @@ The API connects to the `discord_stats` table with the following structure:
 
 The `DiscordAPI` class in `src/lib/discord.ts` provides reusable functions:
 
-- `getGuildStats(guildId)`: Fetch stats for a specific guild 
+- `getGuildStats(guildId)`: Fetch stats for a specific guild
