@@ -32,8 +32,6 @@ type MainOrganization = {
     excludedRepos: string[];
 };
 type ExtendedOrganization = { name: string; displayName: string; excludedRepos: string[] };
-type Repositories = { governance: string; dependentsCountRepo: string };
-type DiscordStats = { useApiAction: boolean; description: string };
 type NpmPackage = { key: string; name: string; github_package_id?: string; dependents_url?: string };
 type SocialLink = { name: string; url: string };
 type BuilderProject = { id: string; icon: string; url: string };
@@ -42,12 +40,9 @@ type ShowcaseRepo = { id: string; name: string; description: string; icon: strin
 type OrgStatsConfig = {
     mainOrganization: MainOrganization;
     extendedOrganizations: ExtendedOrganization[];
-    repositories: Repositories;
     poolId: string;
     drepId: string;
     catalystProjectIds: string;
-    discordGuildId: string;
-    discordStats: DiscordStats;
     npmPackages: NpmPackage[];
     socialLinks: SocialLink[];
     builderProjects: BuilderProject[];
@@ -74,12 +69,9 @@ export default function ManageProjects() {
             excludedRepos: [],
         },
         extendedOrganizations: [],
-        repositories: { governance: '', dependentsCountRepo: '' },
         poolId: '',
         drepId: '',
         catalystProjectIds: '',
-        discordGuildId: '',
-        discordStats: { useApiAction: false, description: '' },
         npmPackages: [],
         socialLinks: [],
         builderProjects: [],
@@ -236,18 +228,9 @@ export default function ManageProjects() {
                 excludedRepos: cfg.mainOrganization?.excludedRepos ?? [],
             },
             extendedOrganizations: cfg.extendedOrganizations ?? [],
-            repositories: {
-                governance: cfg.repositories?.governance ?? '',
-                dependentsCountRepo: cfg.repositories?.dependentsCountRepo ?? '',
-            },
             poolId: cfg.poolId ?? '',
             drepId: cfg.drepId ?? '',
             catalystProjectIds: cfg.catalystProjectIds ?? '',
-            discordGuildId: cfg.discordGuildId ?? '',
-            discordStats: {
-                useApiAction: cfg.discordStats?.useApiAction ?? false,
-                description: cfg.discordStats?.description ?? '',
-            },
             npmPackages: cfg.npmPackages ?? [],
             socialLinks: cfg.socialLinks ?? [],
             builderProjects: cfg.builderProjects ?? [],
@@ -306,15 +289,20 @@ export default function ManageProjects() {
         extendedOrganizations: p.extendedOrganizations.map((it, idx) => idx === i ? { ...it, [field]: field === 'excludedRepos' ? value.split(',').map((s) => s.trim()).filter(Boolean) : value } : it),
     }));
 
-    const updateRepositories = (field: keyof Repositories, value: string) => setConfigForm((p) => ({ ...p, repositories: { ...p.repositories, [field]: value } }));
-
-    const updateDiscordStats = (field: keyof DiscordStats, value: string | boolean) => setConfigForm((p) => ({ ...p, discordStats: { ...p.discordStats, [field]: value } }));
-
     const addNpmPackage = () => setConfigForm((p) => ({ ...p, npmPackages: addItem(p.npmPackages, { key: '', name: '', github_package_id: '', dependents_url: '' }) }));
     const removeNpmPackage = (i: number) => setConfigForm((p) => ({ ...p, npmPackages: removeItem(p.npmPackages, i) }));
     const updateNpmPackage = (i: number, field: keyof NpmPackage, value: string) => setConfigForm((p) => ({
         ...p,
-        npmPackages: p.npmPackages.map((it, idx) => idx === i ? { ...it, [field]: value } : it),
+        npmPackages: p.npmPackages.map((it, idx) => {
+            if (idx === i) {
+                // Auto-append /network/dependents to dependents_url if not present
+                if (field === 'dependents_url' && value && !value.endsWith('/network/dependents')) {
+                    return { ...it, [field]: value.endsWith('/') ? `${value}network/dependents` : `${value}/network/dependents` };
+                }
+                return { ...it, [field]: value };
+            }
+            return it;
+        }),
     }));
 
     const addSocial = () => setConfigForm((p) => ({ ...p, socialLinks: addItem(p.socialLinks, { name: '', url: '' }) }));
@@ -433,7 +421,7 @@ export default function ManageProjects() {
                                 <input name="name" value={form.name} onChange={onChange} placeholder="Project Name" required />
                             </label>
                             <label className={styles.field}>
-                                <span>URL</span>
+                                <span>Wesite URL</span>
                                 <input name="url" value={form.url} onChange={onChange} placeholder="https://example.com" required />
                             </label>
                             <label className={styles.field}>
@@ -449,7 +437,7 @@ export default function ManageProjects() {
                                 <textarea name="description" value={form.description} onChange={onChange} rows={3} placeholder="Short description" />
                             </label>
                             <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
-                                <span>Main Organization</span>
+                                <span>Main Github Organization</span>
                                 <div className={styles.grid}>
                                     <label className={styles.field}><span>Name</span><input value={configForm.mainOrganization.name} onChange={(e) => onChangeMainOrg('name', e.target.value)} /></label>
                                     <label className={styles.field}><span>Logo Src</span><input value={configForm.mainOrganization.logo.src} onChange={(e) => onChangeLogo('logo', 'src', e.target.value)} /></label>
@@ -458,42 +446,33 @@ export default function ManageProjects() {
                                     <label className={styles.field}><span>Logo+Name Src</span><input value={configForm.mainOrganization.logoWithName.src} onChange={(e) => onChangeLogo('logoWithName', 'src', e.target.value)} /></label>
                                     <label className={styles.field}><span>Logo+Name Width</span><input type="number" value={configForm.mainOrganization.logoWithName.width} onChange={(e) => onChangeLogo('logoWithName', 'width', e.target.value)} /></label>
                                     <label className={styles.field}><span>Logo+Name Height</span><input type="number" value={configForm.mainOrganization.logoWithName.height} onChange={(e) => onChangeLogo('logoWithName', 'height', e.target.value)} /></label>
-                                    <label className={styles.field} style={{ gridColumn: '1 / -1' }}><span>Excluded Repos (comma-separated)</span><input value={configForm.mainOrganization.excludedRepos.join(', ')} onChange={(e) => onChangeMainOrg('excludedRepos', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} /></label>
+                                    <label className={styles.field} style={{ gridColumn: '1 / -1' }}><span>Excluded GitHub Repos (comma-separated)</span><input value={configForm.mainOrganization.excludedRepos.join(', ')} onChange={(e) => onChangeMainOrg('excludedRepos', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} /></label>
                                 </div>
                             </div>
                             <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
-                                <span>Extended Organizations</span>
+                                <span>Extended GitHub Organizations</span>
                                 {configForm.extendedOrganizations.map((org, i) => (
                                     <div key={i} className={styles.grid}>
                                         <label className={styles.field}><span>Name</span><input value={org.name} onChange={(e) => updateExtendedOrg(i, 'name', e.target.value)} /></label>
                                         <label className={styles.field}><span>Display Name</span><input value={org.displayName} onChange={(e) => updateExtendedOrg(i, 'displayName', e.target.value)} /></label>
-                                        <label className={styles.field} style={{ gridColumn: '1 / -1' }}><span>Excluded Repos (comma-separated)</span><input value={org.excludedRepos.join(', ')} onChange={(e) => updateExtendedOrg(i, 'excludedRepos', e.target.value)} /></label>
+                                        <label className={styles.field} style={{ gridColumn: '1 / -1' }}><span>Excluded GitHub Repos (comma-separated)</span><input value={org.excludedRepos.join(', ')} onChange={(e) => updateExtendedOrg(i, 'excludedRepos', e.target.value)} /></label>
                                         <div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => removeExtendedOrg(i)}>Remove</button></div>
                                     </div>
                                 ))}
                                 <div className={styles.actions}><button type="button" className={styles.secondary} onClick={addExtendedOrg}>Add Organization</button></div>
                             </div>
                             <div className={styles.grid} style={{ gridColumn: '1 / -1' }}>
-                                <label className={styles.field}><span>Repositories – Governance</span><input value={configForm.repositories.governance} onChange={(e) => updateRepositories('governance', e.target.value)} /></label>
-                                <label className={styles.field}><span>Repositories – Dependents Count Repo</span><input value={configForm.repositories.dependentsCountRepo} onChange={(e) => updateRepositories('dependentsCountRepo', e.target.value)} /></label>
-                            </div>
-                            <div className={styles.grid} style={{ gridColumn: '1 / -1' }}>
                                 <label className={styles.field}><span>Pool ID</span><input value={configForm.poolId} onChange={(e) => setConfigForm((p) => ({ ...p, poolId: e.target.value }))} /></label>
                                 <label className={styles.field}><span>DRep ID</span><input value={configForm.drepId} onChange={(e) => setConfigForm((p) => ({ ...p, drepId: e.target.value }))} /></label>
                                 <label className={styles.field}><span>Catalyst Project IDs (comma-separated)</span><input value={configForm.catalystProjectIds} onChange={(e) => setConfigForm((p) => ({ ...p, catalystProjectIds: e.target.value }))} /></label>
-                                <label className={styles.field}><span>Discord Guild ID</span><input value={configForm.discordGuildId} onChange={(e) => setConfigForm((p) => ({ ...p, discordGuildId: e.target.value }))} /></label>
-                            </div>
-                            <div className={styles.grid} style={{ gridColumn: '1 / -1' }}>
-                                <label className={styles.checkbox}><input type="checkbox" checked={configForm.discordStats.useApiAction} onChange={(e) => updateDiscordStats('useApiAction', e.target.checked)} /><span>Discord useApiAction</span></label>
-                                <label className={styles.field} style={{ gridColumn: '1 / -1' }}><span>Discord Description</span><input value={configForm.discordStats.description} onChange={(e) => updateDiscordStats('description', e.target.value)} /></label>
                             </div>
                             <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
                                 <span>NPM Packages</span>
                                 {configForm.npmPackages.map((pkg, i) => (
                                     <div key={i} className={styles.grid}>
-                                        <label className={styles.field}><span>Name</span><input value={pkg.name} onChange={(e) => updateNpmPackage(i, 'name', e.target.value)} /></label>
+                                        <label className={styles.field}><span>Name (eg. @meshsdk/core)</span><input value={pkg.name} onChange={(e) => updateNpmPackage(i, 'name', e.target.value)} /></label>
                                         <label className={styles.field}><span>GitHub Package ID</span><input value={pkg.github_package_id ?? ''} onChange={(e) => updateNpmPackage(i, 'github_package_id', e.target.value)} /></label>
-                                        <label className={styles.field}><span>Dependents URL</span><input value={pkg.dependents_url ?? ''} onChange={(e) => updateNpmPackage(i, 'dependents_url', e.target.value)} /></label>
+                                        <label className={styles.field}><span>Dependents URL (url of repo where package lives)</span><input value={pkg.dependents_url ?? ''} onChange={(e) => updateNpmPackage(i, 'dependents_url', e.target.value)} /></label>
                                         <div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => removeNpmPackage(i)}>Remove</button></div>
                                     </div>
                                 ))}
