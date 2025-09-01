@@ -13,12 +13,8 @@ const BASE_URL = 'https://gov.meshjs.dev/'
 const NETLIFY_FUNCTION_URL = 'https://glittering-chebakia-09bd42.netlify.app/.netlify/functions/github-stats-background'
 
 // Debug logging
-console.log('🔍 Environment variables:')
 console.log(`  ORG: ${process.env.ORG}`)
 console.log(`  REPO: ${process.env.REPO}`)
-console.log(`  BASE_URL: ${BASE_URL}`)
-console.log(`  NETLIFY_FUNCTION_URL: ${NETLIFY_FUNCTION_URL}`)
-console.log(`  GITHUB_TOKEN: ${GITHUB_TOKEN ? '[REDACTED]' : '(not provided)'}`)
 
 // Input validation function
 function validateInputs() {
@@ -69,11 +65,6 @@ const parsedRepo = REPO.trim()
 const parsedGithubToken = GITHUB_TOKEN.trim()
 const parsedBaseUrl = BASE_URL.trim().replace(/\/$/, '')
 const parsedFunctionUrl = NETLIFY_FUNCTION_URL.trim()
-
-console.log('📊 Resolved values:')
-console.log(`  ORG: ${parsedOrg}`)
-console.log(`  REPO: ${parsedRepo}`)
-console.log(`  BASE_URL: ${parsedBaseUrl}`)
 
 // Helper function to make HTTP requests
 async function makeRequest(url, options = {}) {
