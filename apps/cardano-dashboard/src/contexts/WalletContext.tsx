@@ -150,12 +150,21 @@ export function WalletProvider({ children }: WalletProviderProps) {
             // Nonce → signData → verify flow
             try {
                 if (address) {
+                    // Try to get a stake address from the wallet (reward address)
+                    let stakeAddress: string | undefined;
+                    try {
+                        const rewards = await wallet.getRewardAddresses();
+                        if (Array.isArray(rewards) && rewards.length > 0) {
+                            stakeAddress = rewards[0];
+                        }
+                    } catch { }
+
                     // 1) Request nonce
                     const nonceResp = await fetch('/api/auth/nonce', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'same-origin',
-                        body: JSON.stringify({ address, walletName: walletInfo.name, networkId }),
+                        body: JSON.stringify({ address, walletName: walletInfo.name, networkId, stakeAddress }),
                     });
                     const nonceJson = await nonceResp.json();
                     if (!nonceResp.ok) throw new Error(nonceJson?.error || 'Failed to get nonce');

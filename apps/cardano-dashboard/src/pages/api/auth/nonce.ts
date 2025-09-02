@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { generateNonce } from '@meshsdk/core';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
+import { isStakeAddress, resolveStakeAddress } from '@/utils/address';
 
 function makeNonce(): string {
     // Human-readable message with embedded random nonce for UX clarity
@@ -14,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    const { address, walletName, networkId } = req.body as { address?: string; walletName?: string; networkId?: number };
+    const { address, walletName, networkId, stakeAddress } = req.body as { address?: string; walletName?: string; networkId?: number; stakeAddress?: string };
     if (!address || typeof address !== 'string') {
         res.status(400).json({ error: 'address is required' });
         return;
@@ -25,6 +26,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         const supabase = getSupabaseServerClient();
+
+        // Resolve stake address if possible
+        let stake: string | null = null;
+        if (typeof stakeAddress === 'string' && isStakeAddress(stakeAddress)) {
+            stake = stakeAddress;
+        } else {
+            stake = await resolveStakeAddress(address);
+        }
         const { error } = await supabase
             .from('wallet_users')
             .upsert({
@@ -34,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 nonce,
                 nonce_expires_at: expiresAt,
                 last_seen_at: new Date().toISOString(),
+                stake_address: stake,
             }, { onConflict: 'address' });
 
         if (error) {
