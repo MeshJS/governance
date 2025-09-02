@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Withdraw ₳5M for Cardano's Global Listing Expansion - Powered by Snek](https://adastat.net/governances/1d6aea56e6a523b13e03ae30ff24ebf9852543b4f7d415c7e50f55f6baaa4e3d00) |
+| Hash           | 1d6aea56e6a523b13e03ae30ff24ebf9852543b4f7d415c7e50f55f6baaa4e3d00 |
+| Action ID      | gov_action1r44w54hx553mz0sr4cc07f8tlxzj2sa57l2pt3l9pa2ldw42fc7sq5q3rtn |
+| Type           | TreasuryWithdrawals |
+| Proposed Epoch | 573 |
+| Expires Epoch  | 580 |
+| Vote           | ❌No |
+| Vote Submitted | 8/26/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following: Yes: 0 votes No: 2 votes Abstain: 0 votes Therefore, we vote NO. Rationale: Same as our rationale on the initial Snek proposal... While we support projects which drive ecosystem adoption, we do not support treasury funding to finance development/maintenance/enhancements such as listings of any meme-coins. Furthermore, the proposer did not follow the given requirements for submitting treasury withdrawal proposals after an initial info-action as stated in the constitution. Finally, ecosystem treasuries investing in meme-coins has been already proven to be a bad idea, e.g Polkadot and its DED meme coin. Sometimes its helpful to learn from other ecosystems and to avoid repeating mistakes. Anyway, we hope the SNEK team doesn't take our No vote personally, we don't have anything against SNEK and some of our members are even holders, so ye, keep building guys, but to take treasury funds, thats a nope from us :). |
+|Link|https://adastat.net/transactions/cdb4beac2b6f9e1943bc0d4fc1ada12ebbbcd82830b2fe3daa3620454900b920 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Cardano Global Listing Expansion - Powered by Snek](https://adastat.net/governances/4ff43f1eab5252ef00ba6f1429dc23715e3899834f10c067e8065c8364d5559a00) |
 | Hash           | 4ff43f1eab5252ef00ba6f1429dc23715e3899834f10c067e8065c8364d5559a00 |
 | Action ID      | gov_action1fl6r784t2ffw7q96du2znhprw90r3xvrfugvqelgqewgxex42kdqq9tgrd5 |
