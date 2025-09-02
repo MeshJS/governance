@@ -3,13 +3,13 @@
 List of funded proposals from MeshJS at Cardano's Project Catalyst.
 
 > **Data Source**: Real data from Catalyst
-> **Last Updated**: August 25, 2025 at 12:51 AM UTC
+> **Last Updated**: September 1, 2025 at 12:57 AM UTC
 
 ## Overall Progress
 
 | Milestones | Funding |
 |:-----------|:--------|
-| Total completed: 42/50 (84%)<br>`█████████████████···` 84% | Total distributed: ADA 1,597,429/2,018,429 (79%)<br>`████████████████····` 79% |
+| Total completed: 42/50 (84%)<br>`█████████████████···` 84% | Total distributed: ADA 1,637,429/2,018,429 (81%)<br>`████████████████····` 81% |
 
 ## Overview of All Proposals
 
@@ -20,7 +20,7 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | F12 - Mesh Software as a Service | 1200148 | `████████████████████` 100% | `████████████████████` 100% |
 | F12 - Mesh New Features to Improve Developer experience and Cardano Adoption | 1200147 | `████████████████████` 100% | `████████████████████` 100% |
 | F12 - Sustain and Maintain Mesh SDK | 1200220 | `████████████████████` 100% | `████████████████████` 100% |
-| F13 - Mesh: Hydra Tools for administrating & interacting with Hydra Heads | 1300135 | `████████████········` 60% | `███████████·········` 56% |
+| F13 - Mesh: Hydra Tools for administrating & interacting with Hydra Heads | 1300135 | `████████████········` 60% | `███████████████·····` 76% |
 | F13 - Mesh: Cquisitor - Transaction Investigation Tool | 1300134 | `████████████········` 60% | `███████████·········` 56% |
 | F13 - Maintain Mesh and Build Developer Community | 1300130 | `████████████████████` 100% | `████████████████████` 100% |
 | F13 - Cardano Multisig Platform by Mesh, Clarity DAO & Fluid Tokens | 1300050 | `███████·············` 33% | `██████████··········` 51% |
@@ -119,8 +119,8 @@ List of funded proposals from MeshJS at Cardano's Project Catalyst.
 | **Proposal Budget** | ADA 200,000 |
 | **Status** | 🔄 In Progress |
 | **Milestones completed** | 3/5 (60%) |
-| **Funds distributed** | ADA 112,000 of 200,000 (56%) |
-| **Funding Progress** | `███████████·········` |
+| **Funds distributed** | ADA 152,000 of 200,000 (76%) |
+| **Funding Progress** | `███████████████·····` |
 
 
 | Property | Value |
