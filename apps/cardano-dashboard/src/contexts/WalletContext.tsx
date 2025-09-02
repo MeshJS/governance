@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { BrowserWallet } from '@meshsdk/core';
-import { supabase } from './supabaseClient';
 
 export interface WalletInfo {
     id: string;
@@ -146,22 +145,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
             console.log(connectedWalletData)
             setConnectedWallet(connectedWalletData);
 
-            // Upsert user record in Supabase for wallet login tracking
-            try {
-                if (address) {
-                    await supabase
-                        .from('wallet_users')
-                        .upsert({
-                            address,
-                            wallet_name: walletInfo.name,
-                            network_id: networkId,
-                            last_seen_at: new Date().toISOString(),
-                        }, { onConflict: 'address' });
-                }
-            } catch (dbErr) {
-                // Non-fatal: log for diagnostics, do not block UI
-                console.error('Failed to upsert wallet user to Supabase:', dbErr);
-            }
+            // Writes are handled server-side via /api/auth/nonce and /api/auth/verify
 
             // Nonce → signData → verify flow
             try {
@@ -190,6 +174,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
                     if (!verifyResp.ok) throw new Error(verifyJson?.error || 'Failed to verify signature');
 
                     setConnectedWallet(prev => prev ? { ...prev, isVerified: true } : prev);
+                    // Update session address immediately so dependent UIs refresh
+                    try { if (address) setSessionAddress(address); } catch { }
 
                     // Refresh current page to re-run getServerSideProps (e.g., /profile)
                     try {
@@ -233,6 +219,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
             // Clear auth cookie on server so SSR pages no longer show address
             try {
                 await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                // Clear session address immediately so dependent UIs refresh
+                setSessionAddress(null);
                 try {
                     await router.replace(router.asPath, undefined, { scroll: false });
                 } catch { }

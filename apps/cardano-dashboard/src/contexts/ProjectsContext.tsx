@@ -1,5 +1,5 @@
 // contexts/ProjectsContext.tsx
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { ProjectsContextType, ProjectRecord, ProjectContributorActivity } from 'types/projects';
 
 export function useProjectsContext() {
@@ -21,15 +21,14 @@ type ProjectsProviderProps = {
 
 export const ProjectsProvider: React.FC<ProjectsProviderProps> = ({ children, fetchOptions = {} }) => {
     const [isClient, setIsClient] = useState(false);
-    const parentContext = useContext(ProjectsContext);
+    // Intentionally avoid inheriting from parent context to prevent nested re-fetches
+    useContext(ProjectsContext);
 
-    // Merge parent context's data with new fetch options
-    // Note: always prefer the child-specific project when provided
+    // Respect the explicit fetch options provided to this provider.
+    // Do not inherit/override from parent context, to avoid nested providers re-fetching.
     const mergedFetchOptions = {
-        ...(parentContext ? {
-            fetchProjects: parentContext.projects.length > 0 || fetchOptions.fetchProjects,
-            fetchContributorActivity: parentContext.contributorActivity.length > 0 || fetchOptions.fetchContributorActivity,
-        } : fetchOptions),
+        fetchProjects: Boolean(fetchOptions.fetchProjects),
+        fetchContributorActivity: Boolean(fetchOptions.fetchContributorActivity),
         specificProject: fetchOptions.specificProject,
     } as const;
 
@@ -138,23 +137,29 @@ export const ProjectsProvider: React.FC<ProjectsProviderProps> = ({ children, fe
         setIsClient(true);
     }, []);
 
+    // Ensure we only fetch once per provider mount
+    const hasFetchedProjectsRef = useRef(false);
+    const hasFetchedContributorActivityRef = useRef(false);
+
     // Fetch projects data on mount and when fetch options change
     useEffect(() => {
-        if (isClient && mergedFetchOptions.fetchProjects) {
+        if (isClient && mergedFetchOptions.fetchProjects && !hasFetchedProjectsRef.current) {
+            hasFetchedProjectsRef.current = true;
             fetchProjects();
         }
     }, [isClient, mergedFetchOptions.fetchProjects, fetchProjects]);
 
     // Fetch contributor activity when projects data becomes available or when we have a specific project
     useEffect(() => {
-        if (isClient && mergedFetchOptions.fetchContributorActivity) {
-            const shouldFetch = mergedFetchOptions.specificProject
-                ? true // We have a specific project, fetch immediately
-                : projects.length > 0; // We need to wait for projects to load
+        if (!isClient || !mergedFetchOptions.fetchContributorActivity) return;
 
-            if (shouldFetch) {
-                fetchContributorActivity();
-            }
+        const shouldFetch = mergedFetchOptions.specificProject
+            ? true // We have a specific project, fetch immediately
+            : projects.length > 0; // We need to wait for projects to load
+
+        if (shouldFetch && !hasFetchedContributorActivityRef.current) {
+            hasFetchedContributorActivityRef.current = true;
+            fetchContributorActivity();
         }
     }, [isClient, mergedFetchOptions.fetchContributorActivity, mergedFetchOptions.specificProject, projects.length, fetchContributorActivity]);
 
