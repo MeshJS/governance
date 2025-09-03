@@ -3,6 +3,7 @@
 
 create table if not exists public.wallet_users (
   address text primary key,
+  stake_address text,
   wallet_name text not null,
   network_id integer,
   created_at timestamptz not null default now(),
@@ -14,19 +15,9 @@ create table if not exists public.wallet_users (
 
 alter table public.wallet_users enable row level security;
 
--- NOTE: These permissive policies are for initial development only.
--- Replace with signature-verified RPC or OIDC-backed auth before production.
-create policy "wallet_users_select_public"
-  on public.wallet_users for select
-  using (true);
 
-create policy "wallet_users_insert_public"
-  on public.wallet_users for insert
-  with check (true);
 
-create policy "wallet_users_update_public"
-  on public.wallet_users for update
-  using (true)
-  with check (true);
+create index if not exists wallet_users_stake_address_idx
+  on public.wallet_users (stake_address);
 
 

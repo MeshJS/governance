@@ -1,59 +1,33 @@
 import Head from "next/head";
 import Link from "next/link";
-import type { GetServerSideProps } from 'next';
+import { useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import pageStyles from '@/styles/PageLayout.module.css';
 import styles from './index.module.css';
-import { getSupabaseServerClient } from '@/utils/supabaseServer';
+import { ProjectsProvider, useProjectsContext } from '@/contexts/ProjectsContext';
+import type { ProjectRecord } from 'types/projects';
 
-type ProjectRecord = {
-    id: string;
-    slug: string;
-    name: string;
-    description: string | null;
-    url: string;
-    icon_url: string | null;
-    category: string | null;
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-    config?: unknown;
-};
+function ProjectDetail({ project }: { project: ProjectRecord }) {
+    const { contributorActivity, loading, isError, error } = useProjectsContext();
 
-type Props = {
-    project: ProjectRecord | null;
-};
+    // Log contributor data when it's available
+    useEffect(() => {
+        if (contributorActivity.length > 0) {
+            console.log('Contributor Activity Data:', contributorActivity);
+        } else {
+            console.log('No contributor activity data available');
+        }
+    }, [contributorActivity, project]);
 
-export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
-    const slug = String(ctx.params?.slug || '');
-    const supabase = getSupabaseServerClient();
-
-    const { data, error } = await supabase
-        .from('cardano_projects')
-        .select('*')
-        .eq('slug', slug)
-        .single();
-
-    if (error || !data) {
-        return { props: { project: null } };
-    }
-
-    return { props: { project: data as ProjectRecord } };
-};
-
-export default function ProjectBySlugIndex({ project }: Props) {
-    if (!project) {
-        return (
-            <div className={pageStyles.pageContainer}>
-                <Head>
-                    <title>Project not found | Cardano Dashboard</title>
-                </Head>
-                <main>
-                    <h1 className={pageStyles.pageTitle}>Project not found</h1>
-                    <p>We could not find that project. It might have been removed or is inactive.</p>
-                </main>
-            </div>
-        );
-    }
+    // Log loading and error states
+    useEffect(() => {
+        if (loading.contributorActivity) {
+            console.log('Loading contributor activity data...');
+        }
+        if (isError.contributorActivity) {
+            console.error('Error loading contributor activity:', error.contributorActivity);
+        }
+    }, [loading.contributorActivity, isError.contributorActivity, error.contributorActivity]);
 
     const websiteUrl = project.url && /^(https?:)?\/\//i.test(project.url)
         ? project.url
@@ -102,6 +76,66 @@ export default function ProjectBySlugIndex({ project }: Props) {
                 </section>
             </main>
         </div>
+    );
+}
+
+function ProjectBySlugIndexContent() {
+    const router = useRouter();
+    const slug = String(router.query?.slug || '');
+    const { projects, loading } = useProjectsContext();
+
+    const project: ProjectRecord | undefined = useMemo(
+        () => projects.find((p) => p.slug === slug),
+        [projects, slug]
+    );
+
+    if (loading.projects) {
+        return (
+            <div className={pageStyles.pageContainer}>
+                <Head>
+                    <title>Loading… | Cardano Dashboard</title>
+                </Head>
+                <main>
+                    <h1 className={pageStyles.pageTitle}>Loading…</h1>
+                </main>
+            </div>
+        );
+    }
+
+    if (!project) {
+        return (
+            <div className={pageStyles.pageContainer}>
+                <Head>
+                    <title>Project not found | Cardano Dashboard</title>
+                </Head>
+                <main>
+                    <h1 className={pageStyles.pageTitle}>Project not found</h1>
+                    <p>We could not find that project. It might have been removed or is inactive.</p>
+                </main>
+            </div>
+        );
+    }
+
+    // Once we have the project, create a nested provider to fetch contributor activity
+    return (
+        <ProjectsProvider fetchOptions={{
+            fetchProjects: false,
+            fetchContributorActivity: true,
+            specificProject: project,
+        }}>
+            <ProjectDetail project={project} />
+        </ProjectsProvider>
+    );
+}
+
+export default function ProjectBySlugIndex() {
+    return (
+        <ProjectsProvider fetchOptions={{
+            fetchProjects: true,
+            fetchContributorActivity: false,
+        }}>
+            <ProjectBySlugIndexContent />
+        </ProjectsProvider>
     );
 }
 
