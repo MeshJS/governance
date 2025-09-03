@@ -1,0 +1,81 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field>span {
+    font-size: 12px;
+    color: #999;
+}
+
+.field>input,
+.field>textarea,
+.field>select {
+    border: 1px solid #333;
+    background: #111;
+    color: #eee;
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.primary {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.secondary {
+    background: transparent;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.error {
+    color: #ff6b6b;
+    font-size: 14px;
+}
+
+.muted {
+    color: #aaa;
+}
+
+.sectionTitle {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+}
+
+@media (max-width: 720px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

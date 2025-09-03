@@ -1,24 +1,9 @@
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useEffect } from "react";
 import pageStyles from '@/styles/PageLayout.module.css';
 import styles from './index.module.css';
-
-type ProjectRecord = {
-    id: string;
-    slug: string;
-    name: string;
-    description: string | null;
-    url: string;
-    icon_url: string | null;
-    category: string | null;
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-    config?: unknown;
-};
-
-type ApiResponse = { projects: ProjectRecord[] } | { error: string };
+import { ProjectsProvider, useProjectsContext } from '@/contexts/ProjectsContext';
 
 type LogoConfig = { src?: string; width?: number; height?: number };
 type MainOrgConfig = { logo?: LogoConfig; logoWithName?: LogoConfig; displayName?: string };
@@ -30,31 +15,49 @@ const getLogoUrl = (config: unknown, fallback: string | null): string | undefine
     return (logo && typeof logo === 'string' && logo.length > 0) ? logo : (fallback ?? undefined);
 };
 
-export default function ProjectsIndex() {
-    const [projects, setProjects] = useState<ProjectRecord[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [hasError, setHasError] = useState<string | null>(null);
-
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            setIsLoading(true);
-            setHasError(null);
-            try {
-                const resp = await fetch('/api/projects');
-                const data = (await resp.json()) as ApiResponse;
-                if (!resp.ok || 'error' in data) throw new Error(('error' in data) ? data.error : 'Failed to load projects');
-                if (!cancelled) setProjects(data.projects ?? []);
-            } catch (e) {
-                if (!cancelled) setHasError(e instanceof Error ? e.message : 'Failed to load projects');
-            } finally {
-                if (!cancelled) setIsLoading(false);
-            }
-        })();
-        return () => { cancelled = true; };
-    }, []);
+function ProjectsIndexContent() {
+    const { projects, contributorActivity, loading, isError, error } = useProjectsContext();
 
     const visibleProjects = useMemo(() => projects, [projects]);
+
+    // Log contributor data when it's available
+    useEffect(() => {
+        if (contributorActivity.length > 0) {
+            console.log('All Projects Contributor Activity Data:', contributorActivity);
+
+            // Log summary statistics
+            const totalContributors = contributorActivity.reduce(
+                (sum, project) => sum + project.contributor_activity.length, 0
+            );
+            console.log(`Total projects with contributor data: ${contributorActivity.length}`);
+            console.log(`Total contributors across all projects: ${totalContributors}`);
+
+            // Log each project's contributor summary
+            contributorActivity.forEach(project => {
+                const totalCommits = project.contributor_activity.reduce(
+                    (sum, contributor) => sum + contributor.commit_count, 0
+                );
+                const totalPRs = project.contributor_activity.reduce(
+                    (sum, contributor) => sum + contributor.pr_count, 0
+                );
+                console.log(`Project "${project.project_name}" (${project.org_name}):`, {
+                    contributors: project.contributor_activity.length,
+                    totalCommits,
+                    totalPRs
+                });
+            });
+        }
+    }, [contributorActivity]);
+
+    // Log loading and error states
+    useEffect(() => {
+        if (loading.contributorActivity) {
+            console.log('Loading contributor activity data...');
+        }
+        if (isError.contributorActivity) {
+            console.error('Error loading contributor activity:', error.contributorActivity);
+        }
+    }, [loading.contributorActivity, isError.contributorActivity, error.contributorActivity]);
 
     return (
         <div className={pageStyles.pageContainer}>
@@ -64,9 +67,9 @@ export default function ProjectsIndex() {
             <main>
                 <h1 className={pageStyles.pageTitle}>Projects</h1>
                 <div className={pageStyles.section}>
-                    {isLoading && <p>Loading…</p>}
-                    {hasError && <p style={{ color: 'var(--danger)' }}>{hasError}</p>}
-                    {!isLoading && !hasError && (
+                    {loading.projects && <p>Loading…</p>}
+                    {isError.projects && <p style={{ color: 'var(--danger)' }}>{error.projects?.message || 'Failed to load projects'}</p>}
+                    {!loading.projects && !isError.projects && (
                         <ul className={styles.grid}>
                             {visibleProjects.map((p) => {
                                 const logoUrl = getLogoUrl(p.config, p.icon_url);
@@ -90,12 +93,20 @@ export default function ProjectsIndex() {
                             })}
                         </ul>
                     )}
-                    {!isLoading && !hasError && visibleProjects.length === 0 && (
+                    {!loading.projects && !isError.projects && visibleProjects.length === 0 && (
                         <p className={styles.muted}>No projects found.</p>
                     )}
                 </div>
             </main>
         </div>
+    );
+}
+
+export default function ProjectsIndex() {
+    return (
+        <ProjectsProvider fetchOptions={{ fetchProjects: true, fetchContributorActivity: false }}>
+            <ProjectsIndexContent />
+        </ProjectsProvider>
     );
 }
 

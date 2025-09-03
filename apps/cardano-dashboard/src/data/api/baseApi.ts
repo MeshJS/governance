@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase as sharedSupabase } from '../../contexts/supabaseClient';
 
 export interface BaseApiConfig {
     tableName: string;
@@ -9,31 +9,15 @@ export interface BaseApiConfig {
     };
 }
 
-// Singleton Supabase client
-let supabaseInstance: ReturnType<typeof createClient> | null = null;
-
-function getSupabaseClient() {
-    if (!supabaseInstance) {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-        if (!supabaseUrl || !supabaseKey) {
-            console.error('Missing Supabase environment variables');
-            throw new Error('Missing Supabase environment variables');
-        }
-
-        supabaseInstance = createClient(supabaseUrl, supabaseKey);
-    }
-    return supabaseInstance;
-}
+// Use the shared browser Supabase client to avoid multiple GoTrueClient instances
 
 export class BaseApi<T> {
-    protected supabase;
+    protected supabase = sharedSupabase;
     protected config: BaseApiConfig;
 
     constructor(config: BaseApiConfig) {
         this.config = config;
-        this.supabase = getSupabaseClient();
+        this.supabase = sharedSupabase;
     }
 
     protected async fetchFromSupabase(): Promise<T[]> {

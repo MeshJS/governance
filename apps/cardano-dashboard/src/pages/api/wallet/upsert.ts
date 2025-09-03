@@ -1,12 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { generateNonce } from '@meshsdk/core';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
-import { isStakeAddress, resolveStakeAddress } from '@/utils/address';
-
-function makeNonce(): string {
-    // Human-readable message with embedded random nonce for UX clarity
-    return generateNonce('Sign in to Cardano Dashboard: ');
-}
+import { verifyAuthCookie } from '@/utils/authCookie';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
     if (req.method !== 'POST') {
@@ -15,35 +9,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    const { address, walletName, networkId, stakeAddress } = req.body as { address?: string; walletName?: string; networkId?: number; stakeAddress?: string };
+    const cookie = req.cookies['cd_auth'];
+    const auth = verifyAuthCookie(cookie);
+    if (!auth?.address) {
+        res.status(401).json({ error: 'Not authenticated' });
+        return;
+    }
+
+    const { address, walletName, networkId, lastSeenAt } = req.body as {
+        address?: string;
+        walletName?: string;
+        networkId?: number | null;
+        lastSeenAt?: string | null;
+    };
+
     if (!address || typeof address !== 'string') {
         res.status(400).json({ error: 'address is required' });
         return;
     }
 
-    const nonce = makeNonce();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+    // Only allow user to write their own address record
+    if (address !== auth.address) {
+        res.status(403).json({ error: 'Forbidden' });
+        return;
+    }
 
     try {
         const supabase = getSupabaseServerClient();
-
-        // Resolve stake address if possible
-        let stake: string | null = null;
-        if (typeof stakeAddress === 'string' && isStakeAddress(stakeAddress)) {
-            stake = stakeAddress;
-        } else {
-            stake = await resolveStakeAddress(address);
-        }
         const { error } = await supabase
             .from('wallet_users')
             .upsert({
                 address,
                 wallet_name: walletName ?? 'Unknown',
                 network_id: typeof networkId === 'number' ? networkId : null,
-                nonce,
-                nonce_expires_at: expiresAt,
-                last_seen_at: new Date().toISOString(),
-                stake_address: stake,
+                last_seen_at: lastSeenAt ?? new Date().toISOString(),
             }, { onConflict: 'address' });
 
         if (error) {
@@ -51,8 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        // Client will sign the nonce (as bytes) via CIP-30 signData
-        res.status(200).json({ nonce });
+        res.status(200).json({ ok: true });
         return;
     } catch (e: unknown) {
         const message = e instanceof Error ? e.message : 'Server error';

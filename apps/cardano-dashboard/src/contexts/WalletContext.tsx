@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { BrowserWallet } from '@meshsdk/core';
-import { supabase } from './supabaseClient';
 
 export interface WalletInfo {
     id: string;
@@ -20,6 +19,7 @@ export interface ConnectedWallet {
     balance?: string;
     networkId?: number;
     isVerified?: boolean;
+    policyIds?: string[];
 }
 
 interface WalletContextType {
@@ -42,6 +42,7 @@ interface WalletContextType {
     // Errors
     error: string | null;
     clearError: () => void;
+    getPolicyIds: () => Promise<string[]>;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -86,6 +87,38 @@ export function WalletProvider({ children }: WalletProviderProps) {
             setError('Failed to load available wallets');
         } finally {
             setIsLoadingWallets(false);
+        }
+    };
+
+    const getPolicyIds = async (): Promise<string[]> => {
+        try {
+            const w = connectedWallet?.wallet;
+            if (!w) return [];
+            const assets = await w.getAssets() as Array<{ unit: string } | undefined> | undefined;
+            const policies = new Set<string>();
+            for (const a of (assets ?? []) as Array<{ unit: string }>) {
+                const unit = a?.unit ?? '';
+                const policy = typeof unit === 'string' ? unit.split('.')[0] : '';
+                if (policy && /^[0-9a-f]{20,64}$/i.test(policy)) policies.add(policy.toLowerCase());
+            }
+            return Array.from(policies);
+        } catch {
+            return [];
+        }
+    };
+
+    const getPolicyIdsFromWallet = async (wallet: BrowserWallet): Promise<string[]> => {
+        try {
+            const assets = await wallet.getAssets() as Array<{ unit: string } | undefined> | undefined;
+            const policies = new Set<string>();
+            for (const a of (assets ?? []) as Array<{ unit: string }>) {
+                const unit = a?.unit ?? '';
+                const policy = typeof unit === 'string' ? unit.split('.')[0] : '';
+                if (policy && /^[0-9a-f]{20,64}$/i.test(policy)) policies.add(policy.toLowerCase());
+            }
+            return Array.from(policies);
+        } catch {
+            return [];
         }
     };
 
@@ -143,35 +176,30 @@ export function WalletProvider({ children }: WalletProviderProps) {
                 balance,
                 networkId,
             };
-            console.log(connectedWalletData)
+            // Enrich with policy ids (best-effort)
+            try { connectedWalletData.policyIds = await getPolicyIdsFromWallet(wallet); } catch { }
             setConnectedWallet(connectedWalletData);
 
-            // Upsert user record in Supabase for wallet login tracking
-            try {
-                if (address) {
-                    await supabase
-                        .from('wallet_users')
-                        .upsert({
-                            address,
-                            wallet_name: walletInfo.name,
-                            network_id: networkId,
-                            last_seen_at: new Date().toISOString(),
-                        }, { onConflict: 'address' });
-                }
-            } catch (dbErr) {
-                // Non-fatal: log for diagnostics, do not block UI
-                console.error('Failed to upsert wallet user to Supabase:', dbErr);
-            }
+            // Writes are handled server-side via /api/auth/nonce and /api/auth/verify
 
             // Nonce → signData → verify flow
             try {
                 if (address) {
+                    // Try to get a stake address from the wallet (reward address)
+                    let stakeAddress: string | undefined;
+                    try {
+                        const rewards = await wallet.getRewardAddresses();
+                        if (Array.isArray(rewards) && rewards.length > 0) {
+                            stakeAddress = rewards[0];
+                        }
+                    } catch { }
+
                     // 1) Request nonce
                     const nonceResp = await fetch('/api/auth/nonce', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'same-origin',
-                        body: JSON.stringify({ address, walletName: walletInfo.name, networkId }),
+                        body: JSON.stringify({ address, walletName: walletInfo.name, networkId, stakeAddress }),
                     });
                     const nonceJson = await nonceResp.json();
                     if (!nonceResp.ok) throw new Error(nonceJson?.error || 'Failed to get nonce');
@@ -190,6 +218,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
                     if (!verifyResp.ok) throw new Error(verifyJson?.error || 'Failed to verify signature');
 
                     setConnectedWallet(prev => prev ? { ...prev, isVerified: true } : prev);
+                    // Update session address immediately so dependent UIs refresh
+                    try { if (address) setSessionAddress(address); } catch { }
 
                     // Refresh current page to re-run getServerSideProps (e.g., /profile)
                     try {
@@ -233,6 +263,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
             // Clear auth cookie on server so SSR pages no longer show address
             try {
                 await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                // Clear session address immediately so dependent UIs refresh
+                setSessionAddress(null);
                 try {
                     await router.replace(router.asPath, undefined, { scroll: false });
                 } catch { }
@@ -308,6 +340,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
                     networkId,
                     isVerified: !!me?.authenticated,
                 };
+                // Enrich with policy ids (best-effort)
+                try { connectedWalletData.policyIds = await getPolicyIdsFromWallet(wallet); } catch { }
                 if (!cancelled) setConnectedWallet(connectedWalletData);
             } catch (err) {
                 console.error('Silent wallet restore failed:', err);
@@ -331,6 +365,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         disconnectWallet,
         error,
         clearError,
+        getPolicyIds,
     };
 
     return (

@@ -50,20 +50,7 @@
   },
   "authors": [],
   "body": {
-    "comment": "Members of the Mesh DRep have voted as following:
-
-Yes: 1 votes 
-No: 0 votes 
-Abstain: 0 votes  
-
-Therefore, we vote YES.
-
-Rationale:
-The Cardano Consititution is meant to be evolve and mature over time and its great to see a first solid proposal on how the current version can be improved.
-While we dont have a strong opinions on the minor wording changes which are introduced, we indeed agree that the requirement for onchain proposers to first submit a info-action before submitting a initial treasury withdrawal is a bit overthought and burocratic, taking this requirement off the constitution makes it more easier for proposers to engage while still maintaining certain levels of spam-protection since the 100k gov-action deposit will be still required.
-
-Furthermore to the proposer, Yuta.
-Yuta, one of Cardano currently largest DReps has proven his commitment and skills at Cardano for a long time. His strong engagements in Cardano Governance and the experience & expertise he gains, is put into good action with this proposal. Great to see heavily engaged contributors putting their expertise in service to the ecosystem."
+    "comment": ""
   },
   "hashAlgorithm": "blake2b-256"
 }

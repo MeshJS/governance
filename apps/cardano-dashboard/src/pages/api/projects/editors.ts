@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
+import { isStakeAddress, resolveStakeAddress, resolveFirstPaymentAddress } from '@/utils/address';
 import { getAuthContext } from '@/utils/apiAuth';
 
 type EditorRow = { project_id: string; editor_address: string; added_by_address: string; created_at: string };
@@ -58,8 +59,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'POST') {
         const body = req.body as { project_id?: string; editor_address?: string };
         const project_id = body?.project_id;
-        const editor_address = normAddr(body?.editor_address);
-        if (!project_id || !isUuid(project_id) || !editor_address) {
+        const provided = normAddr(body?.editor_address);
+        if (!project_id || !isUuid(project_id) || !provided) {
             res.status(400).json({ error: 'Invalid project_id or editor_address' });
             return;
         }
@@ -79,6 +80,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
+        // Normalize into payment and stake addresses regardless of input
+        let editor_address = provided; // must be payment address for storage
+        let stake: string | null = null;
+        if (isStakeAddress(provided)) {
+            stake = provided;
+            const payment = await resolveFirstPaymentAddress(provided);
+            if (!payment) {
+                res.status(400).json({ error: 'Could not resolve a payment address for the provided stake address' });
+                return;
+            }
+            editor_address = payment;
+        } else {
+            stake = await resolveStakeAddress(provided);
+        }
+
         // Limit editors per project to prevent abuse (e.g., 50)
         const { data: existingEditors } = await supabase
             .from('cardano_project_editors')
@@ -92,7 +108,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const { data, error } = await supabase
             .from('cardano_project_editors')
-            .upsert({ project_id, editor_address, added_by_address: address })
+            .upsert({ project_id, editor_address, added_by_address: address, stake_address: stake })
             .select('*')
             .single();
         if (error) {
