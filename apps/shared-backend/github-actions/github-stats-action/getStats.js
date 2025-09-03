@@ -232,169 +232,175 @@ async function fetchRepoMetadata() {
     return { orgInfo, repoInfo }
 }
 
-async function fetchExistingIds() {
-    const url = `${parsedBaseUrl}/api/github/existing-ids?org=${encodeURIComponent(parsedOrg)}&repo=${encodeURIComponent(parsedRepo)}`
+async function fetchWatermarks() {
+    const url = `${parsedBaseUrl}/api/github/watermarks?org=${encodeURIComponent(parsedOrg)}&repo=${encodeURIComponent(parsedRepo)}`
     return await makeRequest(url, { method: 'GET' })
 }
 
-async function fetchAllMissingCommits(existingShasSet) {
+async function fetchAllMissingCommitsSince(sinceIso) {
     const results = []
     let page = 1
+    const overlappedSince = applyOverlapIso(sinceIso)
     while (true) {
         const data = await retryWithBackoff(async () => {
-            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/commits?per_page=50&page=${page}`, { headers: ghHeaders() })
+            const sinceParam = overlappedSince ? `&since=${encodeURIComponent(overlappedSince)}` : ''
+            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/commits?per_page=50&page=${page}${sinceParam}`, { headers: ghHeaders() })
             if (!resp.ok) throw { status: resp.status, message: await resp.text() }
             return resp.json()
         })
         if (!Array.isArray(data) || data.length === 0) break
         for (const item of data) {
-            if (!existingShasSet.has(item.sha)) {
-                // Ensure we have full commit details
-                let details
-                try {
-                    details = await retryWithBackoff(async () => {
-                        const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/commits/${item.sha}`, { headers: ghHeaders() })
-                        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
-                        return resp.json()
-                    })
-                } catch (e) {
-                    console.warn(`⚠️  Skipping commit ${item.sha} after retries: ${e?.message || e}`)
-                    // Skip this item and continue with the next
-                    continue
-                }
-                // Minify commit payload to only what the Netlify function needs
-                const filesCount = Array.isArray(details.files) ? details.files.length : 0
-                const parents = Array.isArray(details.parents) ? details.parents.map((p) => ({ sha: p.sha })) : []
-                results.push({
-                    sha: details.sha,
-                    author: details.author ? { login: details.author.login, avatar_url: details.author.avatar_url } : null,
-                    committer: details.committer ? { login: details.committer.login, avatar_url: details.committer.avatar_url } : null,
-                    commit: {
-                        message: details.commit?.message ?? null,
-                        author: { date: details.commit?.author?.date ?? null }
-                    },
-                    stats: details.stats
-                        ? {
-                            additions: details.stats.additions,
-                            deletions: details.stats.deletions,
-                            total: details.stats.total
-                        }
-                        : null,
-                    // Only send a small array to preserve length semantics expected by the function
-                    files: filesCount ? Array(filesCount).fill(0) : [],
-                    parents
+            // Ensure we have full commit details
+            let details
+            try {
+                details = await retryWithBackoff(async () => {
+                    const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/commits/${item.sha}`, { headers: ghHeaders() })
+                    if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+                    return resp.json()
                 })
-
-                // Add delay between API calls to respect rate limits
-                await delay(RATE_LIMIT_CONFIG.github.delayBetweenRequests)
+            } catch (e) {
+                console.warn(`⚠️  Skipping commit ${item.sha} after retries: ${e?.message || e}`)
+                // Skip this item and continue with the next
+                continue
             }
+            // Minify commit payload to only what the Netlify function needs
+            const filesCount = Array.isArray(details.files) ? details.files.length : 0
+            const parents = Array.isArray(details.parents) ? details.parents.map((p) => ({ sha: p.sha })) : []
+            results.push({
+                sha: details.sha,
+                author: details.author ? { login: details.author.login, avatar_url: details.author.avatar_url } : null,
+                committer: details.committer ? { login: details.committer.login, avatar_url: details.committer.avatar_url } : null,
+                commit: {
+                    message: details.commit?.message ?? null,
+                    author: { date: details.commit?.author?.date ?? null }
+                },
+                stats: details.stats
+                    ? {
+                        additions: details.stats.additions,
+                        deletions: details.stats.deletions,
+                        total: details.stats.total
+                    }
+                    : null,
+                // Only send a small array to preserve length semantics expected by the function
+                files: filesCount ? Array(filesCount).fill(0) : [],
+                parents
+            })
+
+            // Add delay between API calls to respect rate limits
+            await delay(RATE_LIMIT_CONFIG.github.delayBetweenRequests)
         }
         page += 1
     }
     return results
 }
 
-async function fetchAllMissingPulls(existingNumbersSet) {
+async function fetchAllMissingPullsSince(sinceIso) {
     const results = []
     let page = 1
     while (true) {
         const data = await retryWithBackoff(async () => {
-            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls?state=all&per_page=50&page=${page}`, { headers: ghHeaders() })
+            // No native 'since' for pulls; sort by updated desc and stop when older than watermark
+            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls?state=all&per_page=50&page=${page}&sort=updated&direction=desc`, { headers: ghHeaders() })
             if (!resp.ok) throw { status: resp.status, message: await resp.text() }
             return resp.json()
         })
         if (!Array.isArray(data) || data.length === 0) break
+        let reachedOld = false
         for (const pr of data) {
-            if (!existingNumbersSet.has(pr.number)) {
-                let prDetails
-                try {
-                    prDetails = await retryWithBackoff(async () => {
-                        const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls/${pr.number}`, { headers: ghHeaders() })
-                        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
-                        return resp.json()
-                    })
-                } catch (e) {
-                    console.warn(`⚠️  Skipping PR #${pr.number} details after retries: ${e?.message || e}`)
-                    continue
-                }
-                let prCommits
-                try {
-                    prCommits = await retryWithBackoff(async () => {
-                        const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls/${pr.number}/commits`, { headers: ghHeaders() })
-                        if (!resp.ok) throw { status: resp.status, message: await resp.text() }
-                        return resp.json()
-                    })
-                } catch (e) {
-                    console.warn(`⚠️  Skipping PR #${pr.number} commits after retries: ${e?.message || e}`)
-                    continue
-                }
-                // Minify PR payload to only fields used by the Netlify function
-                const minDetails = {
-                    number: prDetails.number,
-                    title: prDetails.title,
-                    body: prDetails.body ?? null,
-                    state: prDetails.state,
-                    created_at: prDetails.created_at,
-                    updated_at: prDetails.updated_at,
-                    closed_at: prDetails.closed_at,
-                    merged_at: prDetails.merged_at,
-                    additions: prDetails.additions ?? null,
-                    deletions: prDetails.deletions ?? null,
-                    changed_files: prDetails.changed_files ?? null,
-                    commits: prDetails.commits ?? null,
-                    user: prDetails.user ? { login: prDetails.user.login, avatar_url: prDetails.user.avatar_url } : null,
-                    merged_by: prDetails.merged_by ? { login: prDetails.merged_by.login, avatar_url: prDetails.merged_by.avatar_url } : null,
-                    requested_reviewers: Array.isArray(prDetails.requested_reviewers)
-                        ? prDetails.requested_reviewers.map((r) => ({ login: r.login, avatar_url: r.avatar_url }))
-                        : [],
-                    assignees: Array.isArray(prDetails.assignees)
-                        ? prDetails.assignees.map((a) => ({ login: a.login, avatar_url: a.avatar_url }))
-                        : [],
-                    labels: Array.isArray(prDetails.labels)
-                        ? prDetails.labels.map((l) => ({ name: l.name }))
-                        : []
-                }
-                const minCommits = Array.isArray(prCommits) ? prCommits.map((c) => ({ sha: c.sha })) : []
-                results.push({ details: minDetails, commits: minCommits })
-
-                // Add delay between API calls to respect rate limits
-                await delay(RATE_LIMIT_CONFIG.github.delayBetweenRequests)
+            const overlappedSince = applyOverlapIso(sinceIso)
+            if (overlappedSince && pr.updated_at && new Date(pr.updated_at) <= new Date(overlappedSince)) {
+                reachedOld = true
+                break
             }
+            let prDetails
+            try {
+                prDetails = await retryWithBackoff(async () => {
+                    const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls/${pr.number}`, { headers: ghHeaders() })
+                    if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+                    return resp.json()
+                })
+            } catch (e) {
+                console.warn(`⚠️  Skipping PR #${pr.number} details after retries: ${e?.message || e}`)
+                continue
+            }
+            let prCommits
+            try {
+                prCommits = await retryWithBackoff(async () => {
+                    const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/pulls/${pr.number}/commits`, { headers: ghHeaders() })
+                    if (!resp.ok) throw { status: resp.status, message: await resp.text() }
+                    return resp.json()
+                })
+            } catch (e) {
+                console.warn(`⚠️  Skipping PR #${pr.number} commits after retries: ${e?.message || e}`)
+                continue
+            }
+            // Minify PR payload to only fields used by the Netlify function
+            const minDetails = {
+                number: prDetails.number,
+                title: prDetails.title,
+                body: prDetails.body ?? null,
+                state: prDetails.state,
+                created_at: prDetails.created_at,
+                updated_at: prDetails.updated_at,
+                closed_at: prDetails.closed_at,
+                merged_at: prDetails.merged_at,
+                additions: prDetails.additions ?? null,
+                deletions: prDetails.deletions ?? null,
+                changed_files: prDetails.changed_files ?? null,
+                commits: prDetails.commits ?? null,
+                user: prDetails.user ? { login: prDetails.user.login, avatar_url: prDetails.user.avatar_url } : null,
+                merged_by: prDetails.merged_by ? { login: prDetails.merged_by.login, avatar_url: prDetails.merged_by.avatar_url } : null,
+                requested_reviewers: Array.isArray(prDetails.requested_reviewers)
+                    ? prDetails.requested_reviewers.map((r) => ({ login: r.login, avatar_url: r.avatar_url }))
+                    : [],
+                assignees: Array.isArray(prDetails.assignees)
+                    ? prDetails.assignees.map((a) => ({ login: a.login, avatar_url: a.avatar_url }))
+                    : [],
+                labels: Array.isArray(prDetails.labels)
+                    ? prDetails.labels.map((l) => ({ name: l.name }))
+                    : []
+            }
+            const minCommits = Array.isArray(prCommits) ? prCommits.map((c) => ({ sha: c.sha })) : []
+            results.push({ details: minDetails, commits: minCommits })
+
+            // Add delay between API calls to respect rate limits
+            await delay(RATE_LIMIT_CONFIG.github.delayBetweenRequests)
         }
+        if (reachedOld) break
         page += 1
     }
     return results
 }
 
-async function fetchAllMissingIssues(existingNumbersSet) {
+async function fetchAllMissingIssuesSince(sinceIso) {
     const results = []
     let page = 1
+    const overlappedSince = applyOverlapIso(sinceIso)
     while (true) {
         const data = await retryWithBackoff(async () => {
-            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/issues?state=all&per_page=50&page=${page}`, { headers: ghHeaders() })
+            const sinceParam = overlappedSince ? `&since=${encodeURIComponent(overlappedSince)}` : ''
+            const resp = await fetch(`https://api.github.com/repos/${parsedOrg}/${parsedRepo}/issues?state=all&per_page=50&page=${page}${sinceParam}`, { headers: ghHeaders() })
             if (!resp.ok) throw { status: resp.status, message: await resp.text() }
             return resp.json()
         })
         if (!Array.isArray(data) || data.length === 0) break
         for (const issue of data) {
             if (issue.pull_request) continue // skip PRs
-            if (!existingNumbersSet.has(issue.number)) {
-                // Minify issue payload to only fields used by the Netlify function
-                results.push({
-                    number: issue.number,
-                    title: issue.title,
-                    body: issue.body ?? null,
-                    state: issue.state,
-                    created_at: issue.created_at,
-                    updated_at: issue.updated_at,
-                    closed_at: issue.closed_at,
-                    comments: issue.comments ?? null,
-                    milestone: issue.milestone ? { title: issue.milestone.title } : null,
-                    user: issue.user ? { login: issue.user.login, avatar_url: issue.user.avatar_url } : null,
-                    assignees: Array.isArray(issue.assignees) ? issue.assignees.map((a) => ({ login: a.login, avatar_url: a.avatar_url })) : [],
-                    labels: Array.isArray(issue.labels) ? issue.labels.map((l) => ({ name: l.name })) : []
-                })
-            }
+            // Minify issue payload to only fields used by the Netlify function
+            results.push({
+                number: issue.number,
+                title: issue.title,
+                body: issue.body ?? null,
+                state: issue.state,
+                created_at: issue.created_at,
+                updated_at: issue.updated_at,
+                closed_at: issue.closed_at,
+                comments: issue.comments ?? null,
+                milestone: issue.milestone ? { title: issue.milestone.title } : null,
+                user: issue.user ? { login: issue.user.login, avatar_url: issue.user.avatar_url } : null,
+                assignees: Array.isArray(issue.assignees) ? issue.assignees.map((a) => ({ login: a.login, avatar_url: a.avatar_url })) : [],
+                labels: Array.isArray(issue.labels) ? issue.labels.map((l) => ({ name: l.name })) : []
+            })
         }
         page += 1
     }
@@ -417,6 +423,16 @@ const RATE_LIMIT_CONFIG = {
 
 // Helper function to add delays
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+// Overlap window to avoid edge-case misses around equal timestamps/precision
+const OVERLAP_MS = 5 * 60 * 1000 // 5 minutes
+
+function applyOverlapIso(sinceIso) {
+    if (!sinceIso) return undefined
+    const t = new Date(sinceIso).getTime()
+    if (Number.isNaN(t)) return undefined
+    return new Date(t - OVERLAP_MS).toISOString()
+}
 
 // Check GitHub rate limit status
 async function checkGitHubRateLimit() {
@@ -462,25 +478,21 @@ async function main() {
     console.log(`🆔 GitHub org id: ${orgInfo?.id ?? 'unknown'}`)
     console.log(`🆔 GitHub repo id: ${repoInfo?.id ?? 'unknown'}`)
 
-    // Trigger the Netlify background function
-    console.log('📥 Fetching existing IDs from mesh-gov API...')
-    const existing = await fetchExistingIds()
-    const existingCommitShas = new Set(existing.commitShas || [])
-    const existingPrNumbers = new Set(existing.prNumbers || [])
-    const existingIssueNumbers = new Set(existing.issueNumbers || [])
+    // Fetch watermarks (latest timestamps) to minimize API payloads
+    console.log('📥 Fetching watermarks from mesh-gov API...')
+    const watermarks = await fetchWatermarks()
+    console.log(`🔎 Watermarks: commit=${watermarks.latestCommitAt || 'none'}, PR=${watermarks.latestPullUpdatedAt || 'none'}, issue=${watermarks.latestIssueUpdatedAt || 'none'}`)
 
-    console.log(`🔎 Found existing: commits=${existingCommitShas.size}, PRs=${existingPrNumbers.size}, issues=${existingIssueNumbers.size}`)
-
-    console.log('⬇️  Fetching missing commits from GitHub...')
-    const missingCommits = await fetchAllMissingCommits(existingCommitShas)
+    console.log('⬇️  Fetching commits from GitHub since watermark...')
+    const missingCommits = await fetchAllMissingCommitsSince(watermarks.latestCommitAt || undefined)
     console.log(`🧮 Missing commits: ${missingCommits.length}`)
 
-    console.log('⬇️  Fetching missing pull requests from GitHub...')
-    const missingPulls = await fetchAllMissingPulls(existingPrNumbers)
+    console.log('⬇️  Fetching pull requests from GitHub since watermark...')
+    const missingPulls = await fetchAllMissingPullsSince(watermarks.latestPullUpdatedAt || undefined)
     console.log(`🧮 Missing PRs: ${missingPulls.length}`)
 
-    console.log('⬇️  Fetching missing issues from GitHub...')
-    const missingIssues = await fetchAllMissingIssues(existingIssueNumbers)
+    console.log('⬇️  Fetching issues from GitHub since watermark...')
+    const missingIssues = await fetchAllMissingIssuesSince(watermarks.latestIssueUpdatedAt || undefined)
     console.log(`🧮 Missing issues: ${missingIssues.length}`)
 
     // Helper to chunk arrays

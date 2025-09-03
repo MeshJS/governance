@@ -145,3 +145,11 @@ SELECT cron.schedule(
 REFRESH MATERIALIZED VIEW CONCURRENTLY contributor_summary_mat;
 REFRESH MATERIALIZED VIEW CONCURRENTLY contributor_repo_activity_mat;
 REFRESH MATERIALIZED VIEW CONCURRENTLY contributor_timestamps_mat;
+
+-- 6) Performance indexes for watermarks and API lookups
+-- Commits fast lookup by repo/date
+CREATE INDEX IF NOT EXISTS commits_repo_date_desc_idx ON commits (repo_id, date DESC);
+-- Pull requests fast lookup by repo/updated_at
+CREATE INDEX IF NOT EXISTS pull_requests_repo_updated_desc_idx ON pull_requests (repo_id, updated_at DESC);
+-- Issues fast lookup by repo/is_pull_request/updated_at
+CREATE INDEX IF NOT EXISTS issues_repo_ispr_updated_desc_idx ON issues (repo_id, is_pull_request, updated_at DESC);
