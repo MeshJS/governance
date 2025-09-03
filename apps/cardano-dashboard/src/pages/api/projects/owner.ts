@@ -37,17 +37,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    // Verify caller is current owner
+    // Verify caller is current owner (legacy single owner or owner_wallets array contains caller)
     const { data: proj, error: projErr } = await supabase
         .from('cardano_projects')
-        .select('owner_address')
+        .select('owner_address, owner_wallets')
         .eq('id', project_id!)
         .single();
     if (projErr || !proj) {
         res.status(404).json({ error: 'Project not found' });
         return;
     }
-    if ((proj as { owner_address: string | null }).owner_address !== address) {
+    const isLegacyOwner = (proj as { owner_address: string | null }).owner_address === address;
+    const wallets = (proj as { owner_wallets?: string[] | null }).owner_wallets ?? [];
+    const isArrayOwner = Array.isArray(wallets) && wallets.includes(address);
+    if (!isLegacyOwner && !isArrayOwner) {
         res.status(403).json({ error: 'Only owner can transfer ownership' });
         return;
     }
@@ -57,12 +60,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    // Update owner
+    // Update owner by appending to owner_wallets (do not drop legacy column yet)
     const { data, error } = await supabase
         .from('cardano_projects')
-        .update({ owner_address: nextOwner })
+        .update({ owner_wallets: (wallets || []).concat([nextOwner]) })
         .eq('id', project_id!)
-        .select('id, owner_address')
+        .select('id, owner_wallets')
         .single();
 
     if (error) {

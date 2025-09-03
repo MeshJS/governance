@@ -73,3 +73,11 @@ export async function resolveFirstPaymentAddress(stakeOrPayment: string): Promis
 }
 
 
+export function formatAddressShort(address: string | null | undefined, prefix = 8, suffix = 4): string {
+    const v = (address || '').trim();
+    if (!v) return '';
+    if (v.length <= prefix + suffix + 3) return v;
+    return `${v.slice(0, prefix)}...${v.slice(-suffix)}`;
+}
+
+
