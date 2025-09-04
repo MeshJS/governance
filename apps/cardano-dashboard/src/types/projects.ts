@@ -15,7 +15,7 @@ export type ProjectRecord = ProjectInput & {
     updated_at: string;
     config?: unknown;
     owner_wallets?: string[] | null;
-    owner_nft_policy_ids?: string[] | null;
+    owner_nft_fingerprints?: string[] | null;
 };
 
 export type Logo = { src: string; width: number; height: number };

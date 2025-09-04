@@ -11,7 +11,7 @@ import { EditorsModal } from '@/components/projects/EditorsModal';
 
 export default function ManageProjects() {
     const router = useRouter();
-    const { sessionAddress, getPolicyIds } = useWallet();
+    const { sessionAddress, getFingerprints, connectedWallet } = useWallet();
     const [projects, setProjects] = useState<ProjectRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [, setListError] = useState<string | null>(null);
@@ -37,14 +37,16 @@ export default function ManageProjects() {
         setListError(null);
         try {
             let query = '/api/projects?only_editable=true&include_inactive=true';
-            // Attach policy IDs if available to enable NFT-based access
+            // Attach fingerprints if available to enable NFT-based access
             try {
-                const ids = await getPolicyIds();
-                if (Array.isArray(ids) && ids.length > 0) {
-                    query += `&nft_policies=${encodeURIComponent(ids.join(','))}`;
+                const fps = await getFingerprints();
+                if (Array.isArray(fps) && fps.length > 0) {
+                    query += `&nft_fingerprints=${encodeURIComponent(fps.join(','))}`;
+                } else {
                 }
-            } catch { }
-            const resp = await fetch(query);
+            } catch {
+            }
+            const resp = await fetch(query, { credentials: 'same-origin' });
             const data = await resp.json();
             if (!resp.ok) throw new Error(data?.error || 'Failed to load projects');
             setProjects(data.projects ?? []);
@@ -53,11 +55,14 @@ export default function ManageProjects() {
         } finally {
             setIsLoading(false);
         }
-    }, [sessionAddress, getPolicyIds]);
+    }, [sessionAddress, getFingerprints]);
 
+    // Re-fetch once a wallet is actually connected so NFT fingerprints are included
     useEffect(() => {
+        if (!sessionAddress) return;
+        if (!connectedWallet?.wallet) return;
         void loadProjects();
-    }, [loadProjects]);
+    }, [sessionAddress, connectedWallet?.wallet, loadProjects]);
 
     // Close modal on wallet disconnect and remove any ?edit=
     useEffect(() => {
@@ -90,7 +95,7 @@ export default function ManageProjects() {
     const onDelete = useCallback(async (id: string) => {
         if (!confirm('Delete this project?')) return;
         try {
-            const resp = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+            const resp = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'same-origin' });
             if (!resp.ok && resp.status !== 204) {
                 const data = await resp.json().catch(() => ({}));
                 throw new Error(data?.error || 'Delete failed');

@@ -63,6 +63,7 @@ type WalletSummaryResponse = {
         unit: string; // policyId + assetNameHex
         policyId: string;
         assetNameHex: string;
+        fingerprint?: string;
         name: string; // best-effort readable
         ticker?: string;
         decimals?: number;
@@ -317,6 +318,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 unit,
                 policyId: policy_id,
                 assetNameHex: asset_name,
+                fingerprint: m?.fingerprint,
                 name: bestName ?? unit,
                 ticker,
                 decimals,

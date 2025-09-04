@@ -54,8 +54,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     if (req.method === 'GET') {
-        const { include_inactive, only_editable, nft_policies } = req.query as { include_inactive?: string; only_editable?: string; nft_policies?: string };
+        const { include_inactive, only_editable, nft_fingerprints } = req.query as { include_inactive?: string; only_editable?: string; nft_fingerprints?: string };
         const { address } = getAuthContext(req);
+
 
         // If requesting only projects the current wallet can edit, require auth and merge owner + editor projects
         if (only_editable === 'true') {
@@ -66,12 +67,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const activeFilter = include_inactive === 'true' ? undefined : true;
 
-            // Parse provided NFT policy ids from client (lowercase, dedup)
-            const providedPolicies = (nft_policies ?? '')
+            // Parse provided NFT fingerprints from client (lowercase, dedup)
+            const providedFingerprints = (nft_fingerprints ?? '')
                 .split(',')
                 .map((p) => p.trim().toLowerCase())
-                .filter((p) => /^[0-9a-f]{40,64}$/.test(p));
-            const uniquePolicies = Array.from(new Set(providedPolicies));
+                .filter((p) => /^asset1[0-9a-z]{10,}$/.test(p));
+            const uniqueFingerprints = Array.from(new Set(providedFingerprints));
 
             // Resolve stake address for stake-aware editor matching (fallback to wallet_users table)
             let stake = await resolveStakeAddress(address);
@@ -83,6 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     .maybeSingle();
                 stake = (wu as { stake_address?: string | null } | null)?.stake_address ?? null;
             }
+
 
             // Roles: wallet-based admin/editor
             let rolesWalletQuery = supabase
@@ -97,17 +99,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (roleWalletErr) { res.status(500).json({ error: roleWalletErr.message }); return; }
             const roleWalletIds = (roleWalletRows ?? []).map((r: { project_id: string }) => r.project_id);
 
-            // Roles: NFT policy-based admin/editor
-            let rolePolicyIds: string[] = [];
-            if (uniquePolicies.length > 0) {
-                const { data: rolePolicyRows, error: rolePolicyErr } = await supabase
+            // Roles: NFT fingerprint-based admin/editor
+            let roleFingerprintIds: string[] = [];
+            if (uniqueFingerprints.length > 0) {
+                const { data: roleFpRows, error: roleFpErr } = await supabase
                     .from('cardano_project_roles')
                     .select('project_id')
-                    .eq('principal_type', 'nft_policy')
+                    .eq('principal_type', 'nft_fingerprint')
                     .in('role', ['admin', 'editor'])
-                    .in('policy_id', uniquePolicies);
-                if (rolePolicyErr) { res.status(500).json({ error: rolePolicyErr.message }); return; }
-                rolePolicyIds = (rolePolicyRows ?? []).map((r: { project_id: string }) => r.project_id);
+                    .in('fingerprint', uniqueFingerprints);
+                if (roleFpErr) { res.status(500).json({ error: roleFpErr.message }); return; }
+                roleFingerprintIds = (roleFpRows ?? []).map((r: { project_id: string }) => r.project_id);
             }
 
             // Owner by address (legacy) or owner_wallets array contains address
@@ -119,20 +121,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const { data: ownerProjects, error: ownerErr } = await ownerQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
             if (ownerErr) { res.status(500).json({ error: ownerErr.message }); return; }
 
-            // Owner by NFT policy
+            // Owner by NFT fingerprint
             let ownerNftProjects: ProjectRecord[] = [];
-            if (uniquePolicies.length > 0) {
+            if (uniqueFingerprints.length > 0) {
                 let ownerNftQuery = supabase
                     .from('cardano_projects')
                     .select('*')
-                    .overlaps('owner_nft_policy_ids', uniquePolicies);
+                    .overlaps('owner_nft_fingerprints', uniqueFingerprints);
                 if (activeFilter !== undefined) ownerNftQuery = ownerNftQuery.eq('is_active', activeFilter);
                 const { data: ownerByNft, error: ownerNftErr } = await ownerNftQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
                 if (ownerNftErr) { res.status(500).json({ error: ownerNftErr.message }); return; }
                 ownerNftProjects = ownerByNft ?? [];
             }
             // Role projects
-            const editableProjectIds = Array.from(new Set([...roleWalletIds, ...rolePolicyIds]));
+            const editableProjectIds = Array.from(new Set([...roleWalletIds, ...roleFingerprintIds]));
             let roleProjects: ProjectRecord[] = [];
             if (editableProjectIds.length > 0) {
                 let rolesQuery = supabase
@@ -243,9 +245,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
         if (!isOwner && !isEditor) { res.status(403).json({ error: 'Not authorized to edit this project' }); return; }
 
-        type UpdatableKeys = 'slug' | 'name' | 'description' | 'url' | 'icon_url' | 'category' | 'is_active' | 'config' | 'owner_nft_policy_ids' | 'owner_wallets';
+        type UpdatableKeys = 'slug' | 'name' | 'description' | 'url' | 'icon_url' | 'category' | 'is_active' | 'config' | 'owner_nft_fingerprints' | 'owner_wallets';
         const update: Partial<Record<UpdatableKeys, unknown>> = {};
-        const allowed: UpdatableKeys[] = ['slug', 'name', 'description', 'url', 'icon_url', 'category', 'is_active', 'config', 'owner_nft_policy_ids', 'owner_wallets'];
+        const allowed: UpdatableKeys[] = ['slug', 'name', 'description', 'url', 'icon_url', 'category', 'is_active', 'config', 'owner_nft_fingerprints', 'owner_wallets'];
         for (const key of allowed) {
             if (Object.prototype.hasOwnProperty.call(rest, key)) {
                 const val = (rest as Record<string, unknown>)[key];
@@ -265,12 +267,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     if (!configSizeOk(val)) { res.status(400).json({ error: 'Config too large' }); return; }
                     update[key] = normalizeJson(val);
                     continue;
-                } else if (key === 'owner_nft_policy_ids') {
+                } else if (key === 'owner_nft_fingerprints') {
                     if (val === null || val === undefined || val === '') { update[key] = null; continue; }
                     const arr = Array.isArray(val) ? val : (typeof val === 'string' ? val.split(',') : []);
                     const cleaned = arr
                         .map((p) => (typeof p === 'string' ? p.trim().toLowerCase() : ''))
-                        .filter((p) => /^[0-9a-f]{40,64}$/.test(p));
+                        .filter((p) => /^asset1[0-9a-z]{10,}$/.test(p));
                     update[key] = cleaned.length ? cleaned : null;
                     continue;
                 } else if (key === 'owner_wallets') {
