@@ -19,6 +19,7 @@ export default function ManageProjects() {
     const [editingProject, setEditingProject] = useState<ProjectRecord | null>(null);
     const [isEditorsOpen, setIsEditorsOpen] = useState(false);
     const [editEditorsProject, setEditEditorsProject] = useState<ProjectRecord | null>(null);
+    const [sessionFingerprints, setSessionFingerprints] = useState<string[]>([]);
 
     const closeModal = useCallback(() => {
         setIsFormOpen(false);
@@ -41,10 +42,13 @@ export default function ManageProjects() {
             try {
                 const fps = await getFingerprints();
                 if (Array.isArray(fps) && fps.length > 0) {
+                    setSessionFingerprints(fps);
                     query += `&nft_fingerprints=${encodeURIComponent(fps.join(','))}`;
                 } else {
+                    setSessionFingerprints([]);
                 }
             } catch {
+                setSessionFingerprints([]);
             }
             const resp = await fetch(query, { credentials: 'same-origin' });
             const data = await resp.json();
@@ -69,6 +73,9 @@ export default function ManageProjects() {
         if (!router.isReady) return;
         if (sessionAddress) return;
         closeModal();
+        setIsEditorsOpen(false);
+        setEditEditorsProject(null);
+        setProjects([]);
     }, [router.isReady, sessionAddress, closeModal]);
 
     const onEdit = useCallback((p: ProjectRecord) => {
@@ -80,6 +87,16 @@ export default function ManageProjects() {
         setEditEditorsProject(p);
         setIsEditorsOpen(true);
     }, []);
+
+    const isOwnerOf = useCallback((p: ProjectRecord | null | undefined): boolean => {
+        if (!p || !sessionAddress) return false;
+        if (Array.isArray(p.owner_wallets) && p.owner_wallets.includes(sessionAddress)) return true;
+        if (Array.isArray(p.owner_nft_fingerprints) && sessionFingerprints.length > 0) {
+            const fpSet = new Set(sessionFingerprints);
+            if (p.owner_nft_fingerprints.some((fp) => !!fp && fpSet.has(fp))) return true;
+        }
+        return false;
+    }, [sessionAddress, sessionFingerprints]);
 
     // Auto-enter edit mode when arriving with ?edit=<slug|id>
     useEffect(() => {
@@ -125,44 +142,54 @@ export default function ManageProjects() {
                     </button>
                 </div>
 
-                <div className={pageStyles.section}>
-                    <h2 className={styles.sectionTitle}>Projects</h2>
-                    {isLoading ? (
-                        <p>Loading…</p>
-                    ) : (
-                        <div className={styles.tableWrap}>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Slug</th>
-                                        <th>Active</th>
-                                        <th>URL</th>
-                                        <th>Edit Project details</th>
-                                        <th>Edit roles/editors</th>
-                                        <th>Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {projects.map((p) => (
-                                        <tr key={p.id}>
-                                            <td>{p.name}</td>
-                                            <td>{p.slug}</td>
-                                            <td>{p.is_active ? 'Yes' : 'No'}</td>
-                                            <td>
-                                                <a href={`/projects/${encodeURIComponent(p.slug)}`}>link</a>
-                                            </td>
-                                            <td><button className={styles.linkBtn} onClick={() => onEdit(p)}>Edit</button></td>
-                                            <td><button className={styles.linkBtn} onClick={() => onManageEditors(p)}>Edit</button></td>
-                                            <td><button className={styles.linkBtnDanger} onClick={() => onDelete(p.id)}>Delete</button></td>
+                {sessionAddress ? (
+                    <div className={pageStyles.section}>
+                        <h2 className={styles.sectionTitle}>Projects</h2>
+                        {isLoading ? (
+                            <p>Loading…</p>
+                        ) : (
+                            <div className={styles.tableWrap}>
+                                <table className={styles.table}>
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Slug</th>
+                                            <th>Active</th>
+                                            <th>URL</th>
+                                            <th>Edit Project details</th>
+                                            <th>Edit roles/editors</th>
+                                            <th>Delete</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {projects.length === 0 && <p className={styles.muted}>No projects yet.</p>}
-                        </div>
-                    )}
-                </div>
+                                    </thead>
+                                    <tbody>
+                                        {projects.map((p) => (
+                                            <tr key={p.id}>
+                                                <td>{p.name}</td>
+                                                <td>{p.slug}</td>
+                                                <td>{p.is_active ? 'Yes' : 'No'}</td>
+                                                <td>
+                                                    <a href={`/projects/${encodeURIComponent(p.slug)}`}>link</a>
+                                                </td>
+                                                <td><button className={styles.linkBtn} onClick={() => onEdit(p)}>Edit</button></td>
+                                                <td>{isOwnerOf(p)
+                                                    ? <button className={styles.linkBtn} onClick={() => onManageEditors(p)}>Edit</button>
+                                                    : <span className={styles.muted}>Owners only</span>}
+                                                </td>
+                                                <td><button className={styles.linkBtnDanger} onClick={() => onDelete(p.id)}>Delete</button></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {projects.length === 0 && <p className={styles.muted}>No projects yet.</p>}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className={pageStyles.section}>
+                        <h2 className={styles.sectionTitle}>Projects</h2>
+                        <p className={styles.muted}>Connect a wallet to manage your projects.</p>
+                    </div>
+                )}
 
                 {/* Removed second table; roles/editors are managed via button in main table */}
 
@@ -177,7 +204,7 @@ export default function ManageProjects() {
                 <EditorsModal
                     isOpen={isEditorsOpen}
                     project={editEditorsProject}
-                    canSubmit={Boolean(sessionAddress)}
+                    canSubmit={Boolean(sessionAddress) && isOwnerOf(editEditorsProject)}
                     onClose={() => setIsEditorsOpen(false)}
                 />
             </main>
