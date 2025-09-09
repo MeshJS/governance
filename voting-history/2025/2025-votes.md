@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [CARDANO BLOCKCHAIN ECOSYSTEM CONSTITUTION v2.0](https://adastat.net/governances/207b226e110e13bb18b119fcd313520e0fcd060b2bc9fb9a5e5bc6e94ab10f3b00) |
+| Hash           | 207b226e110e13bb18b119fcd313520e0fcd060b2bc9fb9a5e5bc6e94ab10f3b00 |
+| Action ID      | gov_action1ypajyms3pcfmkx93r87dxy6jpc8u6pst90ylhxj7t0rwjj43puasq0x9jrw |
+| Type           | NewConstitution |
+| Proposed Epoch | 574 |
+| Expires Epoch  | 581 |
+| Vote           | ✅Yes |
+| Vote Submitted | 9/3/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following: Yes: 1 votes No: 0 votes Abstain: 0 votes Therefore, we vote YES. Rationale: The Cardano Consititution is meant to be evolve and mature over time and its great to see a first solid proposal on how the current version can be improved. While we dont have a strong opinions on the minor wording changes which are introduced, we indeed agree that the requirement for onchain proposers to first submit a info-action before submitting a initial treasury withdrawal is a bit overthought and burocratic, taking this requirement off the constitution makes it more easier for proposers to engage while still maintaining certain levels of spam-protection since the 100k gov-action deposit will be still required. Furthermore to the proposer, Yuta. Yuta, one of Cardano currently largest DReps has proven his commitment and skills at Cardano for a long time. His strong engagements in Cardano Governance and the experience & expertise he gains, is put into good action with this proposal. Great to see heavily engaged contributors putting their expertise in service to the ecosystem. |
+|Link|https://adastat.net/transactions/cf28a79006207c2c548e20d0b5e68fa717f03ad5737cc75ab7a5eb4b51751aab |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Withdraw ₳5M for Cardano's Global Listing Expansion - Powered by Snek](https://adastat.net/governances/1d6aea56e6a523b13e03ae30ff24ebf9852543b4f7d415c7e50f55f6baaa4e3d00) |
 | Hash           | 1d6aea56e6a523b13e03ae30ff24ebf9852543b4f7d415c7e50f55f6baaa4e3d00 |
 | Action ID      | gov_action1r44w54hx553mz0sr4cc07f8tlxzj2sa57l2pt3l9pa2ldw42fc7sq5q3rtn |
