@@ -5,6 +5,7 @@ import { formatAddressShort } from '@/utils/address';
 import type { ProjectRecord } from '@/types/projects';
 import { useWallet } from '@/contexts/WalletContext';
 import { mintRoleNft } from '@/lib/mint-role-nft';
+import { uploadImageToPinata } from '@/utils/uploadImage';
 
 export type EditorsModalProps = {
     isOpen: boolean;
@@ -30,6 +31,8 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
     const [mintImageUrl, setMintImageUrl] = useState('');
     const [mintPolicy, setMintPolicy] = useState<'open' | 'closed'>('open');
     const [isMinting, setIsMinting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [mintImageFile, setMintImageFile] = useState<File | null>(null);
 
     const defaultRecipient = useMemo(() => connectedWallet?.address || '', [connectedWallet?.address]);
 
@@ -240,6 +243,20 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
         }
     }, [project?.id, canSubmit, connectedWallet?.wallet, mintRecipient, defaultRecipient, newRole, project?.name, mintImageUrl, mintPolicy, getRecipientFingerprints, addFingerprintViaApi]);
 
+    const onUploadToPinata = useCallback(async () => {
+        if (!mintImageFile) { setError('Choose an image to upload'); return; }
+        try {
+            setError(null);
+            setIsUploading(true);
+            const { ipfsUri } = await uploadImageToPinata({ file: mintImageFile });
+            setMintImageUrl(ipfsUri);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Failed to upload image');
+        } finally {
+            setIsUploading(false);
+        }
+    }, [mintImageFile]);
+
     return (
         <Modal isOpen={isOpen} title={project ? `Editors · ${project.name}` : 'Editors'} onClose={onClose}>
             {error && <div className={styles.error}>{error}</div>}
@@ -311,7 +328,9 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
                                 <option value="admin">admin</option>
                             </select>
                             <input value={mintRecipient} onChange={(e) => setMintRecipient(e.target.value)} placeholder="recipient addr..." />
-                            <input value={mintImageUrl} onChange={(e) => setMintImageUrl(e.target.value)} placeholder="optional image url (ipfs://...)" />
+                            <input value={mintImageUrl} onChange={(e) => setMintImageUrl(e.target.value)} placeholder="optional image url (ipfs:// or https://...)" />
+                            <input type="file" accept="image/*" onChange={(e) => setMintImageFile(e.target.files?.[0] || null)} />
+                            <button type="button" className={styles.secondary} onClick={onUploadToPinata} disabled={!canSubmit || isUploading || !mintImageFile}>{isUploading ? 'Uploading…' : 'Upload to Pinata'}</button>
                             <select value={mintPolicy} onChange={(e) => setMintPolicy(e.target.value as 'open' | 'closed')}>
                                 <option value="open">Open policy</option>
                                 <option value="closed">Closed (expires)</option>

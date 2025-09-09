@@ -19,14 +19,27 @@ export type MintRoleNftOutput = {
     assetName?: string;
 };
 
+function normalizeImageUrl(input?: string): string | undefined {
+    if (!input) return undefined;
+    const s = input.trim();
+    if (!s) return undefined;
+    // Prefer ipfs://CID[/path]; convert common gateway forms
+    const ipfsMatch = /^ipfs:\/\/(.+)$/i.exec(s);
+    if (ipfsMatch) return `ipfs://${ipfsMatch[1]}`;
+    const gw = /\/(ipfs)\/([A-Za-z0-9]+)(?:\/.+)?$/.exec(s);
+    if (gw) return `ipfs://${gw[2]}`;
+    return s;
+}
+
 function buildRoleMetadata({ role, projectName, imageUrl }: { role: 'admin' | 'editor'; projectName: string; imageUrl?: string; }): AssetMetadata {
     const display = `${projectName} · ${role.toUpperCase()} Role`;
     const base: Record<string, string | string[]> = {
         name: display,
         description: [`Role NFT for ${projectName}`, `role=${role}`],
     };
-    if (imageUrl && imageUrl.trim().length > 0) {
-        base.image = imageUrl.trim();
+    const normalized = normalizeImageUrl(imageUrl);
+    if (normalized) {
+        base.image = normalized;
         base.mediaType = 'image/png';
     }
     return base as unknown as AssetMetadata;
