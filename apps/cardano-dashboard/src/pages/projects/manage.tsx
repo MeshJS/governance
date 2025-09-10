@@ -7,6 +7,7 @@ import { useWallet } from '@/contexts/WalletContext';
 import type { ProjectRecord } from '@/types/projects';
 import { ProjectEditorModal } from '@/components/projects/ProjectEditorModal';
 import { EditorsModal } from '@/components/projects/EditorsModal';
+import { MintRoleNftModal } from '@/components/projects/MintRoleNftModal';
 // address helpers not needed in this view currently
 
 export default function ManageProjects() {
@@ -19,6 +20,8 @@ export default function ManageProjects() {
     const [editingProject, setEditingProject] = useState<ProjectRecord | null>(null);
     const [isEditorsOpen, setIsEditorsOpen] = useState(false);
     const [editEditorsProject, setEditEditorsProject] = useState<ProjectRecord | null>(null);
+    const [isMintOpen, setIsMintOpen] = useState(false);
+    const [mintProject, setMintProject] = useState<ProjectRecord | null>(null);
     const [sessionFingerprints, setSessionFingerprints] = useState<string[]>([]);
 
     const closeModal = useCallback(() => {
@@ -86,6 +89,11 @@ export default function ManageProjects() {
     const onManageEditors = useCallback((p: ProjectRecord) => {
         setEditEditorsProject(p);
         setIsEditorsOpen(true);
+    }, []);
+
+    const onMintRoleNfts = useCallback((p: ProjectRecord) => {
+        setMintProject(p);
+        setIsMintOpen(true);
     }, []);
 
     const isOwnerOf = useCallback((p: ProjectRecord | null | undefined): boolean => {
@@ -158,6 +166,7 @@ export default function ManageProjects() {
                                             <th>URL</th>
                                             <th>Edit Project details</th>
                                             <th>Edit roles/editors</th>
+                                            <th>Mint Role NFTs</th>
                                             <th>Delete</th>
                                         </tr>
                                     </thead>
@@ -173,6 +182,10 @@ export default function ManageProjects() {
                                                 <td><button className={styles.linkBtn} onClick={() => onEdit(p)}>Edit</button></td>
                                                 <td>{isOwnerOf(p)
                                                     ? <button className={styles.linkBtn} onClick={() => onManageEditors(p)}>Edit</button>
+                                                    : <span className={styles.muted}>Owners only</span>}
+                                                </td>
+                                                <td>{isOwnerOf(p)
+                                                    ? <button className={styles.linkBtn} onClick={() => onMintRoleNfts(p)}>Mint</button>
                                                     : <span className={styles.muted}>Owners only</span>}
                                                 </td>
                                                 <td><button className={styles.linkBtnDanger} onClick={() => onDelete(p.id)}>Delete</button></td>
@@ -206,6 +219,13 @@ export default function ManageProjects() {
                     project={editEditorsProject}
                     canSubmit={Boolean(sessionAddress) && isOwnerOf(editEditorsProject)}
                     onClose={() => setIsEditorsOpen(false)}
+                />
+
+                <MintRoleNftModal
+                    isOpen={isMintOpen}
+                    project={mintProject}
+                    canSubmit={Boolean(sessionAddress) && isOwnerOf(mintProject)}
+                    onClose={() => setIsMintOpen(false)}
                 />
             </main>
         </div>

@@ -1,11 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import styles from './ProjectEditorModal.module.css';
 import { formatAddressShort } from '@/utils/address';
 import type { ProjectRecord } from '@/types/projects';
-import { useWallet } from '@/contexts/WalletContext';
-import { mintRoleNft } from '@/lib/mint-role-nft';
-import { uploadImageToPinata } from '@/utils/uploadImage';
+// wallet context not needed in editors view now
 
 export type EditorsModalProps = {
     isOpen: boolean;
@@ -24,17 +22,8 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
     const [newRole, setNewRole] = useState<'admin' | 'editor'>('editor');
     const [ownerWallet, setOwnerWallet] = useState('');
     const [ownerFingerprintCsv, setOwnerFingerprintCsv] = useState('');
-    const { connectedWallet } = useWallet();
+    // no wallet interactions needed here
 
-    // Minting state
-    const [mintRecipient, setMintRecipient] = useState('');
-    const [mintImageUrl, setMintImageUrl] = useState('');
-    const [mintPolicy, setMintPolicy] = useState<'open' | 'closed'>('open');
-    const [isMinting, setIsMinting] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [mintImageFile, setMintImageFile] = useState<File | null>(null);
-
-    const defaultRecipient = useMemo(() => connectedWallet?.address || '', [connectedWallet?.address]);
 
     useEffect(() => {
         if (!project?.id || !isOpen) {
@@ -63,12 +52,11 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
                     setRoles([]);
                 }
                 setOwnerFingerprintCsv((project.owner_nft_fingerprints ?? []).join(', '));
-                setMintRecipient(defaultRecipient);
             } catch {
                 setRoles([]);
             }
         })();
-    }, [project?.id, isOpen, project?.owner_nft_fingerprints, canSubmit, defaultRecipient]);
+    }, [project?.id, isOpen, project?.owner_nft_fingerprints, canSubmit]);
 
     const addWalletRole = useCallback(async () => {
         if (!project?.id || !newWallet.trim()) return;
@@ -165,98 +153,6 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
         }
     }, [project?.id, ownerFingerprintCsv]);
 
-    const getRecipientFingerprints = useCallback(async (address: string): Promise<string[]> => {
-        try {
-            const resp = await fetch('/api/wallet/summary', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address }),
-            });
-            const data = await resp.json();
-            if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to query wallet');
-            const fps = new Set<string>();
-            for (const a of (data?.assets ?? [])) {
-                const fp = typeof a?.fingerprint === 'string' ? a.fingerprint : undefined;
-                if (fp && /^asset1[0-9a-z]{10,}$/.test(fp)) fps.add(fp.toLowerCase());
-            }
-            return Array.from(fps);
-        } catch {
-            return [];
-        }
-    }, []);
-
-    const addFingerprintViaApi = useCallback(async (fingerprint: string, role: 'admin' | 'editor'): Promise<RoleItem | null> => {
-        if (!project?.id) return null;
-        const resp = await fetch('/api/projects/roles', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ project_id: project.id, role, principal_type: 'nft_fingerprint', fingerprint }),
-        });
-        const data = await resp.json().catch(() => ({}));
-        if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to add fingerprint role');
-        return (data as { role?: RoleItem }).role || null;
-    }, [project?.id]);
-
-    const onMintRoleNft = useCallback(async () => {
-        setError(null);
-        if (!project?.id) return;
-        if (!canSubmit) return;
-        if (!connectedWallet?.wallet) { setError('Connect a wallet to mint.'); return; }
-        const recipient = (mintRecipient || defaultRecipient || '').trim();
-        if (!recipient) { setError('Recipient address is required'); return; }
-        try {
-            setIsMinting(true);
-            // Snapshot recipient fingerprints
-            const beforeFps = await getRecipientFingerprints(recipient);
-
-            await mintRoleNft({
-                wallet: connectedWallet.wallet,
-                recipientAddress: recipient,
-                role: newRole,
-                projectName: project.name,
-                imageUrl: mintImageUrl || undefined,
-                policyType: mintPolicy,
-            });
-
-            // Poll for the new fingerprint for a short period
-            let afterFps: string[] = [];
-            const MAX_TRIES = 6;
-            for (let i = 0; i < MAX_TRIES; i++) {
-                await new Promise((r) => setTimeout(r, 3000));
-                afterFps = await getRecipientFingerprints(recipient);
-                const diff = afterFps.filter((fp) => !beforeFps.includes(fp));
-                if (diff.length > 0) {
-                    // Register all new fingerprints under selected role
-                    for (const fp of diff) {
-                        try {
-                            const added = await addFingerprintViaApi(fp, newRole);
-                            if (added) setRoles((prev) => prev.concat(added as RoleItem));
-                        } catch { /* ignore single fingerprint failure */ }
-                    }
-                    break;
-                }
-            }
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to mint role NFT');
-        } finally {
-            setIsMinting(false);
-        }
-    }, [project?.id, canSubmit, connectedWallet?.wallet, mintRecipient, defaultRecipient, newRole, project?.name, mintImageUrl, mintPolicy, getRecipientFingerprints, addFingerprintViaApi]);
-
-    const onUploadToPinata = useCallback(async () => {
-        if (!mintImageFile) { setError('Choose an image to upload'); return; }
-        try {
-            setError(null);
-            setIsUploading(true);
-            const { ipfsUri } = await uploadImageToPinata({ file: mintImageFile });
-            setMintImageUrl(ipfsUri);
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to upload image');
-        } finally {
-            setIsUploading(false);
-        }
-    }, [mintImageFile]);
-
     return (
         <Modal isOpen={isOpen} title={project ? `Editors · ${project.name}` : 'Editors'} onClose={onClose}>
             {error && <div className={styles.error}>{error}</div>}
@@ -318,26 +214,6 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
                         <input value={ownerFingerprintCsv} onChange={(e) => setOwnerFingerprintCsv(e.target.value)} placeholder="asset fingerprints (comma-separated)" />
                         <div className={styles.actions}>
                             <button type="button" className={styles.secondary} onClick={saveOwnerFingerprints} disabled={!canSubmit}>Save Owner Fingerprints</button>
-                        </div>
-                    </div>
-                    <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
-                        <span>Mint role NFT (Mesh)</span>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            <select value={newRole} onChange={(e) => setNewRole(e.target.value as 'admin' | 'editor')}>
-                                <option value="editor">editor</option>
-                                <option value="admin">admin</option>
-                            </select>
-                            <input value={mintRecipient} onChange={(e) => setMintRecipient(e.target.value)} placeholder="recipient addr..." />
-                            <input value={mintImageUrl} onChange={(e) => setMintImageUrl(e.target.value)} placeholder="optional image url (ipfs:// or https://...)" />
-                            <input type="file" accept="image/*" onChange={(e) => setMintImageFile(e.target.files?.[0] || null)} />
-                            <button type="button" className={styles.secondary} onClick={onUploadToPinata} disabled={!canSubmit || isUploading || !mintImageFile}>{isUploading ? 'Uploading…' : 'Upload to Pinata'}</button>
-                            <select value={mintPolicy} onChange={(e) => setMintPolicy(e.target.value as 'open' | 'closed')}>
-                                <option value="open">Open policy</option>
-                                <option value="closed">Closed (expires)</option>
-                            </select>
-                        </div>
-                        <div className={styles.actions}>
-                            <button type="button" className={styles.secondary} onClick={onMintRoleNft} disabled={!canSubmit || isMinting}>{isMinting ? 'Minting…' : 'Mint Role NFT'}</button>
                         </div>
                     </div>
                 </div>

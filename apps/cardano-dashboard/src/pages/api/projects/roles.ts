@@ -12,6 +12,7 @@ type RoleRow = {
     stake_address: string | null;
     policy_id: string | null; // legacy
     fingerprint: string | null;
+    txhash: string | null;
     added_by_address: string;
     created_at: string;
 };
@@ -72,7 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'POST') {
-        const body = req.body as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; fingerprint?: string };
+        const body = req.body as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; fingerprint?: string; txhash?: string };
         const project_id = body?.project_id;
         const role = normRole(body?.role);
         const principal_type = body?.principal_type === 'wallet' || body?.principal_type === 'nft_policy' || body?.principal_type === 'nft_fingerprint' ? body.principal_type : null;
@@ -80,6 +81,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const own = await assertOwner(project_id);
         if (own !== true) { res.status(403).json({ error: own }); return; }
+
+        const normTxHash = (v: unknown): string | null => {
+            if (typeof v !== 'string') return null;
+            const s = v.trim().toLowerCase();
+            return /^[0-9a-f]{64}$/.test(s) ? s : null;
+        };
+        const txhash = normTxHash(body?.txhash);
 
         let payload: Partial<RoleRow> & { project_id: string; role: 'admin' | 'editor'; principal_type: 'wallet' | 'nft_policy' | 'nft_fingerprint' } = {
             project_id,
@@ -100,7 +108,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } else {
                 stake = await resolveStakeAddress(provided);
             }
-            payload = { ...payload, wallet_payment_address, stake_address: stake ?? null };
+            payload = { ...payload, wallet_payment_address, stake_address: stake ?? null, txhash: txhash ?? null };
         } else if (principal_type === 'nft_policy') {
             // Legacy: if someone still posts policy_id, reject to steer towards fingerprints
             res.status(400).json({ error: 'policy_id is deprecated; use fingerprint with principal_type=nft_fingerprint' });
@@ -108,7 +116,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } else {
             const fp = normFingerprint(body?.fingerprint);
             if (!fp) { res.status(400).json({ error: 'Invalid fingerprint' }); return; }
-            payload = { ...payload, fingerprint: fp };
+            payload = { ...payload, fingerprint: fp, txhash: txhash ?? null };
         }
 
         const { data, error } = await supabase

@@ -156,6 +156,15 @@ function getImageFromCandidate(candidate: unknown): string | null {
     return null;
 }
 
+function chunkArray<T>(items: T[], chunkSize: number): T[][] {
+    if (chunkSize <= 0) return [items];
+    const chunks: T[][] = [];
+    for (let i = 0; i < items.length; i += chunkSize) {
+        chunks.push(items.slice(i, i + chunkSize));
+    }
+    return chunks;
+}
+
 function resolveImageFromMeta(m: KoiosAssetInfoItem | null | undefined): string | null {
     if (!m) return null;
     // Token registry base64 logo
@@ -290,9 +299,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const uniqueUnits = Array.from(aggregatedAssets.keys());
         // Koios expects an array of [policy_id, asset_name] pairs
         const assetListPairs: Array<[string, string]> = uniqueUnits.map((unit) => [unit.slice(0, 56), unit.slice(56)]);
-        const meta: KoiosAssetInfoItem[] = uniqueUnits.length
-            ? await postKoios<KoiosAssetInfoItem[]>(`${base}/asset_info`, { _asset_list: assetListPairs })
-            : [];
+        let meta: KoiosAssetInfoItem[] = [];
+        if (uniqueUnits.length) {
+            // Koios enforces a ~5KB request body size; chunk asset_info lookups
+            const CHUNK_SIZE = 20; // conservative to keep under 5KB across networks
+            const chunks = chunkArray(assetListPairs, CHUNK_SIZE);
+            for (const part of chunks) {
+                const partMeta = await postKoios<KoiosAssetInfoItem[]>(`${base}/asset_info`, { _asset_list: part });
+                if (Array.isArray(partMeta) && partMeta.length > 0) meta = meta.concat(partMeta);
+            }
+        }
         const unitToMeta = new Map<string, KoiosAssetInfoItem>();
         for (const m of meta) {
             unitToMeta.set(`${m.policy_id}${m.asset_name}`, m);
