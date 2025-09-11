@@ -7,11 +7,12 @@ import { useWallet } from '@/contexts/WalletContext';
 import type { ProjectRecord } from '@/types/projects';
 import { ProjectEditorModal } from '@/components/projects/ProjectEditorModal';
 import { EditorsModal } from '@/components/projects/EditorsModal';
+import { MintRoleNftModal } from '@/components/projects/MintRoleNftModal';
 // address helpers not needed in this view currently
 
 export default function ManageProjects() {
     const router = useRouter();
-    const { sessionAddress, getPolicyIds } = useWallet();
+    const { sessionAddress, getFingerprints, connectedWallet } = useWallet();
     const [projects, setProjects] = useState<ProjectRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [, setListError] = useState<string | null>(null);
@@ -19,6 +20,9 @@ export default function ManageProjects() {
     const [editingProject, setEditingProject] = useState<ProjectRecord | null>(null);
     const [isEditorsOpen, setIsEditorsOpen] = useState(false);
     const [editEditorsProject, setEditEditorsProject] = useState<ProjectRecord | null>(null);
+    const [isMintOpen, setIsMintOpen] = useState(false);
+    const [mintProject, setMintProject] = useState<ProjectRecord | null>(null);
+    const [sessionFingerprints, setSessionFingerprints] = useState<string[]>([]);
 
     const closeModal = useCallback(() => {
         setIsFormOpen(false);
@@ -37,14 +41,19 @@ export default function ManageProjects() {
         setListError(null);
         try {
             let query = '/api/projects?only_editable=true&include_inactive=true';
-            // Attach policy IDs if available to enable NFT-based access
+            // Attach fingerprints if available to enable NFT-based access
             try {
-                const ids = await getPolicyIds();
-                if (Array.isArray(ids) && ids.length > 0) {
-                    query += `&nft_policies=${encodeURIComponent(ids.join(','))}`;
+                const fps = await getFingerprints();
+                if (Array.isArray(fps) && fps.length > 0) {
+                    setSessionFingerprints(fps);
+                    query += `&nft_fingerprints=${encodeURIComponent(fps.join(','))}`;
+                } else {
+                    setSessionFingerprints([]);
                 }
-            } catch { }
-            const resp = await fetch(query);
+            } catch {
+                setSessionFingerprints([]);
+            }
+            const resp = await fetch(query, { credentials: 'same-origin' });
             const data = await resp.json();
             if (!resp.ok) throw new Error(data?.error || 'Failed to load projects');
             setProjects(data.projects ?? []);
@@ -53,17 +62,23 @@ export default function ManageProjects() {
         } finally {
             setIsLoading(false);
         }
-    }, [sessionAddress, getPolicyIds]);
+    }, [sessionAddress, getFingerprints]);
 
+    // Re-fetch once a wallet is actually connected so NFT fingerprints are included
     useEffect(() => {
+        if (!sessionAddress) return;
+        if (!connectedWallet?.wallet) return;
         void loadProjects();
-    }, [loadProjects]);
+    }, [sessionAddress, connectedWallet?.wallet, loadProjects]);
 
     // Close modal on wallet disconnect and remove any ?edit=
     useEffect(() => {
         if (!router.isReady) return;
         if (sessionAddress) return;
         closeModal();
+        setIsEditorsOpen(false);
+        setEditEditorsProject(null);
+        setProjects([]);
     }, [router.isReady, sessionAddress, closeModal]);
 
     const onEdit = useCallback((p: ProjectRecord) => {
@@ -75,6 +90,21 @@ export default function ManageProjects() {
         setEditEditorsProject(p);
         setIsEditorsOpen(true);
     }, []);
+
+    const onMintRoleNfts = useCallback((p: ProjectRecord) => {
+        setMintProject(p);
+        setIsMintOpen(true);
+    }, []);
+
+    const isOwnerOf = useCallback((p: ProjectRecord | null | undefined): boolean => {
+        if (!p || !sessionAddress) return false;
+        if (Array.isArray(p.owner_wallets) && p.owner_wallets.includes(sessionAddress)) return true;
+        if (Array.isArray(p.owner_nft_fingerprints) && sessionFingerprints.length > 0) {
+            const fpSet = new Set(sessionFingerprints);
+            if (p.owner_nft_fingerprints.some((fp) => !!fp && fpSet.has(fp))) return true;
+        }
+        return false;
+    }, [sessionAddress, sessionFingerprints]);
 
     // Auto-enter edit mode when arriving with ?edit=<slug|id>
     useEffect(() => {
@@ -90,7 +120,7 @@ export default function ManageProjects() {
     const onDelete = useCallback(async (id: string) => {
         if (!confirm('Delete this project?')) return;
         try {
-            const resp = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+            const resp = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'same-origin' });
             if (!resp.ok && resp.status !== 204) {
                 const data = await resp.json().catch(() => ({}));
                 throw new Error(data?.error || 'Delete failed');
@@ -120,44 +150,59 @@ export default function ManageProjects() {
                     </button>
                 </div>
 
-                <div className={pageStyles.section}>
-                    <h2 className={styles.sectionTitle}>Projects</h2>
-                    {isLoading ? (
-                        <p>Loading…</p>
-                    ) : (
-                        <div className={styles.tableWrap}>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Slug</th>
-                                        <th>Active</th>
-                                        <th>URL</th>
-                                        <th>Edit Project details</th>
-                                        <th>Edit roles/editors</th>
-                                        <th>Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {projects.map((p) => (
-                                        <tr key={p.id}>
-                                            <td>{p.name}</td>
-                                            <td>{p.slug}</td>
-                                            <td>{p.is_active ? 'Yes' : 'No'}</td>
-                                            <td>
-                                                <a href={`/projects/${encodeURIComponent(p.slug)}`}>link</a>
-                                            </td>
-                                            <td><button className={styles.linkBtn} onClick={() => onEdit(p)}>Edit</button></td>
-                                            <td><button className={styles.linkBtn} onClick={() => onManageEditors(p)}>Edit</button></td>
-                                            <td><button className={styles.linkBtnDanger} onClick={() => onDelete(p.id)}>Delete</button></td>
+                {sessionAddress ? (
+                    <div className={pageStyles.section}>
+                        <h2 className={styles.sectionTitle}>Projects</h2>
+                        {isLoading ? (
+                            <p>Loading…</p>
+                        ) : (
+                            <div className={styles.tableWrap}>
+                                <table className={styles.table}>
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Slug</th>
+                                            <th>Active</th>
+                                            <th>URL</th>
+                                            <th>Edit Project details</th>
+                                            <th>Edit roles/editors</th>
+                                            <th>Mint Role NFTs</th>
+                                            <th>Delete</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {projects.length === 0 && <p className={styles.muted}>No projects yet.</p>}
-                        </div>
-                    )}
-                </div>
+                                    </thead>
+                                    <tbody>
+                                        {projects.map((p) => (
+                                            <tr key={p.id}>
+                                                <td>{p.name}</td>
+                                                <td>{p.slug}</td>
+                                                <td>{p.is_active ? 'Yes' : 'No'}</td>
+                                                <td>
+                                                    <a href={`/projects/${encodeURIComponent(p.slug)}`}>link</a>
+                                                </td>
+                                                <td><button className={styles.linkBtn} onClick={() => onEdit(p)}>Edit</button></td>
+                                                <td>{isOwnerOf(p)
+                                                    ? <button className={styles.linkBtn} onClick={() => onManageEditors(p)}>Edit</button>
+                                                    : <span className={styles.muted}>Owners only</span>}
+                                                </td>
+                                                <td>{isOwnerOf(p)
+                                                    ? <button className={styles.linkBtn} onClick={() => onMintRoleNfts(p)}>Mint</button>
+                                                    : <span className={styles.muted}>Owners only</span>}
+                                                </td>
+                                                <td><button className={styles.linkBtnDanger} onClick={() => onDelete(p.id)}>Delete</button></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {projects.length === 0 && <p className={styles.muted}>No projects yet.</p>}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className={pageStyles.section}>
+                        <h2 className={styles.sectionTitle}>Projects</h2>
+                        <p className={styles.muted}>Connect a wallet to manage your projects.</p>
+                    </div>
+                )}
 
                 {/* Removed second table; roles/editors are managed via button in main table */}
 
@@ -172,8 +217,15 @@ export default function ManageProjects() {
                 <EditorsModal
                     isOpen={isEditorsOpen}
                     project={editEditorsProject}
-                    canSubmit={Boolean(sessionAddress)}
+                    canSubmit={Boolean(sessionAddress) && isOwnerOf(editEditorsProject)}
                     onClose={() => setIsEditorsOpen(false)}
+                />
+
+                <MintRoleNftModal
+                    isOpen={isMintOpen}
+                    project={mintProject}
+                    canSubmit={Boolean(sessionAddress) && isOwnerOf(mintProject)}
+                    onClose={() => setIsMintOpen(false)}
                 />
             </main>
         </div>

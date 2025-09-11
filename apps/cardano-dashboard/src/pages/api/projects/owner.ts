@@ -40,17 +40,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Verify caller is current owner (legacy single owner or owner_wallets array contains caller)
     const { data: proj, error: projErr } = await supabase
         .from('cardano_projects')
-        .select('owner_address, owner_wallets')
+        .select('owner_wallets')
         .eq('id', project_id!)
         .single();
     if (projErr || !proj) {
         res.status(404).json({ error: 'Project not found' });
         return;
     }
-    const isLegacyOwner = (proj as { owner_address: string | null }).owner_address === address;
     const wallets = (proj as { owner_wallets?: string[] | null }).owner_wallets ?? [];
     const isArrayOwner = Array.isArray(wallets) && wallets.includes(address);
-    if (!isLegacyOwner && !isArrayOwner) {
+    if (!isArrayOwner) {
         res.status(403).json({ error: 'Only owner can transfer ownership' });
         return;
     }
