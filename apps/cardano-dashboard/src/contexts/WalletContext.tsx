@@ -176,8 +176,6 @@ export function WalletProvider({ children }: WalletProviderProps) {
                 balance,
                 networkId,
             };
-            // Enrich with fingerprints (best-effort)
-            try { connectedWalletData.fingerprints = await getFingerprintsFromWallet(wallet); } catch { }
             setConnectedWallet(connectedWalletData);
 
             // Writes are handled server-side via /api/auth/nonce and /api/auth/verify
@@ -340,8 +338,6 @@ export function WalletProvider({ children }: WalletProviderProps) {
                     networkId,
                     isVerified: !!me?.authenticated,
                 };
-                // Enrich with fingerprints (best-effort)
-                try { connectedWalletData.fingerprints = await getFingerprintsFromWallet(wallet); } catch { }
                 if (!cancelled) setConnectedWallet(connectedWalletData);
             } catch (err) {
                 console.error('Silent wallet restore failed:', err);
@@ -353,6 +349,45 @@ export function WalletProvider({ children }: WalletProviderProps) {
         return () => { cancelled = true; };
     }, [availableWallets]);
 
+    // Enrich connected wallet with NFT fingerprints whenever a wallet is connected
+    useEffect(() => {
+        let cancelled = false;
+        async function enrichFingerprints() {
+            const wallet = connectedWallet?.wallet;
+            if (!wallet) return;
+            try {
+                const nextFingerprints = await getFingerprintsFromWallet(wallet);
+                if (cancelled) return;
+                setConnectedWallet(prev => {
+                    if (!prev) return prev;
+                    const prevFps = Array.isArray(prev.fingerprints) ? prev.fingerprints : [];
+                    const sameLength = prevFps.length === nextFingerprints.length;
+                    const isSame = sameLength && prevFps.every(fp => nextFingerprints.includes(fp));
+                    if (isSame) return prev;
+                    return { ...prev, fingerprints: nextFingerprints };
+                });
+            } catch { }
+        }
+        enrichFingerprints();
+        return () => { cancelled = true; };
+    }, [connectedWallet?.wallet]);
+
+    // After session is available (refresh or connect), backfill any missing role fingerprints
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (!sessionAddress) return;
+        (async () => {
+            try {
+                await fetch('/api/projects/roles-fingerprint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ wallet_address: sessionAddress }),
+                });
+            } catch { }
+        })();
+    }, [sessionAddress]);
+    
     const value: WalletContextType = {
         availableWallets,
         isLoadingWallets,

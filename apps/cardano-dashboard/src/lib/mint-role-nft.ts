@@ -5,7 +5,7 @@ import type { BrowserWallet } from '@meshsdk/core';
 export type MintRoleNftInput = {
     wallet: BrowserWallet;
     recipientAddress: string;
-    role: 'admin' | 'editor';
+    role: 'admin' | 'editor' | 'owner';
     projectName: string;
     imageUrl?: string;
     policyType?: 'open' | 'closed';
@@ -31,7 +31,7 @@ function normalizeImageUrl(input?: string): string | undefined {
     return s;
 }
 
-function buildRoleMetadata({ role, projectName, imageUrl }: { role: 'admin' | 'editor'; projectName: string; imageUrl?: string; }): AssetMetadata {
+function buildRoleMetadata({ role, projectName, imageUrl }: { role: 'admin' | 'editor' | 'owner'; projectName: string; imageUrl?: string; }): AssetMetadata {
     const display = `${projectName} · ${role.toUpperCase()} Role`;
     const base: Record<string, string | string[]> = {
         name: display,

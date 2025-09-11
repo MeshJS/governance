@@ -12,7 +12,8 @@ type ProjectRecord = {
     icon_url: string | null;
     category: string | null;
     is_active: boolean;
-    owner_address?: string | null;
+    owner_wallets?: string[] | null;
+    owner_nft_fingerprints?: string[] | null;
     created_at: string;
     updated_at: string;
     config?: unknown;
@@ -116,7 +117,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             let ownerQuery = supabase
                 .from('cardano_projects')
                 .select('*')
-                .or(`owner_address.eq.${address},owner_wallets.cs.{${address}}`);
+                .contains('owner_wallets', [address]);
             if (activeFilter !== undefined) ownerQuery = ownerQuery.eq('is_active', activeFilter);
             const { data: ownerProjects, error: ownerErr } = await ownerQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
             if (ownerErr) { res.status(500).json({ error: ownerErr.message }); return; }
@@ -192,7 +193,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const normalizedConfig: JsonObject = normalizeJson(config);
         const { data, error } = await supabase
             .from('cardano_projects')
-            .insert({ slug, name, description: description ?? null, url, icon_url: icon_url ?? null, category: category ?? null, is_active: is_active ?? true, config: normalizedConfig, owner_address: address })
+            .insert({ slug, name, description: description ?? null, url, icon_url: icon_url ?? null, category: category ?? null, is_active: is_active ?? true, config: normalizedConfig, owner_wallets: [address] })
             .select('*')
             .single();
         if (error) {
@@ -217,11 +218,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Authorization: owner or listed editor can update
         const { data: ownerRow, error: ownerErr } = await supabase
             .from('cardano_projects')
-            .select('owner_address')
+            .select('owner_wallets')
             .eq('id', id)
             .single();
         if (ownerErr || !ownerRow) { res.status(404).json({ error: 'Project not found' }); return; }
-        const isOwner = (ownerRow as { owner_address: string | null }).owner_address === address;
+        const wallets = ((ownerRow as { owner_wallets?: string[] | null }).owner_wallets ?? []) as string[];
+        let isOwner = Array.isArray(wallets) && wallets.includes(address);
         let isEditor = false;
         if (!isOwner) {
             let stake = await resolveStakeAddress(address);
@@ -233,15 +235,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     .maybeSingle();
                 stake = (wu as { stake_address?: string | null } | null)?.stake_address ?? null;
             }
-            let edQuery = supabase
-                .from('cardano_project_editors')
+            if (stake && Array.isArray(wallets) && wallets.includes(stake)) {
+                isOwner = true;
+            }
+            // Use roles table for editor/admin authorization
+            let roleQuery = supabase
+                .from('cardano_project_roles')
                 .select('project_id')
-                .eq('project_id', id);
-            edQuery = stake
-                ? edQuery.or(`editor_address.eq.${address},stake_address.eq.${stake}`)
-                : edQuery.eq('editor_address', address);
-            const { data: ed, error: edErr } = await edQuery.limit(1).maybeSingle();
-            if (!edErr && ed) isEditor = true;
+                .eq('project_id', id)
+                .in('role', ['admin', 'editor']);
+            // Match by wallet addresses if present
+            roleQuery = stake
+                ? roleQuery.or(`wallet_payment_address.eq.${address},stake_address.eq.${stake}`)
+                : roleQuery.eq('wallet_payment_address', address);
+            const { data: roleWallet, error: roleWalletErr } = await roleQuery.limit(1).maybeSingle();
+            if (!roleWalletErr && roleWallet) isEditor = true;
         }
         if (!isOwner && !isEditor) { res.status(403).json({ error: 'Not authorized to edit this project' }); return; }
 
@@ -315,11 +323,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const { data: ownerRow, error: ownerErr } = await supabase
             .from('cardano_projects')
-            .select('owner_address')
+            .select('owner_wallets')
             .eq('id', id)
             .single();
         if (ownerErr || !ownerRow) { res.status(404).json({ error: 'Project not found' }); return; }
-        const isOwner = (ownerRow as { owner_address: string | null }).owner_address === address;
+        const wallets = ((ownerRow as { owner_wallets?: string[] | null }).owner_wallets ?? []) as string[];
+        const isOwner = Array.isArray(wallets) && (wallets.includes(address));
         if (!isOwner) { res.status(403).json({ error: 'Only owner can delete the project' }); return; }
 
         const { error } = await supabase

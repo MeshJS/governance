@@ -42,13 +42,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const assertOwner = async (project_id: string): Promise<true | string> => {
         const { data: proj, error: projErr } = await supabase
             .from('cardano_projects')
-            .select('owner_address, owner_wallets')
+            .select('owner_wallets')
             .eq('id', project_id)
             .single();
         if (projErr || !proj) return 'Project not found';
-        const legacyOwner = (proj as { owner_address: string | null }).owner_address;
         const wallets = ((proj as { owner_wallets?: string[] | null }).owner_wallets ?? []) as string[];
-        if (legacyOwner && legacyOwner === address) return true;
         if (Array.isArray(wallets) && wallets.length > 0) {
             // consider stake mapping
             let stake: string | null = null;

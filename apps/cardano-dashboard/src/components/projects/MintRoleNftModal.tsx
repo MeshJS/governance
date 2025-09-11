@@ -15,7 +15,7 @@ export type MintRoleNftModalProps = {
 
 export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRoleNftModalProps) {
     const [error, setError] = useState<string | null>(null);
-    const [newRole, setNewRole] = useState<'admin' | 'editor'>('editor');
+    const [newRole, setNewRole] = useState<'admin' | 'editor' | 'owner'>('editor');
     const [mintRecipient, setMintRecipient] = useState('');
     const [mintImageUrl, setMintImageUrl] = useState('');
     const [mintPolicy, setMintPolicy] = useState<'open' | 'closed'>('open');
@@ -74,20 +74,35 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
                 imageUrl: mintImageUrl || undefined,
                 policyType: mintPolicy,
             });
-            // Immediately create a wallet-based role using recipient address and txhash
-            const resp = await fetch('/api/projects/roles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    project_id: project.id,
-                    role: newRole,
-                    principal_type: 'wallet',
-                    wallet_address: recipient,
-                    txhash: txHash,
-                }),
-            });
-            const data = await resp.json().catch(() => ({}));
-            if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to add wallet role');
+            if (newRole === 'owner') {
+                // Owners are managed on the project record via owner_nft_fingerprints, owner-only
+                const resp = await fetch('/api/projects/owner-nft', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: project.id,
+                        wallet_address: recipient,
+                        txhash: txHash,
+                    }),
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to add owner NFT');
+            } else {
+                // Immediately create a wallet-based role using recipient address and txhash
+                const resp = await fetch('/api/projects/roles', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: project.id,
+                        role: newRole,
+                        principal_type: 'wallet',
+                        wallet_address: recipient,
+                        txhash: txHash,
+                    }),
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to add wallet role');
+            }
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Failed to mint role NFT');
         } finally {
@@ -106,9 +121,10 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
                     <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
                         <span>Mint role NFT (Mesh)</span>
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            <select value={newRole} onChange={(e) => setNewRole(e.target.value as 'admin' | 'editor')}>
+                            <select value={newRole} onChange={(e) => setNewRole(e.target.value as 'admin' | 'editor' | 'owner')}>
                                 <option value="editor">editor</option>
                                 <option value="admin">admin</option>
+                                <option value="owner">owner</option>
                             </select>
                             <input value={mintRecipient} onChange={(e) => setMintRecipient(e.target.value)} placeholder="recipient addr..." />
                             <input value={mintImageUrl} onChange={(e) => setMintImageUrl(e.target.value)} placeholder="optional image url (ipfs:// or https://...)" />
