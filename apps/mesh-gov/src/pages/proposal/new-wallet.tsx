@@ -1,10 +1,28 @@
 import { useRouter } from 'next/router';
 import { useData } from '../../contexts/DataContext';
 import styles from '../../styles/ProposalDetail.module.css';
+import videoStyles from '../../styles/Proposals.module.css';
 import PageHeader from '../../components/PageHeader';
 import Image from 'next/image';
 import { ProposalFullContentModal } from '../../components/ProposalFullContentModal';
 import { useState } from 'react';
+
+const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
+  return (
+    <div className={videoStyles.videoContainer}>
+      <div className={videoStyles.videoWrapper}>
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          className={videoStyles.videoIframe}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default function NewWalletProposal() {
   const router = useRouter();
@@ -326,6 +344,8 @@ This step-by-step approach guarantees that the SDK will not only be cross-chain 
           </div>
         </div>
       </div>
+
+      <YouTubeEmbed videoId="kkZtDOQ8KrA" />
 
       <div className={styles.keyFeaturesSection}>
         <div className={styles.sectionHeader}>

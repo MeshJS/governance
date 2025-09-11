@@ -5,6 +5,24 @@ import PageHeader from '../../components/PageHeader';
 import { useData } from '../../contexts/DataContext';
 import { ProposalFullContentModal } from '../../components/ProposalFullContentModal';
 import styles from '../../styles/ProposalDetail.module.css';
+import videoStyles from '../../styles/Proposals.module.css';
+
+const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
+  return (
+    <div className={videoStyles.videoContainer}>
+      <div className={videoStyles.videoWrapper}>
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          className={videoStyles.videoIframe}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default function MimirProposal() {
   const router = useRouter();
@@ -293,6 +311,8 @@ export default function MimirProposal() {
           </div>
         </div>
       </div>
+
+      <YouTubeEmbed videoId="TRNkAgJLo2A" />
 
       {/* Key Development Areas (full width, no background) */}
       <div className={styles.keyFeaturesSection}>
