@@ -704,6 +704,9 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
   // Aggregate monthly downloads across all packages for current year
   const currentYear = new Date().getFullYear();
   const currentMonthIndex1Based = new Date().getMonth() + 1;
+  
+  // Always show only completed months (previous month is the latest to show)
+  const includeCurrentMonth = false; // Never include current month, only show completed months
   const monthlyData = useMemo(() => {
     if (!meshPackagesData?.packages) return [];
 
@@ -724,6 +727,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
     const monthlyTotals: { [key: number]: number } = {};
 
     // Aggregate downloads from all packages for current year
+    // Include all months up to and including the previous month (completed months)
     meshPackagesData.packages.forEach(pkg => {
       if (pkg.monthly_downloads) {
         pkg.monthly_downloads
@@ -786,6 +790,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
       .filter((stat: any) => {
         if (typeof stat.month === 'string' && stat.month.length === 7) {
           const m = Number(stat.month.split('-')[1]);
+          // Only show completed months for consistency with other charts
           return m < currentMonthIndex1Based;
         }
         return true;
@@ -838,7 +843,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
             if (typeof stat.month === 'string' && stat.month.length === 7) {
               const year = Number(stat.month.split('-')[0]);
               const month = Number(stat.month.split('-')[1]);
-              // Only include August 2025 and later, but exclude current open month
+              // Only include August 2025 and later, but only show completed months
               return year === currentYear && month >= 8 && month < currentMonthIndex1Based;
             }
             return false;
@@ -908,11 +913,14 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
     });
   }, [repositoriesData, web3SdkRepositoriesData]);
 
-  // Historical package downloads data (Jan-July 2025)
+  // Package downloads data for 2025 (all available months)
   const historicalPackageDownloads = useMemo(() => {
     if (!meshPackagesData?.packages) return [];
 
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+    const allMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    // Only include completed months (exclude current month since it's still in progress)
+    const maxMonth = currentMonthIndex1Based - 1; // Previous month is the latest completed month
+    const months = allMonths.slice(0, Math.max(1, maxMonth)); // At least include January
     const combined: { [key: string]: any } = {};
 
     // Initialize months
@@ -920,10 +928,10 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
       combined[month] = { month };
     });
 
-    // Process each package's monthly downloads for Jan-July 2025
+    // Process each package's monthly downloads for 2025
     meshPackagesData.packages.forEach(pkg => {
       const monthlyData = pkg.monthly_downloads
-        ?.filter(item => item.year === 2025 && item.month >= 1 && item.month <= 7)
+        ?.filter(item => item.year === 2025 && item.month >= 1 && item.month <= maxMonth)
         ?.sort((a, b) => a.month - b.month);
 
       if (monthlyData && monthlyData.length > 0) {
@@ -942,7 +950,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
       const hasData = Object.keys(monthData).length > 1; // More than just 'month' property
       return hasData;
     });
-  }, [meshPackagesData]);
+  }, [meshPackagesData, currentMonthIndex1Based]);
 
   // State to control highlighted package in historical downloads chart
   const [highlightedPackageKey, setHighlightedPackageKey] = React.useState<string | null>(null);
@@ -986,7 +994,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
       'December',
     ];
 
-    // Initialize monthly data for current year up to previous month (excluding current month)
+    // Initialize monthly data for current year up to previous month only (completed months)
     const monthlyContributions = months.slice(0, currentMonth).map(month => ({
       month,
       contributions: 0,
@@ -1000,7 +1008,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
           const date = new Date(timestamp);
           if (date.getFullYear() === currentYear) {
             const monthIndex = date.getMonth();
-            if (monthIndex < currentMonth) {
+            if (monthIndex < currentMonth && monthIndex < monthlyContributions.length) {
               monthlyContributions[monthIndex].contributions += 1;
             }
           }
@@ -1011,7 +1019,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
           const date = new Date(timestamp);
           if (date.getFullYear() === currentYear) {
             const monthIndex = date.getMonth();
-            if (monthIndex < currentMonth) {
+            if (monthIndex < currentMonth && monthIndex < monthlyContributions.length) {
               monthlyContributions[monthIndex].contributions += 1;
             }
           }
@@ -1094,10 +1102,18 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
   const discordStatsData = useMemo(() => {
     if (!discordStats?.stats) return [];
 
-    // Get sorted months in the format "YYYY-MM"
-    const sortedMonths = Object.keys(discordStats.stats).sort((a, b) => a.localeCompare(b));
+    // Get sorted months and only filter to show completed months (exclude current month September)
+    const sortedMonths = Object.keys(discordStats.stats)
+      .filter(monthKey => {
+        const [year, month] = monthKey.split('-');
+        const monthNum = parseInt(month);
+        const yearNum = parseInt(year);
+        // Only show completed months - exclude current month (September = 9)
+        return yearNum < currentYear || (yearNum === currentYear && monthNum < currentMonthIndex1Based);
+      })
+      .sort((a, b) => a.localeCompare(b));
 
-    // Create an array of formatted data for the chart
+    // Create an array of formatted data for the chart using real data only
     return sortedMonths.map(monthKey => {
       const stats = discordStats.stats[monthKey];
       // Extract year and month from the key (format: "YYYY-MM")
@@ -1126,7 +1142,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
         uniquePosters: stats.uniquePosters,
       };
     });
-  }, [discordStats]);
+  }, [discordStats, currentYear, currentMonthIndex1Based]);
 
   // Calculate the minimum member count to create a better visualization
   const memberCountMin = useMemo(() => {
