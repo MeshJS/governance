@@ -12,7 +12,7 @@ import { MintRoleNftModal } from '@/components/projects/MintRoleNftModal';
 
 export default function ManageProjects() {
     const router = useRouter();
-    const { sessionAddress, getFingerprints, connectedWallet } = useWallet();
+    const { sessionAddress, getUnits, connectedWallet } = useWallet();
     const [projects, setProjects] = useState<ProjectRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [, setListError] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export default function ManageProjects() {
     const [editEditorsProject, setEditEditorsProject] = useState<ProjectRecord | null>(null);
     const [isMintOpen, setIsMintOpen] = useState(false);
     const [mintProject, setMintProject] = useState<ProjectRecord | null>(null);
-    const [sessionFingerprints, setSessionFingerprints] = useState<string[]>([]);
+    const [sessionUnits, setSessionUnits] = useState<string[]>([]);
 
     const closeModal = useCallback(() => {
         setIsFormOpen(false);
@@ -41,17 +41,17 @@ export default function ManageProjects() {
         setListError(null);
         try {
             let query = '/api/projects?only_editable=true&include_inactive=true';
-            // Attach fingerprints if available to enable NFT-based access
+            // Attach units if available to enable NFT-based access
             try {
-                const fps = await getFingerprints();
-                if (Array.isArray(fps) && fps.length > 0) {
-                    setSessionFingerprints(fps);
-                    query += `&nft_fingerprints=${encodeURIComponent(fps.join(','))}`;
+                const units = await getUnits();
+                if (Array.isArray(units) && units.length > 0) {
+                    setSessionUnits(units);
+                    query += `&nft_units=${encodeURIComponent(units.join(','))}`;
                 } else {
-                    setSessionFingerprints([]);
+                    setSessionUnits([]);
                 }
             } catch {
-                setSessionFingerprints([]);
+                setSessionUnits([]);
             }
             const resp = await fetch(query, { credentials: 'same-origin' });
             const data = await resp.json();
@@ -62,7 +62,7 @@ export default function ManageProjects() {
         } finally {
             setIsLoading(false);
         }
-    }, [sessionAddress, getFingerprints]);
+    }, [sessionAddress, getUnits]);
 
     // Re-fetch once a wallet is actually connected so NFT fingerprints are included
     useEffect(() => {
@@ -99,12 +99,12 @@ export default function ManageProjects() {
     const isOwnerOf = useCallback((p: ProjectRecord | null | undefined): boolean => {
         if (!p || !sessionAddress) return false;
         if (Array.isArray(p.owner_wallets) && p.owner_wallets.includes(sessionAddress)) return true;
-        if (Array.isArray(p.owner_nft_fingerprints) && sessionFingerprints.length > 0) {
-            const fpSet = new Set(sessionFingerprints);
-            if (p.owner_nft_fingerprints.some((fp) => !!fp && fpSet.has(fp))) return true;
+        if (Array.isArray(p.owner_nft_units) && sessionUnits.length > 0) {
+            const unitSet = new Set(sessionUnits);
+            if (p.owner_nft_units.some((u) => !!u && unitSet.has(u))) return true;
         }
         return false;
-    }, [sessionAddress, sessionFingerprints]);
+    }, [sessionAddress, sessionUnits]);
 
     // Auto-enter edit mode when arriving with ?edit=<slug|id>
     useEffect(() => {

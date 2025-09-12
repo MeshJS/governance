@@ -43,6 +43,7 @@ interface WalletContextType {
     error: string | null;
     clearError: () => void;
     getFingerprints: () => Promise<string[]>;
+    getUnits: () => Promise<string[]>;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -102,6 +103,23 @@ export function WalletProvider({ children }: WalletProviderProps) {
                 if (fp && /^asset1[0-9a-z]{10,}$/.test(fp)) fps.add(fp.toLowerCase());
             }
             return Array.from(fps);
+        } catch {
+            return [];
+        }
+    };
+
+    const getUnits = async (): Promise<string[]> => {
+        try {
+            const w = connectedWallet?.wallet;
+            if (!w) return [];
+            const assets = await (w as unknown as { getAssets?: () => Promise<Array<{ unit?: string | null }>> }).getAssets?.();
+            if (!Array.isArray(assets)) return [];
+            const units = new Set<string>();
+            for (const a of assets) {
+                const u = typeof a?.unit === 'string' ? a.unit : undefined;
+                if (u && /^[0-9a-f]{58,200}$/i.test(u)) units.add(u.toLowerCase());
+            }
+            return Array.from(units);
         } catch {
             return [];
         }
@@ -372,22 +390,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
         return () => { cancelled = true; };
     }, [connectedWallet?.wallet]);
 
-    // After session is available (refresh or connect), backfill any missing role fingerprints
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        if (!sessionAddress) return;
-        (async () => {
-            try {
-                await fetch('/api/projects/roles-fingerprint', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({ wallet_address: sessionAddress }),
-                });
-            } catch { }
-        })();
-    }, [sessionAddress]);
-    
+    // Backfill endpoint no longer needed with unit-based roles; keep noop for compatibility
+
     const value: WalletContextType = {
         availableWallets,
         isLoadingWallets,
@@ -401,6 +405,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         error,
         clearError,
         getFingerprints,
+        getUnits,
     };
 
     return (

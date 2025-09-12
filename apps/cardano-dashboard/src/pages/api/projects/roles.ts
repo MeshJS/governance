@@ -7,11 +7,10 @@ type RoleRow = {
     id: string;
     project_id: string;
     role: 'admin' | 'editor';
-    principal_type: 'wallet' | 'nft_policy' | 'nft_fingerprint';
+    principal_type: 'wallet' | 'nft_unit';
     wallet_payment_address: string | null;
     stake_address: string | null;
-    policy_id: string | null; // legacy
-    fingerprint: string | null;
+    unit?: string | null;
     txhash: string | null;
     added_by_address: string;
     created_at: string;
@@ -30,13 +29,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!(s.startsWith('addr') || s.startsWith('stake'))) return null;
         return s;
     };
-    const normFingerprint = (v: unknown): string | null => {
+    const normRole = (v: unknown): 'admin' | 'editor' | null => (v === 'admin' || v === 'editor') ? v : null;
+    const normUnit = (v: unknown): string | null => {
         if (typeof v !== 'string') return null;
         const s = v.trim().toLowerCase();
-        // Accept CIP-14 like bech32 fingerprints starting with asset1
-        return /^asset1[0-9a-z]{10,}$/.test(s) ? s : null;
+        // policyId(56 hex) + assetNameHex(>=2, <=128 hex)
+        return /^[0-9a-f]{58,200}$/.test(s) ? s : null;
     };
-    const normRole = (v: unknown): 'admin' | 'editor' | null => (v === 'admin' || v === 'editor') ? v : null;
 
     // Authorization helper: only owner can manage roles
     const assertOwner = async (project_id: string): Promise<true | string> => {
@@ -71,10 +70,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'POST') {
-        const body = req.body as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; fingerprint?: string; txhash?: string };
+        const body = req.body as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; unit?: string; txhash?: string };
         const project_id = body?.project_id;
         const role = normRole(body?.role);
-        const principal_type = body?.principal_type === 'wallet' || body?.principal_type === 'nft_policy' || body?.principal_type === 'nft_fingerprint' ? body.principal_type : null;
+        const principal_type = body?.principal_type === 'wallet' || body?.principal_type === 'nft_unit' ? body.principal_type : null;
         if (!project_id || !isUuid(project_id) || !role || !principal_type) { res.status(400).json({ error: 'Invalid input' }); return; }
 
         const own = await assertOwner(project_id);
@@ -87,7 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         };
         const txhash = normTxHash(body?.txhash);
 
-        let payload: Partial<RoleRow> & { project_id: string; role: 'admin' | 'editor'; principal_type: 'wallet' | 'nft_policy' | 'nft_fingerprint' } = {
+        let payload: Partial<RoleRow> & { project_id: string; role: 'admin' | 'editor'; principal_type: 'wallet' | 'nft_unit' } = {
             project_id,
             role,
             principal_type,
@@ -107,14 +106,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 stake = await resolveStakeAddress(provided);
             }
             payload = { ...payload, wallet_payment_address, stake_address: stake ?? null, txhash: txhash ?? null };
-        } else if (principal_type === 'nft_policy') {
-            // Legacy: if someone still posts policy_id, reject to steer towards fingerprints
-            res.status(400).json({ error: 'policy_id is deprecated; use fingerprint with principal_type=nft_fingerprint' });
-            return;
         } else {
-            const fp = normFingerprint(body?.fingerprint);
-            if (!fp) { res.status(400).json({ error: 'Invalid fingerprint' }); return; }
-            payload = { ...payload, fingerprint: fp, txhash: txhash ?? null };
+            const unit = normUnit(body?.unit);
+            if (!unit) { res.status(400).json({ error: 'Invalid unit' }); return; }
+            payload = { ...payload, unit, txhash: txhash ?? null };
         }
 
         const { data, error } = await supabase
@@ -128,12 +123,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'DELETE') {
-        const { project_id, role, principal_type, wallet_address, fingerprint } = req.query as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; fingerprint?: string };
+        const { project_id, role, principal_type, wallet_address, unit } = req.query as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; unit?: string };
         if (!project_id || !isUuid(project_id)) { res.status(400).json({ error: 'Invalid project_id' }); return; }
         const own = await assertOwner(project_id);
         if (own !== true) { res.status(403).json({ error: own }); return; }
         const normRoleVal = normRole(role);
-        const principal = principal_type === 'wallet' || principal_type === 'nft_policy' || principal_type === 'nft_fingerprint' ? principal_type : null;
+        const principal = principal_type === 'wallet' || principal_type === 'nft_unit' ? principal_type : null;
         if (!normRoleVal || !principal) { res.status(400).json({ error: 'Invalid role or principal_type' }); return; }
 
         let q = supabase.from('cardano_project_roles').delete().eq('project_id', project_id).eq('role', normRoleVal).eq('principal_type', principal);
@@ -145,16 +140,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } else {
                 q = q.eq('wallet_payment_address', provided);
             }
-        } else if (principal === 'nft_policy') {
-            // Allow deletion of legacy policy-based roles for cleanup
-            const pol = (typeof (req.query as { policy_id?: string }).policy_id === 'string' ? (req.query as { policy_id?: string }).policy_id : undefined);
-            const s = pol ? pol.trim().toLowerCase() : '';
-            if (!/^[0-9a-f]{40,64}$/.test(s)) { res.status(400).json({ error: 'Invalid policy_id' }); return; }
-            q = q.eq('policy_id', s);
         } else {
-            const fp = normFingerprint(fingerprint);
-            if (!fp) { res.status(400).json({ error: 'Invalid fingerprint' }); return; }
-            q = q.eq('fingerprint', fp);
+            const u = normUnit(unit);
+            if (!u) { res.status(400).json({ error: 'Invalid unit' }); return; }
+            q = q.eq('unit', u);
         }
         const { error } = await q;
         if (error) { res.status(500).json({ error: error.message }); return; }
