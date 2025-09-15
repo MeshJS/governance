@@ -19,7 +19,6 @@ export interface ConnectedWallet {
     balance?: string;
     networkId?: number;
     isVerified?: boolean;
-    fingerprints?: string[];
 }
 
 interface WalletContextType {
@@ -42,7 +41,6 @@ interface WalletContextType {
     // Errors
     error: string | null;
     clearError: () => void;
-    getFingerprints: () => Promise<string[]>;
     getUnits: () => Promise<string[]>;
 }
 
@@ -91,23 +89,6 @@ export function WalletProvider({ children }: WalletProviderProps) {
         }
     };
 
-    const getFingerprints = async (): Promise<string[]> => {
-        try {
-            const w = connectedWallet?.wallet;
-            if (!w) return [];
-            const assets = await (w as unknown as { getAssets?: () => Promise<Array<{ fingerprint?: string | null }>> }).getAssets?.();
-            if (!Array.isArray(assets)) return [];
-            const fps = new Set<string>();
-            for (const a of assets) {
-                const fp = typeof a?.fingerprint === 'string' ? a.fingerprint : undefined;
-                if (fp && /^asset1[0-9a-z]{10,}$/.test(fp)) fps.add(fp.toLowerCase());
-            }
-            return Array.from(fps);
-        } catch {
-            return [];
-        }
-    };
-
     const getUnits = async (): Promise<string[]> => {
         try {
             const w = connectedWallet?.wallet;
@@ -125,20 +106,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         }
     };
 
-    const getFingerprintsFromWallet = async (wallet: BrowserWallet): Promise<string[]> => {
-        try {
-            const assets = await (wallet as unknown as { getAssets?: () => Promise<Array<{ fingerprint?: string | null }>> }).getAssets?.();
-            if (!Array.isArray(assets)) return [];
-            const fps = new Set<string>();
-            for (const a of assets) {
-                const fp = typeof a?.fingerprint === 'string' ? a.fingerprint : undefined;
-                if (fp && /^asset1[0-9a-z]{10,}$/.test(fp)) fps.add(fp.toLowerCase());
-            }
-            return Array.from(fps);
-        } catch {
-            return [];
-        }
-    };
+
 
     const connectWallet = async (walletName: string) => {
         setIsConnecting(true);
@@ -367,28 +335,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         return () => { cancelled = true; };
     }, [availableWallets]);
 
-    // Enrich connected wallet with NFT fingerprints whenever a wallet is connected
-    useEffect(() => {
-        let cancelled = false;
-        async function enrichFingerprints() {
-            const wallet = connectedWallet?.wallet;
-            if (!wallet) return;
-            try {
-                const nextFingerprints = await getFingerprintsFromWallet(wallet);
-                if (cancelled) return;
-                setConnectedWallet(prev => {
-                    if (!prev) return prev;
-                    const prevFps = Array.isArray(prev.fingerprints) ? prev.fingerprints : [];
-                    const sameLength = prevFps.length === nextFingerprints.length;
-                    const isSame = sameLength && prevFps.every(fp => nextFingerprints.includes(fp));
-                    if (isSame) return prev;
-                    return { ...prev, fingerprints: nextFingerprints };
-                });
-            } catch { }
-        }
-        enrichFingerprints();
-        return () => { cancelled = true; };
-    }, [connectedWallet?.wallet]);
+    // Fingerprint enrichment removed; unit-based flow only
 
     // Backfill endpoint no longer needed with unit-based roles; keep noop for compatibility
 
@@ -404,7 +351,6 @@ export function WalletProvider({ children }: WalletProviderProps) {
         disconnectWallet,
         error,
         clearError,
-        getFingerprints,
         getUnits,
     };
 

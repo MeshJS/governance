@@ -8,7 +8,7 @@ export interface ProjectRecord {
     category: string | null;
     is_active: boolean;
     owner_wallets?: string[] | null;
-    owner_nft_fingerprints?: string[] | null;
+    owner_nft_units?: string[] | null;
     created_at: string;
     updated_at: string;
     config?: unknown;

@@ -22,6 +22,7 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
     const [mintPolicy, setMintPolicy] = useState<'open' | 'closed'>('open');
     const [isMinting, setIsMinting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [useMintingWallet, setUseMintingWallet] = useState(false);
 
     const { connectedWallet } = useWallet();
 
@@ -37,11 +38,11 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
             setMintPolicy('open');
             setIsMinting(false);
             setIsUploading(false);
+            setUseMintingWallet(false);
 
             return;
         }
-        setMintRecipient(defaultRecipient);
-    }, [project?.id, isOpen, defaultRecipient]);
+    }, [project?.id, isOpen]);
 
     // Removed fingerprint polling in favor of immediate wallet role creation using txhash
 
@@ -64,7 +65,7 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
         if (!project?.id) return;
         if (!canSubmit) return;
         if (!connectedWallet?.wallet) { setError('Connect a wallet to mint.'); return; }
-        const recipient = (mintRecipient || defaultRecipient || '').trim();
+        const recipient = (useMintingWallet ? (defaultRecipient || '') : mintRecipient).trim();
         if (!recipient) { setError('Recipient address is required'); return; }
         try {
             setIsMinting(true);
@@ -111,7 +112,7 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
         } finally {
             setIsMinting(false);
         }
-    }, [project?.id, canSubmit, connectedWallet?.wallet, mintRecipient, defaultRecipient, newRole, project?.name, mintImageUrl, mintPolicy]);
+    }, [project?.id, canSubmit, connectedWallet?.wallet, mintRecipient, defaultRecipient, newRole, project?.name, mintImageUrl, mintPolicy, useMintingWallet]);
 
     return (
         <Modal isOpen={isOpen} title={project ? `Mint Role NFT · ${project.name}` : 'Mint Role NFT'} onClose={onClose}>
@@ -129,7 +130,16 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
                                 <option value="admin">admin</option>
                                 <option value="owner">owner</option>
                             </select>
-                            <input value={mintRecipient} onChange={(e) => setMintRecipient(e.target.value)} placeholder="recipient addr..." />
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <input
+                                    type="checkbox"
+                                    checked={useMintingWallet}
+                                    onChange={(e) => setUseMintingWallet(e.target.checked)}
+                                    disabled={!canSubmit || isMinting || isUploading}
+                                />
+                                <span>Send to minting wallet</span>
+                            </label>
+                            <input value={mintRecipient} onChange={(e) => setMintRecipient(e.target.value)} placeholder="recipient addr..." disabled={useMintingWallet} />
                             <input value={mintImageUrl} onChange={(e) => setMintImageUrl(e.target.value)} placeholder="optional image url (ipfs:// or https://...)" disabled={hasUploadedImage} />
                             <input
                                 type="file"

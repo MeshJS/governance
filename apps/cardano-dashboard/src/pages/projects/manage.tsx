@@ -24,12 +24,16 @@ export default function ManageProjects() {
     const [mintProject, setMintProject] = useState<ProjectRecord | null>(null);
     const [sessionUnits, setSessionUnits] = useState<string[]>([]);
 
-    const closeModal = useCallback(() => {
+    const closeModal = useCallback(async () => {
+        if (router.asPath.includes('?')) {
+            try {
+                await router.replace('/projects/manage', undefined, { shallow: true });
+            } catch {
+                // ignore navigation errors
+            }
+        }
         setIsFormOpen(false);
         setEditingProject(null);
-        if (router.asPath.includes('?')) {
-            router.replace('/projects/manage', undefined, { shallow: true }).catch(() => { });
-        }
     }, [router]);
 
     const loadProjects = useCallback(async () => {
@@ -64,7 +68,7 @@ export default function ManageProjects() {
         }
     }, [sessionAddress, getUnits]);
 
-    // Re-fetch once a wallet is actually connected so NFT fingerprints are included
+    // Re-fetch once a wallet is actually connected so NFT units are included
     useEffect(() => {
         if (!sessionAddress) return;
         if (!connectedWallet?.wallet) return;

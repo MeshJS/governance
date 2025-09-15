@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import type { AuthPayload } from '@/utils/authCookie';
 import { verifyAuthCookie } from '@/utils/authCookie';
 import { useWallet } from '@/contexts/WalletContext';
 import styles from './index.module.css';
+import TokenModal from '@/components/token-modal/TokenModal';
+import type { TokenModalItem } from '@/components/token-modal/TokenModal';
 
 interface Props {
     auth: AuthPayload | null;
@@ -48,6 +50,13 @@ type WalletSummary = {
 
 type WalletSummaryApiResponse = WalletSummary | { error: string };
 
+type ShortenOptions = { prefix?: number; suffix?: number };
+function shortenMiddle(text: string, { prefix = 8, suffix = 6 }: ShortenOptions = {}): string {
+    if (typeof text !== 'string') return '';
+    if (text.length <= prefix + suffix + 3) return text;
+    return `${text.slice(0, prefix)}...${text.slice(-suffix)}`;
+}
+
 export default function Profile({ auth }: Props) {
     const { connectedWallet, isConnecting, sessionAddress } = useWallet();
     const [ada, setAda] = useState<string>('N/A');
@@ -55,6 +64,8 @@ export default function Profile({ auth }: Props) {
     const [isFetching, setIsFetching] = useState(false);
     const [projects, setProjects] = useState<Array<{ id: string; slug: string; name: string; category: string | null; is_active: boolean }>>([]);
     const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalVariant, setModalVariant] = useState<'fungible' | 'nft'>('fungible');
 
     const loadBalance = useCallback(async () => {
         // Only load when wallet is actually enabled; do not use cookie-only address
@@ -127,6 +138,23 @@ export default function Profile({ auth }: Props) {
         void loadProjects();
         return () => { cancelled = true; };
     }, [sessionAddress]);
+
+    const fungibleAssets = useMemo(() => assets.filter((a) => a.kind === 'fungible'), [assets]);
+    const nftAssets = useMemo(() => assets.filter((a) => a.kind === 'nft'), [assets]);
+
+    const modalItems: TokenModalItem[] = useMemo(() => {
+        const source = modalVariant === 'fungible' ? fungibleAssets : nftAssets;
+        return source.map((a) => ({
+            unit: a.unit,
+            displayName: a.displayName,
+            imageUrl: a.imageUrl ?? null,
+            amountText: modalVariant === 'fungible' ? a.formattedQuantity : undefined,
+        }));
+    }, [fungibleAssets, nftAssets, modalVariant]);
+
+    const shortenedAddress = useMemo(() => {
+        return connectedWallet?.address ? shortenMiddle(connectedWallet.address, { prefix: 10, suffix: 8 }) : null;
+    }, [connectedWallet?.address]);
 
     const ProjectsSection = () => {
         if (!sessionAddress) return null;
@@ -204,7 +232,7 @@ export default function Profile({ auth }: Props) {
     return (
         <div style={{ padding: 24 }}>
             <h1>Profile</h1>
-            <p>Welcome{connectedWallet?.wallet && connectedWallet.address ? `, ${connectedWallet.address}` : ''}</p>
+            <p>Welcome{connectedWallet?.wallet && shortenedAddress ? `, ${shortenedAddress}` : ''}</p>
             <div style={{ marginTop: 12 }}>
                 <button onClick={loadBalance} disabled={!(connectedWallet?.wallet) || isFetching}>
                     {isFetching ? 'Loading…' : 'Refresh balance'}
@@ -214,48 +242,28 @@ export default function Profile({ auth }: Props) {
                 )}
                 {connectedWallet?.wallet && assets.length > 0 && (
                     <div className={styles.cardsGrid}>
-                        <div className={styles.card}>
-                            <h3 className={styles.cardTitle}>Fungible tokens</h3>
-                            <ul className={`${styles.tokenGrid} ${styles.fungibleGrid}`} style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                                {assets.filter((a) => a.kind === 'fungible').map((a) => {
-                                    const full = a.formattedQuantity;
-                                    const integer = (() => {
-                                        const n = Number(full);
-                                        return Number.isFinite(n) ? Math.floor(n).toString() : full.split('.')[0] ?? full;
-                                    })();
-                                    return (
-                                        <li key={a.unit} className={styles.tokenItem}>
-                                            {a.imageUrl ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img src={a.imageUrl} alt={a.displayName} className={styles.tokenImage} />
-                                            ) : (
-                                                <div className={styles.tokenImage} />
-                                            )}
-                                            <span className={styles.amountBadge}>{integer}</span>
-                                            <div className={styles.tooltipContent} role="tooltip">
-                                                <div className={styles.tooltipTitle}>{a.displayName}</div>
-                                                <div className={styles.tooltipAmount}>{full}</div>
-                                            </div>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </div>
-                        <div className={styles.card}>
-                            <h3 className={styles.cardTitle}>NFTs</h3>
-                            <ul className={`${styles.tokenGrid} ${styles.nftGrid}`} style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                                {assets.filter((a) => a.kind === 'nft').map((a) => (
-                                    <li key={a.unit} className={styles.tokenItem} title={a.displayName}>
-                                        {a.imageUrl ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={a.imageUrl} alt={a.displayName} className={styles.nftImage} />
-                                        ) : (
-                                            <div className={styles.nftImage} />
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                        <button
+                            type="button"
+                            className={`${styles.card} ${styles.summaryCard}`}
+                            onClick={() => { setModalVariant('fungible'); setIsModalOpen(true); }}
+                        >
+                            <div>
+                                <h3 className={styles.cardTitle}>Fungible tokens</h3>
+                                <div className={styles.statSub}>Count</div>
+                            </div>
+                            <div className={styles.statValue}>{fungibleAssets.length}</div>
+                        </button>
+                        <button
+                            type="button"
+                            className={`${styles.card} ${styles.summaryCard}`}
+                            onClick={() => { setModalVariant('nft'); setIsModalOpen(true); }}
+                        >
+                            <div>
+                                <h3 className={styles.cardTitle}>NFTs</h3>
+                                <div className={styles.statSub}>Count</div>
+                            </div>
+                            <div className={styles.statValue}>{nftAssets.length}</div>
+                        </button>
                     </div>
                 )}
             </div>
@@ -263,6 +271,13 @@ export default function Profile({ auth }: Props) {
                 <Link href="/projects/manage">Manage projects</Link>
             </div>
             <ProjectsSection />
+            <TokenModal
+                isOpen={isModalOpen}
+                title={modalVariant === 'fungible' ? 'Fungible tokens' : 'NFTs'}
+                variant={modalVariant}
+                items={modalItems}
+                onClose={() => setIsModalOpen(false)}
+            />
         </div>
     );
 }

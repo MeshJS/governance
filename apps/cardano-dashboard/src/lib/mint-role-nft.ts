@@ -14,7 +14,7 @@ export type MintRoleNftInput = {
 
 export type MintRoleNftOutput = {
     txHash: string;
-    // Best-effort hints so caller can later resolve fingerprint via wallet refresh or indexer
+    // Hints so caller can resolve unit and display info
     policyId?: string;
     assetName?: string;
     unit?: string;

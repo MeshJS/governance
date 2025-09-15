@@ -11,7 +11,7 @@ create table public.cardano_projects (
   created_at timestamp with time zone not null default now(),
   updated_at timestamp with time zone not null default now(),
   owner_wallets text[] null,
-  owner_nft_fingerprints text[] null,
+  owner_nft_units text[] null,
   constraint cardano_projects_pkey primary key (id),
   constraint cardano_projects_slug_key unique (slug)
 ) TABLESPACE pg_default;
@@ -21,5 +21,3 @@ create index IF not exists cardano_projects_is_active_idx on public.cardano_proj
 create index IF not exists cardano_projects_config_gin on public.cardano_projects using gin (config) TABLESPACE pg_default;
 
 create index IF not exists idx_cardano_projects_owner_wallets on public.cardano_projects using gin (owner_wallets) TABLESPACE pg_default;
-
-create index IF not exists idx_cardano_projects_owner_nft_fingerprints on public.cardano_projects using gin (owner_nft_fingerprints) TABLESPACE pg_default;
