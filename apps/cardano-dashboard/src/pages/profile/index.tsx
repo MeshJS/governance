@@ -58,7 +58,7 @@ function shortenMiddle(text: string, { prefix = 8, suffix = 6 }: ShortenOptions 
 }
 
 export default function Profile({ auth }: Props) {
-    const { connectedWallet, isConnecting, sessionAddress, getUnits } = useWallet();
+    const { connectedWallet, isConnecting, sessionAddress } = useWallet();
     const [ada, setAda] = useState<string>('N/A');
     const [assets, setAssets] = useState<WalletSummary['assets']>([]);
     const [isFetching, setIsFetching] = useState(false);
@@ -139,7 +139,7 @@ export default function Profile({ auth }: Props) {
         }
         void loadProjects();
         return () => { cancelled = true; };
-    }, [sessionAddress, getUnits]);
+    }, [sessionAddress]);
 
     const fungibleAssets = useMemo(() => assets.filter((a) => a.kind === 'fungible'), [assets]);
     const nftAssets = useMemo(() => assets.filter((a) => a.kind === 'nft'), [assets]);

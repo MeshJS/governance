@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { BrowserWallet } from '@meshsdk/core';
 
@@ -89,7 +89,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         }
     };
 
-    const getUnits = async (): Promise<string[]> => {
+    const getUnits = useCallback(async (): Promise<string[]> => {
         try {
             const w = connectedWallet?.wallet;
             if (!w) return [];
@@ -104,7 +104,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         } catch {
             return [];
         }
-    };
+    }, [connectedWallet?.wallet]);
 
 
 
