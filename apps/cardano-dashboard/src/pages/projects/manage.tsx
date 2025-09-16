@@ -8,11 +8,10 @@ import type { ProjectRecord } from '@/types/projects';
 import { ProjectEditorModal } from '@/components/projects/ProjectEditorModal';
 import { EditorsModal } from '@/components/projects/EditorsModal';
 import { MintRoleNftModal } from '@/components/projects/MintRoleNftModal';
-// address helpers not needed in this view currently
 
 export default function ManageProjects() {
     const router = useRouter();
-    const { sessionAddress, getUnits, connectedWallet } = useWallet();
+    const { sessionAddress, connectedWallet } = useWallet();
     const [projects, setProjects] = useState<ProjectRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [, setListError] = useState<string | null>(null);
@@ -22,7 +21,6 @@ export default function ManageProjects() {
     const [editEditorsProject, setEditEditorsProject] = useState<ProjectRecord | null>(null);
     const [isMintOpen, setIsMintOpen] = useState(false);
     const [mintProject, setMintProject] = useState<ProjectRecord | null>(null);
-    const [sessionUnits, setSessionUnits] = useState<string[]>([]);
 
     const closeModal = useCallback(async () => {
         if (router.asPath.includes('?')) {
@@ -44,19 +42,7 @@ export default function ManageProjects() {
         setIsLoading(true);
         setListError(null);
         try {
-            let query = '/api/projects?only_editable=true&include_inactive=true';
-            // Attach units if available to enable NFT-based access
-            try {
-                const units = await getUnits();
-                if (Array.isArray(units) && units.length > 0) {
-                    setSessionUnits(units);
-                    query += `&nft_units=${encodeURIComponent(units.join(','))}`;
-                } else {
-                    setSessionUnits([]);
-                }
-            } catch {
-                setSessionUnits([]);
-            }
+            const query = '/api/projects?only_editable=true&include_inactive=true';
             const resp = await fetch(query, { credentials: 'same-origin' });
             const data = await resp.json();
             if (!resp.ok) throw new Error(data?.error || 'Failed to load projects');
@@ -66,7 +52,7 @@ export default function ManageProjects() {
         } finally {
             setIsLoading(false);
         }
-    }, [sessionAddress, getUnits]);
+    }, [sessionAddress]);
 
     // Re-fetch once a wallet is actually connected so NFT units are included
     useEffect(() => {
@@ -100,15 +86,7 @@ export default function ManageProjects() {
         setIsMintOpen(true);
     }, []);
 
-    const isOwnerOf = useCallback((p: ProjectRecord | null | undefined): boolean => {
-        if (!p || !sessionAddress) return false;
-        if (Array.isArray(p.owner_wallets) && p.owner_wallets.includes(sessionAddress)) return true;
-        if (Array.isArray(p.owner_nft_units) && sessionUnits.length > 0) {
-            const unitSet = new Set(sessionUnits);
-            if (p.owner_nft_units.some((u) => !!u && unitSet.has(u))) return true;
-        }
-        return false;
-    }, [sessionAddress, sessionUnits]);
+    // owner check now handled server-side; admins can also manage
 
     // Auto-enter edit mode when arriving with ?edit=<slug|id>
     useEffect(() => {
@@ -183,14 +161,17 @@ export default function ManageProjects() {
                                                 <td>
                                                     <a href={`/projects/${encodeURIComponent(p.slug)}`}>link</a>
                                                 </td>
-                                                <td><button className={styles.linkBtn} onClick={() => onEdit(p)}>Edit</button></td>
-                                                <td>{isOwnerOf(p)
-                                                    ? <button className={styles.linkBtn} onClick={() => onManageEditors(p)}>Edit</button>
-                                                    : <span className={styles.muted}>Owners only</span>}
+                                                <td>{p.can_edit
+                                                    ? <button className={styles.linkBtn} onClick={() => onEdit(p)}>Edit</button>
+                                                    : <span className={styles.muted}>No access</span>}
                                                 </td>
-                                                <td>{isOwnerOf(p)
+                                                <td>{(p.my_role === 'owner' || p.my_role === 'admin')
+                                                    ? <button className={styles.linkBtn} onClick={() => onManageEditors(p)}>Edit</button>
+                                                    : <span className={styles.muted}>Owner/Admin only</span>}
+                                                </td>
+                                                <td>{p.my_role === 'owner'
                                                     ? <button className={styles.linkBtn} onClick={() => onMintRoleNfts(p)}>Mint</button>
-                                                    : <span className={styles.muted}>Owners only</span>}
+                                                    : <span className={styles.muted}>Owner only</span>}
                                                 </td>
                                                 <td><button className={styles.linkBtnDanger} onClick={() => onDelete(p.id)}>Delete</button></td>
                                             </tr>
@@ -208,8 +189,6 @@ export default function ManageProjects() {
                     </div>
                 )}
 
-                {/* Removed second table; roles/editors are managed via button in main table */}
-
                 <ProjectEditorModal
                     isOpen={isFormOpen}
                     project={editingProject}
@@ -221,14 +200,14 @@ export default function ManageProjects() {
                 <EditorsModal
                     isOpen={isEditorsOpen}
                     project={editEditorsProject}
-                    canSubmit={Boolean(sessionAddress) && isOwnerOf(editEditorsProject)}
+                    canSubmit={Boolean(sessionAddress)}
                     onClose={() => setIsEditorsOpen(false)}
                 />
 
                 <MintRoleNftModal
                     isOpen={isMintOpen}
                     project={mintProject}
-                    canSubmit={Boolean(sessionAddress) && isOwnerOf(mintProject)}
+                    canSubmit={Boolean(sessionAddress)}
                     onClose={() => setIsMintOpen(false)}
                 />
             </main>

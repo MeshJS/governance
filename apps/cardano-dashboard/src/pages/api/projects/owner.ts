@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
 import { getAuthContext } from '@/utils/apiAuth';
+import { resolveStakeAddress, isStakeAddress, resolveFirstPaymentAddress } from '@/utils/address';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
     if (req.method !== 'POST') {
@@ -37,21 +38,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    // Verify caller is current owner (legacy single owner or owner_wallets array contains caller)
-    const { data: proj, error: projErr } = await supabase
-        .from('cardano_projects')
-        .select('owner_wallets')
-        .eq('id', project_id!)
-        .single();
-    if (projErr || !proj) {
-        res.status(404).json({ error: 'Project not found' });
-        return;
-    }
-    const wallets = (proj as { owner_wallets?: string[] | null }).owner_wallets ?? [];
-    const isArrayOwner = Array.isArray(wallets) && wallets.includes(address);
-    if (!isArrayOwner) {
-        res.status(403).json({ error: 'Only owner can transfer ownership' });
-        return;
+    // Verify caller is current owner via roles table
+    const callerStake = await resolveStakeAddress(address).catch(() => null);
+    {
+        const q = supabase
+            .from('cardano_project_roles')
+            .select('project_id')
+            .eq('project_id', project_id!)
+            .eq('role', 'owner')
+            .eq('principal_type', 'wallet');
+        const ors: string[] = [`wallet_payment_address.eq.${address}`];
+        if (callerStake) ors.push(`stake_address.eq.${callerStake}`);
+        if (isStakeAddress(address)) {
+            const paymentForStake = await resolveFirstPaymentAddress(address).catch(() => null);
+            if (paymentForStake) ors.push(`wallet_payment_address.eq.${paymentForStake}`);
+        }
+        const q2 = q.or(ors.join(','));
+        const { data: ownerRow, error: ownerErr } = await q2.limit(1).maybeSingle();
+        if (ownerErr || !ownerRow) { res.status(403).json({ error: 'Only owner can transfer ownership' }); return; }
     }
 
     if (address === nextOwner) {
@@ -59,19 +63,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    // Update owner by appending to owner_wallets (do not drop legacy column yet)
-    const { data, error } = await supabase
-        .from('cardano_projects')
-        .update({ owner_wallets: (wallets || []).concat([nextOwner]) })
-        .eq('id', project_id!)
-        .select('id, owner_wallets')
-        .single();
-
-    if (error) {
-        res.status(500).json({ error: error.message });
-        return;
+    // Insert owner role for next owner (wallet principal)
+    let wallet_payment_address = nextOwner;
+    let stake: string | null = null;
+    if (isStakeAddress(nextOwner)) {
+        stake = nextOwner;
+        const payment = await resolveFirstPaymentAddress(nextOwner);
+        if (!payment) { res.status(400).json({ error: 'Could not resolve a payment address for stake' }); return; }
+        wallet_payment_address = payment;
+    } else {
+        stake = await resolveStakeAddress(nextOwner);
     }
-    res.status(200).json({ project: data });
+    const { data, error } = await supabase
+        .from('cardano_project_roles')
+        .upsert({ project_id: project_id!, role: 'owner', principal_type: 'wallet', wallet_payment_address, stake_address: stake ?? null, added_by_address: address })
+        .select('id, project_id, role, principal_type, wallet_payment_address, stake_address')
+        .single();
+    if (error) { res.status(500).json({ error: error.message }); return; }
+    res.status(201).json({ role: data });
     return;
 }
 

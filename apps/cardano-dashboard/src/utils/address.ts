@@ -80,4 +80,63 @@ export function formatAddressShort(address: string | null | undefined, prefix = 
     return `${v.slice(0, prefix)}...${v.slice(-suffix)}`;
 }
 
+// Fetch all asset units held by a stake address using Koios
+export async function fetchUnitsByStakeOrAddress(inputAddressOrStake: string): Promise<string[]> {
+    const input = (inputAddressOrStake || '').trim();
+    if (!input) return [];
+    const base = getKoiosBase(input);
+    try {
+        // Resolve stake for payment address if needed
+        const stake = isStakeAddress(input) ? input : await resolveStakeAddress(input);
+        const units = new Set<string>();
+        if (stake) {
+            // Use account_assets endpoint for stake
+            const res = await fetch(`${base}/account_assets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ _stake_addresses: [stake] }),
+            });
+            if (res.ok) {
+                const rows = await res.json();
+                // Rows commonly: [{ stake_address, asset_list: [{ policy_id, asset_name, quantity }] }]
+                const list = Array.isArray(rows) && rows.length > 0 ? rows[0]?.asset_list : [];
+                if (Array.isArray(list)) {
+                    for (const item of list) {
+                        const policy = typeof item?.policy_id === 'string' ? item.policy_id : '';
+                        const name = typeof item?.asset_name === 'string' ? item.asset_name : '';
+                        if (/^[0-9a-f]{56}$/i.test(policy) && /^[0-9a-f]{0,128}$/i.test(name)) {
+                            const unit = `${policy}${name}`.toLowerCase();
+                            if (unit.length >= 58) units.add(unit);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Fallback: query address-specific assets
+            const res = await fetch(`${base}/address_assets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ _addresses: [input] }),
+            });
+            if (res.ok) {
+                const rows = await res.json();
+                const list = Array.isArray(rows) && rows.length > 0 ? rows[0]?.asset_list : [];
+                if (Array.isArray(list)) {
+                    for (const item of list) {
+                        const policy = typeof item?.policy_id === 'string' ? item.policy_id : '';
+                        const name = typeof item?.asset_name === 'string' ? item.asset_name : '';
+                        if (/^[0-9a-f]{56}$/i.test(policy) && /^[0-9a-f]{0,128}$/i.test(name)) {
+                            const unit = `${policy}${name}`.toLowerCase();
+                            if (unit.length >= 58) units.add(unit);
+                        }
+                    }
+                }
+            }
+        }
+        return Array.from(units);
+    } catch {
+        return [];
+    }
+}
+
 

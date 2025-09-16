@@ -12,13 +12,20 @@ create table public.cardano_project_roles (
   constraint cardano_project_roles_pkey primary key (id),
   constraint cardano_project_roles_project_id_fkey foreign KEY (project_id) references cardano_projects (id) on delete CASCADE,
   constraint cardano_project_roles_role_check check (
-    (role = any (array['admin'::text, 'editor'::text]))
+    (
+      role = any (
+        array['owner'::text, 'admin'::text, 'editor'::text]
+      )
+    )
   ),
   constraint chk_wallet_or_principal check (
     (
       (
         (principal_type = 'wallet'::text)
-        and (wallet_payment_address is not null)
+        and (
+          (wallet_payment_address is not null)
+          or (stake_address is not null)
+        )
         and (unit is null)
       )
       or (

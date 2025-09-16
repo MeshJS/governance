@@ -24,7 +24,8 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
     const [isUploading, setIsUploading] = useState(false);
     const [useMintingWallet, setUseMintingWallet] = useState(false);
 
-    const { connectedWallet } = useWallet();
+    const { connectedWallet, getUnits } = useWallet();
+    const [units, setUnits] = useState<string[]>([]);
 
     const defaultRecipient = useMemo(() => connectedWallet?.address || '', [connectedWallet?.address]);
 
@@ -39,10 +40,16 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
             setIsMinting(false);
             setIsUploading(false);
             setUseMintingWallet(false);
-
+            setUnits([]);
             return;
         }
-    }, [project?.id, isOpen]);
+        (async () => {
+            try {
+                const walletUnits = await getUnits().catch(() => [] as string[]);
+                setUnits(Array.isArray(walletUnits) ? walletUnits : []);
+            } catch { setUnits([]); }
+        })();
+    }, [project?.id, isOpen, getUnits]);
 
     // Removed fingerprint polling in favor of immediate wallet role creation using txhash
 
@@ -77,42 +84,27 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
                 imageUrl: mintImageUrl || undefined,
                 policyType: mintPolicy,
             });
-            if (newRole === 'owner') {
-                // Owners are managed on the project record via owner_nft_units, owner-only
-                const resp = await fetch('/api/projects/owner-nft', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        project_id: project.id,
-                        wallet_address: recipient,
-                        unit,
-                        txhash: txHash,
-                    }),
-                });
-                const data = await resp.json().catch(() => ({}));
-                if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to add owner NFT');
-            } else {
-                // Create a role using NFT unit and txhash
-                const resp = await fetch('/api/projects/roles', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        project_id: project.id,
-                        role: newRole,
-                        principal_type: 'nft_unit',
-                        unit,
-                        txhash: txHash,
-                    }),
-                });
-                const data = await resp.json().catch(() => ({}));
-                if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to add wallet role');
-            }
+            // Create a role using NFT unit and txhash (supports owner/admin/editor)
+            const resp = await fetch('/api/projects/roles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    project_id: project.id,
+                    role: newRole,
+                    principal_type: 'nft_unit',
+                    unit,
+                    txhash: txHash,
+                    nft_units: units.join(','),
+                }),
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to add wallet role');
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Failed to mint role NFT');
         } finally {
             setIsMinting(false);
         }
-    }, [project?.id, canSubmit, connectedWallet?.wallet, mintRecipient, defaultRecipient, newRole, project?.name, mintImageUrl, mintPolicy, useMintingWallet]);
+    }, [project?.id, canSubmit, connectedWallet?.wallet, mintRecipient, defaultRecipient, newRole, project?.name, mintImageUrl, mintPolicy, useMintingWallet, units]);
 
     return (
         <Modal isOpen={isOpen} title={project ? `Mint Role NFT · ${project.name}` : 'Mint Role NFT'} onClose={onClose}>
@@ -127,6 +119,7 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                             <select value={newRole} onChange={(e) => setNewRole(e.target.value as 'admin' | 'editor' | 'owner')}>
                                 <option value="editor">editor</option>
+                                {/* Owner/admin visibility is enforced server-side; keep UI simple */}
                                 <option value="admin">admin</option>
                                 <option value="owner">owner</option>
                             </select>

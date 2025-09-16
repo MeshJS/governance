@@ -22,20 +22,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return /^[0-9a-f]{58,200}$/.test(s) ? s : null;
     };
 
-    // Authorization helper: only owner can manage owner NFTs
+    // Authorization helper: only existing owner can create owner NFT entries
     const assertOwner = async (project_id: string): Promise<true | string> => {
-        const { data: proj, error: projErr } = await supabase
-            .from('cardano_projects')
-            .select('owner_wallets')
-            .eq('id', project_id)
-            .single();
-        if (projErr || !proj) return 'Project not found';
-        const wallets = ((proj as { owner_wallets?: string[] | null }).owner_wallets ?? []) as string[];
-        if (Array.isArray(wallets) && wallets.length > 0) {
-            let stake: string | null = null;
-            try { stake = await resolveStakeAddress(address); } catch { stake = null; }
-            if (wallets.includes(address) || (stake && wallets.includes(stake))) return true;
-        }
+        const stake = await resolveStakeAddress(address).catch(() => null);
+        let q = supabase
+            .from('cardano_project_roles')
+            .select('project_id')
+            .eq('project_id', project_id)
+            .eq('role', 'owner')
+            .eq('principal_type', 'wallet');
+        q = stake
+            ? q.or(`wallet_payment_address.eq.${address},stake_address.eq.${stake}`)
+            : q.eq('wallet_payment_address', address);
+        const { data, error } = await q.limit(1).maybeSingle();
+        if (!error && data) return true;
         return 'Only owner can manage owner NFTs';
     };
 
@@ -45,31 +45,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const own = await assertOwner(project_id);
     if (own !== true) { res.status(403).json({ error: own }); return; }
 
-    // txhash currently unused
     const unit = normUnit(providedUnit);
     if (!unit) { res.status(400).json({ error: 'Missing or invalid unit' }); return; }
-
-    // Append unit to project.owner_nft_units (dedup)
-    const { data: projRow, error: projErr2 } = await supabase
-        .from('cardano_projects')
-        .select('owner_nft_units')
-        .eq('id', project_id)
+    // Insert owner role with nft_unit principal
+    const { data, error } = await supabase
+        .from('cardano_project_roles')
+        .upsert({ project_id, role: 'owner', principal_type: 'nft_unit', unit, added_by_address: address })
+        .select('id, project_id, role, principal_type, unit')
         .single();
-    if (projErr2 || !projRow) { res.status(404).json({ error: 'Project not found' }); return; }
-    const existing = ((projRow as { owner_nft_units?: string[] | null }).owner_nft_units ?? []) as string[];
-    const set = new Set<string>(existing.map((s) => (typeof s === 'string' ? s.toLowerCase() : s)).filter(Boolean) as string[]);
-    set.add(unit);
-    const next = Array.from(set);
-
-    const { data: updated, error: upErr } = await supabase
-        .from('cardano_projects')
-        .update({ owner_nft_units: next })
-        .eq('id', project_id)
-        .select('id, owner_nft_units')
-        .single();
-    if (upErr) { res.status(500).json({ error: upErr.message }); return; }
-
-    res.status(201).json({ owner_nft_units: (updated as { owner_nft_units?: string[] | null })?.owner_nft_units ?? [] });
+    if (error) { res.status(500).json({ error: error.message }); return; }
+    res.status(201).json({ role: data });
 }
 
 
