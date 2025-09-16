@@ -1,4 +1,4 @@
-import { Transaction, ForgeScript, resolvePaymentKeyHash, resolveSlotNo } from '@meshsdk/core';
+import { Transaction, ForgeScript, resolvePaymentKeyHash, resolveSlotNo, resolveNativeScriptHash } from '@meshsdk/core';
 import type { AssetMetadata, Mint, NativeScript } from '@meshsdk/core';
 import type { BrowserWallet } from '@meshsdk/core';
 
@@ -14,9 +14,10 @@ export type MintRoleNftInput = {
 
 export type MintRoleNftOutput = {
     txHash: string;
-    // Best-effort hints so caller can later resolve fingerprint via wallet refresh or indexer
+    // Hints so caller can resolve unit and display info
     policyId?: string;
     assetName?: string;
+    unit?: string;
 };
 
 function normalizeImageUrl(input?: string): string | undefined {
@@ -45,6 +46,17 @@ function buildRoleMetadata({ role, projectName, imageUrl }: { role: 'admin' | 'e
     return base as unknown as AssetMetadata;
 }
 
+function toHex(input: string): string {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(input);
+    let hex = '';
+    for (let i = 0; i < bytes.length; i += 1) {
+        const h = bytes[i].toString(16).padStart(2, '0');
+        hex += h;
+    }
+    return hex;
+}
+
 export async function mintRoleNft({ wallet, recipientAddress, role, projectName, imageUrl, policyType = 'open', expiresInMinutes = 10, }: MintRoleNftInput): Promise<MintRoleNftOutput> {
     // Resolve address for forging policy
     const usedAddresses = await wallet.getUsedAddresses();
@@ -58,6 +70,7 @@ export async function mintRoleNft({ wallet, recipientAddress, role, projectName,
     const expireSlot = resolveSlotNo(network, expireAtMs);
 
     let forgingScript: ReturnType<typeof ForgeScript.withOneSignature> | ReturnType<typeof ForgeScript.fromNativeScript>;
+    let policyNativeScript: NativeScript;
     if (policyType === 'closed') {
         const native: NativeScript = {
             type: 'all',
@@ -67,20 +80,27 @@ export async function mintRoleNft({ wallet, recipientAddress, role, projectName,
             ],
         };
         forgingScript = ForgeScript.fromNativeScript(native);
+        policyNativeScript = native;
     } else {
         forgingScript = ForgeScript.withOneSignature(initiatingAddress);
+        policyNativeScript = { type: 'sig', keyHash };
     }
 
     const tx = new Transaction({ initiator: wallet });
 
     const assetName = `${projectName.replace(/\s+/g, '')}.${role}`;
     const assetMd = buildRoleMetadata({ role, projectName, imageUrl });
+    const policyId = resolveNativeScriptHash(policyNativeScript);
+    const assetNameHex = toHex(assetName);
+    const unit = `${policyId}${assetNameHex}`;
 
     // Log mint metadata and parameters for troubleshooting
     try {
         // Keep logs concise and non-sensitive
         console.log('[mintRoleNft] metadata', { assetName, role, projectName, hasImage: !!imageUrl, policyType });
         console.log('[mintRoleNft] assetMetadata', assetMd);
+        console.log('[mintRoleNft] policyAndAsset', { policyId, assetName });
+        console.log('[mintRoleNft] unit', unit);
     } catch { }
 
     const mint: Mint = {
@@ -101,7 +121,7 @@ export async function mintRoleNft({ wallet, recipientAddress, role, projectName,
     const signed = await wallet.signTx(unsigned);
     const txHash = await wallet.submitTx(signed);
 
-    return { txHash, assetName };
+    return { txHash, assetName, policyId, unit };
 }
 
 

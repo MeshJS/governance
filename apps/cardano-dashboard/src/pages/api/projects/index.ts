@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
 import { getAuthContext } from '@/utils/apiAuth';
-import { resolveStakeAddress } from '@/utils/address';
+import { resolveStakeAddress, isStakeAddress, resolveFirstPaymentAddress, fetchUnitsByStakeOrAddress } from '@/utils/address';
 
 type ProjectRecord = {
     id: string;
@@ -12,8 +12,6 @@ type ProjectRecord = {
     icon_url: string | null;
     category: string | null;
     is_active: boolean;
-    owner_wallets?: string[] | null;
-    owner_nft_fingerprints?: string[] | null;
     created_at: string;
     updated_at: string;
     config?: unknown;
@@ -55,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     if (req.method === 'GET') {
-        const { include_inactive, only_editable, nft_fingerprints } = req.query as { include_inactive?: string; only_editable?: string; nft_fingerprints?: string };
+        const { include_inactive, only_editable } = req.query as { include_inactive?: string; only_editable?: string };
         const { address } = getAuthContext(req);
 
 
@@ -68,14 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const activeFilter = include_inactive === 'true' ? undefined : true;
 
-            // Parse provided NFT fingerprints from client (lowercase, dedup)
-            const providedFingerprints = (nft_fingerprints ?? '')
-                .split(',')
-                .map((p) => p.trim().toLowerCase())
-                .filter((p) => /^asset1[0-9a-z]{10,}$/.test(p));
-            const uniqueFingerprints = Array.from(new Set(providedFingerprints));
-
-            // Resolve stake address for stake-aware editor matching (fallback to wallet_users table)
+            // Resolve stake address for stake-aware matching
             let stake = await resolveStakeAddress(address);
             if (!stake) {
                 const { data: wu } = await supabase
@@ -86,74 +77,109 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 stake = (wu as { stake_address?: string | null } | null)?.stake_address ?? null;
             }
 
+            // Derive held units on the server for security
+            const uniqueUnits = await fetchUnitsByStakeOrAddress(stake || address);
 
-            // Roles: wallet-based admin/editor
+
+            // Roles: wallet-based owner/admin/editor
             let rolesWalletQuery = supabase
                 .from('cardano_project_roles')
-                .select('project_id')
+                .select('project_id, role')
                 .eq('principal_type', 'wallet')
-                .in('role', ['admin', 'editor']);
-            rolesWalletQuery = stake
-                ? rolesWalletQuery.or(`wallet_payment_address.eq.${address},stake_address.eq.${stake}`)
-                : rolesWalletQuery.eq('wallet_payment_address', address);
+                .in('role', ['owner', 'admin', 'editor']);
+            // Accept both payment and stake addresses on either column
+            const orFilters: string[] = [];
+            // Always try payment address match with cookie address (may be payment or stake)
+            orFilters.push(`wallet_payment_address.eq.${address}`);
+            if (stake) orFilters.push(`stake_address.eq.${stake}`);
+            // If cookie is a stake address, try to resolve a payment address and include
+            if (isStakeAddress(address)) {
+                const paymentForStake = await resolveFirstPaymentAddress(address).catch(() => null);
+                if (paymentForStake) {
+                    orFilters.push(`wallet_payment_address.eq.${paymentForStake}`);
+                }
+            }
+            rolesWalletQuery = rolesWalletQuery.or(orFilters.join(','));
             const { data: roleWalletRows, error: roleWalletErr } = await rolesWalletQuery;
             if (roleWalletErr) { res.status(500).json({ error: roleWalletErr.message }); return; }
             const roleWalletIds = (roleWalletRows ?? []).map((r: { project_id: string }) => r.project_id);
 
-            // Roles: NFT fingerprint-based admin/editor
-            let roleFingerprintIds: string[] = [];
-            if (uniqueFingerprints.length > 0) {
-                const { data: roleFpRows, error: roleFpErr } = await supabase
+            // Roles: NFT unit-based owner/admin/editor
+            let roleUnitIds: string[] = [];
+            if (uniqueUnits.length > 0) {
+                const { data: roleUnitRows, error: roleUnitErr } = await supabase
                     .from('cardano_project_roles')
-                    .select('project_id')
-                    .eq('principal_type', 'nft_fingerprint')
-                    .in('role', ['admin', 'editor'])
-                    .in('fingerprint', uniqueFingerprints);
-                if (roleFpErr) { res.status(500).json({ error: roleFpErr.message }); return; }
-                roleFingerprintIds = (roleFpRows ?? []).map((r: { project_id: string }) => r.project_id);
+                    .select('project_id, role')
+                    .eq('principal_type', 'nft_unit')
+                    .in('role', ['owner', 'admin', 'editor'])
+                    .in('unit', uniqueUnits);
+                if (roleUnitErr) { res.status(500).json({ error: roleUnitErr.message }); return; }
+                roleUnitIds = (roleUnitRows ?? []).map((r: { project_id: string }) => r.project_id);
+            }
+            // Merge owner/admin/editor project ids
+            const editableProjectIds = Array.from(new Set([...roleWalletIds, ...roleUnitIds]));
+
+            // Also compute my_role for those projects
+            type RoleRow = { project_id: string; role: 'owner' | 'admin' | 'editor'; principal_type: 'wallet' | 'nft_unit' };
+            let myRoles: RoleRow[] = [];
+            if (editableProjectIds.length > 0) {
+                // Fetch roles for these projects scoped to the caller
+                let rQuery = supabase
+                    .from('cardano_project_roles')
+                    .select('project_id, role, principal_type')
+                    .in('project_id', editableProjectIds)
+                    .in('role', ['owner', 'admin', 'editor']);
+                const ors: string[] = [`wallet_payment_address.eq.${address}`];
+                if (stake) ors.push(`stake_address.eq.${stake}`);
+                if (isStakeAddress(address)) {
+                    const paymentForStake = await resolveFirstPaymentAddress(address).catch(() => null);
+                    if (paymentForStake) ors.push(`wallet_payment_address.eq.${paymentForStake}`);
+                }
+                rQuery = rQuery.or(ors.join(','));
+                const { data: walletRoleRows, error: walletRoleErr } = await rQuery;
+                if (walletRoleErr) { res.status(500).json({ error: walletRoleErr.message }); return; }
+                myRoles = (walletRoleRows ?? []) as RoleRow[];
+
+                // Include NFT roles via units
+                if (uniqueUnits.length > 0) {
+                    const { data: unitRoleRows, error: unitRoleErr } = await supabase
+                        .from('cardano_project_roles')
+                        .select('project_id, role, principal_type')
+                        .eq('principal_type', 'nft_unit')
+                        .in('project_id', editableProjectIds)
+                        .in('role', ['owner', 'admin', 'editor'])
+                        .in('unit', uniqueUnits);
+                    if (unitRoleErr) { res.status(500).json({ error: unitRoleErr.message }); return; }
+                    myRoles.push(...((unitRoleRows ?? []) as RoleRow[]));
+                }
             }
 
-            // Owner by address (legacy) or owner_wallets array contains address
-            let ownerQuery = supabase
+            // Fetch project records and annotate
+            let rolesQuery = supabase
                 .from('cardano_projects')
                 .select('*')
-                .contains('owner_wallets', [address]);
-            if (activeFilter !== undefined) ownerQuery = ownerQuery.eq('is_active', activeFilter);
-            const { data: ownerProjects, error: ownerErr } = await ownerQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
-            if (ownerErr) { res.status(500).json({ error: ownerErr.message }); return; }
+                .in('id', editableProjectIds);
+            if (activeFilter !== undefined) rolesQuery = rolesQuery.eq('is_active', activeFilter);
+            const { data: roleProjectsData, error: rolesErr } = await rolesQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
+            if (rolesErr) { res.status(500).json({ error: rolesErr.message }); return; }
+            const roleProjects = roleProjectsData ?? [];
 
-            // Owner by NFT fingerprint
-            let ownerNftProjects: ProjectRecord[] = [];
-            if (uniqueFingerprints.length > 0) {
-                let ownerNftQuery = supabase
-                    .from('cardano_projects')
-                    .select('*')
-                    .overlaps('owner_nft_fingerprints', uniqueFingerprints);
-                if (activeFilter !== undefined) ownerNftQuery = ownerNftQuery.eq('is_active', activeFilter);
-                const { data: ownerByNft, error: ownerNftErr } = await ownerNftQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
-                if (ownerNftErr) { res.status(500).json({ error: ownerNftErr.message }); return; }
-                ownerNftProjects = ownerByNft ?? [];
-            }
-            // Role projects
-            const editableProjectIds = Array.from(new Set([...roleWalletIds, ...roleFingerprintIds]));
-            let roleProjects: ProjectRecord[] = [];
-            if (editableProjectIds.length > 0) {
-                let rolesQuery = supabase
-                    .from('cardano_projects')
-                    .select('*')
-                    .in('id', editableProjectIds);
-                if (activeFilter !== undefined) rolesQuery = rolesQuery.eq('is_active', activeFilter);
-                const { data: roleProjectsData, error: rolesErr } = await rolesQuery as unknown as { data: ProjectRecord[] | null; error: { message: string } | null };
-                if (rolesErr) { res.status(500).json({ error: rolesErr.message }); return; }
-                roleProjects = roleProjectsData ?? [];
+            const rolePriority: Array<'owner' | 'admin' | 'editor'> = ['owner', 'admin', 'editor'];
+            const roleByProject = new Map<string, 'owner' | 'admin' | 'editor'>();
+            for (const r of myRoles) {
+                const current = roleByProject.get(r.project_id);
+                if (!current || rolePriority.indexOf(r.role) < rolePriority.indexOf(current)) {
+                    roleByProject.set(r.project_id, r.role);
+                }
             }
 
-            // Merge + dedupe by id and sort by created_at desc
-            const map = new Map<string, ProjectRecord>();
-            for (const p of [...(ownerProjects ?? []), ...ownerNftProjects, ...roleProjects]) {
-                map.set(p.id, p);
-            }
-            const merged = Array.from(map.values()).sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+            const annotated = roleProjects.map((p) => ({
+                ...p,
+                my_role: roleByProject.get(p.id) ?? null,
+                can_edit: roleByProject.has(p.id),
+            }));
+
+            const merged = annotated.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
             res.status(200).json({ projects: merged });
             return;
         }
@@ -193,7 +219,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const normalizedConfig: JsonObject = normalizeJson(config);
         const { data, error } = await supabase
             .from('cardano_projects')
-            .insert({ slug, name, description: description ?? null, url, icon_url: icon_url ?? null, category: category ?? null, is_active: is_active ?? true, config: normalizedConfig, owner_wallets: [address] })
+            .insert({ slug, name, description: description ?? null, url, icon_url: icon_url ?? null, category: category ?? null, is_active: is_active ?? true, config: normalizedConfig })
             .select('*')
             .single();
         if (error) {
@@ -205,6 +231,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(500).json({ error: msg || 'Insert failed' });
             return;
         }
+        // Also create an owner role for creator
+        try {
+            const created = data as ProjectRecord;
+            await supabase
+                .from('cardano_project_roles')
+                .insert({ project_id: created.id, role: 'owner', principal_type: 'wallet', wallet_payment_address: address, stake_address: await resolveStakeAddress(address).catch(() => null), added_by_address: address });
+        } catch { }
         res.status(201).json({ project: data });
         return;
     }
@@ -216,28 +249,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!address) { res.status(401).json({ error: 'Authentication required' }); return; }
 
         // Authorization: owner or listed editor can update
-        const { data: ownerRow, error: ownerErr } = await supabase
-            .from('cardano_projects')
-            .select('owner_wallets')
-            .eq('id', id)
-            .single();
-        if (ownerErr || !ownerRow) { res.status(404).json({ error: 'Project not found' }); return; }
-        const wallets = ((ownerRow as { owner_wallets?: string[] | null }).owner_wallets ?? []) as string[];
-        let isOwner = Array.isArray(wallets) && wallets.includes(address);
+        // Authorization: owner or listed editor/admin can update
+        let isOwner = false;
+        {
+            const stake = await resolveStakeAddress(address).catch(() => null);
+            let q = supabase
+                .from('cardano_project_roles')
+                .select('project_id')
+                .eq('project_id', id)
+                .eq('role', 'owner')
+                .eq('principal_type', 'wallet');
+            q = stake
+                ? q.or(`wallet_payment_address.eq.${address},stake_address.eq.${stake}`)
+                : q.eq('wallet_payment_address', address);
+            const { data: ownerRole, error: ownerErr } = await q.limit(1).maybeSingle();
+            isOwner = !ownerErr && !!ownerRole;
+        }
         let isEditor = false;
         if (!isOwner) {
-            let stake = await resolveStakeAddress(address);
-            if (!stake) {
-                const { data: wu } = await supabase
-                    .from('wallet_users')
-                    .select('stake_address')
-                    .eq('address', address)
-                    .maybeSingle();
-                stake = (wu as { stake_address?: string | null } | null)?.stake_address ?? null;
-            }
-            if (stake && Array.isArray(wallets) && wallets.includes(stake)) {
-                isOwner = true;
-            }
             // Use roles table for editor/admin authorization
             let roleQuery = supabase
                 .from('cardano_project_roles')
@@ -245,17 +274,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 .eq('project_id', id)
                 .in('role', ['admin', 'editor']);
             // Match by wallet addresses if present
-            roleQuery = stake
-                ? roleQuery.or(`wallet_payment_address.eq.${address},stake_address.eq.${stake}`)
-                : roleQuery.eq('wallet_payment_address', address);
+            const stake = await resolveStakeAddress(address).catch(() => null);
+            const ors2: string[] = [`wallet_payment_address.eq.${address}`];
+            if (stake) ors2.push(`stake_address.eq.${stake}`);
+            if (isStakeAddress(address)) {
+                const payFromStake = await resolveFirstPaymentAddress(address).catch(() => null);
+                if (payFromStake) ors2.push(`wallet_payment_address.eq.${payFromStake}`);
+            }
+            roleQuery = roleQuery.or(ors2.join(','));
             const { data: roleWallet, error: roleWalletErr } = await roleQuery.limit(1).maybeSingle();
             if (!roleWalletErr && roleWallet) isEditor = true;
         }
         if (!isOwner && !isEditor) { res.status(403).json({ error: 'Not authorized to edit this project' }); return; }
 
-        type UpdatableKeys = 'slug' | 'name' | 'description' | 'url' | 'icon_url' | 'category' | 'is_active' | 'config' | 'owner_nft_fingerprints' | 'owner_wallets';
+        type UpdatableKeys = 'slug' | 'name' | 'description' | 'url' | 'icon_url' | 'category' | 'is_active' | 'config';
         const update: Partial<Record<UpdatableKeys, unknown>> = {};
-        const allowed: UpdatableKeys[] = ['slug', 'name', 'description', 'url', 'icon_url', 'category', 'is_active', 'config', 'owner_nft_fingerprints', 'owner_wallets'];
+        const allowed: UpdatableKeys[] = ['slug', 'name', 'description', 'url', 'icon_url', 'category', 'is_active', 'config'];
         for (const key of allowed) {
             if (Object.prototype.hasOwnProperty.call(rest, key)) {
                 const val = (rest as Record<string, unknown>)[key];
@@ -274,22 +308,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 } else if (key === 'config') {
                     if (!configSizeOk(val)) { res.status(400).json({ error: 'Config too large' }); return; }
                     update[key] = normalizeJson(val);
-                    continue;
-                } else if (key === 'owner_nft_fingerprints') {
-                    if (val === null || val === undefined || val === '') { update[key] = null; continue; }
-                    const arr = Array.isArray(val) ? val : (typeof val === 'string' ? val.split(',') : []);
-                    const cleaned = arr
-                        .map((p) => (typeof p === 'string' ? p.trim().toLowerCase() : ''))
-                        .filter((p) => /^asset1[0-9a-z]{10,}$/.test(p));
-                    update[key] = cleaned.length ? cleaned : null;
-                    continue;
-                } else if (key === 'owner_wallets') {
-                    if (val === null || val === undefined || val === '') { update[key] = null; continue; }
-                    const arr = Array.isArray(val) ? val : (typeof val === 'string' ? val.split(',') : []);
-                    const cleaned = arr
-                        .map((a) => (typeof a === 'string' ? a.trim() : ''))
-                        .filter((a) => a && (a.startsWith('addr') || a.startsWith('stake')));
-                    update[key] = cleaned.length ? cleaned : null;
                     continue;
                 }
                 update[key] = val as unknown;
@@ -321,15 +339,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { address } = getAuthContext(req);
         if (!address) { res.status(401).json({ error: 'Authentication required' }); return; }
 
-        const { data: ownerRow, error: ownerErr } = await supabase
-            .from('cardano_projects')
-            .select('owner_wallets')
-            .eq('id', id)
-            .single();
-        if (ownerErr || !ownerRow) { res.status(404).json({ error: 'Project not found' }); return; }
-        const wallets = ((ownerRow as { owner_wallets?: string[] | null }).owner_wallets ?? []) as string[];
-        const isOwner = Array.isArray(wallets) && (wallets.includes(address));
-        if (!isOwner) { res.status(403).json({ error: 'Only owner can delete the project' }); return; }
+        // Only owner can delete the project
+        let isOwnerDel = false;
+        {
+            const stake = await resolveStakeAddress(address).catch(() => null);
+            let q = supabase
+                .from('cardano_project_roles')
+                .select('project_id')
+                .eq('project_id', id)
+                .eq('role', 'owner')
+                .eq('principal_type', 'wallet');
+            q = stake
+                ? q.or(`wallet_payment_address.eq.${address},stake_address.eq.${stake}`)
+                : q.eq('wallet_payment_address', address);
+            const { data: ownerRole, error: ownerErr2 } = await q.limit(1).maybeSingle();
+            isOwnerDel = !ownerErr2 && !!ownerRole;
+        }
+        if (!isOwnerDel) { res.status(403).json({ error: 'Only owner can delete the project' }); return; }
 
         const { error } = await supabase
             .from('cardano_projects')

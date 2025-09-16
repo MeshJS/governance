@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import styles from './ProjectEditorModal.module.css';
 import { formatAddressShort } from '@/utils/address';
 import type { ProjectRecord } from '@/types/projects';
-// wallet context not needed in editors view now
+import { useWallet } from '@/contexts/WalletContext';
 
 export type EditorsModalProps = {
     isOpen: boolean;
@@ -12,51 +12,72 @@ export type EditorsModalProps = {
     onClose: () => void;
 };
 
-type RoleItem = { id: string; role: 'admin' | 'editor'; principal_type: 'wallet' | 'nft_policy' | 'nft_fingerprint'; wallet_payment_address?: string | null; stake_address?: string | null; policy_id?: string | null; fingerprint?: string | null };
+type RoleItem = { id: string; role: 'owner' | 'admin' | 'editor'; principal_type: 'wallet' | 'nft_unit'; wallet_payment_address?: string | null; stake_address?: string | null; unit?: string | null };
 
 export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsModalProps) {
     const [error, setError] = useState<string | null>(null);
     const [roles, setRoles] = useState<RoleItem[]>([]);
     const [newWallet, setNewWallet] = useState('');
-    const [newFingerprint, setNewFingerprint] = useState('');
-    const [newRole, setNewRole] = useState<'admin' | 'editor'>('editor');
-    const [ownerWallet, setOwnerWallet] = useState('');
-    const [ownerFingerprintCsv, setOwnerFingerprintCsv] = useState('');
-    // no wallet interactions needed here
+    const [newUnit, setNewUnit] = useState('');
+    const [newRole, setNewRole] = useState<'admin' | 'editor' | 'owner'>('editor');
+    const { getUnits, connectedWallet } = useWallet();
+    const [units, setUnits] = useState<string[]>([]);
 
 
     useEffect(() => {
         if (!project?.id || !isOpen) {
             setRoles([]);
             setNewWallet('');
-            setNewFingerprint('');
+            setNewUnit('');
             setNewRole('editor');
-            setOwnerWallet('');
-            setOwnerFingerprintCsv('');
             setError(null);
-            return;
-        }
-        if (!canSubmit) {
-            // If not owner, do not load roles at all
-            setRoles([]);
-            setOwnerFingerprintCsv((project.owner_nft_fingerprints ?? []).join(', '));
+            setUnits([]);
             return;
         }
         (async () => {
             try {
-                const rolesResp = await fetch(`/api/projects/roles?project_id=${encodeURIComponent(project.id)}`);
+                const walletUnits = await getUnits().catch(() => [] as string[]);
+                setUnits(Array.isArray(walletUnits) ? walletUnits : []);
+                const params = new URLSearchParams({ project_id: project.id });
+                if (Array.isArray(walletUnits) && walletUnits.length > 0) {
+                    params.set('nft_units', walletUnits.join(','));
+                }
+                const rolesResp = await fetch(`/api/projects/roles?${params.toString()}`);
                 if (rolesResp.ok) {
                     const data: { roles?: RoleItem[] } = await rolesResp.json();
                     setRoles((data?.roles ?? []));
                 } else {
                     setRoles([]);
                 }
-                setOwnerFingerprintCsv((project.owner_nft_fingerprints ?? []).join(', '));
             } catch {
                 setRoles([]);
             }
         })();
-    }, [project?.id, isOpen, project?.owner_nft_fingerprints, canSubmit]);
+    }, [project, isOpen, canSubmit, getUnits]);
+
+    // Determine permissions via roles data we fetched
+    const callerAddress = connectedWallet?.address || '';
+    const lowerUnits = new Set(units.map((u) => (u || '').toLowerCase()));
+    const isOwner = roles.some((r) => {
+        if (r.role !== 'owner') return false;
+        if (r.principal_type === 'wallet') {
+            return !!callerAddress && (r.wallet_payment_address === callerAddress || r.stake_address === callerAddress);
+        }
+        if (r.principal_type === 'nft_unit') {
+            const u = (r.unit || '').toLowerCase();
+            return !!u && lowerUnits.has(u);
+        }
+        return false;
+    });
+
+    // admin status is computed server-side for authorization; we only derive owner locally for UI
+
+    // If not owner, force newRole to editor
+    useEffect(() => {
+        if (isOpen && !isOwner && newRole !== 'editor') {
+            setNewRole('editor');
+        }
+    }, [isOpen, isOwner, newRole]);
 
     const addWalletRole = useCallback(async () => {
         if (!project?.id || !newWallet.trim()) return;
@@ -64,7 +85,7 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
             const resp = await fetch('/api/projects/roles', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ project_id: project.id, role: newRole, principal_type: 'wallet', wallet_address: newWallet.trim() }),
+                body: JSON.stringify({ project_id: project.id, role: newRole, principal_type: 'wallet', wallet_address: newWallet.trim(), nft_units: units.join(',') }),
             });
             const data: { role?: RoleItem; error?: string } = await resp.json().catch(() => ({}) as { role?: RoleItem; error?: string });
             if (!resp.ok) throw new Error(data?.error || 'Failed to add wallet role');
@@ -73,34 +94,38 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Failed to add wallet role');
         }
-    }, [project?.id, newWallet, newRole]);
+    }, [project?.id, newWallet, newRole, units]);
 
-    const addFingerprintRole = useCallback(async () => {
-        if (!project?.id || !newFingerprint.trim()) return;
+    const addUnitRole = useCallback(async () => {
+        if (!project?.id || !newUnit.trim()) return;
         try {
             const resp = await fetch('/api/projects/roles', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ project_id: project.id, role: newRole, principal_type: 'nft_fingerprint', fingerprint: newFingerprint.trim() }),
+                body: JSON.stringify({ project_id: project.id, role: newRole, principal_type: 'nft_unit', unit: newUnit.trim(), nft_units: units.join(',') }),
             });
             const data: { role?: RoleItem; error?: string } = await resp.json().catch(() => ({}) as { role?: RoleItem; error?: string });
-            if (!resp.ok) throw new Error(data?.error || 'Failed to add fingerprint role');
-            setNewFingerprint('');
+            if (!resp.ok) throw new Error(data?.error || 'Failed to add unit role');
+            setNewUnit('');
             if (data.role) setRoles((prev) => prev.concat(data.role as RoleItem));
         } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to add fingerprint role');
+            setError(e instanceof Error ? e.message : 'Failed to add unit role');
         }
-    }, [project?.id, newFingerprint, newRole]);
+    }, [project?.id, newUnit, newRole, units]);
 
-    const removeRole = useCallback(async (r: { role: 'admin' | 'editor'; principal_type: 'wallet' | 'nft_policy' | 'nft_fingerprint'; wallet_payment_address?: string | null; stake_address?: string | null; policy_id?: string | null; fingerprint?: string | null }) => {
+    const removeRole = useCallback(async (r: RoleItem) => {
         if (!project?.id) return;
+        const principal = r.principal_type === 'wallet' ? (r.stake_address || r.wallet_payment_address || '') : (r.unit || '');
+        const short = formatAddressShort(principal);
+        if (!confirm(`Remove ${r.role} (${r.principal_type}) · ${short}?`)) return;
         try {
             const params = new URLSearchParams({ project_id: project.id, role: r.role, principal_type: r.principal_type });
             if (r.principal_type === 'wallet') {
                 params.set('wallet_address', r.stake_address || r.wallet_payment_address || '');
-            } else {
-                params.set('fingerprint', r.fingerprint || '');
+            } else if (r.principal_type === 'nft_unit') {
+                params.set('unit', r.unit || '');
             }
+            if (units.length > 0) params.set('nft_units', units.join(','));
             const resp = await fetch(`/api/projects/roles?${params.toString()}`, { method: 'DELETE' });
             if (!resp.ok && resp.status !== 204) {
                 const data = await resp.json().catch(() => ({}));
@@ -114,44 +139,15 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
                         || (x.wallet_payment_address && r.wallet_payment_address && x.wallet_payment_address === r.wallet_payment_address);
                     return !match;
                 } else {
-                    return !(x.fingerprint && r.fingerprint && x.fingerprint === r.fingerprint);
+                    return !(x.unit && r.unit && x.unit === r.unit);
                 }
             }));
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Failed to remove role');
         }
-    }, [project?.id]);
+    }, [project?.id, units]);
 
-    const transferOwner = useCallback(async () => {
-        if (!project?.id || !ownerWallet.trim()) return;
-        try {
-            const resp = await fetch('/api/projects/owner', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ project_id: project.id, new_owner_address: ownerWallet.trim() }),
-            });
-            const data = await resp.json().catch(() => ({}));
-            if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to transfer owner');
-            setOwnerWallet('');
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to transfer owner');
-        }
-    }, [project?.id, ownerWallet]);
 
-    const saveOwnerFingerprints = useCallback(async () => {
-        if (!project?.id) return;
-        try {
-            const resp = await fetch('/api/projects', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: project.id, owner_nft_fingerprints: ownerFingerprintCsv.split(',').map((s) => s.trim()).filter(Boolean) }),
-            });
-            const data = await resp.json().catch(() => ({}));
-            if (!resp.ok) throw new Error((data as { error?: string })?.error || 'Failed to save owner fingerprints');
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to save owner fingerprints');
-        }
-    }, [project?.id, ownerFingerprintCsv]);
 
     return (
         <Modal isOpen={isOpen} title={project ? `Editors · ${project.name}` : 'Editors'} onClose={onClose}>
@@ -162,60 +158,84 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
             {project && (
                 <div className={styles.grid} style={{ gridColumn: '1 / -1' }}>
                     <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
-                        <span>Add role by wallet (owner manages):</span>
+                        <span>Add role by wallet (owner/admin manages):</span>
                         <div style={{ display: 'flex', gap: 8 }}>
-                            <select value={newRole} onChange={(e) => setNewRole(e.target.value as 'admin' | 'editor')}>
+                            <select value={newRole} onChange={(e) => setNewRole(e.target.value as 'admin' | 'editor' | 'owner')}>
                                 <option value="editor">editor</option>
-                                <option value="admin">admin</option>
+                                {isOwner && <option value="admin">admin</option>}
+                                {isOwner && <option value="owner">owner</option>}
                             </select>
                             <input value={newWallet} onChange={(e) => setNewWallet(e.target.value)} placeholder="addr... or stake..." />
                         </div>
                         <div className={styles.actions}>
-                            <button type="button" className={styles.secondary} onClick={addWalletRole} disabled={!canSubmit}>Add Wallet Role</button>
+                            <button type="button" className={styles.secondary} onClick={addWalletRole} disabled={!canSubmit}>Add Role by wallet</button>
                         </div>
                     </div>
                     <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
-                        <span>Add role by NFT fingerprint:</span>
+                        <span>Add role by NFT unit (policyid + assetNameHex):</span>
                         <div style={{ display: 'flex', gap: 8 }}>
-                            <select value={newRole} onChange={(e) => setNewRole(e.target.value as 'admin' | 'editor')}>
+                            <select value={newRole} onChange={(e) => setNewRole(e.target.value as 'admin' | 'editor' | 'owner')}>
                                 <option value="editor">editor</option>
-                                <option value="admin">admin</option>
+                                {isOwner && <option value="admin">admin</option>}
+                                {isOwner && <option value="owner">owner</option>}
                             </select>
-                            <input value={newFingerprint} onChange={(e) => setNewFingerprint(e.target.value)} placeholder="asset fingerprint (asset1...)" />
+                            <input value={newUnit} onChange={(e) => setNewUnit(e.target.value)} placeholder="unit (policyid + assetNameHex)" />
                         </div>
                         <div className={styles.actions}>
-                            <button type="button" className={styles.secondary} onClick={addFingerprintRole} disabled={!canSubmit}>Add Fingerprint Role</button>
+                            <button type="button" className={styles.secondary} onClick={addUnitRole} disabled={!canSubmit}>Add Role by token Unit</button>
                         </div>
                     </div>
                     <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
                         <span>Current roles</span>
-                        {roles.length === 0 ? (
-                            <div className={styles.muted}>None</div>
-                        ) : (
-                            <ul>
-                                {roles.map((r) => (
-                                    <li key={`${r.id}`}>
-                                        {r.role} · {r.principal_type === 'wallet' ? formatAddressShort(r.stake_address || r.wallet_payment_address || '') : (r.fingerprint || '')}
-                                        <button className={styles.secondary} onClick={() => removeRole(r)} disabled={!canSubmit}>Remove</button>
-                                    </li>
-                                ))}
-                            </ul>
+                        {/* Owners list (visible only to owners) */}
+                        {isOwner && (
+                            <div className={styles.ownerBlock}>
+                                <div className={styles.muted} style={{ marginBottom: 6 }}>Owners</div>
+                                <ul className={styles.roleList}>
+                                    {roles.filter((r) => r.role === 'owner').map((r) => (
+                                        <li key={`owner-${r.id}`} className={styles.roleItem}>
+                                            <div className={styles.roleMeta}>
+                                                <span className={styles.badge}>owner</span>
+                                                <span className={styles.typeBadge}>{r.principal_type === 'wallet' ? 'wallet' : 'nft'}</span>
+                                                <span className={styles.principal}>
+                                                    {r.principal_type === 'wallet' ? formatAddressShort(r.stake_address || r.wallet_payment_address || '') : formatAddressShort(r.unit || '')}
+                                                </span>
+                                            </div>
+                                            <button className={styles.secondary} onClick={() => removeRole(r)} disabled={!canSubmit}>Remove</button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         )}
+                        {/* Admin/Editor roles */}
+                        {(() => {
+                            const visible = isOwner ? roles.filter((r) => r.role !== 'owner') : roles.filter((r) => r.role === 'editor');
+                            return (
+                                <div className={styles.ownerBlock}>
+                                    <div className={styles.muted} style={{ marginBottom: 6 }}>{isOwner ? 'Admins & editors' : 'Editors'}</div>
+                                    {visible.length === 0 ? (
+                                        <div className={styles.muted}>None</div>
+                                    ) : (
+                                        <ul className={styles.roleList}>
+                                            {visible.map((r) => (
+                                                <li key={`${r.id}`} className={styles.roleItem}>
+                                                    <div className={styles.roleMeta}>
+                                                        <span className={styles.badge}>{r.role}</span>
+                                                        <span className={styles.typeBadge}>{r.principal_type === 'wallet' ? 'wallet' : 'nft'}</span>
+                                                        <span className={styles.principal}>
+                                                            {r.principal_type === 'wallet' ? formatAddressShort(r.stake_address || r.wallet_payment_address || '') : formatAddressShort(r.unit || '')}
+                                                        </span>
+                                                    </div>
+                                                    <button className={styles.secondary} onClick={() => removeRole(r)} disabled={!canSubmit}>Remove</button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            );
+                        })()}
                     </div>
-                    <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
-                        <span>Transfer ownership to wallet</span>
-                        <input value={ownerWallet} onChange={(e) => setOwnerWallet(e.target.value)} placeholder="addr... or stake..." />
-                        <div className={styles.actions}>
-                            <button type="button" className={styles.secondary} onClick={transferOwner} disabled={!canSubmit}>Transfer Owner</button>
-                        </div>
-                    </div>
-                    <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
-                        <span>Owner NFT fingerprints (comma-separated)</span>
-                        <input value={ownerFingerprintCsv} onChange={(e) => setOwnerFingerprintCsv(e.target.value)} placeholder="asset fingerprints (comma-separated)" />
-                        <div className={styles.actions}>
-                            <button type="button" className={styles.secondary} onClick={saveOwnerFingerprints} disabled={!canSubmit}>Save Owner Fingerprints</button>
-                        </div>
-                    </div>
+
                 </div>
             )}
         </Modal>
