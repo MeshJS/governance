@@ -34,7 +34,7 @@ export default function UtxosProposal() {
   // Proposal data structure
   const proposalData = {
     // Basic Information
-    title: 'Mesh UTXOS: Supercharge Business Onboarding to Cardano',
+    title: 'Mesh UTXOS x Mercuryo (MasterCard) x Checkpoint',
     description:
       'UTXOS provides wallet-as-a-service, transaction sponsorship, and fiat on-ramp, enabling seamless onboarding and adoption for Cardano and Bitcoin apps',
     category: 'Cardano Use Cases: Products & Partnerships',
@@ -228,15 +228,8 @@ export default function UtxosProposal() {
       {/* Main Content Grid */}
       <div className={styles.content}>
         <div className={styles.mainContent}>
-          {/* Image section (no background styling) */}
-          <div className={styles.imageSection}>
-            <Image
-              src="/utxos.png"
-              alt="UTXOS Proposal"
-              width={400}
-              height={250}
-              className={styles.proposalImage}
-            />
+          <div className={styles.videoSection}>
+            <YouTubeEmbed videoId="MhPjd-aFS0A" />
           </div>
         </div>
         <div className={styles.sidebar}>
@@ -308,8 +301,6 @@ export default function UtxosProposal() {
           </div>
         </div>
       </div>
-
-      <YouTubeEmbed videoId="MhPjd-aFS0A" />
 
       {/* Key Development Areas (full width, no background) */}
       <div className={styles.keyFeaturesSection}>

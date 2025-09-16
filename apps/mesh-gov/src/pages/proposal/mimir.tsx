@@ -34,7 +34,7 @@ export default function MimirProposal() {
   // Proposal data structure
   const proposalData = {
     // Basic Information
-    title: 'Mesh: Mimir - Your AI Copilot for Cardano Development',
+    title: 'Mesh: Tools & Docs for AI Models/Workflows',
     description:
       'Build solutions to optimize and upgrade open source tools and docs for AI models, ensuring AI provides more accurate quality code when building on Cardano',
     category: 'Cardano Use Cases: Concept',
@@ -231,15 +231,8 @@ export default function MimirProposal() {
       {/* Main Content Grid */}
       <div className={styles.content}>
         <div className={styles.mainContent}>
-          {/* Image section (no background styling) */}
-          <div className={styles.imageSection}>
-            <Image
-              src="/mimir.png"
-              alt="Mesh Mimir Proposal"
-              width={400}
-              height={250}
-              className={styles.proposalImage}
-            />
+          <div className={styles.videoSection}>
+            <YouTubeEmbed videoId="TRNkAgJLo2A" />
           </div>
         </div>
         <div className={styles.sidebar}>
@@ -311,8 +304,6 @@ export default function MimirProposal() {
           </div>
         </div>
       </div>
-
-      <YouTubeEmbed videoId="TRNkAgJLo2A" />
 
       {/* Key Development Areas (full width, no background) */}
       <div className={styles.keyFeaturesSection}>
