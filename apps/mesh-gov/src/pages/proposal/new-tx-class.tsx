@@ -227,15 +227,8 @@ export default function NewTxClassProposal() {
       {/* Main Content Grid */}
       <div className={styles.content}>
         <div className={styles.mainContent}>
-          {/* Image section (no background styling) */}
-          <div className={styles.imageSection}>
-            <Image
-              src="/new-tx-class.png"
-              alt="New Tx Class Proposal"
-              width={400}
-              height={250}
-              className={styles.proposalImage}
-            />
+          <div className={styles.videoSection}>
+            <YouTubeEmbed videoId="2-dk2UhHkFs" />
           </div>
         </div>
         <div className={styles.sidebar}>
@@ -307,8 +300,6 @@ export default function NewTxClassProposal() {
           </div>
         </div>
       </div>
-
-      <YouTubeEmbed videoId="2-dk2UhHkFs" />
 
       {/* Key Development Areas (full width, no background) */}
       <div className={styles.keyFeaturesSection}>

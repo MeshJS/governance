@@ -203,15 +203,8 @@ export default function MidnightProposal() {
       {/* 3. Main Content Grid */}
       <div className={styles.content}>
         <div className={styles.mainContent}>
-          {/* Image section (no background styling) */}
-          <div className={styles.imageSection}>
-            <Image
-              src="/midnight.png"
-              alt="Midnight Privacy Tooling Proposal"
-              width={400}
-              height={250}
-              className={styles.proposalImage}
-            />
+          <div className={styles.videoSection}>
+            <YouTubeEmbed videoId="-_DUEdQoJwg" />
           </div>
         </div>
         <div className={styles.sidebar}>
@@ -283,8 +276,6 @@ export default function MidnightProposal() {
           </div>
         </div>
       </div>
-
-      <YouTubeEmbed videoId="-_DUEdQoJwg" />
 
       {/* 4. Key Development Areas (full width, no background) */}
       <div className={styles.keyFeaturesSection}>

@@ -72,7 +72,7 @@ export default function NewProposals() {
     },
     {
       id: 3,
-      title: 'Mesh UTXOS: Supercharge Business Onboarding to Cardano',
+      title: 'Mesh UTXOS x Mercuryo (MasterCard) x Checkpoint',
       description:
         'UTXOS provides wallet-as-a-service, transaction sponsorship, and fiat on-ramp, enabling seamless onboarding and adoption for Cardano and Bitcoin apps',
       category: 'Cardano Use Cases: Products & Partnerships',
@@ -85,7 +85,7 @@ export default function NewProposals() {
     },
     {
       id: 4,
-      title: 'Mesh: Mimir - Your AI Copilot for Cardano Development',
+      title: 'Mesh: Tools & Docs for AI Models/Workflows',
       description:
         'Build solutions to optimize and upgrade open source tools and docs for AI models, ensuring AI provides more accurate quality code when building on Cardano',
       category: 'Cardano Use Cases: Concept',

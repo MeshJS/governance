@@ -266,14 +266,8 @@ This step-by-step approach guarantees that the SDK will not only be cross-chain 
 
       <div className={styles.content}>
         <div className={styles.mainContent}>
-          <div className={styles.imageSection}>
-            <Image
-              src="/new-wallet.png"
-              alt="Mesh New Wallet SDK"
-              width={400}
-              height={250}
-              className={styles.proposalImage}
-            />
+          <div className={styles.videoSection}>
+            <YouTubeEmbed videoId="kkZtDOQ8KrA" />
           </div>
         </div>
 
@@ -344,8 +338,6 @@ This step-by-step approach guarantees that the SDK will not only be cross-chain 
           </div>
         </div>
       </div>
-
-      <YouTubeEmbed videoId="kkZtDOQ8KrA" />
 
       <div className={styles.keyFeaturesSection}>
         <div className={styles.sectionHeader}>
