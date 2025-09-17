@@ -1,5 +1,9 @@
 [
   {
+    "action_id": "gov_action1u4jrcvlkppjzuv5j9z5ksacwtvv77h6glu0knpcjut8gvjjfu0cqqt3alsy",
+    "title": "Stablecoin DeFi Liquidity Budget"
+  },
+  {
     "action_id": "gov_action1jr84r96lnsvu9yd6c0jhxe9gj5r7vnd2pgkntc6klplxdpyzz4tqqc9uldx",
     "title": "Budget: ₳5M Loan for Cardano's Global Listing Expansion - Powered by Snek"
   },
@@ -26,10 +30,6 @@
   {
     "action_id": "gov_action193leqzml768nz7nmpepzx822a5mzyanqhtewaxjtul5gp6uhwvfsqgl2qg0",
     "title": "Withdraw ₳99,600 for BloxBean Java Tools Maintenance and Enhancement"
-  },
-  {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqvckzwqt",
-    "title": "Withdraw ₳130,903 for Lucid Evolution Maintenance administered by Intersect"
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqwtnrdnx",
@@ -174,6 +174,10 @@
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlq2yeptuu",
     "title": "Withdraw ₳220,914 for UTxO RPC: Sustaining Cardano Blockchain Integration"
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqvckzwqt",
+    "title": "Withdraw ₳130,903 for Lucid Evolution Maintenance administered by Intersect"
   },
   {
     "action_id": "gov_action18nefry4qacd80xzs2srjahxm2e4vz3c8wvrr03rrtk8mdqfuknysq66459t",
