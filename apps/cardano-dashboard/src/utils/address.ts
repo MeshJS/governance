@@ -27,7 +27,7 @@ export async function resolveStakeAddress(addressOrStake: string): Promise<strin
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ _addresses: [input] }),
         });
-        if (!res.ok) return null;
+        if (!res.ok) { return null; }
         const info = (await res.json()) as KoiosAddressInfo;
         const stake = info?.[0]?.stake_address ?? null;
         return stake ?? null;
@@ -49,7 +49,7 @@ export async function resolveFirstPaymentAddress(stakeOrPayment: string): Promis
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ _stake_addresses: [input] }),
         });
-        if (!res.ok) return null;
+        if (!res.ok) { return null; }
         const data = await res.json();
         // Koios commonly returns: [{ stake_address: string, addresses: string[] }]
         if (Array.isArray(data) && data.length > 0) {
@@ -98,10 +98,9 @@ export async function fetchUnitsByStakeOrAddress(inputAddressOrStake: string): P
             });
             if (res.ok) {
                 const rows = await res.json();
-                // Rows commonly: [{ stake_address, asset_list: [{ policy_id, asset_name, quantity }] }]
-                const list = Array.isArray(rows) && rows.length > 0 ? rows[0]?.asset_list : [];
-                if (Array.isArray(list)) {
-                    for (const item of list) {
+                // Koios account_assets typically returns an array of rows with fields { policy_id, asset_name, quantity, stake_address }
+                if (Array.isArray(rows) && rows.length > 0) {
+                    for (const item of rows as Array<{ policy_id?: unknown; asset_name?: unknown }>) {
                         const policy = typeof item?.policy_id === 'string' ? item.policy_id : '';
                         const name = typeof item?.asset_name === 'string' ? item.asset_name : '';
                         if (/^[0-9a-f]{56}$/i.test(policy) && /^[0-9a-f]{0,128}$/i.test(name)) {
@@ -110,6 +109,7 @@ export async function fetchUnitsByStakeOrAddress(inputAddressOrStake: string): P
                         }
                     }
                 }
+            } else {
             }
         } else {
             // Fallback: query address-specific assets
@@ -131,9 +131,11 @@ export async function fetchUnitsByStakeOrAddress(inputAddressOrStake: string): P
                         }
                     }
                 }
+            } else {
             }
         }
-        return Array.from(units);
+        const out = Array.from(units);
+        return out;
     } catch {
         return [];
     }

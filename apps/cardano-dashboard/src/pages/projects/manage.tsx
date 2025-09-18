@@ -46,7 +46,8 @@ export default function ManageProjects() {
             const resp = await fetch(query, { credentials: 'same-origin' });
             const data = await resp.json();
             if (!resp.ok) throw new Error(data?.error || 'Failed to load projects');
-            setProjects(data.projects ?? []);
+            const list = data.projects ?? [];
+            setProjects(list);
         } catch (e) {
             setListError(e instanceof Error ? e.message : 'Failed to load projects');
         } finally {
@@ -100,7 +101,7 @@ export default function ManageProjects() {
     }, [router.isReady, router.query?.edit, projects, isFormOpen, onEdit]);
 
     const onDelete = useCallback(async (id: string) => {
-        if (!confirm('Delete this project?')) return;
+        if (!confirm('This will permanently delete the project and its roles. This action cannot be undone. Are you sure?')) return;
         try {
             const resp = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'same-origin' });
             if (!resp.ok && resp.status !== 204) {
@@ -173,7 +174,10 @@ export default function ManageProjects() {
                                                     ? <button className={styles.linkBtn} onClick={() => onMintRoleNfts(p)}>Mint</button>
                                                     : <span className={styles.muted}>Owner only</span>}
                                                 </td>
-                                                <td><button className={styles.linkBtnDanger} onClick={() => onDelete(p.id)}>Delete</button></td>
+                                                <td>{p.my_role === 'owner'
+                                                    ? <button className={styles.linkBtnDanger} onClick={() => onDelete(p.id)}>Delete</button>
+                                                    : <span className={styles.muted}>Owner only</span>}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

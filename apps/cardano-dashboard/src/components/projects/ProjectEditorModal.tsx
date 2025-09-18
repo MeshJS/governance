@@ -38,6 +38,7 @@ export function ProjectEditorModal({ isOpen, project, canSubmit, onClose, onSave
         extendedOrganizations: [],
         poolId: '',
         drepId: '',
+        discordGuildId: '',
         catalystProjectIds: '',
         npmPackages: [],
         socialLinks: [],
@@ -95,6 +96,7 @@ export function ProjectEditorModal({ isOpen, project, canSubmit, onClose, onSave
             extendedOrganizations: cfg.extendedOrganizations ?? [],
             poolId: cfg.poolId ?? '',
             drepId: cfg.drepId ?? '',
+            discordGuildId: cfg.discordGuildId ?? '',
             catalystProjectIds: cfg.catalystProjectIds ?? '',
             npmPackages: cfg.npmPackages ?? [],
             socialLinks: cfg.socialLinks ?? [],
@@ -291,6 +293,7 @@ export function ProjectEditorModal({ isOpen, project, canSubmit, onClose, onSave
                     <div className={styles.grid} style={{ gridColumn: '1 / -1' }}>
                         <label className={styles.field}><span>Pool ID</span><input value={configForm.poolId} onChange={(e) => setConfigForm((p) => ({ ...p, poolId: e.target.value }))} /></label>
                         <label className={styles.field}><span>DRep ID</span><input value={configForm.drepId} onChange={(e) => setConfigForm((p) => ({ ...p, drepId: e.target.value }))} /></label>
+                        <label className={styles.field}><span>Discord Guild ID</span><input value={configForm.discordGuildId} onChange={(e) => setConfigForm((p) => ({ ...p, discordGuildId: e.target.value }))} /></label>
                         <label className={styles.field}><span>Catalyst Project IDs (comma-separated)</span><input value={configForm.catalystProjectIds} onChange={(e) => setConfigForm((p) => ({ ...p, catalystProjectIds: e.target.value }))} /></label>
                     </div>
                     <div className={styles.field} style={{ gridColumn: '1 / -1' }}>

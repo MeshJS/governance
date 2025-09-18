@@ -355,6 +355,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const { data: ownerRole, error: ownerErr2 } = await q.limit(1).maybeSingle();
             isOwnerDel = !ownerErr2 && !!ownerRole;
         }
+        // Also allow deletion if caller is an owner via NFT unit
+        if (!isOwnerDel) {
+            const stakeOrAddr = await resolveStakeAddress(address).catch(() => null);
+            const uniqueUnits = await fetchUnitsByStakeOrAddress(stakeOrAddr || address);
+            if (uniqueUnits.length > 0) {
+                const { data: unitOwnerRow, error: unitOwnerErr } = await supabase
+                    .from('cardano_project_roles')
+                    .select('project_id')
+                    .eq('project_id', id)
+                    .eq('role', 'owner')
+                    .eq('principal_type', 'nft_unit')
+                    .in('unit', uniqueUnits)
+                    .limit(1)
+                    .maybeSingle();
+                isOwnerDel = !unitOwnerErr && !!unitOwnerRow;
+            }
+        }
         if (!isOwnerDel) { res.status(403).json({ error: 'Only owner can delete the project' }); return; }
 
         const { error } = await supabase

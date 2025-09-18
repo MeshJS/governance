@@ -40,3 +40,19 @@
     color: var(--text-secondary);
     margin: 0;
 }
+
+.editBtn {
+    background: #2563eb;
+    color: #fff;
+    border: 1px solid #1f4ed1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.editBtn:hover {
+    background: #1f4ed1;
+}

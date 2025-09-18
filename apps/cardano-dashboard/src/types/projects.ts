@@ -46,6 +46,7 @@ export type OrgStatsConfig = {
     extendedOrganizations: ExtendedOrganization[];
     poolId: string;
     drepId: string;
+    discordGuildId: string;
     catalystProjectIds: string;
     npmPackages: NpmPackage[];
     socialLinks: SocialLink[];

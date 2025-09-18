@@ -95,7 +95,6 @@ export default function Profile({ auth }: Props) {
             }
             if ('error' in data) throw new Error(data.error);
             const summary = data;
-            console.log('wallet/summary', summary);
             setAda(summary.ada);
             setAssets(summary.assets);
         } finally {
