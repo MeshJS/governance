@@ -5,6 +5,7 @@ import type { ProjectRecord } from '@/types/projects';
 import { useWallet } from '@/contexts/WalletContext';
 import { mintRoleNft } from '@/lib/mint-role-nft';
 import { uploadImageToPinata } from '@/utils/uploadImage';
+import { getClientCsrfToken } from '@/utils/csrf';
 
 export type MintRoleNftModalProps = {
     isOpen: boolean;
@@ -85,9 +86,12 @@ export function MintRoleNftModal({ isOpen, project, canSubmit, onClose }: MintRo
                 policyType: mintPolicy,
             });
             // Create a role using NFT unit and txhash (supports owner/admin/editor)
+            const csrf = getClientCsrfToken();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (csrf) headers['X-CSRF-Token'] = csrf;
             const resp = await fetch('/api/projects/roles', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify({
                     project_id: project.id,
                     role: newRole,

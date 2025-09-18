@@ -14,16 +14,17 @@ export function signAuthPayload(payload: AuthPayload): string {
 
 export function verifyAuthCookie(cookieValue: string | undefined): AuthPayload | null {
     try {
-        const secret = process.env.AUTH_SECRET as string;
-        if (!cookieValue) return null;
+        const secret = process.env.AUTH_SECRET as string | undefined;
+        if (!cookieValue || !secret) return null;
         const [b64, sig] = cookieValue.split('.');
         if (!b64 || !sig) return null;
-        if (secret) {
-            const expected = crypto.createHmac('sha256', secret).update(b64).digest('base64url');
-            if (expected !== sig) return null;
-        }
+        const expected = crypto.createHmac('sha256', secret).update(b64).digest('base64url');
+        if (expected !== sig) return null;
         const json = Buffer.from(b64, 'base64url').toString('utf8');
         const parsed = JSON.parse(json) as AuthPayload;
+        if (!parsed?.address || typeof parsed.ts !== 'number') return null;
+        const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+        if (Date.now() - parsed.ts > THIRTY_DAYS_MS) return null;
         return parsed;
     } catch {
         return null;

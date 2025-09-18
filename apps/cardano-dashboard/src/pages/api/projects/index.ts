@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
+import { requireCsrf } from '@/utils/csrf';
 import { getAuthContext } from '@/utils/apiAuth';
 import { resolveStakeAddress, isStakeAddress, resolveFirstPaymentAddress, fetchUnitsByStakeOrAddress } from '@/utils/address';
 
@@ -205,6 +206,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'POST') {
+        if (!requireCsrf(req, res)) return;
         const { slug, name, description, url, icon_url, category, is_active, config } = req.body as Partial<ProjectRecord> & { config?: unknown };
         const { address } = getAuthContext(req);
         if (!address) { res.status(401).json({ error: 'Authentication required' }); return; }
@@ -243,6 +245,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'PUT') {
+        if (!requireCsrf(req, res)) return;
         const { id, ...rest } = req.body as Partial<ProjectRecord> & { id?: string } & { config?: unknown };
         if (!id) { res.status(400).json({ error: 'id is required' }); return; }
         const { address } = getAuthContext(req);
@@ -334,6 +337,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'DELETE') {
+        if (!requireCsrf(req, res)) return;
         const { id } = req.query as { id?: string };
         if (!id) { res.status(400).json({ error: 'id is required' }); return; }
         const { address } = getAuthContext(req);

@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
 import { getAuthContext } from '@/utils/apiAuth';
 import { resolveStakeAddress, isStakeAddress, resolveFirstPaymentAddress } from '@/utils/address';
+import { requireCsrf } from '@/utils/csrf';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
     if (req.method !== 'POST') {
@@ -9,6 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(405).json({ error: 'Method Not Allowed' });
         return;
     }
+    if (!requireCsrf(req, res)) return;
 
     const supabase = getSupabaseServerClient();
     const { address } = getAuthContext(req);

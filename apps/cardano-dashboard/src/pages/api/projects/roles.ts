@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabaseServerClient } from '@/utils/supabaseServer';
 import { getAuthContext } from '@/utils/apiAuth';
 import { isStakeAddress, resolveStakeAddress, resolveFirstPaymentAddress, fetchUnitsByStakeOrAddress } from '@/utils/address';
+import { requireCsrf } from '@/utils/csrf';
 
 type RoleRow = {
     id: string;
@@ -145,6 +146,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'POST') {
+        if (!requireCsrf(req, res)) return;
         const body = req.body as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; unit?: string; txhash?: string };
         const project_id = body?.project_id;
         const role = normRole(body?.role);
@@ -202,6 +204,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'DELETE') {
+        if (!requireCsrf(req, res)) return;
         const { project_id, role, principal_type, wallet_address, unit } = req.query as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; unit?: string };
         if (!project_id || !isUuid(project_id)) { res.status(400).json({ error: 'Invalid project_id' }); return; }
         const auth = await assertOwnerOrAdmin(project_id);

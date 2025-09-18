@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import styles from './ProjectEditorModal.module.css';
+import { getClientCsrfToken } from '@/utils/csrf';
 import type {
     ProjectInput,
     ProjectRecord,
@@ -218,9 +219,12 @@ export function ProjectEditorModal({ isOpen, project, canSubmit, onClose, onSave
             const body = isEditing
                 ? { id: project?.id, ...form, slug: deriveSlug(form.name), config: configToSave }
                 : { ...form, slug: deriveSlug(form.name), config: configToSave };
+            const csrf = getClientCsrfToken();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (csrf) headers['X-CSRF-Token'] = csrf;
             const resp = await fetch('/api/projects', {
                 method,
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify(body),
             });
             const data = await resp.json().catch(() => ({}));

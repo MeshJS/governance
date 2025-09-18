@@ -8,6 +8,7 @@ import type { ProjectRecord } from '@/types/projects';
 import { ProjectEditorModal } from '@/components/projects/ProjectEditorModal';
 import { EditorsModal } from '@/components/projects/EditorsModal';
 import { MintRoleNftModal } from '@/components/projects/MintRoleNftModal';
+import { getClientCsrfToken } from '@/utils/csrf';
 
 export default function ManageProjects() {
     const router = useRouter();
@@ -103,7 +104,10 @@ export default function ManageProjects() {
     const onDelete = useCallback(async (id: string) => {
         if (!confirm('This will permanently delete the project and its roles. This action cannot be undone. Are you sure?')) return;
         try {
-            const resp = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'same-origin' });
+            const csrf = getClientCsrfToken();
+            const headers: Record<string, string> = {};
+            if (csrf) headers['X-CSRF-Token'] = csrf;
+            const resp = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'same-origin', headers });
             if (!resp.ok && resp.status !== 204) {
                 const data = await resp.json().catch(() => ({}));
                 throw new Error(data?.error || 'Delete failed');
