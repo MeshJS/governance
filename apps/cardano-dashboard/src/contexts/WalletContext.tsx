@@ -294,24 +294,28 @@ export function WalletProvider({ children }: WalletProviderProps) {
                 const wallet = await BrowserWallet.enable(walletInfo.id);
 
                 let address: string | undefined;
+                let stakeRewardAddress: string | undefined;
                 let balance: string | undefined;
                 let networkId: number | undefined;
                 try {
-                    const change = await wallet.getChangeAddress();
-                    if (change) {
-                        address = change;
-                    } else {
-                        const used = await wallet.getUsedAddresses();
-                        if (used?.length) address = used[0];
-                        if (!address) {
-                            const unused = await wallet.getUnusedAddresses();
-                            if (unused?.length) address = unused[0];
-                        }
-                    }
+                    const paymentCandidates: string[] = [];
+                    try { const change = await wallet.getChangeAddress(); if (change) paymentCandidates.push(change); } catch { }
+                    try { const used = await wallet.getUsedAddresses(); if (used?.length) paymentCandidates.push(...used); } catch { }
+                    try { const unused = await wallet.getUnusedAddresses(); if (unused?.length) paymentCandidates.push(...unused); } catch { }
+                    try { const rewards = await wallet.getRewardAddresses(); if (Array.isArray(rewards) && rewards.length > 0) { stakeRewardAddress = rewards[0]; } } catch { }
+                    address = paymentCandidates.find((a) => typeof a === 'string' && (a.startsWith('addr') || a.startsWith('addr_test')))
+                        ?? paymentCandidates[0];
                     const lovelace = await wallet.getLovelace();
                     balance = (parseInt(lovelace) / 1000000).toString();
                     networkId = await wallet.getNetworkId();
                 } catch { }
+
+                // Strict reconciliation: if cookie address does not match this wallet's payment or stake address,
+                // clear the server session to avoid loading roles for the previous wallet.
+                const cookieAddress: string | null = me?.authenticated ? (me?.address ?? null) : null;
+                const matchesPayment = address ? cookieAddress === address : false;
+                const matchesStake = stakeRewardAddress ? cookieAddress === stakeRewardAddress : false;
+                const matchesCookie = !!cookieAddress && (matchesPayment || matchesStake);
 
                 const connectedWalletData: ConnectedWallet = {
                     wallet,
@@ -322,9 +326,49 @@ export function WalletProvider({ children }: WalletProviderProps) {
                     address,
                     balance,
                     networkId,
-                    isVerified: !!me?.authenticated,
+                    isVerified: matchesCookie && !!me?.authenticated,
                 };
                 if (!cancelled) setConnectedWallet(connectedWalletData);
+
+                if (!!cookieAddress && !matchesCookie) {
+                    // Attempt to re-verify the restored wallet to sync cookie → wallet
+                    try {
+                        if (!address) throw new Error('Missing wallet address');
+                        const nonceResp = await fetch('/api/auth/nonce', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'same-origin',
+                            body: JSON.stringify({ address, walletName: walletInfo.name, networkId, stakeAddress: stakeRewardAddress }),
+                        });
+                        const nonceJson = await nonceResp.json();
+                        if (!nonceResp.ok) throw new Error(nonceJson?.error || 'Failed to get nonce');
+                        const nonce: string = nonceJson.nonce;
+                        const signed = await wallet.signData(nonce, address);
+                        const verifyResp = await fetch('/api/auth/verify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'same-origin',
+                            body: JSON.stringify({ address, signature: signed }),
+                        });
+                        const verifyJson = await verifyResp.json();
+                        if (!verifyResp.ok) throw new Error(verifyJson?.error || 'Failed to verify signature');
+                        if (!cancelled) {
+                            setSessionAddress(address);
+                            setConnectedWallet(prev => prev ? { ...prev, isVerified: true } : prev);
+                            try { await router.replace(router.asPath, undefined, { scroll: false }); } catch { }
+                        }
+                    } catch {
+                        // Fallback: clear the old session so roles do not reflect previous wallet
+                        try {
+                            await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                        } catch { }
+                        if (!cancelled) {
+                            setSessionAddress(null);
+                            setConnectedWallet(prev => prev ? { ...prev, isVerified: false } : prev);
+                            try { await router.replace(router.asPath, undefined, { scroll: false }); } catch { }
+                        }
+                    }
+                }
             } catch (err) {
                 console.error('Silent wallet restore failed:', err);
             } finally {
@@ -333,7 +377,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         }
         init();
         return () => { cancelled = true; };
-    }, [availableWallets]);
+    }, [availableWallets, router]);
 
     // Fingerprint enrichment removed; unit-based flow only
 

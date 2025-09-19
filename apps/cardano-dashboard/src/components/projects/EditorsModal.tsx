@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import styles from './ProjectEditorModal.module.css';
+import { getClientCsrfToken } from '@/utils/csrf';
 import { formatAddressShort } from '@/utils/address';
 import type { ProjectRecord } from '@/types/projects';
 import { useWallet } from '@/contexts/WalletContext';
@@ -82,9 +83,12 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
     const addWalletRole = useCallback(async () => {
         if (!project?.id || !newWallet.trim()) return;
         try {
+            const csrf = getClientCsrfToken();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (csrf) headers['X-CSRF-Token'] = csrf;
             const resp = await fetch('/api/projects/roles', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify({ project_id: project.id, role: newRole, principal_type: 'wallet', wallet_address: newWallet.trim(), nft_units: units.join(',') }),
             });
             const data: { role?: RoleItem; error?: string } = await resp.json().catch(() => ({}) as { role?: RoleItem; error?: string });
@@ -99,9 +103,12 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
     const addUnitRole = useCallback(async () => {
         if (!project?.id || !newUnit.trim()) return;
         try {
+            const csrf = getClientCsrfToken();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (csrf) headers['X-CSRF-Token'] = csrf;
             const resp = await fetch('/api/projects/roles', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify({ project_id: project.id, role: newRole, principal_type: 'nft_unit', unit: newUnit.trim(), nft_units: units.join(',') }),
             });
             const data: { role?: RoleItem; error?: string } = await resp.json().catch(() => ({}) as { role?: RoleItem; error?: string });
@@ -126,7 +133,10 @@ export function EditorsModal({ isOpen, project, canSubmit, onClose }: EditorsMod
                 params.set('unit', r.unit || '');
             }
             if (units.length > 0) params.set('nft_units', units.join(','));
-            const resp = await fetch(`/api/projects/roles?${params.toString()}`, { method: 'DELETE' });
+            const csrf = getClientCsrfToken();
+            const headers: Record<string, string> = {};
+            if (csrf) headers['X-CSRF-Token'] = csrf;
+            const resp = await fetch(`/api/projects/roles?${params.toString()}`, { method: 'DELETE', headers });
             if (!resp.ok && resp.status !== 204) {
                 const data = await resp.json().catch(() => ({}));
                 throw new Error((data as { error?: string })?.error || 'Failed to remove role');

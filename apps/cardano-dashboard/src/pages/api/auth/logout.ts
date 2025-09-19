@@ -8,8 +8,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse): void
     }
 
     const isProd = process.env.NODE_ENV === 'production';
-    const httpOnly = isProd ? 'HttpOnly; ' : '';
-    res.setHeader('Set-Cookie', `cd_auth=deleted; Path=/; ${httpOnly}SameSite=Lax; Max-Age=0; ${isProd ? 'Secure; ' : ''}`);
+    res.setHeader('Set-Cookie', [
+        `cd_auth=deleted; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; ${isProd ? 'Secure; ' : ''}`,
+        `cd_csrf=deleted; Path=/; SameSite=Lax; Max-Age=0; ${isProd ? 'Secure; ' : ''}`,
+    ]);
     res.status(200).json({ ok: true });
 }
 

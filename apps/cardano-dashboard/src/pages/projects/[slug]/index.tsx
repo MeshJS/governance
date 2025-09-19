@@ -1,14 +1,18 @@
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import pageStyles from '@/styles/PageLayout.module.css';
 import styles from './index.module.css';
 import { ProjectsProvider, useProjectsContext } from '@/contexts/ProjectsContext';
 import type { ProjectRecord } from 'types/projects';
+import { useWallet } from '@/contexts/WalletContext';
 
-function ProjectDetail({ project }: { project: ProjectRecord }) {
+type ProjectRecordWithRole = ProjectRecord & { my_role?: 'owner' | 'admin' | 'editor' | null; can_edit?: boolean | null };
+
+function ProjectDetail({ project }: { project: ProjectRecordWithRole }) {
     const { contributorActivity, loading, isError, error } = useProjectsContext();
+    const { sessionAddress } = useWallet();
 
     // Log contributor data when it's available
     useEffect(() => {
@@ -41,13 +45,47 @@ function ProjectDetail({ project }: { project: ProjectRecord }) {
         { key: 'contributors', title: 'Contributors', description: 'People and organizations involved' },
     ] as const;
 
+    const [editableInfo, setEditableInfo] = useState<{ isEditable: boolean; myRole: 'owner' | 'admin' | 'editor' | null }>({ isEditable: false, myRole: null });
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            if (!sessionAddress || !project?.id) {
+                if (!cancelled) setEditableInfo({ isEditable: false, myRole: null });
+                return;
+            }
+            try {
+                const resp = await fetch('/api/projects?only_editable=true&include_inactive=true', { credentials: 'same-origin' });
+                const data = await resp.json().catch(() => ({}));
+                const found = Array.isArray(data?.projects) ? data.projects.find((p: { id?: string }) => p?.id === project.id) : undefined;
+                if (!cancelled) setEditableInfo({ isEditable: Boolean(found), myRole: (found?.my_role ?? null) as 'owner' | 'admin' | 'editor' | null });
+            } catch {
+                if (!cancelled) setEditableInfo({ isEditable: false, myRole: null });
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [sessionAddress, project?.id]);
+
+    const canEdit = Boolean(
+        (project?.can_edit ?? false)
+        || (project?.my_role === 'owner' || project?.my_role === 'admin' || project?.my_role === 'editor')
+        || editableInfo.isEditable
+    );
+
     return (
         <div className={pageStyles.pageContainer}>
             <Head>
                 <title>{project.name} | Cardano Dashboard</title>
             </Head>
             <main>
-                <h1 className={pageStyles.pageTitle}>{project.name}</h1>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <h1 className={pageStyles.pageTitle} style={{ marginBottom: 0 }}>{project.name}</h1>
+                    {sessionAddress && canEdit && (
+                        <Link href={`/projects/manage?edit=${encodeURIComponent(project.slug)}`} className={styles.editBtn}>
+                            Edit project
+                        </Link>
+                    )}
+                </div>
                 <p>{project.description || 'No description available.'}</p>
                 <p>
                     <strong>Category:</strong> {project.category || 'N/A'}
@@ -84,7 +122,7 @@ function ProjectBySlugIndexContent() {
     const slug = String(router.query?.slug || '');
     const { projects, loading } = useProjectsContext();
 
-    const project: ProjectRecord | undefined = useMemo(
+    const project: ProjectRecordWithRole | undefined = useMemo(
         () => projects.find((p) => p.slug === slug),
         [projects, slug]
     );

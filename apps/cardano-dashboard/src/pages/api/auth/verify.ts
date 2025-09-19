@@ -3,6 +3,7 @@ import { getSupabaseServerClient } from '@/utils/supabaseServer';
 import type { DataSignature } from '@meshsdk/core';
 import { checkSignature } from '@meshsdk/core';
 import { signAuthPayload } from '@/utils/authCookie';
+import crypto from 'crypto';
 
 // Nonce is already a hex string from the server
 
@@ -10,9 +11,12 @@ function setAuthCookie(res: NextApiResponse, address: string) {
     const value = signAuthPayload({ address, ts: Date.now() });
     if (!value) return;
     const isProd = process.env.NODE_ENV === 'production';
-    // In dev, allow reading cookie in DevTools by omitting HttpOnly
-    const httpOnly = isProd ? 'HttpOnly; ' : '';
-    res.setHeader('Set-Cookie', `cd_auth=${value}; Path=/; ${httpOnly}SameSite=Lax; Max-Age=2592000; ${isProd ? 'Secure; ' : ''}`);
+    const cookies: string[] = [];
+    cookies.push(`cd_auth=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; ${isProd ? 'Secure; ' : ''}`);
+    // Double-submit CSRF token cookie (readable by JS)
+    const csrf = crypto.randomBytes(32).toString('base64url');
+    cookies.push(`cd_csrf=${csrf}; Path=/; SameSite=Lax; Max-Age=2592000; ${isProd ? 'Secure; ' : ''}`);
+    res.setHeader('Set-Cookie', cookies);
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {

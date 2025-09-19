@@ -9,6 +9,7 @@ create table public.cardano_project_roles (
   created_at timestamp with time zone not null default now(),
   txhash text null,
   unit text null,
+  image_url text null,
   constraint cardano_project_roles_pkey primary key (id),
   constraint cardano_project_roles_project_id_fkey foreign KEY (project_id) references cardano_projects (id) on delete CASCADE,
   constraint cardano_project_roles_role_check check (
@@ -33,6 +34,12 @@ create table public.cardano_project_roles (
         and (unit is not null)
         and (wallet_payment_address is null)
       )
+    )
+  ),
+  constraint cpr_image_url_shape_check check (
+    (
+      (image_url is null)
+      or (image_url ~ '^(ipfs://|https://).+'::text)
     )
   ),
   constraint cpr_principal_type_check check (
