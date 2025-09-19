@@ -15,6 +15,7 @@ type RoleRow = {
     txhash: string | null;
     added_by_address: string;
     created_at: string;
+    image_url?: string | null;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
@@ -147,7 +148,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'POST') {
         if (!requireCsrf(req, res)) return;
-        const body = req.body as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; unit?: string; txhash?: string };
+        const body = req.body as { project_id?: string; role?: string; principal_type?: string; wallet_address?: string; unit?: string; txhash?: string; image_url?: string };
         const project_id = body?.project_id;
         const role = normRole(body?.role);
         const principal_type = body?.principal_type === 'wallet' || body?.principal_type === 'nft_unit' ? body.principal_type : null;
@@ -166,6 +167,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return /^[0-9a-f]{64}$/.test(s) ? s : null;
         };
         const txhash = normTxHash(body?.txhash);
+        const image_url = typeof body?.image_url === 'string' ? body.image_url.trim() : null;
+        const normImageUrl = (v: string | null): string | null => {
+            if (!v) return null;
+            if (v.startsWith('ipfs://') || v.startsWith('https://')) return v;
+            return null;
+        };
+        const imageUrl = normImageUrl(image_url);
 
         let payload: Partial<RoleRow> & { project_id: string; role: 'owner' | 'admin' | 'editor'; principal_type: 'wallet' | 'nft_unit' } = {
             project_id,
@@ -186,11 +194,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } else {
                 stake = await resolveStakeAddress(provided);
             }
-            payload = { ...payload, wallet_payment_address, stake_address: stake ?? null, txhash: txhash ?? null };
+            payload = { ...payload, wallet_payment_address, stake_address: stake ?? null, txhash: txhash ?? null, image_url: imageUrl };
         } else {
             const unit = normUnit(body?.unit);
             if (!unit) { res.status(400).json({ error: 'Invalid unit' }); return; }
-            payload = { ...payload, unit, txhash: txhash ?? null };
+            payload = { ...payload, unit, txhash: txhash ?? null, image_url: imageUrl };
         }
 
         const { data, error } = await supabase
