@@ -3,7 +3,7 @@
 List of funded proposals from MeshJS at Cardano's Project Catalyst.
 
 > **Data Source**: Real data from Catalyst
-> **Last Updated**: September 15, 2025 at 12:50 AM UTC
+> **Last Updated**: September 22, 2025 at 12:51 AM UTC
 
 ## Overall Progress
 
