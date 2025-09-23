@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Cardano in Oceania: A community-led strategic plan for investing in growth.](https://adastat.net/governances/89e3a4f09122d669d6f6c82dd894e02826e8497be7eb036233bafc0ee4fc666500) |
+| Hash           | 89e3a4f09122d669d6f6c82dd894e02826e8497be7eb036233bafc0ee4fc666500 |
+| Action ID      | gov_action13836fuy3yttxn4hkeqka398q9qnwsjtmul4sxc3nht7qae8uvejsqm7ukh8 |
+| Type           | InfoAction |
+| Proposed Epoch | 579 |
+| Expires Epoch  | 586 |
+| Vote           | ❌No |
+| Vote Submitted | 9/18/2025 |
+| Rationale       | Cardano in Oceania: A community-led strategic plan for investing in growth. Members of the Mesh DRep have voted as following: Yes: 0 votes No: 5 votes Abstain: 0 votes Therefore, we vote NO on this proposal. Rationale: While we appreciate and respect community efforts to build local communities and indeed believe that the proposers of this proposal had a strong track record within the cardano ecosystem, we do not think that the requested budget reflect such a early state project and recommend the proposers to start their project via Project Catalyst which is meant to support initiatives like this and better suited to kickstart community-building efforts. |
+|Link|https://adastat.net/transactions/a42d44b2c6931a3904085ac168a30e5f5d1a7dd4ee1ff8b33741ec6eb9b03be4 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [CARDANO BLOCKCHAIN ECOSYSTEM CONSTITUTION v2.0](https://adastat.net/governances/207b226e110e13bb18b119fcd313520e0fcd060b2bc9fb9a5e5bc6e94ab10f3b00) |
 | Hash           | 207b226e110e13bb18b119fcd313520e0fcd060b2bc9fb9a5e5bc6e94ab10f3b00 |
 | Action ID      | gov_action1ypajyms3pcfmkx93r87dxy6jpc8u6pst90ylhxj7t0rwjj43puasq0x9jrw |
