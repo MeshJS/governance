@@ -1,32 +1,20 @@
 // components/ProposalVotingCards.tsx
+import { useMemo } from 'react';
 import styles from '@/styles/ProposalVotingCards.module.css';
-import { GovernanceProposal, ProposalType, MetaJson } from 'types/governance';
+import { GovernanceProposal, MetaJson } from 'types/governance';
+import { formatTypeLabel, buildMonochromeScale } from '@/utils/typeStyles';
 
 export interface ProposalVotingCardsProps {
     proposals: GovernanceProposal[];
 }
 
-const TYPE_LABELS: Record<ProposalType, string> = {
-    InfoAction: 'Info Action',
-    ParameterChange: 'Parameter Change',
-    NewConstitution: 'New Constitution',
-    HardForkInitiation: 'Hard Fork',
-    TreasuryWithdrawals: 'Treasury Withdrawals',
-    NoConfidence: 'No Confidence',
-    NewCommittee: 'New Committee'
-};
-
-const TYPE_CLASS: Record<ProposalType, string> = {
-    InfoAction: 'infoAction',
-    ParameterChange: 'parameterChange',
-    NewConstitution: 'newConstitution',
-    HardForkInitiation: 'hardFork',
-    TreasuryWithdrawals: 'treasuryWithdrawals',
-    NoConfidence: 'noConfidence',
-    NewCommittee: 'newCommittee'
-};
+// Use readable labels dynamically and fallback class name per CSS module for badge background
 
 export default function ProposalVotingCards({ proposals }: ProposalVotingCardsProps) {
+    const colorScale = useMemo(() => {
+        const keys = proposals.map(p => p.proposal_type);
+        return buildMonochromeScale(keys);
+    }, [proposals]);
     return (
         <div className={styles.cardsContainer}>
             {proposals.map((proposal) => {
@@ -42,8 +30,8 @@ export default function ProposalVotingCards({ proposals }: ProposalVotingCardsPr
                 return (
                     <div key={proposal.proposal_id} className={styles.card}>
                         <div className={styles.cardHeader}>
-                            <span className={`${styles.typeBadge} ${styles[TYPE_CLASS[type]]}`}>
-                                {TYPE_LABELS[type]}
+                            <span className={styles.typeBadge} style={{ background: colorScale[type]?.gradient }}>
+                                {formatTypeLabel(type)}
                             </span>
                             <h3 className={styles.cardTitle}>{title}</h3>
                         </div>
