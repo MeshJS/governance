@@ -1,6 +1,7 @@
 // components/ProposalTypeChart.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from '@/styles/ProposalTypeChart.module.css';
+import { formatTypeLabel, getTypeGradientStops, buildMonochromeScale } from '@/utils/typeStyles';
 
 interface ProposalTypeChartProps {
     proposals: Array<{
@@ -8,51 +9,9 @@ interface ProposalTypeChartProps {
     }>;
 }
 
-const getGradients = (type: string): string[] => {
-    const prefix = type === 'InfoAction' ? 'info-action' :
-        type === 'ParameterChange' ? 'parameter-change' :
-            type === 'NewConstitution' ? 'new-constitution' :
-                'hard-fork';
+const getGradients = (type: string): string[] => getTypeGradientStops(type);
 
-    // Get computed values from CSS variables with fallbacks
-    const getComputedValue = (varName: string, fallback: string) => {
-        const value = getComputedStyle(document.documentElement)
-            .getPropertyValue(varName)
-            .trim();
-        return value || fallback;
-    };
-
-    // Fallback colors for each type
-    const fallbacks = {
-        'info-action': ['#38e8e1', '#20b8a6', '#084a43', '#000000'],
-        'parameter-change': ['#ff78cb', '#db2777', '#580c30', '#000000'],
-        'new-constitution': ['#e2e8f0', '#94a3b8', '#475569', '#1e293b'],
-        'hard-fork': ['#ffab00', '#ea580c', '#9a3412', '#000000']
-    };
-
-    const fallbackColors = fallbacks[prefix as keyof typeof fallbacks] || fallbacks['info-action'];
-
-    return [
-        getComputedValue(`--gradient-${prefix}-1`, fallbackColors[0]),
-        getComputedValue(`--gradient-${prefix}-2`, fallbackColors[1]),
-        getComputedValue(`--gradient-${prefix}-3`, fallbackColors[2]),
-        getComputedValue(`--gradient-${prefix}-4`, fallbackColors[3])
-    ];
-};
-
-const TYPE_LABELS = {
-    InfoAction: 'Info Action',
-    ParameterChange: 'Parameter Change',
-    NewConstitution: 'New Constitution',
-    HardForkInitiation: 'Hard Fork'
-};
-
-const TYPE_CLASS = {
-    InfoAction: 'infoAction',
-    ParameterChange: 'parameterChange',
-    NewConstitution: 'newConstitution',
-    HardForkInitiation: 'hardFork'
-};
+// Legend swatch will be styled inline with a deterministic gradient per type
 
 export default function ProposalTypeChart({ proposals }: ProposalTypeChartProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -64,16 +23,26 @@ export default function ProposalTypeChart({ proposals }: ProposalTypeChartProps)
     }>>([]);
 
     // Count proposal types
-    const typeStats = proposals.reduce((acc, proposal) => {
-        const type = proposal.proposal_type;
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-    }, {} as Record<string, number>);
+    const typeStats = useMemo(() => {
+        return proposals.reduce((acc, proposal) => {
+            const type = proposal.proposal_type;
+            acc[type] = (acc[type] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+    }, [proposals]);
 
-    const data = Object.entries(typeStats).map(([type, value]) => ({ type, value }));
-    const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
+    const data = useMemo(() => Object.entries(typeStats).map(([type, value]) => ({ type, value })), [typeStats]);
+    const total = useMemo(() => (data.reduce((sum, d) => sum + d.value, 0) || 1), [data]);
 
-    const drawChart = (isHovered: string | null) => {
+    // Dev-only: log counted values for visibility during development
+    /*useEffect(() => {
+        if (process.env.NODE_ENV === 'production') return;
+        console.info('[ProposalTypeChart] type counts', typeStats);
+    }, [typeStats]);*/
+
+    const colorScale = useMemo(() => buildMonochromeScale(data.map(d => d.type)), [data]);
+
+    const drawChart = useCallback((isHovered: string | null) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -93,7 +62,7 @@ export default function ProposalTypeChart({ proposals }: ProposalTypeChartProps)
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 10;
         let startAngle = -Math.PI / 2;
-        const newSegments: typeof segments = [];
+        const newSegments: Array<{ type: string; startAngle: number; endAngle: number; }> = [];
         data.forEach(({ type, value }) => {
             const segmentAngle = (value / total) * (Math.PI * 2);
             const endAngle = startAngle + segmentAngle;
@@ -115,7 +84,7 @@ export default function ProposalTypeChart({ proposals }: ProposalTypeChartProps)
             ctx.closePath();
             // Gradient
             const grad = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
-            const stops = getGradients(type as keyof typeof TYPE_LABELS) || getGradients('InfoAction');
+            const stops = (colorScale[type]?.stops) || getGradients(type) || getGradients('InfoAction');
             grad.addColorStop(0, stops[0]);
             grad.addColorStop(0.4, stops[1]);
             grad.addColorStop(0.8, stops[2]);
@@ -137,11 +106,11 @@ export default function ProposalTypeChart({ proposals }: ProposalTypeChartProps)
             startAngle = endAngle;
         });
         setSegments(newSegments);
-    };
+    }, [data, total, colorScale]);
 
     useEffect(() => {
         drawChart(activeSegment);
-    }, [proposals, activeSegment]);
+    }, [activeSegment, drawChart]);
 
     const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;
@@ -207,8 +176,11 @@ export default function ProposalTypeChart({ proposals }: ProposalTypeChartProps)
                         onMouseEnter={() => setActiveSegment(type)}
                         onMouseLeave={() => setActiveSegment(null)}
                     >
-                        <span className={`${styles.legendColor} ${styles[TYPE_CLASS[type as keyof typeof TYPE_CLASS]]}`}></span>
-                        <span className={styles.legendLabel}>{TYPE_LABELS[type as keyof typeof TYPE_LABELS]}</span>
+                        <span
+                            className={styles.legendColor}
+                            style={{ background: colorScale[type]?.gradient || `linear-gradient(135deg, ${getGradients(type)[0]} 0%, ${getGradients(type)[1]} 40%, ${getGradients(type)[2]} 80%, ${getGradients(type)[3]} 100%)` }}
+                        ></span>
+                        <span className={styles.legendLabel}>{formatTypeLabel(type)}</span>
                         <span className={styles.legendValue}>{value}</span>
                     </div>
                 ))}

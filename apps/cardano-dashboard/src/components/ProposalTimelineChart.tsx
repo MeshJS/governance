@@ -1,42 +1,31 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from '@/styles/ProposalTimelineChart.module.css';
+import { formatTypeLabel, buildMonochromeScale, getPrimaryBaseColor } from '@/utils/typeStyles';
 import { GovernanceProposal } from '../../types/governance';
 
 interface ProposalTimelineChartProps {
     proposals: GovernanceProposal[];
 }
 
-const TYPE_LABELS = {
-    InfoAction: 'Info Action',
-    ParameterChange: 'Parameter Change',
-    NewConstitution: 'New Constitution',
-    HardForkInitiation: 'Hard Fork',
-    TreasuryWithdrawals: 'Treasury Withdrawals',
-    NoConfidence: 'No Confidence',
-    NewCommittee: 'New Committee'
-};
+// Labels and colors will be derived dynamically from proposal_type
 
 function getThemeColors() {
-    const style = getComputedStyle(document.documentElement);
+    const root = document.documentElement;
+    const style = getComputedStyle(root);
+    const body = getComputedStyle(document.body);
+    const getVar = (name: string, fallback?: string) => style.getPropertyValue(name).trim() || fallback || '';
     return {
-        InfoAction: style.getPropertyValue('--gradient-info-action-1').trim() || '#38e8e1',
-        ParameterChange: style.getPropertyValue('--gradient-parameter-change-1').trim() || '#ff4d94',
-        NewConstitution: style.getPropertyValue('--gradient-new-constitution-1').trim() || '#e2e8f0',
-        HardForkInitiation: style.getPropertyValue('--gradient-hard-fork-1').trim() || '#ffab00',
-        TreasuryWithdrawals: style.getPropertyValue('--chart-color-8').trim() || '#f87171',
-        NoConfidence: style.getPropertyValue('--chart-color-5').trim() || '#a78bfa',
-        NewCommittee: style.getPropertyValue('--chart-color-7').trim() || '#4ade80',
-        textPrimary: style.getPropertyValue('--text-primary').trim() || '#fff',
-        textSecondary: style.getPropertyValue('--text-secondary').trim() || 'rgba(255,255,255,0.7)',
-        textTertiary: style.getPropertyValue('--text-tertiary').trim() || 'rgba(255,255,255,0.6)',
-        bgPrimary: style.getPropertyValue('--bg-primary').trim() || '#0a0a0a',
-        bgSecondary: style.getPropertyValue('--bg-secondary').trim() || 'rgba(0,0,0,0.2)',
-        bgOverlay: style.getPropertyValue('--bg-overlay').trim() || 'rgba(255,255,255,0.1)',
-        borderColor: style.getPropertyValue('--border-color').trim() || 'rgba(255,255,255,0.1)',
-        colorSuccess: style.getPropertyValue('--color-success').trim() || '#38e8e1',
-        colorDanger: style.getPropertyValue('--color-danger').trim() || '#ff4d94',
-        colorWarning: style.getPropertyValue('--color-warning').trim() || '#ffab00',
-    };
+        textPrimary: getVar('--text-primary', body.color),
+        textSecondary: getVar('--text-secondary', getVar('--text-primary', body.color)),
+        textTertiary: getVar('--text-tertiary', getVar('--text-secondary', body.color)),
+        bgPrimary: getVar('--bg-primary', body.backgroundColor),
+        bgSecondary: getVar('--bg-secondary', getVar('--bg-primary', body.backgroundColor)),
+        bgOverlay: getVar('--bg-overlay', getVar('--bg-secondary', body.backgroundColor)),
+        borderColor: getVar('--border-color', getVar('--text-tertiary', body.color)),
+        colorSuccess: getVar('--color-success', getPrimaryBaseColor()),
+        colorDanger: getVar('--color-danger', getPrimaryBaseColor()),
+        colorWarning: getVar('--color-warning', getPrimaryBaseColor()),
+    } as const;
 }
 
 export default function ProposalTimelineChart({ proposals }: ProposalTimelineChartProps) {
@@ -46,11 +35,17 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
     // Sort proposals by proposed_epoch
     const sortedProposals = [...proposals].sort((a, b) => a.proposed_epoch - b.proposed_epoch);
 
+    // Build a unified monochrome color scale for proposal types
+    const colorScale = useMemo(() => {
+        const keys = sortedProposals.map(p => p.proposal_type);
+        return buildMonochromeScale(keys);
+    }, [sortedProposals]);
+
     // Get min and max epochs for scaling
     const minEpoch = Math.min(...sortedProposals.map(p => p.proposed_epoch));
     const maxEpoch = Math.max(...sortedProposals.map(p => p.proposed_epoch));
 
-    const drawChart = () => {
+    const drawChart = useCallback(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -101,6 +96,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
         }
 
         // Draw proposal points and lines
+        const defaultSeriesColor = Object.values(colorScale)[0]?.solid || theme.textPrimary;
         sortedProposals.forEach((proposal, index) => {
             const x = padding + (chartWidth * (proposal.proposed_epoch - minEpoch) / (maxEpoch - minEpoch));
             const y = padding + (chartHeight * (1 - index / (sortedProposals.length - 1)));
@@ -112,7 +108,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
                 const nextY = padding + (chartHeight * (1 - (index + 1) / (sortedProposals.length - 1)));
 
                 ctx.beginPath();
-                ctx.strokeStyle = theme[proposal.proposal_type as keyof typeof theme] || theme.InfoAction;
+                ctx.strokeStyle = colorScale[proposal.proposal_type]?.solid || defaultSeriesColor;
                 ctx.lineWidth = 2;
                 ctx.moveTo(x, y);
                 ctx.lineTo(nextX, nextY);
@@ -121,7 +117,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
 
             // Draw point
             ctx.beginPath();
-            ctx.fillStyle = theme[proposal.proposal_type as keyof typeof theme] || theme.InfoAction;
+            ctx.fillStyle = colorScale[proposal.proposal_type]?.solid || defaultSeriesColor;
             ctx.arc(x, y, 4, 0, Math.PI * 2);
             ctx.fill();
 
@@ -170,8 +166,8 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             ctx.stroke();
 
             // Draw proposal type badge
-            const typeLabel = TYPE_LABELS[proposal.proposal_type] || proposal.proposal_type;
-            ctx.fillStyle = theme[proposal.proposal_type as keyof typeof theme] || theme.InfoAction;
+            const typeLabel = formatTypeLabel(proposal.proposal_type);
+            ctx.fillStyle = colorScale[proposal.proposal_type]?.solid || defaultSeriesColor;
             ctx.beginPath();
             ctx.roundRect(tooltipX + 15, tooltipY + 15, 120, 24, 4);
             ctx.fill();
@@ -260,7 +256,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             ctx.fillText('Abstain', abstainX, tooltipY + 135);
 
             // DRep votes
-            ctx.fillStyle = theme.InfoAction;
+            ctx.fillStyle = theme.colorSuccess;
             ctx.fillText('DRep', labelX, tooltipY + 155);
             ctx.fillStyle = theme.textPrimary;
             ctx.fillText(`${proposal.drep_yes_votes_cast} (${proposal.drep_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 155);
@@ -268,7 +264,7 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             ctx.fillText(`${proposal.drep_abstain_votes_cast}`, abstainX, tooltipY + 155);
 
             // Pool votes
-            ctx.fillStyle = theme.ParameterChange;
+            ctx.fillStyle = theme.colorWarning;
             ctx.fillText('Pool', labelX, tooltipY + 175);
             ctx.fillStyle = theme.textPrimary;
             ctx.fillText(`${proposal.pool_yes_votes_cast} (${proposal.pool_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 175);
@@ -276,18 +272,18 @@ export default function ProposalTimelineChart({ proposals }: ProposalTimelineCha
             ctx.fillText(`${proposal.pool_abstain_votes_cast}`, abstainX, tooltipY + 175);
 
             // Committee votes
-            ctx.fillStyle = theme.HardForkInitiation;
+            ctx.fillStyle = theme.colorDanger;
             ctx.fillText('Committee', labelX, tooltipY + 195);
             ctx.fillStyle = theme.textPrimary;
             ctx.fillText(`${proposal.committee_yes_votes_cast} (${proposal.committee_yes_pct.toFixed(1)}%)`, yesX, tooltipY + 195);
             ctx.fillText(`${proposal.committee_no_votes_cast} (${proposal.committee_no_pct.toFixed(1)}%)`, noX, tooltipY + 195);
             ctx.fillText(`${proposal.committee_abstain_votes_cast}`, abstainX, tooltipY + 195);
         }
-    };
+    }, [sortedProposals, minEpoch, maxEpoch, hoveredPoint, colorScale]);
 
     useEffect(() => {
         drawChart();
-    }, [proposals, hoveredPoint]);
+    }, [drawChart]);
 
     const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;

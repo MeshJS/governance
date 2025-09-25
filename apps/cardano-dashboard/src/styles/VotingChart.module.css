@@ -3,54 +3,24 @@
     width: 100%;
     padding: 20px;
     border-radius: 8px;
+    overflow: hidden;
 }
 
 .chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(1px, 1fr);
+    align-items: end;
+    gap: 1px;
     height: 300px;
     margin-top: 20px;
     width: 100%;
 }
 
 .proposalBar {
-    flex: 1;
     height: 100%;
-    min-width: 20px;
     cursor: pointer;
     transition: transform 0.2s ease;
-}
-
-/* Responsive adjustments for different screen sizes */
-@media screen and (max-width: 1200px) {
-    .proposalBar {
-        min-width: 16px;
-    }
-
-    .chart {
-        gap: 3px;
-    }
-}
-
-@media screen and (max-width: 900px) {
-    .proposalBar {
-        min-width: 12px;
-    }
-
-    .chart {
-        gap: 2px;
-    }
-}
-
-@media screen and (max-width: 600px) {
-    .proposalBar {
-        min-width: 8px;
-    }
-
-    .chart {
-        gap: 1px;
-    }
 }
 
 .proposalBar:hover {
@@ -88,7 +58,9 @@
     border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 12px;
-    width: 400px;
+    width: auto;
+    max-width: min(300px, calc(100% - 40px));
+    box-sizing: border-box;
     box-shadow: 0 4px 6px var(--shadow-color);
     z-index: 1000;
     pointer-events: none;
