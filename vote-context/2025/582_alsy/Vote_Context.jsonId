@@ -50,7 +50,18 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following:
+
+Yes: 2 votes 
+No: 1 votes 
+Abstain: 1 votes  
+
+Therefore, we vote YES on this proposal.
+
+Rationale:
+We acknowledge the fact that Stable coin liquidity is indeed crucial if we want to see a healthy DeFi ecosystem on Cardano. As of the budget, 50M Ada would currently amount to 14% of the total 2025 Net Change Limit, not too bad as a first allocation and a realistic number measured against the importance of the matter.
+Furthermore, we salute the proposers who have showed quite some effort in socializing the proposal intend with the public over the past few months which made it easy for voters to engage with the proposal & proposers before the vote. Lastly, glad to see that the data errors from the first proposal a few months back have been fixed this time. All fine from our side, may the votes be with you.
+"
   },
   "hashAlgorithm": "blake2b-256"
 }
