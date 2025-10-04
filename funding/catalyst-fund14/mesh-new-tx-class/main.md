@@ -1,7 +1,7 @@
 
 
 [GENERAL] Proposal title
-Mesh: New Tx Class for Mesh SDK
+Mesh: Transaction V2 Unified Serialization feat. Pallas
 
 
 [GENERAL] Name and surname of main applicant

@@ -59,7 +59,7 @@ export default function NewProposals() {
     },
     {
       id: 2,
-      title: 'Mesh: New Tx Class for Mesh SDK',
+      title: 'Mesh: Transaction V2 Unified Serialization feat. Pallas',
       description:
         "Unify and refactor Mesh's fragmented transaction building components into a consistent, developer-friendly framework with a new Tx class",
       category: 'Cardano Open: Developers',
