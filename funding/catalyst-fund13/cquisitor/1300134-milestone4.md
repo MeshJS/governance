@@ -1,10 +1,10 @@
 |Project ID|1300134|
 |-----------|-------------|
 |Link|[Open full project](https://projectcatalyst.io/funds/10/f13-cardano-open-developers/mesh-cquisitor-transaction-investigation-tool)|
-|Milestone|[Milestone 3](https://milestones.projectcatalyst.io/projects/1300134/milestones/3)
+|Milestone|[Milestone 4](https://milestones.projectcatalyst.io/projects/1300134/milestones/4)
 |Challenge|F13: Cardano Open: Developer|
 |Milestone Budget|ADA 40,000 Ada|
-|Delivered|August 10, 2025|
+|Delivered|October 5, 2025|
 
 # Milestone 4 Report
 
