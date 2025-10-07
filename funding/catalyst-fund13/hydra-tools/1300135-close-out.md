@@ -58,16 +58,37 @@ Key achivements of this proposal has been:
 
 ### Key learnings
 
+Key learnings can be stated such as.
+
+1) Developer learning
+The Mesh developer, a young developer who just finished his university exama states his personal learnings as:
+- Learned interacting hydra-head with a smart contract transaction.
+- Learned navigating on how to mint and safely burn token in hydra head close. (In-view)
+- Learning on hydra reference script bug (creating an issue for it)
+- learned on how to make UTxO work with hydra UTxO format I.e the cli style.
+- learned more about websocket connections
+- also some functions like evaluators are not available on hydra as fees are not needed if needed they are manually calculated.
+- also came across a lot of failing errors that would be easier to guide anyone new and solve those errors quickly. - this is so important for me.
+  
+2) General Mesh Learnings
+As Mesh at general, key learnings can be stated as:
+- strong positive feedback from our dev community, encouraging and motivating us to continue working on Hydra Tooling
+- Advanced Hydra tooling is still lacking and we indeed once again got acknowledged how relevant tooling is to unlock Cardano technology potentials
+- Project Catalyst proven to be once again a awesome place ti kick off new projects and initiatives and to enable funds for projects with valid ideas on how to improve the ecosystem
+
 ### Next steps for the product or service developed
 We keep working on Mesh - Hydra open source tooling for developers since we recognise the potential and need of better tooling for developers building with Hydra.
 Mesh Hydra development will stay a active development branch within Mesh, the developer leading the proposal execution is now general owner of Mesh Hydra and we can expect follow up development and maintenance to ensure that developer using Mesh can keep using our stack when building Cardano L2 Scaling solutions.
 
 ### Final thoughts/comments
-Besides our tooling, we also recognised recurring questions from Builders who open discussions on our Discord Server where we are able to provide guidance and support, once again showcasing how important 
+Besides our tooling, we also recognised recurring questions from Builders who open discussions on our Discord Server where we are able to provide guidance and support, once again showcasing how important direct devv support besides our open source stack is to help builders through their journey. This proposal was a great initiative to build up Mesh-Hydra specific tooling, definitley not a dead-end. Thanks for everyone who supported this proposal, from developers to voters, Milestone Reviewers and for sure the Catalyst Team.
 
 
 ### Links to other relevant project sources or documents. 
 - https://hydra-asteria.vercel.app/how-to-play
 - https://github.com/MeshJS/asteria
-- 
+- https://projectcatalyst.io/funds/13/cardano-open-developers/mesh-hydra-tools-for-administrating-and-interacting-with-hydra-heads
+- https://milestones.projectcatalyst.io/projects/1300135
+- https://github.com/MeshJS/governance/tree/main/funding/catalyst-fund13/hydra-tools
+  
 ### Link to Close-out video - must be either YouTube or Vimeo link only 
