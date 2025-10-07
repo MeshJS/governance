@@ -25,7 +25,7 @@ The proposal was submitted in the Project Catalyst Fund13, "Cardano Open: Develo
 - Governance and blockchain interoperability tooling
 
 Our proposal addressed these via:
-Provide open source & docs tools for developers to integration Hydra to enable end-user operations like interacting with wallet, query UTXOs/balance and submit transactions and additional helpful functions
+- Provide open source & docs tools for developers to integration Hydra to enable end-user operations like interacting with wallet, query UTXOs/balance and submit transactions and additional helpful functions
 
 ### List of project KPIs and how the project addressed them
 
@@ -43,17 +43,31 @@ All KPIs have been addressed through our respective Proposal Milestone deliverab
 
 ### Key achievements (in particular around collaboration and engagement)
 
-Key achhivements of this proposal has been:
+Key achivements of this proposal has been:
 
-1) Succesfull Asteria - Hydra integration
-Inspired by TxPipes Asteria, we thought that it might be a great use case to integrate Asteria to Hydra while updating our Mesh stack to do so. 
+- Established Hydra Provider integration to connect with Hydra nodes
+- Developed foundational functions for all key Hydra phases (Open, Commit, Close, Fanout)
+- Created complete Hydra package available on GitHub and NPM (@meshsdk/hydra)
+- Deployed fully functional Hydra Provider with complete node communication
+- Built web demo with Hydra head balance display and CIP-30 wallet integration
+- Successfully integrated Asteria with Mesh framework
+- Provided head operation logs and demonstrations
+- Created dedicated GitHub repository (github.com/MeshJS/asteria) with Apache 2.0 license
+- Created comprehensive documentation with API reference and usage instructions
+- Developed setup guide and instructions at hydra-asteria.vercel.app/how-to-play
 
 ### Key learnings
 
 ### Next steps for the product or service developed
+We keep working on Mesh - Hydra open source tooling for developers since we recognise the potential and need of better tooling for developers building with Hydra.
+Mesh Hydra development will stay a active development branch within Mesh, the developer leading the proposal execution is now general owner of Mesh Hydra and we can expect follow up development and maintenance to ensure that developer using Mesh can keep using our stack when building Cardano L2 Scaling solutions.
 
 ### Final thoughts/comments
+Besides our tooling, we also recognised recurring questions from Builders who open discussions on our Discord Server where we are able to provide guidance and support, once again showcasing how important 
+
 
 ### Links to other relevant project sources or documents. 
-
+- https://hydra-asteria.vercel.app/how-to-play
+- https://github.com/MeshJS/asteria
+- 
 ### Link to Close-out video - must be either YouTube or Vimeo link only 
