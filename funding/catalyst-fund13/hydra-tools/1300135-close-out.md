@@ -39,11 +39,11 @@ Our project KPIs had been stated as:
 - Updated MeshJS docs for Hydra integration
 - Public links to all deliverables (code, docs, report, video)
 
-All KPIs have been addressed through our respective Proposal Milestone deliverables where we had a total of 5 Milestones which packaged all our work and execution. At the time of writing this report, all Milestones have been succesfully deliivered, reviewed and approved.
+All KPIs have been addressed through our respective Proposal Milestone deliverables where we had a total of 5 Milestones which packaged all our work and execution. At the time of writing this report, all Milestones have been successfully delivered, reviewed and approved.
 
 ### Key achievements (in particular around collaboration and engagement)
 
-Key achivements of this proposal has been:
+Key achievements of this proposal has been:
 
 - Established Hydra Provider integration to connect with Hydra nodes
 - Developed foundational functions for all key Hydra phases (Open, Commit, Close, Fanout)
@@ -61,7 +61,7 @@ Key achivements of this proposal has been:
 Key learnings can be stated such as.
 
 1) Developer learning
-The Mesh developer, a young developer who just finished his university exama states his personal learnings as:
+The Mesh developer, a young developer who just finished his university exams states his personal learnings as:
 - Learned interacting hydra-head with a smart contract transaction.
 - Learned navigating on how to mint and safely burn token in hydra head close. (In-view)
 - Learning on hydra reference script bug (creating an issue for it)
@@ -78,10 +78,10 @@ As Mesh at general, key learnings can be stated as:
 
 ### Next steps for the product or service developed
 We keep working on Mesh - Hydra open source tooling for developers since we recognise the potential and need of better tooling for developers building with Hydra.
-Mesh Hydra development will stay a active development branch within Mesh, the developer leading the proposal execution is now general owner of Mesh Hydra and we can expect follow up development and maintenance to ensure that developer using Mesh can keep using our stack when building Cardano L2 Scaling solutions.
+Mesh Hydra development will stay an active development branch within Mesh, the developer leading the proposal execution is now general owner of Mesh Hydra and we can expect follow up development and maintenance to ensure that developers using Mesh can keep using our stack when building Cardano L2 Scaling solutions.
 
 ### Final thoughts/comments
-Besides our tooling, we also recognised recurring questions from Builders who open discussions on our Discord Server where we are able to provide guidance and support, once again showcasing how important direct devv support besides our open source stack is to help builders through their journey. This proposal was a great initiative to build up Mesh-Hydra specific tooling, definitley not a dead-end. Thanks for everyone who supported this proposal, from developers to voters, Milestone Reviewers and for sure the Catalyst Team.
+Besides our tooling, we also recognised recurring questions from Builders who open discussions on our Discord Server where we are able to provide guidance and support, once again showcasing how important direct dev support besides our open source stack is to help builders through their journey. This proposal was a great initiative to build up Mesh-Hydra specific tooling, definitely not a dead-end. Thanks for everyone who supported this proposal, from developers to voters, Milestone Reviewers and for sure the Catalyst Team.
 
 
 ### Links to other relevant project sources or documents. 
@@ -92,3 +92,5 @@ Besides our tooling, we also recognised recurring questions from Builders who op
 - https://github.com/MeshJS/governance/tree/main/funding/catalyst-fund13/hydra-tools
   
 ### Link to Close-out video - must be either YouTube or Vimeo link only 
+
+
