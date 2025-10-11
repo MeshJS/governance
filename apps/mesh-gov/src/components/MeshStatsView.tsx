@@ -13,6 +13,9 @@ import {
   Line,
   Area,
   ComposedChart,
+  PieChart,
+  Pie,
+  Cell,
 } from 'recharts';
 import {
   PackageData,
@@ -200,6 +203,139 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
         />
       </BarChart>
     </ResponsiveContainer>
+  );
+};
+
+const PackageDownloadsDonut = ({ data, onLegendUpdate, onHoverChange }: { 
+  data: PackageData[];
+  onLegendUpdate?: (legendData: Array<{ name: string; color: string; packageName: string; downloads: number }>) => void;
+  onHoverChange?: (isHovered: boolean) => void;
+}) => {
+  const generateGradient = (id: string, color1: string, color2: string) => {
+    return (
+      <defs key={id}>
+        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={color1} />
+          <stop offset="100%" stopColor={color2} />
+        </linearGradient>
+      </defs>
+    );
+  };
+
+  const COLOR_CONFIGS = [
+    { id: 'teal1', light: 'rgba(12, 242, 180, 0.95)', dark: 'rgba(8, 145, 178, 0.8)' },
+    { id: 'teal2', light: 'rgba(20, 184, 166, 0.9)', dark: 'rgba(12, 120, 115, 0.75)' },
+    { id: 'teal3', light: 'rgba(34, 197, 194, 0.85)', dark: 'rgba(16, 100, 98, 0.7)' },
+    { id: 'teal4', light: 'rgba(45, 212, 191, 0.8)', dark: 'rgba(20, 108, 98, 0.65)' },
+    { id: 'teal5', light: 'rgba(56, 232, 225, 0.75)', dark: 'rgba(25, 115, 112, 0.6)' },
+    { id: 'teal6', light: 'rgba(14, 165, 233, 0.8)', dark: 'rgba(8, 100, 140, 0.6)' },
+    { id: 'teal7', light: 'rgba(6, 182, 212, 0.75)', dark: 'rgba(4, 120, 140, 0.55)' },
+    { id: 'teal8', light: 'rgba(8, 145, 178, 0.7)', dark: 'rgba(5, 90, 110, 0.5)' },
+  ];
+
+  const handleClick = (data: any) => {
+    if (data && data.packageName) {
+      const npmUrl = `https://www.npmjs.com/package/${data.packageName}`;
+      window.open(npmUrl, '_blank');
+    }
+  };
+
+  // Update legend data when component mounts or data changes
+  React.useEffect(() => {
+    if (onLegendUpdate && data.length > 0) {
+      const legendData = data.map((entry, index) => {
+        const config = COLOR_CONFIGS[index % COLOR_CONFIGS.length];
+        return {
+          name: entry.name,
+          color: config.light,
+          packageName: entry.packageName || '',
+          downloads: entry.downloads
+        };
+      });
+      onLegendUpdate(legendData);
+    }
+  }, [data, onLegendUpdate]);
+
+  const CustomDonutTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            border: '1px solid rgba(12, 242, 180, 0.3)',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+          }}
+        >
+          <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '600', marginBottom: '4px' }}>
+            {data.name}
+          </div>
+          <div style={{ color: 'rgba(56, 232, 225, 1)', fontWeight: '600' }}>
+            {formatNumber(data.downloads)} downloads
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ 
+        height: '100%', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        color: 'rgba(255, 255, 255, 0.6)'
+      }}>
+        No data available
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      style={{ height: '100%', width: '100%' }}
+      onMouseEnter={() => onHoverChange?.(true)}
+      onMouseLeave={() => onHoverChange?.(false)}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+          <defs>
+            {COLOR_CONFIGS.map((config, index) => 
+              generateGradient(`gradient-${config.id}`, config.light, config.dark)
+            )}
+          </defs>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={70}
+            outerRadius={140}
+            paddingAngle={1}
+            dataKey="downloads"
+            onClick={handleClick}
+            style={{ cursor: 'pointer' }}
+          >
+            {data.map((entry, index) => {
+              const config = COLOR_CONFIGS[index % COLOR_CONFIGS.length];
+              return (
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={`url(#gradient-${config.id})`}
+                  stroke="rgba(0, 0, 0, 0.4)"
+                  strokeWidth={2}
+                />
+              );
+            })}
+          </Pie>
+          <Tooltip content={<CustomDonutTooltip />} />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -664,12 +800,16 @@ const CustomSingleLineChart = ({
 
 export interface MeshStatsViewProps extends Omit<OriginalMeshStatsViewProps, 'meshPackagesData'> {
   meshPackagesData?: MeshPackagesApiResponse | null;
+  onPackageLegendUpdate?: (legendData: Array<{ name: string; color: string; packageName: string; downloads: number }>) => void;
+  onChartHover?: (isHovered: boolean) => void;
 }
 
 const MeshStatsView: FC<MeshStatsViewProps> = ({
   discordStats,
   contributorStats,
   meshPackagesData,
+  onPackageLegendUpdate,
+  onChartHover,
 }) => {
   // Chart ready state to prevent jarring animations on initial load
   const [chartsReady, setChartsReady] = React.useState(false);
@@ -1275,7 +1415,11 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
               <div className={styles.chartSection}>
                 <h2>Package Downloads (All Time)</h2>
                 <div className={styles.chart} style={{ height: '420px' }}>
-                  <CustomBarChart data={packageData} chartId="package" />
+                  <PackageDownloadsDonut 
+                    data={packageData} 
+                    onLegendUpdate={onPackageLegendUpdate}
+                    onHoverChange={onChartHover}
+                  />
                 </div>
               </div>
 

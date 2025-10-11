@@ -1,12 +1,14 @@
 import MeshStatsView from '../components/MeshStatsView';
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/MeshStats.module.css';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import PageHeader from '../components/PageHeader';
 
 export default function MeshStatsPage() {
   const { meshData, discordStats, contributorStats, isLoading, error, loadContributorStats } =
     useData();
+  const [packageLegendData, setPackageLegendData] = useState<Array<{ name: string; color: string; packageName: string; downloads: number }>>([]);
+  const [isChartHovered, setIsChartHovered] = useState(false);
 
   // Load contributor stats when component mounts
   useEffect(() => {
@@ -84,7 +86,18 @@ export default function MeshStatsPage() {
             : undefined
         }
         meshPackagesData={meshData.meshPackagesData}
+        onPackageLegendUpdate={setPackageLegendData}
+        onChartHover={setIsChartHovered}
       />
+
+      {/* Pass legend data and hover state to layout */}
+      {packageLegendData.length > 0 && (
+        <div 
+          style={{ display: 'none' }} 
+          data-package-legend={JSON.stringify(packageLegendData)}
+          data-chart-hovered={isChartHovered}
+        />
+      )}
     </div>
   );
 }

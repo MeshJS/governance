@@ -1,311 +1,27 @@
 .navCard {
     position: fixed;
-    top: 1.5rem;
-    left: 1.5rem;
-    width: 250px;
-    background: linear-gradient(165deg,
-            rgba(255, 255, 255, 0.05) 0%,
-            rgba(255, 255, 255, 0.02) 100%);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 12px -1px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    padding: 1.5rem 1rem;
-    height: auto;
-    max-height: calc(100vh - 8rem);
-    display: flex;
-    flex-direction: column;
-}
-
-.navItems {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-    flex: 1;
-}
-
-.navItem {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    animation: float 5s ease-in-out infinite;
-}
-
-.navItem:nth-child(1) {
-    animation: float 5.2s ease-in-out infinite;
-}
-
-.navItem:nth-child(2) {
-    animation: float 4.8s ease-in-out infinite;
-}
-
-.navItem:nth-child(3) {
-    animation: float 5.5s ease-in-out infinite;
-}
-
-.navItem:nth-child(4) {
-    animation: float 4.6s ease-in-out infinite;
-}
-
-.navItem:nth-child(5) {
-    animation: float 5.3s ease-in-out infinite;
-}
-
-.navItem::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(165deg,
-            rgba(255, 255, 255, 0.03) 0%,
-            rgba(255, 255, 255, 0) 100%);
-    opacity: 0;
-    transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    pointer-events: none;
-}
-
-.navItem::after {
-    content: '';
-    position: absolute;
-    inset: -100%;
-    background: linear-gradient(45deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.03) 30%,
-            rgba(255, 255, 255, 0.06) 50%,
-            rgba(255, 255, 255, 0.03) 70%,
-            transparent 100%);
-    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    transform: translateX(-100%) rotate(45deg);
-    pointer-events: none;
-}
-
-.navItem:hover {
-    transform: translateY(-2px);
-}
-
-.navItem:hover .label {
-    background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0.8) 0%,
-            rgba(12, 242, 180, 0.8) 50%,
-            rgba(255, 255, 255, 0.8) 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientText 2s ease infinite;
-}
-
-.navItem:hover .icon {
-    color: rgba(12, 242, 180, 0.8);
-    transform: scale(1.05);
-}
-
-.navItem .label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
-    transition: all 0.3s ease;
-    animation: float 5s ease-in-out infinite;
-}
-
-.navItem:nth-child(1) .label {
-    animation: float 4.9s ease-in-out infinite 0.05s;
-}
-
-.navItem:nth-child(2) .label {
-    animation: float 5.1s ease-in-out infinite 0.15s;
-}
-
-.navItem:nth-child(3) .label {
-    animation: float 4.7s ease-in-out infinite 0.1s;
-}
-
-.navItem:nth-child(4) .label {
-    animation: float 5.4s ease-in-out infinite 0.2s;
-}
-
-.navItem:nth-child(5) .label {
-    animation: float 4.8s ease-in-out infinite 0.25s;
-}
-
-.navItem .icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    color: rgba(255, 255, 255, 0.7);
-    transition: all 0.3s ease;
-    animation: float 5s ease-in-out infinite;
-}
-
-.navItem:nth-child(1) .icon {
-    animation: float 5.3s ease-in-out infinite 0.1s;
-}
-
-.navItem:nth-child(2) .icon {
-    animation: float 4.9s ease-in-out infinite 0.2s;
-}
-
-.navItem:nth-child(3) .icon {
-    animation: float 5.2s ease-in-out infinite 0.15s;
-}
-
-.navItem:nth-child(4) .icon {
-    animation: float 4.8s ease-in-out infinite 0.25s;
-}
-
-.navItem:nth-child(5) .icon {
-    animation: float 5.1s ease-in-out infinite 0.3s;
-}
-
-.navItem.active {
-    background: linear-gradient(90deg,
-            rgba(12, 242, 180, 0.9) 0%,
-            rgba(255, 255, 255, 0.95) 50%,
-            rgba(12, 242, 180, 0.9) 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientText 3s ease infinite, float 4s ease-in-out infinite;
-}
-
-.navItem.active .label {
-    animation: gradientText 3s ease infinite, float 4s ease-in-out infinite 0.2s;
-}
-
-.navItem.active .icon {
-    animation: float 4s ease-in-out infinite 0.4s;
-    color: rgba(12, 242, 180, 0.9);
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0px);
-    }
-
-    50% {
-        transform: translateY(-2px);
-    }
-
-    100% {
-        transform: translateY(0px);
-    }
-}
-
-@keyframes gradientText {
-    0% {
-        background-position: 0% center;
-    }
-
-    50% {
-        background-position: 100% center;
-    }
-
-    100% {
-        background-position: 0% center;
-    }
-}
-
-.active {
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: 600;
-    position: relative;
-}
-
-.active .icon {
-    color: rgba(255, 255, 255, 0.95);
-    transition: all 0.3s ease;
-}
-
-.active .label {
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    background: linear-gradient(90deg,
-            rgba(12, 242, 180, 0.9) 0%,
-            rgba(255, 255, 255, 0.95) 50%,
-            rgba(12, 242, 180, 0.9) 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientText 3s ease infinite;
-}
-
-.navCardMobile {
     top: 0;
     left: 0;
     right: 0;
     width: 100%;
-    margin: 0;
-    padding: 1rem;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    padding: 1.25rem 2.5rem;
     height: auto;
-    max-height: none;
-    border-radius: 0;
-    position: fixed;
-    z-index: 1010;
-}
-
-/* Mobile responsive styles */
-@media (max-width: 767px) {
-    .navCard {
-        top: 0;
-        left: 0;
-        width: 100%;
-        border-radius: 0;
-        border-top: none;
-        border-left: none;
-        border-right: none;
-        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-        max-height: none;
-    }
-
-    .navItems {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.35rem;
-        margin-top: -1.2rem;
-    }
-
-    .navItem {
-        padding: 0.5rem;
-        border-radius: 8px;
-    }
-
-    .label {
-        display: none;
-    }
-
-    .icon {
-        margin-right: 0;
-        font-size: 1.15rem;
-        width: 1.15rem;
-        height: 1.15rem;
-    }
-
-    .logoContainer {
-        margin-bottom: 0.05rem;
-        height: 30px;
-        padding: 0;
-    }
-
-    .logo {
-        max-width: 100px;
-    }
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .logoContainer {
-    margin-bottom: 1.5rem;
-    padding: 0 0.5rem;
     position: relative;
     width: 120px;
     height: 40px;
-    margin: 0 auto 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -316,7 +32,6 @@
     height: auto;
     max-width: 120px;
     display: block;
-    margin: 0 auto;
     transition: opacity 0.3s ease;
     position: relative;
     z-index: 1;
@@ -326,130 +41,89 @@
     opacity: 0.9;
 }
 
-.logoOrbit {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 200px;
-    height: 200px;
-    margin: -100px 0 0 -100px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: rotate 20s linear infinite;
+.navItems {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: center;
 }
 
-.logoOrbit::before,
-.logoOrbit::after {
-    content: '';
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, rgba(12, 242, 180, 0.8), rgba(255, 255, 255, 0.8));
-    box-shadow: 0 0 10px rgba(12, 242, 180, 0.5);
+.navItem {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    white-space: nowrap;
+    text-decoration: none;
 }
 
-.logoOrbit::before {
-    top: -4px;
-    left: 50%;
-    margin-left: -4px;
-    animation: pulse 2s ease-in-out infinite;
+
+.navItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.logoOrbit::after {
-    bottom: -4px;
-    left: 50%;
-    margin-left: -4px;
-    animation: pulse 2s ease-in-out infinite 1s;
+.navItem:hover .label {
+    color: rgba(255, 255, 255, 0.95);
 }
 
-.logoOrbitInner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 160px;
-    height: 160px;
-    margin: -80px 0 0 -80px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    animation: rotate 15s linear infinite reverse;
+.navItem .label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    transition: all 0.4s ease;
+    letter-spacing: 0.01em;
 }
 
-.logoOrbitInner::before,
-.logoOrbitInner::after {
-    content: '';
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.8), rgba(12, 242, 180, 0.8));
-    box-shadow: 0 0 8px rgba(12, 242, 180, 0.4);
+.navItem.active {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
-.logoOrbitInner::before {
-    top: -3px;
-    right: 50%;
-    margin-right: -3px;
-    animation: pulse 1.5s ease-in-out infinite 0.5s;
+.navItem.active .label {
+    color: rgba(255, 255, 255, 1);
+    font-weight: 600;
 }
 
-.logoOrbitInner::after {
-    bottom: -3px;
-    right: 50%;
-    margin-right: -3px;
-    animation: pulse 1.5s ease-in-out infinite 1.5s;
+
+.active {
+    color: rgba(255, 255, 255, 1);
+    font-weight: 600;
+    position: relative;
 }
 
-@keyframes rotate {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.2);
-        opacity: 0.8;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+.active .label {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 1);
 }
 
 .socialLinks {
-    margin-top: auto;
     display: flex;
-    justify-content: center;
     gap: 1rem;
-    padding-top: 1.5rem;
+    align-items: center;
 }
 
 .socialLink {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
-    color: rgba(255, 255, 255, 0.7);
+    padding: 0.6rem;
+    color: rgba(255, 255, 255, 0.65);
     text-decoration: none;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    border-radius: 10px;
+    transition: all 0.4s ease;
 }
 
 .socialLink:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.9);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.95);
+    transform: translateY(-1px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .socialIcon {
@@ -460,9 +134,36 @@
     justify-content: center;
 }
 
+/* Mobile responsive styles */
 @media (max-width: 767px) {
+    .navCard {
+        padding: 0.75rem 1rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .navItems {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .navItem {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .logoContainer {
+        width: 100px;
+        height: 30px;
+    }
+
+    .logo {
+        max-width: 100px;
+    }
+
     .socialLinks {
-        padding-top: 0.6rem;
+        gap: 0.75rem;
     }
 
     .socialLink {
