@@ -1,5 +1,4 @@
 .container {
-    display: flex;
     min-height: 100vh;
     background-color: var(--background);
     color: var(--text-color);
@@ -12,6 +11,12 @@
             transparent 25%);
 }
 
+.layoutWrapper {
+    display: flex;
+    min-height: calc(100vh - 80px);
+    padding-top: 80px;
+}
+
 [data-theme="dark"] .container {
     background-image: radial-gradient(circle at 15% 50%,
             rgba(41, 171, 226, 0.08) 0%,
@@ -21,17 +26,291 @@
             transparent 35%);
 }
 
-.sidebarContainer {
+
+.leftSidebar {
+    min-width: 150px;
+    max-width: 600px;
+    height: calc(100vh - 80px);
+    padding: 2rem 1rem;
+    border-right: 2px solid rgba(12, 242, 180, 0.15);
+    background: rgba(0, 0, 0, 0.02);
     position: fixed;
-    top: 0;
+    top: 80px;
     left: 0;
-    width: 250px;
-    height: 100vh;
-    z-index: 1000;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.leftSidebar:has(.backButtonContainer) {
+    padding-top: 5rem;
+}
+
+.leftSidebar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -1px;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(12, 242, 180, 0.3) 20%,
+        rgba(12, 242, 180, 0.5) 50%,
+        rgba(12, 242, 180, 0.3) 80%,
+        transparent 100%
+    );
+    box-shadow: 0 0 8px rgba(12, 242, 180, 0.2);
+}
+
+.rightSidebar {
+    min-width: 150px;
+    max-width: 600px;
+    height: calc(100vh - 80px);
+    padding: 2rem 1rem;
+    border-left: 2px solid rgba(12, 242, 180, 0.15);
+    background: rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.5rem 0 3rem 0;
+    position: fixed;
+    top: 80px;
+    right: 0;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.rightSidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -1px;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(12, 242, 180, 0.3) 20%,
+        rgba(12, 242, 180, 0.5) 50%,
+        rgba(12, 242, 180, 0.3) 80%,
+        transparent 100%
+    );
+    box-shadow: 0 0 8px rgba(12, 242, 180, 0.2);
+}
+
+.resizeHandle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    background: transparent;
+    z-index: 10;
+    transition: background-color 0.2s ease;
+}
+
+.resizeHandle[data-side="right"] {
+    right: -4px;
+}
+
+.resizeHandle[data-side="left"] {
+    left: -4px;
+}
+
+.resizeHandle:hover {
+    background: rgba(12, 242, 180, 0.1);
+}
+
+.resizeHandle:active {
+    background: rgba(12, 242, 180, 0.2);
+}
+
+.resizeHandle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 30px;
+    background: rgba(12, 242, 180, 0.3);
+    border-radius: 1px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.resizeHandle:hover::before {
+    opacity: 1;
+}
+
+.backButtonContainer {
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    right: 0;
+    z-index: 20;
+}
+
+.backButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 50px;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.4) 0%,
+        rgba(12, 242, 180, 0.15) 15%,
+        rgba(12, 242, 180, 0.15) 85%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    border-top: 2px solid;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+    border-left: none;
+    border-image: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(12, 242, 180, 0.4) 15%,
+        rgba(12, 242, 180, 0.4) 85%,
+        rgba(0, 0, 0, 0.6) 100%
+    ) 1;
+    border-radius: 0;
+    color: rgba(12, 242, 180, 0.95);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.backButton:hover {
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(12, 242, 180, 0.25) 15%,
+        rgba(12, 242, 180, 0.25) 85%,
+        rgba(0, 0, 0, 0.6) 100%
+    );
+    border-image: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(12, 242, 180, 0.6) 15%,
+        rgba(12, 242, 180, 0.6) 85%,
+        rgba(0, 0, 0, 0.8) 100%
+    ) 1;
+    color: rgba(12, 242, 180, 1);
+}
+
+.backButton span {
+    white-space: nowrap;
+}
+
+.packageLegendWrapper {
+    margin-top: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top;
+}
+
+.packageLegendWrapper.visible {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+    max-height: 500px;
+}
+
+.packageLegendWrapper.hidden {
+    opacity: 0;
+    transform: translateY(-10px) scaleY(0.95);
+    max-height: 0;
+    margin-top: 0;
+}
+
+.packageLegendTopBar {
+    height: 3px;
+    background: rgba(12, 242, 180, 0.6);
+    width: 100%;
+}
+
+.packageLegendContent {
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.5rem;
+}
+
+.packageLegendBottomBar {
+    height: 3px;
+    background: rgba(12, 242, 180, 0.6);
+    width: 100%;
+}
+
+.legendTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 1rem 0;
+    text-align: center;
+}
+
+.legendItems {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.legendItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(2px);
+}
+
+.legendColor {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.legendText {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.legendName {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.legendValue {
+    color: rgba(12, 242, 180, 0.9);
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
 .cardanoSection {
@@ -186,9 +465,9 @@
 }
 
 .main {
-    flex-grow: 1;
-    padding: 1.5rem 1.5rem 1.5rem calc(250px + 1.5rem);
-    width: 100%;
+    flex: 1;
+    padding: 2rem;
+    min-width: 0;
     transition: padding 0.3s ease, background-color 0.3s, color 0.3s;
 }
 
@@ -199,20 +478,79 @@
 }
 
 /* Media query for mobile */
-@media (max-width: 767px) {
-    .sidebarContainer {
+@media (max-width: 1024px) {
+    .layoutWrapper {
+        flex-direction: column;
+        padding-top: 100px;
+    }
+    
+    .leftSidebar,
+    .rightSidebar {
+        position: static;
         width: 100%;
         height: auto;
-        padding-bottom: 1rem;
+        min-height: auto;
+        padding: 1rem;
+        border: none;
+        border-top: 2px solid rgba(12, 242, 180, 0.15);
+        border-bottom: 2px solid rgba(12, 242, 180, 0.15);
+        overflow-y: visible;
     }
-
-    .cardanoSection {
+    
+    .leftSidebar::after,
+    .rightSidebar::before {
         display: none;
     }
-
+    
+    .resizeHandle {
+        display: none;
+    }
+    
+    .backButtonContainer {
+        position: static;
+        margin-bottom: 1rem;
+    }
+    
+    .backButton {
+        height: 40px;
+        font-size: 0.8rem;
+        border: 1px solid rgba(12, 242, 180, 0.4);
+    }
+    
+    .leftSidebar:has(.backButtonContainer) {
+        padding-top: 2rem;
+    }
+    
+    .leftSidebar {
+        order: 2;
+    }
+    
     .main {
-        padding: 9.5rem 1.5rem 1.5rem 1.5rem;
-        /* Adjusted top padding to better fit with header */
+        order: 1;
+        padding: 1.5rem;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    .rightSidebar {
+        order: 3;
+    }
+    
+    .cardanoSection {
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .leftSidebar,
+    .rightSidebar {
+        display: none;
+    }
+    
+    .main {
+        padding: 1rem;
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .content h1:first-child,
@@ -223,5 +561,7 @@
 }
 
 .content {
+    max-width: 1400px;
+    margin: 0 auto;
     padding: 0 1rem;
 }

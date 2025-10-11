@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import styles from '../styles/Voting.module.css';
 import { formatDate } from '../utils/dateUtils';
-import ProposalModal from './ProposalModal';
 
 interface VoteData {
   proposalId: string;
@@ -21,7 +19,7 @@ interface VoteData {
 
 interface DRepVotingListProps {
   votes: VoteData[];
-  onRowClick?: (proposalId: string) => void;
+  onRowClick: (proposalId: string) => void;
 }
 
 const truncateText = (text: string, maxLength: number = 100) => {
@@ -48,13 +46,12 @@ const getLatestVotes = (votes: VoteData[]): VoteData[] => {
 };
 
 export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProps) {
-  const [selectedProposal, setSelectedProposal] = useState<VoteData | null>(null);
   const latestVotes = getLatestVotes(votes);
 
   const handleCardClick = (vote: VoteData, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedProposal(vote);
+    onRowClick(vote.proposalId);
   };
 
   return (
@@ -89,10 +86,6 @@ export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProp
           ))}
         </div>
       </div>
-
-      {selectedProposal && (
-        <ProposalModal proposal={selectedProposal} onClose={() => setSelectedProposal(null)} />
-      )}
 
       {votes.length === 0 && <div className={styles.empty}>No votes found</div>}
     </>
