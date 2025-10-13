@@ -1,147 +1,42 @@
 .container {
-    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1.5rem;
-}
-
-.loading,
-.error {
-    padding: 2rem;
-    text-align: center;
-    font-size: 1.125rem;
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
-    backdrop-filter: blur(20px) saturate(180%);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--text-color);
-}
-
-.error {
-    color: rgba(255, 76, 76, 0.95);
-    background: rgba(255, 76, 76, 0.1);
-    border-color: rgba(255, 76, 76, 0.3);
-}
-
-.proposalHeader {
-    margin-bottom: 2rem;
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
-    backdrop-filter: blur(20px) saturate(180%);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 2rem;
 }
 
-.headerTop {
+.breadcrumb {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
 }
 
-.badges {
-    display: flex;
-    gap: 0.75rem;
+.breadcrumbLink {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-.status {
-    padding: 0.375rem 0.75rem;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.breadcrumbLink:hover {
+    color: rgba(12, 242, 180, 0.8);
 }
 
-.statusProposed {
-    background: rgba(12, 242, 180, 0.15);
-    color: rgba(12, 242, 180, 0.95);
-    border: 1px solid rgba(12, 242, 180, 0.3);
-    text-shadow: 0 0 10px rgba(12, 242, 180, 0.3);
+.breadcrumbSeparator {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.2rem;
 }
 
-.statusDraft {
-    background: rgba(142, 142, 147, 0.15);
-    color: rgba(142, 142, 147, 0.95);
-    border: 1px solid rgba(142, 142, 147, 0.3);
-}
-
-.statusUnderReview {
-    background: rgba(255, 193, 7, 0.15);
-    color: rgba(255, 193, 7, 0.95);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-}
-
-.statusVoting {
-    background: rgba(0, 122, 255, 0.15);
-    color: rgba(0, 122, 255, 0.95);
-    border: 1px solid rgba(0, 122, 255, 0.3);
-}
-
-.statusApproved {
-    background: rgba(12, 242, 180, 0.15);
-    color: rgba(12, 242, 180, 0.95);
-    border: 1px solid rgba(12, 242, 180, 0.3);
-    text-shadow: 0 0 10px rgba(12, 242, 180, 0.3);
-}
-
-.statusRejected {
-    background: rgba(255, 76, 76, 0.15);
-    color: rgba(255, 76, 76, 0.95);
-    border: 1px solid rgba(255, 76, 76, 0.3);
-}
-
-.fundRound {
-    padding: 0.375rem 0.75rem;
-    background: rgba(12, 242, 180, 0.08);
-    border: 1px solid rgba(12, 242, 180, 0.2);
-    border-radius: 8px;
-    font-size: 0.75rem;
+.breadcrumbCurrent {
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
-    color: rgba(12, 242, 180, 0.9);
-}
-
-.backButton {
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: var(--text-color);
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.backButton:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-color);
-    margin: 0 0 1rem 0;
-    line-height: 1.2;
-}
-
-.shortDescription {
-    font-size: 1.125rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    margin: 0;
 }
 
 .content {
     display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 2rem;
+    grid-template-columns: 1fr 300px;
+    gap: 3rem;
+    margin-top: 2rem;
 }
 
 .mainContent {
@@ -150,89 +45,41 @@
     gap: 2rem;
 }
 
-.imageSection {
-    padding: 1.5rem;
-    text-align: center;
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.proposalImage {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-}
-
-.keyFeaturesSection {
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.milestonesSection {
+.section {
     background: linear-gradient(165deg, 
         rgba(255, 255, 255, 0.05) 0%,
         rgba(255, 255, 255, 0.02) 100%
     );
     backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 2rem;
-    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.sectionHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.sectionHeader h2 {
-    margin: 0;
-    font-size: 1.5rem;
+.sectionTitle {
+    font-size: 1.25rem;
     font-weight: 600;
-    color: var(--text-color);
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.featuresGrid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-}
-
-.featureCard {
-    background: rgba(12, 242, 180, 0.03);
-    border: 1px solid rgba(12, 242, 180, 0.08);
-    border-radius: 12px;
-    padding: 1.75rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: center;
-    aspect-ratio: 1 / 1.618;
+.metadata {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 280px;
+    gap: 1.5rem;
 }
 
-.featureCard:hover {
-    background: rgba(12, 242, 180, 0.06);
-    border-color: rgba(12, 242, 180, 0.15);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(12, 242, 180, 0.1);
-}
-
-.featureCard h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0 0 1rem 0;
-    line-height: 1.3;
-}
-
-.featureCard p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin: 0;
-    flex: 1;
+.metaItem {
     display: flex;
     align-items: center;
 }
@@ -1299,488 +1146,296 @@
 .featureList {
     display: flex;
     flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.5rem;
-    justify-content: center;
-    margin-top: 1rem;
 }
 
-.featureList span {
-    background: rgba(12, 242, 180, 0.1);
-    color: rgba(12, 242, 180, 0.9);
-    padding: 0.35rem 0.75rem;
-    border-radius: 10px;
-    font-size: 0.8rem;
+.metaLabel {
+    font-size: 0.875rem;
     font-weight: 500;
-    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.roadmapContainer {
-    position: relative;
+.metaValue {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
 }
 
-.roadmapTimeline {
-    position: relative;
-}
-
-.roadmapItem {
+.epochsWrapper {
     display: flex;
-    align-items: flex-start;
-    margin-bottom: 2rem;
-    position: relative;
+    gap: 2rem;
 }
 
-.clickableRoadmapItem {
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.clickableRoadmapItem:hover {
-    transform: translateX(8px);
-}
-
-.clickableRoadmapItem:hover .roadmapContent {
-    background: rgba(12, 242, 180, 0.04);
-    border-color: rgba(12, 242, 180, 0.12);
-    box-shadow: 0 4px 20px rgba(12, 242, 180, 0.08);
-}
-
-.roadmapIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1.5rem;
-    flex-shrink: 0;
-}
-
-.milestoneRoman {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, rgba(12, 242, 180, 0.15), rgba(12, 242, 180, 0.05));
-    border: 2px solid rgba(12, 242, 180, 0.25);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: rgba(12, 242, 180, 0.95);
-    font-family: 'Times New Roman', serif;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-}
-
-.roadmapItem:hover .milestoneRoman {
-    background: linear-gradient(135deg, rgba(12, 242, 180, 0.25), rgba(12, 242, 180, 0.1));
-    border-color: rgba(12, 242, 180, 0.4);
-    transform: scale(1.05);
-}
-
-.roadmapContent {
-    flex: 1;
-    background: rgba(12, 242, 180, 0.02);
-    border: 1px solid rgba(12, 242, 180, 0.06);
-    border-radius: 12px;
-    padding: 1.5rem;
-}
-
-.roadmapHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.roadmapHeader h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
-    flex: 1;
-    min-width: 200px;
-}
-
-.roadmapMeta {
+.epoch {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
     gap: 0.25rem;
 }
 
-.roadmapBudget {
-    font-family: var(--font-mono, monospace);
-    font-weight: 600;
-    color: rgba(12, 242, 180, 0.95);
-    font-size: 0.875rem;
-}
-
-.roadmapDate {
+.epochLabel {
     font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-.roadmapDescription {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin: 0 0 1rem 0;
-}
-
-.roadmapTags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.roadmapTag {
-    background: rgba(12, 242, 180, 0.08);
-    color: rgba(12, 242, 180, 0.9);
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-.clickHint {
-    color: rgba(12, 242, 180, 0.6);
-    font-size: 0.75rem;
-    font-weight: 500;
-    font-style: italic;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.clickableRoadmapItem:hover .clickHint {
-    opacity: 1;
-}
-
-.roadmapConnector {
-    position: absolute;
-    left: 39px;
-    top: 80px;
-    bottom: -32px;
-    width: 2px;
-    background: linear-gradient(180deg, 
-        rgba(12, 242, 180, 0.3) 0%, 
-        rgba(12, 242, 180, 0.1) 100%
-    );
-}
-
-.descriptionSection h2,
-.milestonesSection h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0 0 1.5rem 0;
-}
-
-.descriptionHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.descriptionHeader h2 {
-    margin: 0;
-}
-
-.readFullProposalButton {
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(165deg,
-        rgba(12, 242, 180, 0.15) 0%,
-        rgba(12, 242, 180, 0.08) 100%
-    );
-    border: 1px solid rgba(12, 242, 180, 0.3);
-    border-radius: 8px;
-    color: rgba(12, 242, 180, 0.95);
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: rgba(255, 255, 255, 0.6);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-.readFullProposalButton:hover {
-    background: linear-gradient(165deg,
-        rgba(12, 242, 180, 0.25) 0%,
-        rgba(12, 242, 180, 0.15) 100%
-    );
-    border-color: rgba(12, 242, 180, 0.5);
-    color: rgba(12, 242, 180, 1);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(12, 242, 180, 0.2);
+.epochValue {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgba(12, 242, 180, 0.9);
 }
 
-.fullDescription p {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 1rem;
-}
-
-.fullDescription p:last-child {
-    margin-bottom: 0;
-}
-
-.milestonesList {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.milestoneCard {
-    background: rgba(12, 242, 180, 0.03);
-    border: 1px solid rgba(12, 242, 180, 0.08);
+.rationaleContent {
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 12px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.milestoneCard:hover {
-    background: rgba(12, 242, 180, 0.05);
-    border-color: rgba(12, 242, 180, 0.15);
-}
-
-.milestoneHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.milestoneNumber {
-    background: rgba(12, 242, 180, 0.15);
-    color: rgba(12, 242, 180, 0.95);
-    padding: 0.25rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.milestoneBudget {
-    font-family: var(--font-mono, monospace);
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.milestoneTitle {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0 0 0.5rem 0;
-}
-
-.milestoneDescription {
-    color: var(--text-secondary);
-    line-height: 1.5;
-    margin: 0 0 1rem 0;
-}
-
-.milestoneDetails {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-
-.milestoneSection {
-    margin: 1rem 0;
-}
-
-.milestoneSection h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0 0 0.5rem 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.milestoneSection ul {
+.rationale {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
     margin: 0;
-    padding-left: 1.25rem;
-    list-style-type: disc;
+    font-size: 1rem;
 }
 
-.milestoneSection li {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-    line-height: 1.4;
-    margin-bottom: 0.25rem;
-}
-
-.sidebar {
+.txDetails {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.infoCard,
-.linksCard {
+.txItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.txLabel {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.txCopyWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.txHash {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+    flex: 1;
+    word-break: break-all;
+}
+
+.copyButton {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copyButton:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.resourceLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(12, 242, 180, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.resourceLink:hover {
+    color: rgba(12, 242, 180, 1);
+}
+
+.voteCard {
     background: linear-gradient(165deg, 
         rgba(255, 255, 255, 0.05) 0%,
         rgba(255, 255, 255, 0.02) 100%
     );
     backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.voteCardTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 1rem 0;
+}
+
+.vote {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.vote.yes {
+    background: rgba(52, 199, 89, 0.15);
+    color: rgb(52, 199, 89);
+    border: 1px solid rgba(52, 199, 89, 0.3);
+}
+
+.vote.no {
+    background: rgba(255, 69, 58, 0.15);
+    color: rgb(255, 69, 58);
+    border: 1px solid rgba(255, 69, 58, 0.3);
+}
+
+.vote.abstain {
+    background: rgba(255, 193, 7, 0.15);
+    color: rgb(255, 193, 7);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.actionsCard {
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 1.5rem;
 }
 
-.infoCard h3,
-.linksCard h3 {
-    font-size: 1.125rem;
+.actionsTitle {
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--text-color);
+    color: rgba(255, 255, 255, 0.9);
     margin: 0 0 1rem 0;
 }
 
-.infoGrid {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.infoItem {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.infoLabel {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-}
-
-.infoValue {
-    font-size: 0.875rem;
-    color: var(--text-color);
-    font-weight: 500;
-}
-
-.linksList {
+.actions {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
 
-.resourceLink {
+.actionButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.75rem 1rem;
-    background: rgba(12, 242, 180, 0.05);
-    border: 1px solid rgba(12, 242, 180, 0.1);
+    background: rgba(12, 242, 180, 0.1);
+    border: 1px solid rgba(12, 242, 180, 0.3);
     border-radius: 8px;
     color: rgba(12, 242, 180, 0.9);
     text-decoration: none;
-    font-size: 0.875rem;
     font-weight: 500;
-    transition: all 0.3s ease;
-    text-align: center;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
 }
 
-.resourceLink:hover {
-    background: rgba(12, 242, 180, 0.1);
-    border-color: rgba(12, 242, 180, 0.2);
+.actionButton:hover {
+    background: rgba(12, 242, 180, 0.15);
+    border-color: rgba(12, 242, 180, 0.5);
     color: rgba(12, 242, 180, 1);
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .content {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .sidebar {
-        order: -1;
-    }
+.loading,
+.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
 }
 
-@media (max-width: 1024px) and (min-width: 769px) {
-    .featuresGrid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
+.error {
+    color: rgb(255, 69, 58);
 }
 
+.notFound {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.notFound p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(12, 242, 180, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.backLink:hover {
+    color: rgba(12, 242, 180, 1);
+}
+
+/* Mobile responsive */
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
     }
-    
-    .proposalHeader {
+
+    .content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .sidebar {
+        order: -1;
+    }
+
+    .section {
         padding: 1.5rem;
     }
-    
-    .headerTop {
-        flex-direction: column;
-        align-items: flex-start;
+
+    .epochsWrapper {
         gap: 1rem;
     }
     
-    .title {
-        font-size: 1.5rem;
-    }
-    
-    .shortDescription {
-        font-size: 1rem;
-    }
-    
-    .descriptionSection,
-    .milestonesSection,
-    .infoCard,
-    .linksCard {
-        padding: 1.25rem;
-    }
-    
-    .milestoneCard {
-        padding: 1.25rem;
-    }
-    
-    .milestoneHeader {
+    .txCopyWrapper {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 0.5rem;
     }
-    
-    .featuresGrid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .featureCard {
-        aspect-ratio: auto;
-        min-height: auto;
-    }
-    
-    .roadmapItem {
-        flex-direction: column;
-        align-items: center;
+
+    .txHash {
         text-align: center;
-    }
-    
-    .roadmapIcon {
-        margin-right: 0;
-        margin-bottom: 1rem;
-    }
-    
-    .roadmapConnector {
-        display: none;
-    }
-    
-    .roadmapHeader {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    
-    .roadmapMeta {
-        align-items: center;
+        word-break: break-all;
     }
 } 
