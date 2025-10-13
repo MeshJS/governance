@@ -876,7 +876,7 @@
     height: 44px;
     position: relative;
     display: flex;
-    align-items: end;
+    align-items: flex-end;
     justify-content: space-between;
     padding: 0 4px 4px 4px;
 }
