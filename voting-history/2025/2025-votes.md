@@ -2,6 +2,38 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Stablecoin DeFi Liquidity Budget](https://adastat.net/governances/e5643c33f608642e329228a968770e5b19ef5f48ff1f698712e2ce864a49e3f000) |
+| Hash           | e5643c33f608642e329228a968770e5b19ef5f48ff1f698712e2ce864a49e3f000 |
+| Action ID      | gov_action1u4jrcvlkppjzuv5j9z5ksacwtvv77h6glu0knpcjut8gvjjfu0cqqt3alsy |
+| Type           | InfoAction |
+| Proposed Epoch | 582 |
+| Expires Epoch  | 589 |
+| Vote           | ✅Yes |
+| Vote Submitted | 9/29/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/a7e9dce62ff323e63d7c5c8a0f3dceef5d312dd37d39c8bfe8eecc743d29e6f7 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
+| Proposal Title | [Budget: ₳5M Loan for Cardano's Global Listing Expansion - Powered by Snek](https://adastat.net/governances/90cf51975f9c19c291bac3e57364a89507e64daa0a2d35e356f87e668482155600) |
+| Hash           | 90cf51975f9c19c291bac3e57364a89507e64daa0a2d35e356f87e668482155600 |
+| Action ID      | gov_action1jr84r96lnsvu9yd6c0jhxe9gj5r7vnd2pgkntc6klplxdpyzz4tqqc9uldx |
+| Type           | InfoAction |
+| Proposed Epoch | 580 |
+| Expires Epoch  | 587 |
+| Vote           | ❌No |
+| Vote Submitted | 9/26/2025 |
+| Rationale       | No rationale available |
+|Link|https://adastat.net/transactions/301353e2a00a8474c25afcee4b85e7a98fe944b6617b45d5c17b440563f89547 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Cardano in Oceania: A community-led strategic plan for investing in growth.](https://adastat.net/governances/89e3a4f09122d669d6f6c82dd894e02826e8497be7eb036233bafc0ee4fc666500) |
 | Hash           | 89e3a4f09122d669d6f6c82dd894e02826e8497be7eb036233bafc0ee4fc666500 |
 | Action ID      | gov_action13836fuy3yttxn4hkeqka398q9qnwsjtmul4sxc3nht7qae8uvejsqm7ukh8 |
