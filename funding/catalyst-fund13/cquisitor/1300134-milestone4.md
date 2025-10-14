@@ -4,7 +4,7 @@
 |Milestone|[Milestone 4](https://milestones.projectcatalyst.io/projects/1300134/milestones/4)
 |Challenge|F13: Cardano Open: Developer|
 |Milestone Budget|ADA 40,000 Ada|
-|Delivered|April 30, 2025|
+|Delivered|October 5, 2025|
 
 # Milestone 4 Report
 
