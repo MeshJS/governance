@@ -50,7 +50,17 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following
+
+Yes: 0 votes 
+No: 1 votes 
+Abstain: 2 votes  
+
+Therefore, we vote Abstain on the proposal.
+
+Rationale:
+
+We appreciate the efforts to help in outlining Cardanos steps ahead and while the vision presents valid objectives the document itself somewhat stays vague, seems somewhere between a constitution (which outlines and provides objectives) and a budgets proposal (which targets to enables resources to actionize and execute objectives). Therefore, not sure what exactly this info action would actually enable or trigger since its not a constitution, therefore no one has to adhere to it, nor a budget requests and therefore has no executive resources and power. "
   },
   "hashAlgorithm": "blake2b-256"
 }
