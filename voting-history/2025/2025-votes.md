@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Defining the Cardano 2030 Vision & Strategy](https://adastat.net/governances/996edfe370b8e51be73541e75499a818461305e37c7fa0c1b193f2c587167cc700) |
+| Hash           | 996edfe370b8e51be73541e75499a818461305e37c7fa0c1b193f2c587167cc700 |
+| Action ID      | gov_action1n9hdlcmshrj3hee4g8n4fxdgrprpxp0r03l6psd3j0evtpck0nrsqm57age |
+| Type           | InfoAction |
+| Proposed Epoch | 583 |
+| Expires Epoch  | 590 |
+| Vote           | ⚪Abstain |
+| Vote Submitted | 10/20/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following Yes: 0 votes No: 1 votes Abstain: 2 votes Therefore, we vote Abstain on the proposal. Rationale: We appreciate the efforts to help in outlining Cardanos steps ahead and while the vision presents valid objectives the document itself somewhat stays vague, seems somewhere between a constitution (which outlines and provides objectives) and a budgets proposal (which targets to enables resources to actionize and execute objectives). Therefore, not sure what exactly this info action would actually enable or trigger since its not a constitution, therefore no one has to adhere to it, nor a budget requests and therefore has no executive resources and power. |
+|Link|https://adastat.net/transactions/75ec6aea36e3cfa8c6d24231b93891f9aee60cf929e2a858856166f46b8b1554 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Stablecoin DeFi Liquidity Budget](https://adastat.net/governances/e5643c33f608642e329228a968770e5b19ef5f48ff1f698712e2ce864a49e3f000) |
 | Hash           | e5643c33f608642e329228a968770e5b19ef5f48ff1f698712e2ce864a49e3f000 |
 | Action ID      | gov_action1u4jrcvlkppjzuv5j9z5ksacwtvv77h6glu0knpcjut8gvjjfu0cqqt3alsy |
@@ -10,7 +26,7 @@
 | Expires Epoch  | 589 |
 | Vote           | ✅Yes |
 | Vote Submitted | 9/29/2025 |
-| Rationale       | No rationale available |
+| Rationale       | Members of the Mesh DRep have voted as following: Yes: 2 votes No: 1 votes Abstain: 1 votes Therefore, we vote YES on this proposal. Rationale: We acknowledge the fact that Stable coin liquidity is indeed crucial if we want to see a healthy DeFi ecosystem on Cardano. As of the budget, 50M Ada would currently amount to 14% of the total 2025 Net Change Limit, not too bad as a first allocation and a realistic number measured against the importance of the matter. Furthermore, we salute the proposers who have showed quite some effort in socializing the proposal intend with the public over the past few months which made it easy for voters to engage with the proposal & proposers before the vote. Lastly, glad to see that the data errors from the first proposal a few months back have been fixed this time. All fine from our side, may the votes be with you. |
 |Link|https://adastat.net/transactions/a7e9dce62ff323e63d7c5c8a0f3dceef5d312dd37d39c8bfe8eecc743d29e6f7 |
 
 
@@ -26,7 +42,7 @@
 | Expires Epoch  | 587 |
 | Vote           | ❌No |
 | Vote Submitted | 9/26/2025 |
-| Rationale       | No rationale available |
+| Rationale       | Members of the Mesh DRep have voted as following: Yes: 0 votes No: 3 votes Abstain: 1 votes Therefore, we vote NO on this proposal. Rationale: We appreciate the SNEK Community and their efforts, we simply dont think that the Treasury is the best fit to enable financial ressources to support meme-coins. Other funding sources, outside the Cardano Ecosystem should be explored to bring SNEK to the world. |
 |Link|https://adastat.net/transactions/301353e2a00a8474c25afcee4b85e7a98fe944b6617b45d5c17b440563f89547 |
 
 
