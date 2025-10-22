@@ -50,7 +50,21 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following
+
+Yes: 0 votes 
+No: 4 votes 
+Abstain: 1 votes  
+
+Therefore, we vote NO on the proposal.
+
+Rationale:
+
+Very much the same rationale we already stated for the previously rejected gov.tool proposal.  
+
+We are actually in favor of gov.tools and their work and we indeed think that open source governance tools are a prior net positive for the ecosystem, yet we do not think that the proposal budget request matches the current state of the project. 
+
+We recommend gov.tools to request a lower budget or to alternatively apply with a proposal at project catalyst at first to build up further solid base and increase budgets and scope progressively over time."
   },
   "hashAlgorithm": "blake2b-256"
 }
