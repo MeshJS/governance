@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from '../styles/ProposalModal.module.css';
+import { useRouter } from 'next/router';
 
 interface ProposalModalProps {
   proposal: {
@@ -21,9 +22,11 @@ interface ProposalModalProps {
 }
 
 export default function ProposalModal({ proposal, onClose }: ProposalModalProps) {
+  const router = useRouter();
   const modalRef = useRef<HTMLDivElement>(null);
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [shareUrlCopied, setShareUrlCopied] = useState(false);
 
   const truncateHash = (hash: string) => {
     if (!isSmallScreen) return hash;
@@ -37,6 +40,17 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
       setTimeout(() => setCopiedHash(null), 2000);
     } catch (err) {
       console.error('Failed to copy text:', err);
+    }
+  };
+  
+  const handleShareUrl = async () => {
+    try {
+      const shareUrl = `${window.location.origin}/drep-voting/${proposal.proposalId}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setShareUrlCopied(true);
+      setTimeout(() => setShareUrlCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy share URL:', err);
     }
   };
 
@@ -140,7 +154,7 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
 
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Mesh DRep Vote</h3>
-            <span className={`${styles.vote} ${styles[proposal.vote.toLowerCase()]}`}>
+            <span className={`${styles.voteTag} ${styles[proposal.vote.toLowerCase()]}`}>
               {proposal.vote}
             </span>
           </div>
@@ -166,6 +180,15 @@ export default function ProposalModal({ proposal, onClose }: ProposalModalProps)
               >
                 View Vote
               </a>
+              <button
+                className={`${styles.actionButton} ${styles.shareButton}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShareUrl();
+                }}
+              >
+                {shareUrlCopied ? 'Link Copied!' : 'Share Proposal'}
+              </button>
             </div>
           </div>
 

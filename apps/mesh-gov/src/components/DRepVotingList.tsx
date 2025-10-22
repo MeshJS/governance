@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styles from '../styles/Voting.module.css';
 import { formatDate } from '../utils/dateUtils';
 import ProposalModal from './ProposalModal';
+import { useRouter } from 'next/router';
 
 interface VoteData {
   proposalId: string;
@@ -48,13 +49,19 @@ const getLatestVotes = (votes: VoteData[]): VoteData[] => {
 };
 
 export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProps) {
+  const router = useRouter();
   const [selectedProposal, setSelectedProposal] = useState<VoteData | null>(null);
   const latestVotes = getLatestVotes(votes);
 
   const handleCardClick = (vote: VoteData, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedProposal(vote);
+    
+    // Save current scroll position to session storage
+    sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+    
+    // Navigate to the proposal detail page
+    router.push(`/drep-voting/${vote.proposalId}`);
   };
 
   return (
@@ -67,11 +74,14 @@ export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProp
               className={styles.item}
               onClick={e => handleCardClick(vote, e)}
             >
-              <div className={`${styles.voteHeader} ${styles[vote.vote.toLowerCase()]}`}>
-                {vote.vote}
-              </div>
+              <div className={`${styles.verticalBar} ${styles[vote.vote.toLowerCase()]}`}></div>
               <div className={styles.cardContent}>
-                <h3 className={styles.title}>{vote.proposalTitle}</h3>
+                <div className={styles.cardHeader}>
+                  <h3 className={styles.title}>{vote.proposalTitle}</h3>
+                  <div className={`${styles.voteTag} ${styles[vote.vote.toLowerCase()]}`}>
+                    {vote.vote}
+                  </div>
+                </div>
                 <span className={styles.type}>{vote.proposalType}</span>
                 <p className={styles.rationale}>{truncateText(vote.rationale)}</p>
                 <div className={styles.meta}>
@@ -89,10 +99,6 @@ export default function DRepVotingList({ votes, onRowClick }: DRepVotingListProp
           ))}
         </div>
       </div>
-
-      {selectedProposal && (
-        <ProposalModal proposal={selectedProposal} onClose={() => setSelectedProposal(null)} />
-      )}
 
       {votes.length === 0 && <div className={styles.empty}>No votes found</div>}
     </>

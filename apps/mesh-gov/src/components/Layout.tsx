@@ -11,8 +11,13 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className={styles.container}>
-      <div className={styles.sidebarContainer}>
+      <header className={styles.headerContainer}>
         <Navigation />
+      </header>
+      <main className={styles.main}>
+        <div className={styles.content}>{children}</div>
+      </main>
+      <footer className={styles.footer}>
         <div className={styles.cardanoSection}>
           <p className={styles.tagline}>Building On Cardano</p>
           <Link
@@ -32,10 +37,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             />
           </Link>
         </div>
-      </div>
-      <main className={styles.main}>
-        <div className={styles.content}>{children}</div>
-      </main>
+      </footer>
     </div>
   );
 };

@@ -648,4 +648,139 @@
     box-shadow: 
         0 4px 16px -4px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Governance Initiatives Section */
+.governanceSection {
+    margin: 4rem 0 2rem;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.governanceTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 1rem;
+    text-align: center;
+    background: linear-gradient(90deg,
+        rgba(56, 232, 225, 0.9) 0%,
+        rgba(255, 255, 255, 0.95) 50%,
+        rgba(56, 232, 225, 0.9) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientText 3s ease infinite;
+}
+
+.governanceDescription {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.governanceCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.governanceCard {
+    background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 250px;
+}
+
+.governanceCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.governanceCard h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgba(56, 232, 225, 0.9);
+    margin: 0 0 1rem;
+}
+
+.governanceCard p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+    flex-grow: 1;
+}
+
+.governanceLink {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: rgba(56, 232, 225, 0.15);
+    border: 1px solid rgba(56, 232, 225, 0.3);
+    border-radius: 8px;
+    color: rgba(56, 232, 225, 0.9);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    align-self: flex-start;
+}
+
+.governanceLink:hover {
+    background: rgba(56, 232, 225, 0.25);
+    color: rgba(56, 232, 225, 1);
+    transform: translateY(-2px);
+}
+
+@keyframes gradientText {
+    0% {
+        background-position: 0% center;
+    }
+    50% {
+        background-position: 100% center;
+    }
+    100% {
+        background-position: 0% center;
+    }
+}
+
+@media (max-width: 768px) {
+    .governanceSection {
+        margin: 3rem 0 1rem;
+        padding: 1.5rem 0;
+    }
+    
+    .governanceTitle {
+        font-size: 1.75rem;
+    }
+    
+    .governanceDescription {
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+    
+    .governanceCards {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .governanceCard {
+        padding: 1.5rem;
+    }
 } 
