@@ -226,7 +226,6 @@ const Navigation = () => {
             href={item.path}
             className={`${styles.navItem} ${router.pathname === item.path ? styles.active : ''}`}
           >
-            <span className={styles.icon}>{item.icon}</span>
             <span className={styles.label}>{item.name}</span>
           </Link>
         ))}

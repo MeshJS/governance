@@ -1319,6 +1319,40 @@ export default function Projects() {
           />
         ))}
       </div>
+
+      {/* Governance Initiatives Section */}
+      <div className={styles.governanceSection}>
+        <h2 className={styles.governanceTitle}>Governance initiatives</h2>
+        <p className={styles.governanceDescription}>
+          Initiatives to improve Cardano Onchain Governance
+        </p>
+        
+        <div className={styles.governanceCards}>
+          <div className={styles.governanceCard}>
+            <h3>Deposit Crowdfunding</h3>
+            <p>Smart Contracts to submit onchain governance actions via deposit crowdfunding</p>
+            <Link href="/governance/deposit-crowdfunding" className={styles.governanceLink}>
+              More
+            </Link>
+          </div>
+          
+          <div className={styles.governanceCard}>
+            <h3>Cardano Multi Asset Treasury</h3>
+            <p>The ideation, design and development of a Cardano Multi Asset Treasury</p>
+            <Link href="/governance/multi-asset-treasury" className={styles.governanceLink}>
+              More
+            </Link>
+          </div>
+          
+          <div className={styles.governanceCard}>
+            <h3>Governance Tools</h3>
+            <p>Open Source tools to help different roles to engage at onchain Governance.</p>
+            <Link href="/governance/tools" className={styles.governanceLink}>
+              More
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

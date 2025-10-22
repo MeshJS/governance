@@ -14,6 +14,7 @@ import {
   Area,
   ComposedChart,
 } from 'recharts';
+import PackageDownloadsDonut from './PackageDownloadsDonut';
 import {
   PackageData,
   MeshStatsViewProps as OriginalMeshStatsViewProps,
@@ -135,8 +136,8 @@ const CustomTick = (props: any) => {
         dy={16}
         textAnchor="end"
         fill="rgba(255, 255, 255, 0.6)"
-        fontSize="10"
-        transform="rotate(-45)"
+        fontSize="9"
+        transform="rotate(-60)"
       >
         {payload.value}
       </text>
@@ -159,7 +160,7 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
       <BarChart
         data={data}
         barGap={8}
-        margin={{ top: 10, right: 10, left: -15, bottom: 45 }}
+        margin={{ top: 10, right: 10, left: -15, bottom: 75 }}
         key={`bar-chart-${chartId}`} // Stable key to prevent unnecessary re-renders
       >
         <defs>
@@ -174,8 +175,9 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
           axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
           tick={<CustomTick />}
           tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
-          height={60}
+          height={80}
           interval={0}
+          tickMargin={8}
         />
         <YAxis
           axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
@@ -211,6 +213,28 @@ interface CustomLineChartProps {
   chartId: string;
 }
 
+// Custom tick component for LineChart
+const CustomLineTick = (props: any) => {
+  const { x, y, payload } = props;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={16}
+        textAnchor="end"
+        fill="rgba(255, 255, 255, 0.9)"
+        fontSize="11"
+        fontWeight="500"
+        transform="rotate(-45)"
+        style={{ textShadow: '0px 1px 2px rgba(0, 0, 0, 0.5)' }}
+      >
+        {payload.value}
+      </text>
+    </g>
+  );
+};
+
 const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => {
   // Enhanced gradients matching contributors page - using teal colors
   const stroke = 'rgba(12, 242, 180, 1)';
@@ -223,7 +247,7 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart data={data} margin={{ top: 15, right: 20, left: 15, bottom: 15 }}>
+      <ComposedChart data={data} margin={{ top: 15, right: 20, left: 15, bottom: 65 }}>
         <defs>
           <linearGradient id={`lineGradient-${chartId}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={bright} />
@@ -245,12 +269,10 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => {
         <XAxis
           dataKey="month"
           stroke="rgba(255, 255, 255, 0.6)"
-          fontSize={10}
-          fontWeight={500}
-          angle={-45}
-          textAnchor="end"
-          height={60}
-          tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+          height={80}
+          tick={<CustomLineTick />}
+          tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          interval={0}
         />
         <YAxis
           stroke="rgba(255, 255, 255, 0.6)"
@@ -440,12 +462,14 @@ const CustomMultiLineChart = ({
       <XAxis
         dataKey="month"
         stroke="rgba(255, 255, 255, 0.6)"
-        fontSize={10}
+        fontSize={9}
         fontWeight={500}
-        angle={-45}
+        angle={-60}
         textAnchor="end"
-        height={60}
+        height={70}
         tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+        tickMargin={8}
+        interval={0}
       />
       <YAxis
         stroke="rgba(255, 255, 255, 0.6)"
@@ -568,6 +592,28 @@ const CustomDiscordSingleTooltip = ({ active, payload, label }: TooltipProps<num
   return null;
 };
 
+// Custom tick component for Discord charts
+const CustomDiscordTick = (props: any) => {
+  const { x, y, payload } = props;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={16}
+        textAnchor="end"
+        fill="rgba(255, 255, 255, 0.9)"
+        fontSize="11"
+        fontWeight="500"
+        transform="rotate(-45)"
+        style={{ textShadow: '0px 1px 2px rgba(0, 0, 0, 0.5)' }}
+      >
+        {payload.value}
+      </text>
+    </g>
+  );
+};
+
 const CustomSingleLineChart = ({
   data,
   chartId,
@@ -595,7 +641,7 @@ const CustomSingleLineChart = ({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart data={data} margin={{ top: 15, right: 20, left: 15, bottom: 15 }}>
+      <ComposedChart data={data} margin={{ top: 15, right: 20, left: 15, bottom: 65 }}>
         <defs>
           <linearGradient id={`lineGradient-${chartId}-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={bright} />
@@ -617,12 +663,10 @@ const CustomSingleLineChart = ({
         <XAxis
           dataKey="month"
           stroke="rgba(255, 255, 255, 0.6)"
-          fontSize={10}
-          fontWeight={500}
-          angle={-45}
-          textAnchor="end"
-          height={60}
-          tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+          height={80}
+          tick={<CustomDiscordTick />}
+          tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          interval={0}
         />
         <YAxis
           stroke="rgba(255, 255, 255, 0.6)"
@@ -1240,7 +1284,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
                 <div
                   className={styles.chart}
                   style={{
-                    height: '420px',
+                    height: '520px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1256,7 +1300,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
                 <div
                   className={styles.chart}
                   style={{
-                    height: '420px',
+                    height: '520px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1274,14 +1318,14 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
             <div className={styles.chartsGrid}>
               <div className={styles.chartSection}>
                 <h2>Package Downloads (All Time)</h2>
-                <div className={styles.chart} style={{ height: '420px' }}>
-                  <CustomBarChart data={packageData} chartId="package" />
+                <div className={styles.chart} style={{ height: '520px' }}>
+                  <PackageDownloadsDonut packageData={packageData} />
                 </div>
               </div>
 
               <div className={styles.chartSection}>
                 <h2>Monthly Downloads ({latestYear})</h2>
-                <div className={styles.chart} style={{ height: '420px' }}>
+                <div className={styles.chart} style={{ height: '520px' }}>
                   <CustomBarChart data={monthlyData} chartId="monthly" />
                 </div>
               </div>

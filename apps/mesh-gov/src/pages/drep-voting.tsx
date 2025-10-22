@@ -4,14 +4,10 @@ import styles from '../styles/Voting.module.css';
 import PageHeader from '../components/PageHeader';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import VotingDonutChart from '../components/VotingDonutChart';
 import DelegationGrowthChart from '../components/DelegationGrowthChart';
-import VotingTypeDonut from '../components/VotingTypeDonut';
-import VotingParticipationDonut from '../components/VotingParticipationDonut';
 import DRepMetricsSection from '../components/DRepMetricsSection';
 import DRepImageSection from '../components/DRepImageSection';
 import { CopyIcon } from '../components/Icons';
-import { CountUpTimer } from '../components/CountUpTimer';
 
 interface VoteData {
   proposalId: string;
@@ -34,6 +30,22 @@ export default function DRepVoting() {
   const router = useRouter();
   const [lastNavigationTime, setLastNavigationTime] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  // Restore scroll position when returning from proposal detail page
+  useEffect(() => {
+    // Check if we're returning to the main page (not navigating to a proposal)
+    if (router.pathname === '/drep-voting') {
+      const savedPosition = sessionStorage.getItem('scrollPosition');
+      if (savedPosition) {
+        // Use setTimeout to ensure the page has fully rendered before scrolling
+        setTimeout(() => {
+          window.scrollTo(0, parseInt(savedPosition));
+          // Clear the saved position after restoring
+          sessionStorage.removeItem('scrollPosition');
+        }, 100);
+      }
+    }
+  }, [router.pathname]);
 
   const votes = drepVotingData?.votes || [];
 
@@ -189,16 +201,7 @@ export default function DRepVoting() {
         subtitle="Overview and Insights on Mesh DRep voting activities at Cardano onchain Governance"
       />
 
-      <CountUpTimer startDate={new Date('2024-11-09')} title="Active DRep Since" />
-
       <DRepImageSection />
-
-      <DRepMetricsSection
-        totalDelegators={drepMetrics.totalDelegators}
-        totalAdaDelegated={drepMetrics.totalAdaDelegated}
-        totalVotedProposals={drepMetrics.totalVotedProposals}
-        votingParticipationRate={drepMetrics.votingParticipationRate}
-      />
 
       <div className={styles.bioSection}>
         <h2 className={styles.bioTitle}>About Mesh DRep</h2>
@@ -250,22 +253,16 @@ export default function DRepVoting() {
         </div>
       </div>
 
+      <DRepMetricsSection
+        totalDelegators={drepMetrics.totalDelegators}
+        totalAdaDelegated={drepMetrics.totalAdaDelegated}
+        totalVotedProposals={drepMetrics.totalVotedProposals}
+        startDate={new Date('2024-11-09')}
+      />
+
       {delegationTimelineData.length > 0 && <DelegationGrowthChart data={delegationTimelineData} />}
 
-      <div className={styles.votingProgress}>
-        <h2 className={styles.sectionTitle}>Mesh DRep votes and rationales</h2>
-        <div className={styles.chartsGrid}>
-          <div className={styles.donutChartWrapper}>
-            <VotingDonutChart voteStats={voteStats} />
-          </div>
-          <div className={styles.donutChartWrapper}>
-            <VotingTypeDonut typeStats={typeStats} />
-          </div>
-          <div className={styles.donutChartWrapper}>
-            <VotingParticipationDonut totalProposals={votes.length} votedProposals={votes.length} />
-          </div>
-        </div>
-      </div>
+      <h2 className={styles.sectionTitle}>Mesh DRep votes and rationales</h2>
 
       <DRepVotingList votes={votes} onRowClick={handleRowClick} />
     </div>

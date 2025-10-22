@@ -94,6 +94,38 @@
     transform: translateY(-2px);
 }
 
+/* Active time styles */
+.activeTime {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.timeUnit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    min-width: 3rem;
+}
+
+.timeValue {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: rgba(56, 232, 225, 0.9);
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(56, 232, 225, 0.3);
+}
+
+.timeLabel {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.25rem;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
