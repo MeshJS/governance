@@ -17,7 +17,7 @@ export default function MultiAssetTreasury() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Objectives</h2>
           <p className={styles.sectionText}>
-            Cardano's on-chain treasury (part of the Voltaire governance era) currently holds funds in ADA only. 
+            Cardano&apos;s on-chain treasury (part of the Voltaire governance era) currently holds funds in ADA only. 
             However, there is growing interest in allowing the treasury to support multiple assets. 
             This initiative aims to outline the motivation and objectives as well as the planned steps ahead 
             towards the establishment of an Cardano multi asset treasury.
