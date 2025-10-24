@@ -7,22 +7,22 @@ export default function MultiAssetTreasury() {
       <PageHeader
         title="Cardano Multi Asset Treasury"
         subtitle="The ideation, design and development of a Cardano Multi Asset Treasury"
-      />      
+      />
       <div className={styles.initiativeTag}>
         A cardano community initiative by SIDAN Lab &amp; Mesh
-      </div>      
+      </div>
       <div className={styles.content}>
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Objectives</h2>
           <p className={styles.sectionText}>
-            Cardano&apos;s on-chain treasury (part of the Voltaire governance era) currently holds funds in ADA only. 
-            However, there is growing interest in allowing the treasury to support multiple assets. 
-            This initiative aims to outline the motivation and objectives as well as the planned steps ahead 
+            Cardano&apos;s on-chain treasury (part of the Voltaire governance era) currently holds funds in ADA only.
+            However, there is growing interest in allowing the treasury to support multiple assets.
+            This initiative aims to outline the motivation and objectives as well as the planned steps ahead
             towards the establishment of an Cardano multi asset treasury.
           </p>
-        </section>       
+        </section>
         <section className={styles.taskBoardSection}>
-          <h2 className={styles.sectionTitle}>Roadmap (WIP)</h2>      
+          <h2 className={styles.sectionTitle}>Roadmap (WIP)</h2>
           <div className={styles.taskBoardContainer}>
             <div className={styles.taskColumn}>
               <div className={styles.columnHeader}>
@@ -46,7 +46,7 @@ export default function MultiAssetTreasury() {
                     Draft & publish an initial CMAT introduction post on the Cardano Forum
                   </p>
                   <div className={styles.taskLinks}>
-                    <a 
+                    <a
                       href="https://docs.google.com/document/d/1SCxDwppfsLyLpT-Rt5lmCQI04fP_dlwsVq2_jOBldm8/edit?tab=t.0"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -54,7 +54,7 @@ export default function MultiAssetTreasury() {
                     >
                       Draft
                     </a>
-                    <a 
+                    <a
                       href="https://forum.cardano.org/t/cardano-multi-asset-treasury-cmat/149984"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -63,7 +63,7 @@ export default function MultiAssetTreasury() {
                       Forum
                     </a>
                   </div>
-                </div>                
+                </div>
                 <div className={styles.taskItem}>
                   <div className={styles.taskHeader}>
                     <h4 className={styles.taskTitle}>Draft & Publish CMAT CPS </h4>
@@ -77,7 +77,7 @@ export default function MultiAssetTreasury() {
                     Draft & publish the initial CPS (Cardano Problem Statement)
                   </p>
                   <div className={styles.taskLinks}>
-                    <a 
+                    <a
                       href="https://hackmd.io/@Mesh-Team/BkfaE1Z0ge"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -85,7 +85,7 @@ export default function MultiAssetTreasury() {
                     >
                       Draft
                     </a>
-                    <a 
+                    <a
                       href="https://hackmd.io/@Mesh-Team/BkfaE1Z0ge"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -96,7 +96,7 @@ export default function MultiAssetTreasury() {
                   </div>
                 </div>
               </div>
-            </div>            
+            </div>
             <div className={styles.taskColumn}>
               <div className={styles.columnHeader}>
                 <span className={styles.columnTitle}>Design</span>
@@ -119,7 +119,7 @@ export default function MultiAssetTreasury() {
                     Prepare and host a CMAT session at the Cardano Ambassadors workshop
                   </p>
                   <div className={styles.taskLinks}>
-                    <a 
+                    <a
                       href="https://ambassador-workshop.netlify.app/agenda/"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -128,7 +128,7 @@ export default function MultiAssetTreasury() {
                       Agenda
                     </a>
                   </div>
-                </div>            
+                </div>
                 <div className={styles.taskItem}>
                   <div className={styles.taskHeader}>
                     <h4 className={styles.taskTitle}>Cardano Summit Workshop</h4>
@@ -142,7 +142,7 @@ export default function MultiAssetTreasury() {
                     Prepare and host a CMAT workshop at the Cardano Summit Day0 Event
                   </p>
                   <div className={styles.taskLinks}>
-                    <a 
+                    <a
                       href="https://luma.com/geuyhoq1"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -151,7 +151,7 @@ export default function MultiAssetTreasury() {
                       Event
                     </a>
                   </div>
-                </div>            
+                </div>
                 <div className={styles.taskItem}>
                   <div className={styles.taskHeader}>
                     <h4 className={styles.taskTitle}>Cardano Summit Roundtable</h4>
@@ -179,7 +179,7 @@ export default function MultiAssetTreasury() {
                   </p>
                 </div>
               </div>
-            </div>           
+            </div>
             <div className={styles.taskColumn}>
               <div className={styles.columnHeader}>
                 <span className={styles.columnTitle}>Implementation</span>
@@ -200,7 +200,7 @@ export default function MultiAssetTreasury() {
                   </div>
                   <p className={styles.taskDescription}>
                     Submit an info action to introduce CMAT CIP to voters
-                  </p>               
+                  </p>
                 </div>
                 <div className={styles.taskItem}>
                   <div className={styles.taskHeader}>
@@ -212,9 +212,9 @@ export default function MultiAssetTreasury() {
                     <div className={styles.taskDate}>January</div>
                   </div>
                   <p className={styles.taskDescription}>
-                    Submit a "Update to the constitution" gov action according to CMAT requirements
+                    Submit a &quot;Update to the constitution&quot; gov action according to CMAT requirements
                   </p>
-                  </div>
+                </div>
                 <div className={styles.taskItem}>
                   <div className={styles.taskHeader}>
                     <h4 className={styles.taskTitle}>Submit CMAT Hard Fork Initiation</h4>
@@ -225,7 +225,7 @@ export default function MultiAssetTreasury() {
                     <div className={styles.taskDate}>January</div>
                   </div>
                   <p className={styles.taskDescription}>
-                    Submit a "Hard Fork Initiation" gov action to initiate the CMAT Hard Fork
+                    Submit a &quot;Hard Fork Initiation&quot; gov action to initiate the CMAT Hard Fork
                   </p>
                 </div>
               </div>
