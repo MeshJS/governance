@@ -207,15 +207,15 @@
   background: rgba(0, 206, 201, 0.15);
   color: rgba(0, 206, 201, 0.9);
 }
-.taskStatus.done {
+.taskStatus.done, .done {
   background: rgba(56, 232, 225, 0.15);
   color: rgba(56, 232, 225, 0.9);
 }
-.taskStatus.inProgress {
+.taskStatus.inProgress, .inProgress {
   background: rgba(255, 193, 7, 0.15);
   color: rgba(255, 193, 7, 0.9);
 }
-.taskStatus.planned {
+.taskStatus.planned, .planned {
   background: rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.9);
 }
