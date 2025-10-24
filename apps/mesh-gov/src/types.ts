@@ -9,11 +9,9 @@ export interface MilestoneContent {
   number: number;
   projectId: string;
 }
-
 export interface MilestonesContentRecord {
   [key: string]: MilestoneContent;
 }
-
 export interface CatalystProject {
   projectDetails: {
     id: number;
@@ -38,12 +36,10 @@ export interface CatalystProject {
   };
   milestonesCompleted: number;
 }
-
 export interface CatalystData {
   timestamp: string;
   projects: CatalystProject[];
 }
-
 export interface GovernanceVote {
   proposalId: string;
   proposalTxHash: string;
@@ -59,7 +55,6 @@ export interface GovernanceVote {
   expirationEpoch: number;
   rationale: string;
 }
-
 export interface ContributorRepository {
   name: string;
   commits: number;
@@ -68,7 +63,6 @@ export interface ContributorRepository {
   commit_timestamps: string[];
   pr_timestamps: string[];
 }
-
 export interface Contributor {
   login: string;
   avatar_url: string;
@@ -78,25 +72,21 @@ export interface Contributor {
   repositories: ContributorRepository[];
   repoNames: string[];
 }
-
 // Context Types
 export interface MeshData {
   lastFetched: number;
   meshPackagesData?: MeshPackagesApiResponse | null;
 }
-
 export interface DRepEpochInfo {
   voting_power_lovelace: string;
   total_delegators: number;
 }
-
 export interface DRepTimeline {
   epochs: Record<string, DRepEpochInfo>;
   current_epoch: number;
   total_delegators: number;
   total_amount_ada: number;
 }
-
 export interface DRepInfo {
   drepId: string;
   amount: string;
@@ -105,50 +95,41 @@ export interface DRepInfo {
   expires_epoch_no: number;
   last_updated: string;
 }
-
 export interface DRepDelegationData {
   timeline: DRepTimeline;
   drepInfo: DRepInfo;
 }
-
 export interface DRepVotingData {
   votes: GovernanceVote[];
   delegationData: DRepDelegationData | null;
   lastFetched: number;
 }
-
 export interface CatalystContextData {
   catalystData: CatalystData;
   lastFetched: number;
 }
-
 export interface MonthlyDownload {
   month: string;
   downloads: number;
   trend: string;
 }
-
 export interface PackageData {
   name: string;
   downloads: number;
   packageName?: string;
 }
-
 export interface FilteredStats {
   packageData?: PackageData[];
 }
-
 export interface MonthlyDiscordStats {
   memberCount: number;
   totalMessages: number;
   uniquePosters: number;
 }
-
 export interface DiscordStats {
   stats: Record<string, MonthlyDiscordStats>;
   lastFetched: number;
 }
-
 export interface PerRepoStats {
   total_commits: number;
   total_pull_requests: number;
@@ -158,7 +139,6 @@ export interface PerRepoStats {
   commits: any[];
   pullRequests: any[];
 }
-
 // Individual contributor data types for better caching
 // Deprecated in context: individual contributor datasets are no longer exposed
 export interface ContributorSummaryData {
@@ -176,7 +156,6 @@ export interface ContributorTimestampsData {
   >;
   lastFetched: number;
 }
-
 export interface ContributorStats {
   unique_count: number;
   contributors: Contributor[];
@@ -187,7 +166,6 @@ export interface ContributorStats {
   total_contributions: number;
   lastFetched: number;
 }
-
 export interface DataContextType {
   meshData: MeshData | null;
   catalystData: CatalystContextData | null;
@@ -216,13 +194,11 @@ export interface DataContextType {
   loadContributorStats: () => Promise<void>;
   loadRepoStats: () => Promise<void>;
 }
-
 export interface MeshStatsViewProps {
   filteredStats?: FilteredStats;
   discordStats?: DiscordStats;
   contributorStats?: ContributorStats;
 }
-
 // Catalyst Proposal API Types
 export interface CatalystProposalVoting {
   proposalId: number;
@@ -231,7 +207,6 @@ export interface CatalystProposalVoting {
   abstain_votes_count: number;
   unique_wallets: number;
 }
-
 export interface CatalystProposal {
   id: number;
   title: string;
@@ -254,7 +229,6 @@ export interface CatalystProposal {
   isRecent?: boolean;
   timeSinceUpdate?: number;
 }
-
 export interface CatalystProposalsResponse {
   status: 'completed' | 'partial' | 'stale';
   message: string;
