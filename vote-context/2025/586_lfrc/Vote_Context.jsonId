@@ -50,7 +50,24 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following
+
+Yes: 2 votes 
+No: 0 votes 
+Abstain: 0 votes  
+
+Therefore, we vote YES on the proposal.
+
+Rationale:
+
+Drawing from rationales from Yuta San on this gov action, which are quite on point.
+
+
+- The Cardano Constitution v2.3 removes  a few non-binding expectations, the Budget Info Action mechanism, and mandatory CC conduct rules.
+
+- It adds more clear definitions, enforces immutability of proposal documents, and applies treasury audit/accountability safeguards to all withdrawals.
+
+- Community review of v2.0 had 86.23% DRep participation, and v2.3 incorporates feedback and improvements, addressing prior concerns to reinforce legitimacy and broad input."
   },
   "hashAlgorithm": "blake2b-256"
 }
