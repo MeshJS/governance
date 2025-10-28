@@ -1,0 +1,256 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  padding: 0.5rem 0;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.backLink:hover {
+  color: rgba(12, 242, 180, 0.9);
+  transform: translateX(-3px);
+}
+
+.content {
+  margin-top: 2rem;
+  min-height: 400px;
+  padding: 0;
+}
+
+.sectionDivider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.01) 0%, 
+    rgba(12, 242, 180, 0.3) 50%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  margin: 3rem 0;
+}
+
+.architectureChartPlaceholder {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px dashed rgba(12, 242, 180, 0.3);
+  border-radius: 12px;
+  color: rgba(12, 242, 180, 0.7);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Funding Section Styles */
+.fundingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.fundingCard {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fundingCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.2);
+  border-color: rgba(56, 232, 225, 0.2);
+}
+
+.fundingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.fundingHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.fundingAmount {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #38E8E1;
+  text-shadow: 0 0 10px rgba(56, 232, 225, 0.4);
+}
+
+.fundingDescription {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  min-height: 4rem;
+}
+
+.fundingStatus {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.statusBar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.statusFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fundingStatus span {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+/* Proposal Card Styles */
+.proposalCard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.proposalCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 8px 32px -4px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(56, 232, 225, 0.2) inset;
+}
+
+.proposalGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin: 1.5rem 0 2rem;
+}
+
+.compactCard .infoGrid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.proposalTitle {
+  font-size: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.proposalSection {
+  margin-top: 2rem;
+}
+
+.proposalSectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Metrics Styles */
+.metricsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metricCard {
+  background: linear-gradient(165deg, rgba(56, 232, 225, 0.08) 0%, rgba(20, 184, 166, 0.04) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 12px;
+  border: 1px solid rgba(56, 232, 225, 0.15);
+  padding: 1.5rem;
+  min-width: 200px;
+  flex: 1;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(56, 232, 225, 0.25) inset;
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #38E8E1;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 15px rgba(56, 232, 225, 0.3);
+}
+
+.metricLabel {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .content {
+    padding: 1.5rem;
+  }
+  
+  .fundingGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .fundingCard {
+    padding: 1.25rem;
+  }
+  
+  .proposalGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .metricsContainer {
+    flex-direction: column;
+  }
+  
+  .metricCard {
+    min-width: 100%;
+  }
+  
+  .metricValue {
+    font-size: 1.75rem;
+  }
+}
