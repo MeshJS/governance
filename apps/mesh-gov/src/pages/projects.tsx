@@ -878,6 +878,10 @@ const ProjectCard = ({
   meshData: any;
   repoStats: any;
 }) => {
+  // Check if this is the Mesh SDK card to make it navigable
+  const isNavigable = project.name === 'Mesh SDK';
+  const cardClassName = `${styles.projectCard} ${isNavigable ? styles.navigableCard : ''}`;
+  
   // Map project names to repository names
   const getRepositoryName = (projectName: string): string => {
     const projectToRepoMapping: { [key: string]: string } = {
@@ -1009,7 +1013,7 @@ const ProjectCard = ({
   const chartData = generateChartDataFromTimestamps();
 
   return (
-    <div className={styles.projectCard}>
+    <div className={cardClassName}>
       {/* Header with title and description */}
       <div className={styles.projectHeader}>
         <h3 className={styles.projectName}>{project.name}</h3>
@@ -1308,15 +1312,28 @@ export default function Projects() {
 
       <div className={styles.projectsGrid} id="projectsGrid">
         {projects.map(project => (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            contributorStats={contributorStats}
-            humanContributors={humanContributors}
-            timeWindowBoundaries={timeWindowBoundaries}
-            meshData={meshData}
-            repoStats={repoStats}
-          />
+          project.name === 'Mesh SDK' ? (
+            <Link href="/projects/mesh-sdk" key={project.id} className={styles.projectCardLink}>
+              <ProjectCard
+                project={project}
+                contributorStats={contributorStats}
+                humanContributors={humanContributors}
+                timeWindowBoundaries={timeWindowBoundaries}
+                meshData={meshData}
+                repoStats={repoStats}
+              />
+            </Link>
+          ) : (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              contributorStats={contributorStats}
+              humanContributors={humanContributors}
+              timeWindowBoundaries={timeWindowBoundaries}
+              meshData={meshData}
+              repoStats={repoStats}
+            />
+          )
         ))}
       </div>
 

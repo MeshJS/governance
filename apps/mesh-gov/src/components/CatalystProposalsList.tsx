@@ -223,19 +223,6 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                       </div>
                     </div>
 
-                    <div className={styles.infoBox}>
-                      <span className={styles.infoLabel}>Yes Votes</span>
-                      <span className={styles.infoValue}>
-                        {formatAda(project.projectDetails.voting.yes_votes_count)}
-                      </span>
-                    </div>
-
-                    <div className={styles.infoBox}>
-                      <span className={styles.infoLabel}>Unique Voters</span>
-                      <span className={styles.infoValue}>
-                        {project.projectDetails.voting.unique_wallets}
-                      </span>
-                    </div>
                   </div>
 
                   <div className={styles.projectIdBox}>

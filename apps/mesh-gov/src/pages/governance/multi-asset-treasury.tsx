@@ -20,6 +20,44 @@ export default function MultiAssetTreasury() {
             This initiative aims to outline the motivation and objectives as well as the planned steps ahead
             towards the establishment of an Cardano multi asset treasury.
           </p>
+          
+          <div className={styles.cardsGrid}>
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>Enable Multi-Asset Treasury Functionality</h3>
+              <div className={styles.cardContent}>
+                <div className={styles.objectiveSection}>
+                  <p><strong>Objective:</strong> Introduce the ledger-level capability for the Cardano treasury to hold, manage, and disburse multiple Cardano Native Tokens (CNTs), including stablecoins and partner-chain tokens.</p>
+                </div>
+                <div className={styles.purposeSection}>
+                  <p><strong>Purpose:</strong> Expand beyond ada-only holdings to support stable-value funding, diversified treasury strategies, and economic possibilites across Cardano Partner Chains.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>Strengthen Financial Stability and Predictability</h3>
+              <div className={styles.cardContent}>
+                <div className={styles.objectiveSection}>
+                  <p><strong>Objective:</strong> Allow treasury-funded projects to budget and receive funds in stable-value assets, mitigating ada price volatility.</p>
+                </div>
+                <div className={styles.purposeSection}>
+                  <p><strong>Purpose:</strong> Provide sustainable, predictable funding conditions for long-term ecosystem development and critical infrastructure maintenance.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>Establish Governance and Security Frameworks</h3>
+              <div className={styles.cardContent}>
+                <div className={styles.objectiveSection}>
+                  <p><strong>Objective:</strong> Define constitutional and governance mechanisms (via CIP updates such as CIP-1694 and new governance actions) that regulate which assets can enter the treasury and how they are managed.</p>
+                </div>
+                <div className={styles.purposeSection}>
+                  <p><strong>Purpose:</strong> Ensure responsible financial stewardship, prevent spam or malicious asset deposits, and uphold Cardano&apos;s on-chain governance principles.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
         <section className={styles.taskBoardSection}>
           <h2 className={styles.sectionTitle}>Roadmap (WIP)</h2>
@@ -70,7 +108,7 @@ export default function MultiAssetTreasury() {
                     <span className={`${styles.taskStatus} ${styles.done}`}>Done</span>
                   </div>
                   <div className={styles.taskMeta}>
-                    <div className={styles.taskAssignee}>Charge: Hinson, Felix</div>
+                    <div className={styles.taskAssignee}>Charge: Hinson, Felix, Nicolas</div>
                     <div className={styles.taskDate}>October</div>
                   </div>
                   <p className={styles.taskDescription}>
@@ -171,7 +209,7 @@ export default function MultiAssetTreasury() {
                     <span className={`${styles.taskStatus} ${styles.planned}`}>TODO</span>
                   </div>
                   <div className={styles.taskMeta}>
-                    <div className={styles.taskAssignee}>Charge: Hinson, Felix</div>
+                    <div className={styles.taskAssignee}>Charge: Hinson, Felix, Nicolas</div>
                     <div className={styles.taskDate}>December</div>
                   </div>
                   <p className={styles.taskDescription}>

@@ -209,7 +209,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
         // Clear hover state when tooltip is not active and no month is selected
         setHoveredMonth(null);
       }
-    }, [active, payload, label, hoveredMonth, selectedMonth]);
+    }, [active, payload, label]);
 
     if (active && payload && payload.length) {
       const data = payload[0].payload;

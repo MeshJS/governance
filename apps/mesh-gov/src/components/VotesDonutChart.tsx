@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../styles/Proposals.module.css';
 import { CatalystProject } from '../types';
 
@@ -36,7 +36,7 @@ const VotesDonutChart = ({ proposals }: VotesDonutChartProps) => {
     return num.toString();
   };
 
-  const drawChart = (isHovered: string | null) => {
+  const drawChart = useCallback((isHovered: string | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -152,11 +152,11 @@ const VotesDonutChart = ({ proposals }: VotesDonutChartProps) => {
     });
 
     setSegments(newSegments);
-  };
+  }, [proposals]);
 
   useEffect(() => {
     drawChart(activeSegment);
-  }, [proposals, activeSegment]);
+  }, [proposals, activeSegment, drawChart]);
 
   const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../styles/Proposals.module.css';
 
 interface CatalystBudgetDonutProps {
@@ -24,7 +24,7 @@ const CatalystBudgetDonut: React.FC<CatalystBudgetDonutProps> = ({
     return `₳ ${new Intl.NumberFormat('en-US').format(amount)}`;
   };
 
-  const drawChart = (isHovered: string | null) => {
+  const drawChart = useCallback((isHovered: string | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -149,11 +149,11 @@ const CatalystBudgetDonut: React.FC<CatalystBudgetDonutProps> = ({
     });
 
     setSegments(newSegments);
-  };
+  }, [totalBudget, distributedBudget]);
 
   useEffect(() => {
     drawChart(activeSegment);
-  }, [totalBudget, distributedBudget, activeSegment]);
+  }, [totalBudget, distributedBudget, activeSegment, drawChart]);
 
   const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

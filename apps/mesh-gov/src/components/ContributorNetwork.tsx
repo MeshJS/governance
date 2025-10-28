@@ -110,7 +110,7 @@ const ContributorNetwork: React.FC<ContributorNetworkProps> = ({ contributors })
 
     setNodes(newNodes);
     setEdges([]); // Set empty edges array
-  }, [contributors]);
+  }, [contributors, setNodes, setEdges]);
 
   useMemo(() => {
     generateNodes();

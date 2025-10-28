@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../styles/ContributorModal.module.css';
 
 interface ContributorRepository {
@@ -103,7 +103,7 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
     };
   });
 
-  const drawChart = (isHovered: string | null) => {
+  const drawChart = useCallback((isHovered: string | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -184,11 +184,11 @@ const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {
     });
 
     setSegments(newSegments);
-  };
+  }, [repositories, chartData, data]);
 
   useEffect(() => {
     drawChart(activeSegment);
-  }, [repositories, activeSegment]);
+  }, [repositories, activeSegment, drawChart]);
 
   const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

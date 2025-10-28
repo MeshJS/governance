@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../styles/Voting.module.css';
 
 interface VotingDonutChartProps {
@@ -21,7 +21,7 @@ const VotingDonutChart: React.FC<VotingDonutChartProps> = ({ voteStats }) => {
     }>
   >([]);
 
-  const drawChart = (isHovered: string | null) => {
+  const drawChart = useCallback((isHovered: string | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -168,11 +168,11 @@ const VotingDonutChart: React.FC<VotingDonutChartProps> = ({ voteStats }) => {
     });
 
     setSegments(newSegments);
-  };
+  }, [voteStats]);
 
   useEffect(() => {
     drawChart(activeSegment);
-  }, [voteStats, activeSegment]);
+  }, [voteStats, activeSegment, drawChart]);
 
   const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

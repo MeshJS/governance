@@ -71,6 +71,8 @@
   font-weight: 600;
   color: rgba(0, 206, 201, 0.9);
   margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 206, 201, 0.3);
 }
 
 .cardContent {
@@ -78,6 +80,37 @@
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.8);
   flex-grow: 1;
+}
+
+.objectiveSection {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 206, 201, 0.2);
+}
+
+.purposeSection {
+  padding-top: 0.5rem;
+}
+
+.sectionLabel {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+
+.objectiveLabel {
+  background: rgba(0, 206, 201, 0.15);
+  color: rgba(0, 206, 201, 0.9);
+}
+
+.purposeLabel {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .taskBoardSection {
