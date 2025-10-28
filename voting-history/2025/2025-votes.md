@@ -2,6 +2,38 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [CARDANO BLOCKCHAIN ECOSYSTEM CONSTITUTION v2.3](https://adastat.net/governances/c882f194684d672316212f01efc6d28177e8965b7cd6956981fe37cc6715961e00) |
+| Hash           | c882f194684d672316212f01efc6d28177e8965b7cd6956981fe37cc6715961e00 |
+| Action ID      | gov_action1ezp0r9rgf4njx93p9uq7l3kjs9m739jm0ntf26vplcmucec4jc0qqxjlfrc |
+| Type           | NewConstitution |
+| Proposed Epoch | 586 |
+| Expires Epoch  | 593 |
+| Vote           | ✅Yes |
+| Vote Submitted | 10/27/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following Yes: 2 votes No: 0 votes Abstain: 0 votes Therefore, we vote YES on the proposal. Rationale: Drawing from rationales from Yuta San on this gov action, which are quite on point. - The Cardano Constitution v2.3 removes a few non-binding expectations, the Budget Info Action mechanism, and mandatory CC conduct rules. - It adds more clear definitions, enforces immutability of proposal documents, and applies treasury audit/accountability safeguards to all withdrawals. - Community review of v2.0 had 86.23% DRep participation, and v2.3 incorporates feedback and improvements, addressing prior concerns to reinforce legitimacy and broad input. |
+|Link|https://adastat.net/transactions/f36dd8f92afc92cdcb9beddb89f50404d1681e5bf991b2c7b37c864a0cd2d2b2 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
+| Proposal Title | [Withdraw ₳1,150,000 for GovTool 12 months active maintenance and development](https://adastat.net/governances/d2db60c5307cb517c735e2d0138d2b6f10fc5b221d610fa187719bdc82af9a0300) |
+| Hash           | d2db60c5307cb517c735e2d0138d2b6f10fc5b221d610fa187719bdc82af9a0300 |
+| Action ID      | gov_action16tdkp3fs0j6303e4utgp8rftdug0ckezr4sslgv8wxdaeq40ngpsq5sr06h |
+| Type           | TreasuryWithdrawals |
+| Proposed Epoch | 584 |
+| Expires Epoch  | 591 |
+| Vote           | ❌No |
+| Vote Submitted | 10/22/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following Yes: 0 votes No: 4 votes Abstain: 1 votes Therefore, we vote NO on the proposal. Rationale: Very much the same rationale we already stated for the previously rejected gov.tool proposal. We are actually in favor of gov.tools and their work and we indeed think that open source governance tools are a prior net positive for the ecosystem, yet we do not think that the proposal budget request matches the current state of the project. We recommend gov.tools to request a lower budget or to alternatively apply with a proposal at project catalyst at first to build up further solid base and increase budgets and scope progressively over time. |
+|Link|https://adastat.net/transactions/97febbb0c238e1440aa51855701571f93a44cc67050c0b2eec2dc0b52b5af4fb |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [Defining the Cardano 2030 Vision & Strategy](https://adastat.net/governances/996edfe370b8e51be73541e75499a818461305e37c7fa0c1b193f2c587167cc700) |
 | Hash           | 996edfe370b8e51be73541e75499a818461305e37c7fa0c1b193f2c587167cc700 |
 | Action ID      | gov_action1n9hdlcmshrj3hee4g8n4fxdgrprpxp0r03l6psd3j0evtpck0nrsqm57age |
