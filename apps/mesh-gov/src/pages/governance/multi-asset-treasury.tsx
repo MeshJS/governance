@@ -53,7 +53,7 @@ export default function MultiAssetTreasury() {
                   <p><strong>Objective:</strong> Define constitutional and governance mechanisms (via CIP updates such as CIP-1694 and new governance actions) that regulate which assets can enter the treasury and how they are managed.</p>
                 </div>
                 <div className={styles.purposeSection}>
-                  <p><strong>Purpose:</strong> Ensure responsible financial stewardship, prevent spam or malicious asset deposits, and uphold Cardano's on-chain governance principles.</p>
+                  <p><strong>Purpose:</strong> Ensure responsible financial stewardship, prevent spam or malicious asset deposits, and uphold Cardano&apos;s on-chain governance principles.</p>
                 </div>
               </div>
             </div>

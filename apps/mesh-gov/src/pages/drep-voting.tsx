@@ -47,7 +47,7 @@ export default function DRepVoting() {
     }
   }, [router.pathname]);
 
-  const votes = drepVotingData?.votes || [];
+  const votes = useMemo(() => drepVotingData?.votes || [], [drepVotingData]);
 
   // Calculate metrics for the overview section
   const drepMetrics = useMemo(() => {

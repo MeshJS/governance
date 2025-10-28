@@ -534,7 +534,6 @@ export const MeshSdkContributorsChart: React.FC<ContributorsEvolutionChartProps>
             textAnchor="end"
             height={80}
             tick={<CustomXAxisTick />}
-            animationDuration={800}
             allowDataOverflow={true}
           />
           <YAxis
@@ -542,7 +541,6 @@ export const MeshSdkContributorsChart: React.FC<ContributorsEvolutionChartProps>
             fontSize={11}
             fontWeight={500}
             tick={<CustomYAxisTick />}
-            animationDuration={800}
             allowDataOverflow={true}
           />
             <Tooltip content={<CustomTooltip />} cursor={false} />
@@ -572,8 +570,6 @@ export const MeshSdkContributorsChart: React.FC<ContributorsEvolutionChartProps>
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     isAnimationActive={true}
-                    animationDuration={800}
-                    animationEasing="ease-in-out"
                   />
 
                   {/* Invisible line for hover detection and tooltip */}
@@ -595,8 +591,6 @@ export const MeshSdkContributorsChart: React.FC<ContributorsEvolutionChartProps>
                     }}
                     connectNulls={false}
                     isAnimationActive={true}
-                    animationDuration={800}
-                    animationEasing="ease-in-out"
                   />
                 </React.Fragment>
               );

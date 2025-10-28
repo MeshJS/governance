@@ -106,11 +106,13 @@ export default function CatalystProposals() {
   };
 
   // Get data early to avoid conditional access
-  const data = catalystData?.catalystData;
-  const allProjects = data?.projects || [];
+  const data = useMemo(() => catalystData?.catalystData, [catalystData]);
+  const allProjects = useMemo(() => data?.projects || [], [data]);
 
   // Extract milestones from catalyst data
-  const milestones = data?.projects ? extractAllMilestonesFromProjects(data.projects) : [];
+  const milestones = useMemo(() => 
+    data?.projects ? extractAllMilestonesFromProjects(data.projects) : []
+  , [data]);
 
   // Calculate stats based on all projects
   const stats = useMemo(

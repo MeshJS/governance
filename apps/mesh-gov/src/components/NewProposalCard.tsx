@@ -69,7 +69,13 @@ export default function NewProposalCard({
           <p className={styles.description}>{description}</p>
 
           <div className={styles.imageContainer}>
-            <img src={`/${image}`} alt="Proposal illustration" className={styles.cardImage} />
+            <Image 
+              src={`/${image}`} 
+              alt="Proposal illustration" 
+              className={styles.cardImage}
+              width={300}
+              height={200}
+            />
           </div>
 
           <div className={styles.infoGrid}>

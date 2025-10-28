@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../styles/MeshStats.module.css';
 import { PackageData } from '../types';
 
@@ -6,7 +6,7 @@ interface PackageDownloadsDonutProps {
   packageData: PackageData[];
 }
 
-const PackageDownloadsDonut: React.FC<PackageDownloadsDonutProps> = ({ packageData }) => {
+const PackageDownloadsDonut = ({ packageData }: PackageDownloadsDonutProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeSegment, setActiveSegment] = useState<string | null>(null);
   const [segments, setSegments] = useState<
@@ -17,7 +17,7 @@ const PackageDownloadsDonut: React.FC<PackageDownloadsDonutProps> = ({ packageDa
     }>
   >([]);
 
-  const drawChart = (hoveredPackage: string | null) => {
+  const drawChart = useCallback((hoveredPackage: string | null) => {
     const canvas = canvasRef.current;
     if (!canvas || !packageData || packageData.length === 0) return;
 
@@ -137,11 +137,11 @@ const PackageDownloadsDonut: React.FC<PackageDownloadsDonutProps> = ({ packageDa
     });
 
     setSegments(newSegments);
-  };
+  }, [packageData]);
 
   useEffect(() => {
     drawChart(activeSegment);
-  }, [packageData, activeSegment]);
+  }, [packageData, activeSegment, drawChart]);
 
   const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

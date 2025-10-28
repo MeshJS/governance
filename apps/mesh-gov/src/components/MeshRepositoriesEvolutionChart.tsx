@@ -631,7 +631,6 @@ export const MeshRepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChart
             textAnchor="end"
             height={60}
             tick={<CustomXAxisTick />}
-            animationDuration={800}
             allowDataOverflow={true}
           />
           <YAxis
@@ -639,7 +638,6 @@ export const MeshRepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChart
             fontSize={10}
             fontWeight={500}
             tick={<CustomYAxisTick />}
-            animationDuration={800}
             allowDataOverflow={true}
           />
           <Tooltip content={<CustomTooltip />} cursor={false} />
@@ -669,8 +667,6 @@ export const MeshRepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChart
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   isAnimationActive={true}
-                  animationDuration={800}
-                  animationEasing="ease-in-out"
                 />
 
                 {/* Invisible line for hover detection and tooltip */}
@@ -692,8 +688,6 @@ export const MeshRepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChart
                   }}
                   connectNulls={false}
                   isAnimationActive={true}
-                  animationDuration={800}
-                  animationEasing="ease-in-out"
                 />
               </React.Fragment>
             );

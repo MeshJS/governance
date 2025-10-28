@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../styles/Voting.module.css';
 
 interface VotingParticipationDonutProps {
@@ -46,7 +46,7 @@ export default function VotingParticipationDonut({
   ];
   const total = totalProposals || 1;
 
-  const drawChart = (isHovered: string | null) => {
+  const drawChart = useCallback((isHovered: string | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -110,11 +110,11 @@ export default function VotingParticipationDonut({
       startAngle = endAngle;
     });
     setSegments(newSegments);
-  };
+  }, [totalProposals, votedProposals, data, total]);
 
   useEffect(() => {
     drawChart(activeSegment);
-  }, [totalProposals, votedProposals, activeSegment]);
+  }, [totalProposals, votedProposals, activeSegment, drawChart]);
 
   const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
