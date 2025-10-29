@@ -124,7 +124,7 @@ export default function MultiAssetTreasury() {
                       Draft
                     </a>
                     <a
-                      href="https://hackmd.io/@Mesh-Team/BkfaE1Z0ge"
+                      href="https://github.com/cardano-foundation/CIPs/pull/1103"
                       target="_blank"
                       rel="noopener noreferrer"
                       className={styles.taskLink}
