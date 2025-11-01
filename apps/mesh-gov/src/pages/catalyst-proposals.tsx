@@ -2,6 +2,7 @@ import CatalystProposalsList from '../components/CatalystProposalsList';
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/Proposals.module.css';
 import PageHeader from '../components/PageHeader';
+import SectionTitle from '../components/SectionTitle';
 import SearchFilterBar, { SearchFilterConfig } from '../components/SearchFilterBar';
 import { filterProposals, generateCatalystProposalsFilterConfig } from '../config/filterConfig';
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
@@ -10,7 +11,6 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import CatalystMilestonesDonut from '../components/CatalystMilestonesDonut';
 import CatalystBudgetDonut from '../components/CatalystBudgetDonut';
-import VotesDonutChart from '../components/VotesDonutChart';
 import { useScrollRestoration } from '../hooks/useScrollRestoration';
 import MilestoneDeliveryChart from '../components/MilestoneDeliveryChart';
 import { extractAllMilestonesFromProjects } from '../utils/catalystDataTransform';
@@ -236,8 +236,8 @@ export default function CatalystProposals() {
   const sortedProgressProjects = [...order.flatMap(n => buckets[n]), ...others];
 
   return (
-    <div className={styles.container}>
-      <PageHeader
+    <>
+      <SectionTitle
         title={
           <>
             Catalyst Proposal <span>Dashboard</span>
@@ -245,58 +245,60 @@ export default function CatalystProposals() {
         }
         subtitle="Mesh received strong support from Ada voters at Cardano's Project Catalyst. We are greatful for every support and want to make sure that our supporters have easy overview and insights on the progress of our funded proposals"
       />
+      <div className={styles.container}>
 
-      <CountUpTimer startDate={new Date('2024-03-19')} title="Catalyst Funded Proposer Since" />
+      <div className={styles.chartsContainer}>
+        <CountUpTimer startDate={new Date('2024-03-19')} title="Catalyst Funded Proposer Since" />
+        <div className={styles.chartsDivider}></div>
 
-      {/* New Fund 14 Proposals Section */}
-      <div className={styles.fund14Section}>
-        <div className={styles.fund14Content}>
-          <div className={styles.fund14Text}>
-            <h2 className={styles.fund14Title}>New Proposals for Catalyst Fund 14</h2>
-            <p className={styles.fund14Description}>
-              Here our proposals for Project Catalyst Fund14, to level up the Mesh SDK, to build our
-              very first Product, to start bridging our tools to midnight and to optimize open
-              source docs & tools towards ai-models.
-            </p>
+        {/* New Fund 14 Proposals Section - Temporarily hidden, will bring back later */}
+        {/* <div className={styles.fund14Section}>
+          <div className={styles.fund14Content}>
+            <div className={styles.fund14Text}>
+              <h2 className={styles.fund14Title}>New Proposals for Catalyst Fund 14</h2>
+              <p className={styles.fund14Description}>
+                Here our proposals for Project Catalyst Fund14, to level up the Mesh SDK, to build our
+                very first Product, to start bridging our tools to midnight and to optimize open
+                source docs & tools towards ai-models.
+              </p>
+            </div>
+            <div className={styles.fund14Action}>
+              <Link href="/new-proposals" className={styles.fund14Button}>
+                <span>View New Proposals</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M6 4L10 8L6 12"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
           </div>
-          <div className={styles.fund14Action}>
-            <Link href="/new-proposals" className={styles.fund14Button}>
-              <span>View New Proposals</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M6 4L10 8L6 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
+        </div> */}
+
+        {/* Search Filter Bar - Temporarily hidden, will bring back later */}
+        {/* <SearchFilterBar
+          config={filterConfig}
+          onSearch={handleSearch}
+          initialSearchTerm={router.query.search as string}
+        /> */}
+
+        <div className={styles.chartsGrid}>
+          <div className={styles.chartSection}>
+            <CatalystMilestonesDonut
+              totalMilestones={milestoneStats.totalMilestones}
+              completedMilestones={milestoneStats.completedMilestones}
+            />
           </div>
-        </div>
-      </div>
-
-      <SearchFilterBar
-        config={filterConfig}
-        onSearch={handleSearch}
-        initialSearchTerm={router.query.search as string}
-      />
-
-      <div className={styles.chartsGrid}>
-        <div className={styles.chartSection}>
-          <CatalystMilestonesDonut
-            totalMilestones={milestoneStats.totalMilestones}
-            completedMilestones={milestoneStats.completedMilestones}
-          />
-        </div>
-        <div className={styles.chartSection}>
-          <CatalystBudgetDonut
-            totalBudget={budgetStats.totalBudget}
-            distributedBudget={budgetStats.distributedBudget}
-          />
-        </div>
-        <div className={styles.chartSection}>
-          <VotesDonutChart proposals={allProjects} />
+          <div className={styles.chartSection}>
+            <CatalystBudgetDonut
+              totalBudget={budgetStats.totalBudget}
+              distributedBudget={budgetStats.distributedBudget}
+            />
+          </div>
         </div>
       </div>
 
@@ -311,6 +313,7 @@ export default function CatalystProposals() {
 
       <CatalystProposalsList data={displayData} />
       <div className={styles.timestamp}>Last updated: {formatDate(data.timestamp)}</div>
-    </div>
+      </div>
+    </>
   );
 }

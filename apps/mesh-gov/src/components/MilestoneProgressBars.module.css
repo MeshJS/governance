@@ -44,11 +44,11 @@
 .fundTag {
     font-size: 0.75rem;
     font-weight: 500;
-    color: rgba(56, 232, 225, 0.9);
-    background: rgba(56, 232, 225, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
-    border: 1px solid rgba(56, 232, 225, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     white-space: nowrap;
 }
 
@@ -98,17 +98,17 @@
 .milestoneBarItem.completed {
     background: linear-gradient(
         135deg,
-        rgba(56, 232, 225, 0.03) 0%,
+        rgba(255, 255, 255, 0.03) 0%,
         rgba(255, 255, 255, 0.03) 100%
     );
-    border-color: rgba(56, 232, 225, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .milestoneBarItem.closeOut {
     background: linear-gradient(
         135deg,
         rgba(255, 255, 255, 0.05) 0%,
-        rgba(56, 232, 225, 0.03) 100%
+        rgba(255, 255, 255, 0.03) 100%
     );
     border-color: rgba(255, 255, 255, 0.2);
 }
@@ -137,11 +137,11 @@
 .milestoneBarBudget {
     font-size: 0.875rem;
     font-weight: 600;
-    color: rgba(56, 232, 225, 0.9);
+    color: rgba(255, 255, 255, 0.9);
     padding: 0.25rem 0.5rem;
-    background: rgba(56, 232, 225, 0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 6px;
-    border: 1px solid rgba(56, 232, 225, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     white-space: nowrap;
 }
 
@@ -192,9 +192,9 @@
 }
 
 .milestoneBarStatus.completed {
-    color: rgba(56, 232, 225, 0.9);
-    background: rgba(56, 232, 225, 0.1);
-    border-color: rgba(56, 232, 225, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .milestoneBarDelivered {

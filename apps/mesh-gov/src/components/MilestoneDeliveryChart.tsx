@@ -217,10 +217,10 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
         <div
           style={{
             backgroundColor: 'rgba(0, 0, 0, 0.95)',
-            border: '1px solid rgba(56, 232, 225, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
             padding: '12px 16px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
             backdropFilter: 'blur(20px) saturate(180%)',
             WebkitBackdropFilter: 'blur(20px) saturate(180%)',
             maxWidth: '280px',
@@ -232,7 +232,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
               color: 'rgba(255, 255, 255, 0.8)',
               marginBottom: '6px',
               fontWeight: '600',
-              borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
               paddingBottom: '3px',
             }}
           >
@@ -253,8 +253,8 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                   width: '6px',
                   height: '6px',
                   borderRadius: '1px',
-                  backgroundColor: 'rgba(56, 232, 225, 1)',
-                  boxShadow: '0 0 3px rgba(56, 232, 225, 1)',
+                  backgroundColor: 'rgba(255, 255, 255, 1)',
+                  boxShadow: '0 0 3px rgba(255, 255, 255, 0.5)',
                 }}
               />
               <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
@@ -263,9 +263,8 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
             </div>
             <span
               style={{
-                color: 'rgba(56, 232, 225, 1)',
+                color: 'rgba(255, 255, 255, 1)',
                 fontWeight: '600',
-                textShadow: '0 0 4px rgba(56, 232, 225, 0.4)',
               }}
             >
               {data.count}
@@ -294,6 +293,10 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
       setSelectedMonth(event.activeLabel);
     }
   };
+
+  // Calculate Y-axis ticks (step of 1)
+  const maxCount = monthlyData.length > 0 ? Math.max(...monthlyData.map(d => d.count)) : 0;
+  const yAxisTicks = Array.from({ length: maxCount + 1 }, (_, i) => i);
 
   // Get details for the currently displayed month (selected takes priority over hovered)
   const displayedMonth = selectedMonth || hoveredMonth;
@@ -334,7 +337,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
       <div className={styles.chartLayout}>
         <div className={styles.chartSection}>
           <div className={styles.chartWrapper}>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={500}>
               <ComposedChart
                 data={monthlyData}
                 margin={{ top: 15, right: 20, left: -40, bottom: 15 }}
@@ -342,14 +345,14 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
               >
                 <defs>
                   <linearGradient id="milestoneGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(56, 232, 225, 0.3)" />
-                    <stop offset="50%" stopColor="rgba(56, 232, 225, 0.1)" />
-                    <stop offset="100%" stopColor="rgba(56, 232, 225, 0)" />
+                    <stop offset="0%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
+                    <stop offset="50%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
+                    <stop offset="100%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
                   </linearGradient>
                   <linearGradient id="milestoneLineGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(67, 255, 245, 1)" />
-                    <stop offset="50%" stopColor="rgba(56, 232, 225, 1)" />
-                    <stop offset="100%" stopColor="rgba(45, 186, 181, 1)" />
+                    <stop offset="0%" stopColor="rgba(255, 255, 255, 1)" />
+                    <stop offset="50%" stopColor="rgba(255, 255, 255, 0.9)" />
+                    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.8)" />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -375,12 +378,15 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                   fontWeight={500}
                   tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
                   allowDecimals={false}
+                  domain={[0, maxCount]}
+                  ticks={yAxisTicks}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={false} />
                 <Area
                   type="monotone"
                   dataKey="count"
                   fill="url(#milestoneGradient)"
+                  fillOpacity={1}
                   stroke="none"
                 />
                 <Line
@@ -392,10 +398,10 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                   dot={false}
                   activeDot={{
                     r: 4,
-                    fill: 'rgba(56, 232, 225, 1)',
-                    stroke: 'rgba(255, 255, 255, 0.8)',
+                    fill: 'rgba(255, 255, 255, 1)',
+                    stroke: 'rgba(0, 0, 0, 0.8)',
                     strokeWidth: 1.5,
-                    filter: 'drop-shadow(0 0 6px rgba(56, 232, 225, 0.4))',
+                    filter: 'drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))',
                   }}
                   connectNulls={false}
                   strokeLinecap="round"
@@ -433,18 +439,27 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                     onClick={() => handleMilestoneClick(milestone)}
                     style={{ cursor: 'pointer' }}
                   >
-                    <div className={styles.milestoneHeader}>
+                    <div className={styles.projectIdRow}>
                       <span className={styles.projectId}>Project {milestone.projectId}</span>
+                    </div>
+                    <div className={styles.divider}></div>
+                    <div className={styles.milestoneRow}>
                       <span className={styles.milestoneNumber}>
                         {milestone.isCloseOut ? 'Close-out' : `Milestone ${milestone.number}`}
                       </span>
                     </div>
-                    <div className={styles.milestoneInfo}>
+                    <div className={styles.divider}></div>
+                    <div className={styles.deliveryDateRow}>
                       <span className={styles.deliveryDate}>Delivered: {milestone.delivered}</span>
-                      {milestone.budget && (
-                        <span className={styles.milestoneBudget}>Budget: {milestone.budget}</span>
-                      )}
                     </div>
+                    {milestone.budget && (
+                      <>
+                        <div className={styles.divider}></div>
+                        <div className={styles.budgetRow}>
+                          <span className={styles.milestoneBudget}>Budget: {milestone.budget}</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

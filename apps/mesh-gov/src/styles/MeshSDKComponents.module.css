@@ -13,15 +13,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  background: linear-gradient(90deg,
-      rgba(12, 242, 180, 0.9) 0%,
-      rgba(255, 255, 255, 0.95) 50%,
-      rgba(12, 242, 180, 0.9) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-size: 200% auto;
-  animation: gradientText 3s ease infinite;
+  color: rgba(255, 255, 255, 0.95);
   display: inline-block;
   padding-bottom: 8px;
   position: relative;
@@ -35,11 +27,11 @@
   width: 100%;
   height: 2px;
   background: linear-gradient(90deg,
-      rgba(12, 242, 180, 0.9) 0%,
+      rgba(255, 255, 255, 0.9) 0%,
       rgba(255, 255, 255, 0.6) 50%,
-      rgba(12, 242, 180, 0.2) 100%);
+      rgba(255, 255, 255, 0.2) 100%);
   border-radius: 2px;
-  box-shadow: 0 0 8px rgba(12, 242, 180, 0.4);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 .carouselSubtitle {
@@ -72,15 +64,15 @@
 }
 
 .navButton {
-  background: linear-gradient(135deg, rgba(12, 242, 180, 0.15) 0%, rgba(56, 232, 225, 0.1) 100%);
-  border: 1px solid rgba(12, 242, 180, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   width: 48px;
   height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(12, 242, 180, 0.9);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   backdrop-filter: blur(10px) saturate(180%);
@@ -90,10 +82,10 @@
 }
 
 .navButton:hover {
-  background: linear-gradient(135deg, rgba(12, 242, 180, 0.25) 0%, rgba(56, 232, 225, 0.2) 100%);
-  border-color: rgba(12, 242, 180, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.2) 100%);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-3px) scale(1.08);
-  box-shadow: 0 12px 30px rgba(12, 242, 180, 0.4);
+  box-shadow: 0 12px 30px rgba(255, 255, 255, 0.3);
 }
 
 .navButton:active {
@@ -140,8 +132,8 @@
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 20%, rgba(12, 242, 180, 0.05) 0%, transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(56, 232, 225, 0.03) 0%, transparent 60%);
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -165,18 +157,18 @@
 }
 
 .card:hover {
-  border-color: rgba(12, 242, 180, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 
     0 16px 40px rgba(0, 0, 0, 0.4),
-    0 8px 20px rgba(12, 242, 180, 0.15),
-    0 0 0 1px rgba(12, 242, 180, 0.1) inset;
+    0 8px 20px rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
 
 .cardCenter:hover {
   box-shadow: 
     0 20px 50px rgba(0, 0, 0, 0.5),
-    0 10px 25px rgba(12, 242, 180, 0.2),
-    0 0 0 1px rgba(12, 242, 180, 0.15) inset;
+    0 10px 25px rgba(255, 255, 255, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset;
 }
 
 .cardHeader {
@@ -200,7 +192,7 @@
 }
 
 .card:hover .cardIcon {
-  color: rgba(12, 242, 180, 0.8);
+  color: rgba(255, 255, 255, 1);
 }
 
 .cardContent {
@@ -233,13 +225,13 @@
 }
 
 .tag {
-  background: linear-gradient(135deg, rgba(12, 242, 180, 0.12) 0%, rgba(56, 232, 225, 0.08) 100%);
-  border: 1px solid rgba(12, 242, 180, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
   padding: 0.25rem 0.5rem;
   font-size: 0.7rem;
   font-weight: 500;
-  color: rgba(12, 242, 180, 0.9);
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   backdrop-filter: blur(10px) saturate(180%);
@@ -248,8 +240,8 @@
 }
 
 .card:hover .tag {
-  background: linear-gradient(135deg, rgba(12, 242, 180, 0.18) 0%, rgba(56, 232, 225, 0.12) 100%);
-  border-color: rgba(12, 242, 180, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.12) 100%);
+  border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
 
@@ -258,8 +250,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: linear-gradient(135deg, rgba(12, 242, 180, 0.08) 0%, rgba(56, 232, 225, 0.04) 100%);
-  border: 1px solid rgba(12, 242, 180, 0.15);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   margin-top: auto;
 }
@@ -448,11 +440,11 @@
   bottom: 0;
   width: 3px;
   background: linear-gradient(to bottom, 
-    rgba(12, 242, 180, 0.8) 0%, 
-    rgba(56, 232, 225, 0.6) 50%,
-    rgba(12, 242, 180, 0.8) 100%);
+    rgba(255, 255, 255, 0.8) 0%, 
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.8) 100%);
   border-radius: 3px;
-  box-shadow: 0 0 10px rgba(12, 242, 180, 0.4);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 /* White vertical bar for second section */
@@ -495,11 +487,11 @@
   bottom: 0;
   width: 3px;
   background: linear-gradient(to bottom, 
-    rgba(12, 242, 180, 0.8) 0%, 
-    rgba(56, 232, 225, 0.6) 50%,
-    rgba(12, 242, 180, 0.8) 100%);
+    rgba(255, 255, 255, 0.8) 0%, 
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.8) 100%);
   border-radius: 3px;
-  box-shadow: 0 0 10px rgba(12, 242, 180, 0.4);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 1024px) and (min-width: 769px) {

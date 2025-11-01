@@ -1,6 +1,7 @@
 .container {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: visible;
+    overflow-y: visible;
     padding: 1.5rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -235,19 +236,20 @@
 
 .card:hover {
     transform: translateY(-4px) scale(1.01);
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: #ffffff;
     box-shadow: 
-        0 8px 32px -4px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        0 8px 32px -4px rgba(0, 0, 0, 0.2);
     transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .card:hover::before {
-    opacity: 1;
+    opacity: 0;
+    display: none;
     transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .card:hover::after {
+    display: none;
     transform: translateX(100%) rotate(45deg);
     transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -259,6 +261,11 @@
     gap: 1rem;
     position: relative;
     z-index: 1;
+    background: transparent;
+}
+
+.card:hover .cardInner {
+    background: transparent;
 }
 
 .cardHeader {
@@ -288,16 +295,22 @@
 }
 
 .statusCompleted {
-    background: rgba(56, 232, 225, 0.15);
-    color: rgba(56, 232, 225, 0.95);
-    border: 1px solid rgba(56, 232, 225, 0.3);
-    text-shadow: 0 0 10px rgba(56, 232, 225, 0.3);
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    text-shadow: none;
+}
+
+.card:hover .statusCompleted {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .statusInProgress {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #ffffff;
 }
 
 .statusPending {
@@ -315,10 +328,15 @@
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     width: 100%;
     padding-right: 80px; /* Make space for the status badge */
+}
+
+.card:hover .title {
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .cardContent {
@@ -327,6 +345,10 @@
     gap: 0.75rem;
     padding-top: 0.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.card:hover .cardContent {
+    border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .infoGrid {
@@ -351,6 +373,15 @@
     background: rgba(255, 255, 255, 0.03);
 }
 
+.card:hover .infoBox {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.card:hover .infoBox:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
 .infoLabel {
     font-size: 0.5625rem;
     color: var(--text-secondary);
@@ -360,6 +391,11 @@
     opacity: 0.8;
 }
 
+.card:hover .infoLabel {
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
+}
+
 .infoValue {
     font-family: var(--font-mono, monospace);
     font-size: 0.75rem;
@@ -367,6 +403,10 @@
     color: var(--text-color);
     letter-spacing: -0.01em;
     margin-bottom: 0.25rem;
+}
+
+.card:hover .infoValue {
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .projectIdBox {
@@ -381,6 +421,11 @@
     height: min-content;
 }
 
+.card:hover .projectIdBox {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
 .projectIdLabel {
     font-size: 0.5625rem;
     color: var(--text-secondary);
@@ -388,6 +433,11 @@
     letter-spacing: 0.05em;
     font-weight: 500;
     opacity: 0.8;
+}
+
+.card:hover .projectIdLabel {
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
 }
 
 .projectIdValue {
@@ -398,6 +448,11 @@
     font-weight: 500;
     margin-left: auto;
     opacity: 0.9;
+}
+
+.card:hover .projectIdValue {
+    color: rgba(255, 255, 255, 0.95);
+    opacity: 1;
 }
 
 .cardActions {
@@ -426,9 +481,20 @@
     height: 1.75rem;
 }
 
+.card:hover .actionButton {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
 .actionButton:hover {
     background: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.08);
+}
+
+.card:hover .actionButton:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .actionButton:active {
@@ -439,10 +505,10 @@
     font-size: 0.75rem;
     color: var(--text-secondary);
     margin-bottom: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 4px;
-    display: inline-block;
+}
+
+.card:hover .type {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .description {
@@ -454,8 +520,13 @@
     margin-bottom: 1rem;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.card:hover .description {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .meta {
@@ -467,6 +538,11 @@
     margin-top: auto;
     padding-top: 0.75rem;
     border-top: 1px solid var(--glass-border);
+}
+
+.card:hover .meta {
+    color: rgba(255, 255, 255, 0.7);
+    border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .meta div {
@@ -486,18 +562,20 @@
     width: 100%;
     height: 6px;
     background: rgba(255, 255, 255, 0.06);
-    border-radius: 3px;
-    margin-top: 0.5rem;
-    overflow: hidden;
+}
+
+.card:hover .progress {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .progressBar {
     width: 100%;
     height: 4px;
     background: rgba(255, 255, 255, 0.06);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 0.125rem;
+}
+
+.card:hover .progressBar {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .progressFill {
@@ -510,14 +588,20 @@
     font-size: 0.875rem;
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
+}
+
+.card:hover .progressLabel {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .progressValue {
     color: var(--text-color);
     font-weight: 600;
     margin-left: 0.5rem;
+}
+
+.card:hover .progressValue {
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .progressValueInner {
@@ -1121,7 +1205,7 @@
         rgba(255, 255, 255, 0.02) 100%
     );
     border-radius: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
     position: relative;
     cursor: pointer;
@@ -1133,7 +1217,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: left center;
 }
 
@@ -1146,14 +1230,14 @@
 
 .fundTag {
     padding: 0.25rem 0.5rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 4px;
     font-size: 0.625rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: #000000;
     white-space: nowrap;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .projectTitle {
@@ -1164,7 +1248,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .milestoneCount {
@@ -1174,7 +1258,7 @@
     color: rgba(255, 255, 255, 0.95);
     white-space: nowrap;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .milestoneProgressBar {
@@ -1187,13 +1271,18 @@
     box-shadow: 
         inset 0 1px 3px rgba(0, 0, 0, 0.4),
         0 1px 2px rgba(255, 255, 255, 0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .milestoneProgressFill {
     height: 100%;
     border-radius: 4px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 0.9s cubic-bezier(0.4, 0, 0.2, 1), 
+                background-image 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     background: linear-gradient(90deg, 
         rgba(255, 255, 255, 0.5),
         rgba(255, 255, 255, 0.7)
@@ -1219,19 +1308,19 @@
         rgba(255, 255, 255, 0.2) 80%,
         rgba(255, 255, 255, 0) 100%
     );
-    transition: opacity 0.3s ease;
+    transition: opacity 0.5s ease;
     opacity: 0;
 }
 
 .milestoneRow:hover {
     background: linear-gradient(165deg,
-        rgba(255, 255, 255, 0.06) 0%,
-        rgba(255, 255, 255, 0.03) 100%
+        rgba(255, 255, 255, 0.04) 0%,
+        rgba(255, 255, 255, 0.02) 100%
     );
-    border-color: rgba(255, 255, 255, 0.12);
+    background-image: none !important;
+    border-color: #ffffff;
     box-shadow: 
-        0 8px 32px -4px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+        0 8px 32px -4px rgba(0, 0, 0, 0.2);
 }
 
 .milestoneRow:hover .milestoneInfo {
@@ -1239,45 +1328,37 @@
 }
 
 .milestoneRow:hover .fundTag {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 1);
+    background: #000000;
+    border-color: #ffffff;
+    color: #ffffff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .milestoneRow:hover .projectTitle {
-    color: rgba(255, 255, 255, 1);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .milestoneRow:hover .milestoneCount {
-    color: rgba(255, 255, 255, 1);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .milestoneRow:hover .milestoneProgressBar {
-    background: rgba(0, 0, 0, 0.7);
-    box-shadow: 
-        inset 0 1px 4px rgba(0, 0, 0, 0.5),
-        0 1px 2px rgba(255, 255, 255, 0.08);
+    /* Keep original styles - no hover effect */
     transform: scale(1.02);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .milestoneRow:hover .milestoneProgressFill {
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.6),
-        rgba(255, 255, 255, 0.9)
-    );
-    box-shadow: 
-        0 0 30px rgba(255, 255, 255, 0.3),
-        0 0 20px rgba(255, 255, 255, 0.2),
-        0 0 10px rgba(255, 255, 255, 0.1),
-        inset 0 1px rgba(255, 255, 255, 0.5);
+    /* Keep original inline styles - no hover effect */
     transform: scaleY(1.15);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .milestoneRow:hover .milestoneProgressFill::before {
-    opacity: 1;
+    opacity: 0;
+    display: none;
 }
 
 @media (min-width: 768px) {
@@ -1322,49 +1403,94 @@
     }
 }
 
+.chartsContainer {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0 3rem;
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
+}
+
+.chartsDivider {
+    height: 1px;
+    background: #000000;
+    margin: 2rem 0;
+    width: 100%;
+}
+
 .chartsGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
-    margin: 2rem 0 4rem;
-    padding: 0 1rem;
+    row-gap: 0.5rem;
+    column-gap: 2rem;
+    margin-top: 2rem;
+    padding: 0;
     align-items: start;
+    grid-auto-rows: min-content;
 }
+
+
+
+
+.chartsGrid .chartSection {
+    flex: 0 1 auto;
+    min-width: 0;
+    align-self: start;
+    height: fit-content;
+}
+
 
 .chartSection {
     display: flex;
     flex-direction: column;
-    height: 420px;
+    min-height: 0;
+    height: auto;
     width: 100%;
     position: relative;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
+
+
 .donutChartContainer {
-    position: absolute;
-    inset: 0;
+    position: relative;
     max-width: none;
     margin: 0;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(12px);
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 1rem 1rem 0.5rem;
+    background: transparent;
+    backdrop-filter: none;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    height: fit-content;
 }
+
+.chartsGrid .chartSection:nth-child(1) .donutChartContainer,
+.chartsGrid .chartSection:nth-child(2) .donutChartContainer {
+    padding-bottom: 0.5rem;
+}
+
 
 .donutChart {
     width: 100%;
     height: 280px;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 .donutLegend {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    min-height: 7rem;
+    min-height: 0;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .legendItem {
@@ -1376,6 +1502,7 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    border: 1px solid transparent;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1389,7 +1516,7 @@
     background: linear-gradient(
         90deg,
         transparent,
-        rgba(255, 255, 255, 0.2),
+        rgba(0, 0, 0, 0.1),
         transparent
     );
     transition: left 0.5s ease;
@@ -1402,8 +1529,9 @@
 .legendItem:hover,
 .legendItem.active {
     transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(56, 232, 225, 0.3);
-    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 1);
 }
 
 .legendItem:hover .legendColor,
@@ -1415,7 +1543,7 @@
 .legendItem.active .legendLabel,
 .legendItem:hover .legendValue,
 .legendItem.active .legendValue {
-    color: rgba(56, 232, 225, 0.95);
+    color: #000000;
 }
 
 .legendColor {
@@ -1428,11 +1556,12 @@
 
 .legendColor.completed,
 .legendColor.distributed {
-    background: linear-gradient(135deg, rgba(56, 232, 225, 0.95), rgba(8, 74, 67, 0.8));
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
+    border: 1px solid rgba(0, 0, 0, 1);
 }
 
 .legendColor.remaining {
-    background: linear-gradient(135deg, rgba(226, 232, 240, 0.85), rgba(71, 85, 105, 0.75));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.8));
 }
 
 .legendLabel {
@@ -1442,14 +1571,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .legendValue {
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     flex-shrink: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1457,10 +1586,10 @@
 .completionText {
     text-align: center;
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.9);
-    padding-top: 0.5rem;
-    height: 2rem;
-    margin-top: auto;
+    color: rgba(0, 0, 0, 0.9);
+    padding: 0;
+    margin: 0.25rem 0 0 0;
+    line-height: 1.2;
 }
 
 .completionRate {
@@ -1504,4 +1633,5 @@
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
+    
 }

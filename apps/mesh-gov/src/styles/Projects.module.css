@@ -46,15 +46,8 @@
 .chartTitle {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-color);
+    color: rgba(255, 255, 255, 0.95);
     margin: 0 0 0.5rem 0;
-    background: linear-gradient(90deg,
-        rgba(12, 242, 180, 0.9) 0%,
-        rgba(255, 255, 255, 0.95) 50%,
-        rgba(12, 242, 180, 0.9) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 
 .chartSubtitle {
@@ -100,10 +93,10 @@
 }
 
 .timeWindowButton.active {
-    background: rgba(12, 242, 180, 0.15);
-    border-color: rgba(12, 242, 180, 0.3);
-    color: rgb(12, 242, 180);
-    box-shadow: 0 0 12px rgba(12, 242, 180, 0.2);
+    background: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #000000;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .chartContent {
@@ -281,7 +274,7 @@
 }
 
 .iconLink:hover {
-    color: #00FFA3;
+    color: rgba(255, 255, 255, 1);
     transform: translateY(-2px);
 }
 
@@ -316,8 +309,8 @@
 }
 
 .navigableCard:hover {
-    border-color: rgba(12, 242, 180, 0.3);
-    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(12, 242, 180, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
 .navigableCard::after {
@@ -327,7 +320,7 @@
     right: 1rem;
     width: 24px;
     height: 24px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(12, 242, 180, 0.7)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M14 5l7 7m0 0l-7 7m7-7H3'%3E%3C/path%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255, 255, 255, 0.7)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M14 5l7 7m0 0l-7 7m7-7H3'%3E%3C/path%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
     opacity: 0.5;
@@ -470,7 +463,7 @@
 
 .actionIcon:hover {
     background: transparent;
-    color: rgb(12, 242, 180);
+    color: rgba(255, 255, 255, 1);
     transform: translateY(-1px);
 }
 
@@ -724,14 +717,11 @@
 }
 
 .governanceCard {
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
     padding: 2rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -744,19 +734,19 @@
 .governanceCard:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(0, 0, 0, 0.2);
 }
 
 .governanceCard h3 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: rgba(56, 232, 225, 0.9);
+    color: #000000;
     margin: 0 0 1rem;
 }
 
 .governanceCard p {
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.7);
     line-height: 1.6;
     margin: 0 0 1.5rem;
     flex-grow: 1;
@@ -766,10 +756,10 @@
     display: inline-flex;
     align-items: center;
     padding: 0.75rem 1.25rem;
-    background: rgba(56, 232, 225, 0.15);
-    border: 1px solid rgba(56, 232, 225, 0.3);
+    background: #000000;
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 8px;
-    color: rgba(56, 232, 225, 0.9);
+    color: #ffffff;
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
@@ -778,9 +768,11 @@
 }
 
 .governanceLink:hover {
-    background: rgba(56, 232, 225, 0.25);
-    color: rgba(56, 232, 225, 1);
+    background: #ffffff;
+    border-color: #000000;
+    color: #000000;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes gradientText {

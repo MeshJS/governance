@@ -15,6 +15,7 @@ import {
   ComposedChart,
 } from 'recharts';
 import PackageDownloadsDonut from './PackageDownloadsDonut';
+import SectionTitle from './SectionTitle';
 import {
   PackageData,
   MeshStatsViewProps as OriginalMeshStatsViewProps,
@@ -33,7 +34,8 @@ const CustomTooltip = ({
   payload,
   label,
   chartId,
-}: TooltipProps<number, string> & { chartId?: string }) => {
+  isWhiteBackground = false,
+}: TooltipProps<number, string> & { chartId?: string; isWhiteBackground?: boolean }) => {
   if (active && payload && payload.length && payload[0].value !== undefined) {
     const unit =
       chartId === 'repositories'
@@ -43,26 +45,39 @@ const CustomTooltip = ({
           : chartId === 'contributors'
             ? 'contributors'
             : 'downloads';
+    
+    const backgroundColor = isWhiteBackground ? 'rgba(255, 255, 255, 0.98)' : 'rgba(0, 0, 0, 0.95)';
+    const borderColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)';
+    const textColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+    const labelColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.8)';
+    const valueColor = isWhiteBackground ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 1)';
+    const dividerColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
+    const indicatorColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 1)';
+    const boxShadow = isWhiteBackground 
+      ? '0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1) inset'
+      : '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
+    
     return (
       <div
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.95)',
-          border: '1px solid rgba(56, 232, 225, 0.3)',
+          backgroundColor,
+          border: `1px solid ${borderColor}`,
           borderRadius: '8px',
           padding: '12px 16px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          maxWidth: '280px',
+          boxShadow,
+          backdropFilter: isWhiteBackground ? 'none' : 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: isWhiteBackground ? 'none' : 'blur(20px) saturate(180%)',
+          minWidth: '200px',
+          maxWidth: '320px',
         }}
       >
         <div
           style={{
             fontSize: '11px',
-            color: 'rgba(255, 255, 255, 0.8)',
+            color: labelColor,
             marginBottom: '6px',
             fontWeight: '600',
-            borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
+            borderBottom: `1px solid ${dividerColor}`,
             paddingBottom: '3px',
           }}
         >
@@ -82,17 +97,17 @@ const CustomTooltip = ({
                 width: '6px',
                 height: '6px',
                 borderRadius: '1px',
-                backgroundColor: 'rgba(12, 242, 180, 1)',
-                boxShadow: '0 0 3px rgba(12, 242, 180, 1)',
+                backgroundColor: indicatorColor,
+                boxShadow: isWhiteBackground ? 'none' : '0 0 3px rgba(255, 255, 255, 1)',
               }}
             />
-            <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>{unit}</span>
+            <span style={{ color: textColor, fontWeight: '500' }}>{unit}</span>
           </div>
           <span
             style={{
-              color: 'rgba(12, 242, 180, 1)',
+              color: valueColor,
               fontWeight: '600',
-              textShadow: '0 0 4px rgba(12, 242, 180, 0.4)',
+              textShadow: isWhiteBackground ? 'none' : '0 0 4px rgba(255, 255, 255, 0.4)',
             }}
           >
             {formatNumber(payload[0].value)}
@@ -124,10 +139,14 @@ const CustomDiscordTooltip = ({ active, payload, label }: TooltipProps<number, s
 interface CustomBarChartProps {
   data: PackageData[];
   chartId: string;
+  isWhiteBackground?: boolean;
 }
 
 const CustomTick = (props: any) => {
-  const { x, y, payload } = props;
+  const { x, y, payload, isWhiteBackground = false, index, hoveredIndex } = props;
+  const isHovered = hoveredIndex !== null && hoveredIndex === index;
+  const fontSize = isHovered ? 10 : 9;
+  
   return (
     <g transform={`translate(${x},${y})`}>
       <text
@@ -135,9 +154,16 @@ const CustomTick = (props: any) => {
         y={0}
         dy={16}
         textAnchor="end"
-        fill="rgba(255, 255, 255, 0.6)"
-        fontSize="9"
+        fill="#000000"
+        fontSize={fontSize}
+        opacity={1}
         transform="rotate(-60)"
+        style={{ 
+          fill: '#000000',
+          opacity: 1,
+          transformOrigin: '0 0',
+          transition: 'font-size 0.3s ease'
+        }}
       >
         {payload.value}
       </text>
@@ -145,8 +171,9 @@ const CustomTick = (props: any) => {
   );
 };
 
-const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
-  const gradientId = `tealGradient-${chartId}`;
+const CustomBarChart = ({ data, chartId, isWhiteBackground = false }: CustomBarChartProps) => {
+  const gradientId = `whiteGradient-${chartId}`;
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
 
   const handleBarClick = (data: any) => {
     if (data && data.packageName) {
@@ -154,6 +181,14 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
       window.open(npmUrl, '_blank');
     }
   };
+
+  const gridColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.03)';
+  const axisColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.1)';
+  const tickColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.6)';
+  const cursorColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.03)';
+  const barColor = isWhiteBackground ? '#ffffff' : `url(#${gradientId})`;
+  const barStroke = isWhiteBackground ? '#000000' : undefined;
+  const barStrokeWidth = isWhiteBackground ? 1 : 0;
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -163,39 +198,50 @@ const CustomBarChart = ({ data, chartId }: CustomBarChartProps) => {
         margin={{ top: 10, right: 10, left: -15, bottom: 75 }}
         key={`bar-chart-${chartId}`} // Stable key to prevent unnecessary re-renders
       >
-        <defs>
-          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#14B8A6" />
-            <stop offset="100%" stopColor="#0F172A" />
-          </linearGradient>
-        </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.03)" vertical={false} />
+        {!isWhiteBackground && (
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="100%" stopColor="#94a3b8" />
+            </linearGradient>
+          </defs>
+        )}
+        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
         <XAxis
           dataKey="name"
-          axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
-          tick={<CustomTick />}
-          tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          axisLine={{ stroke: axisColor }}
+          tick={(props: any) => {
+            const allProps = { ...props, isWhiteBackground, hoveredIndex };
+            return <CustomTick {...allProps} />;
+          }}
+          tickLine={{ stroke: axisColor }}
           height={80}
           interval={0}
           tickMargin={8}
         />
         <YAxis
-          axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
-          tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
-          tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          axisLine={{ stroke: axisColor }}
+          tick={{ fill: tickColor, fontSize: 11 }}
+          tickLine={{ stroke: axisColor }}
           tickFormatter={value => (value >= 1000 ? `${value / 1000}k` : value)}
         />
         <Tooltip
-          content={<CustomTooltip chartId={chartId} />}
-          cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+          content={<CustomTooltip chartId={chartId} isWhiteBackground={isWhiteBackground} />}
+          cursor={{ fill: cursorColor }}
         />
         <Bar
           dataKey="downloads"
-          fill={`url(#${gradientId})`}
+          fill={barColor}
+          stroke={barStroke}
+          strokeWidth={barStrokeWidth}
           radius={[4, 4, 0, 0]}
           maxBarSize={40}
           onClick={handleBarClick}
-          style={{ cursor: 'pointer' }}
+          onMouseEnter={(entry: any, index: number) => {
+            setHoveredIndex(index);
+          }}
+          onMouseLeave={() => setHoveredIndex(null)}
+          style={{ cursor: 'pointer', filter: isWhiteBackground ? 'none' : undefined }}
           animationBegin={150}
           animationDuration={1200}
           animationEasing="ease-out"
@@ -211,11 +257,14 @@ interface CustomLineChartProps {
     repositories: number;
   }>;
   chartId: string;
+  isWhiteBackground?: boolean;
 }
 
 // Custom tick component for LineChart
 const CustomLineTick = (props: any) => {
-  const { x, y, payload } = props;
+  const { x, y, payload, isWhiteBackground = false } = props;
+  const textColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.9)';
+  const textShadow = isWhiteBackground ? 'none' : '0px 1px 2px rgba(0, 0, 0, 0.5)';
   return (
     <g transform={`translate(${x},${y})`}>
       <text
@@ -223,11 +272,11 @@ const CustomLineTick = (props: any) => {
         y={0}
         dy={16}
         textAnchor="end"
-        fill="rgba(255, 255, 255, 0.9)"
+        fill={textColor}
         fontSize="11"
         fontWeight="500"
         transform="rotate(-45)"
-        style={{ textShadow: '0px 1px 2px rgba(0, 0, 0, 0.5)' }}
+        style={{ textShadow }}
       >
         {payload.value}
       </text>
@@ -235,12 +284,16 @@ const CustomLineTick = (props: any) => {
   );
 };
 
-const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => {
-  // Enhanced gradients matching contributors page - using teal colors
-  const stroke = 'rgba(12, 242, 180, 1)';
-  const r = 12,
-    g = 242,
-    b = 180;
+const CustomLineChart = ({ data, chartId, isWhiteBackground = false }: CustomLineChartProps) => {
+  const gridColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.08)';
+  const axisColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.6)';
+  const tickColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.6)';
+  
+  // Use black for white background, white for dark background
+  const stroke = isWhiteBackground ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 1)';
+  const r = isWhiteBackground ? 0 : 255;
+  const g = isWhiteBackground ? 0 : 255;
+  const b = isWhiteBackground ? 0 : 255;
 
   const bright = `rgb(${Math.min(255, Math.round(r * 1.2))}, ${Math.min(255, Math.round(g * 1.2))}, ${Math.min(255, Math.round(b * 1.2))})`;
   const dim = `rgb(${Math.round(r * 0.4)}, ${Math.round(g * 0.4)}, ${Math.round(b * 0.4)})`;
@@ -255,32 +308,32 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => {
             <stop offset="100%" stopColor={dim} />
           </linearGradient>
           <linearGradient id={`areaGradient-${chartId}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0.3" />
-            <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0.1" />
+            <stop offset="0%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity={isWhiteBackground ? "0.15" : "0.3"} />
+            <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity={isWhiteBackground ? "0.05" : "0.1"} />
             <stop offset="100%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0" />
           </linearGradient>
         </defs>
         <CartesianGrid
           strokeDasharray="2 2"
-          stroke="rgba(255, 255, 255, 0.08)"
+          stroke={gridColor}
           horizontal={true}
           vertical={false}
         />
         <XAxis
           dataKey="month"
-          stroke="rgba(255, 255, 255, 0.6)"
+          stroke={axisColor}
           height={80}
-          tick={<CustomLineTick />}
-          tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          tick={<CustomLineTick isWhiteBackground={isWhiteBackground} />}
+          tickLine={{ stroke: axisColor }}
           interval={0}
         />
         <YAxis
-          stroke="rgba(255, 255, 255, 0.6)"
+          stroke={axisColor}
           fontSize={10}
           fontWeight={500}
-          tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+          tick={{ fill: tickColor }}
         />
-        <Tooltip content={<CustomTooltip chartId={chartId} />} cursor={false} />
+        <Tooltip content={<CustomTooltip chartId={chartId} isWhiteBackground={isWhiteBackground} />} cursor={false} />
         <Area
           type="monotone"
           dataKey="repositories"
@@ -297,9 +350,9 @@ const CustomLineChart = ({ data, chartId }: CustomLineChartProps) => {
           activeDot={{
             r: 4,
             fill: stroke,
-            stroke: 'rgba(255, 255, 255, 0.8)',
+            stroke: isWhiteBackground ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.8)',
             strokeWidth: 1.5,
-            filter: `drop-shadow(0 0 6px ${stroke.replace('1)', '0.4)')})`,
+            filter: isWhiteBackground ? 'none' : `drop-shadow(0 0 6px ${stroke.replace('1)', '0.4)')})`,
           }}
           connectNulls={false}
           strokeLinecap="round"
@@ -322,10 +375,11 @@ interface CustomMultiLineChartProps {
     stroke: string;
   }>;
   highlightedKey?: string | null;
+  isWhiteBackground?: boolean;
 }
 
 // Enhanced Repository Dependencies tooltip matching contributors page style
-const CustomRepositoryTooltip = ({ active, payload, label }: any) => {
+const CustomRepositoryTooltip = ({ active, payload, label, isWhiteBackground = false }: any) => {
   if (!active || !payload || payload.length === 0) return null;
 
   // Filter to only show Line components (not Area components) to avoid duplicates
@@ -333,61 +387,76 @@ const CustomRepositoryTooltip = ({ active, payload, label }: any) => {
     (entry: any) => entry.name && entry.name !== entry.dataKey
   );
 
+  const backgroundColor = isWhiteBackground ? 'rgba(255, 255, 255, 0.98)' : 'rgba(0, 0, 0, 0.95)';
+  const borderColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)';
+  const textColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+  const labelColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.8)';
+  const dividerColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
+  const boxShadow = isWhiteBackground 
+    ? '0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1) inset'
+    : '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
+
   return (
     <div
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        border: '1px solid rgba(56, 232, 225, 0.3)',
+        backgroundColor,
+        border: `1px solid ${borderColor}`,
         borderRadius: '8px',
         padding: '12px 16px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow,
+        backdropFilter: isWhiteBackground ? 'none' : 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: isWhiteBackground ? 'none' : 'blur(20px) saturate(180%)',
         maxWidth: '280px',
       }}
     >
       <div
         style={{
           fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.8)',
+          color: labelColor,
           marginBottom: '6px',
           fontWeight: '600',
-          borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
+          borderBottom: `1px solid ${dividerColor}`,
           paddingBottom: '3px',
         }}
       >
         {label}
       </div>
-      {filteredPayload.map((entry: any, index: number) => (
+      {filteredPayload
+        .filter((entry: any) => entry.value != null && entry.value !== undefined)
+        .sort((a: any, b: any) => (b.value || 0) - (a.value || 0))
+        .map((entry: any, index: number, array: any[]) => (
         <div
           key={index}
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: index === filteredPayload.length - 1 ? '0' : '4px',
+            marginBottom: index === array.length - 1 ? '0' : '4px',
             fontSize: '10px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginRight: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginRight: '16px', flex: '1', minWidth: 0 }}>
             <div
               style={{
                 width: '6px',
                 height: '6px',
                 borderRadius: '1px',
                 backgroundColor: entry.color,
-                boxShadow: `0 0 3px ${entry.color}`,
+                boxShadow: isWhiteBackground ? 'none' : `0 0 3px ${entry.color}`,
+                flexShrink: 0,
               }}
             />
-            <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
+            <span style={{ color: textColor, fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {entry.name}
             </span>
           </div>
           <span
             style={{
-              color: entry.color,
+              color: isWhiteBackground ? '#000000' : entry.color,
               fontWeight: '600',
-              textShadow: `0 0 4px ${entry.color}40`,
+              textShadow: isWhiteBackground ? 'none' : `0 0 4px ${entry.color}40`,
+              marginLeft: '8px',
+              flexShrink: 0,
             }}
           >
             {formatNumber(entry.value)}
@@ -403,91 +472,109 @@ const CustomMultiLineChart = ({
   chartId,
   lines,
   highlightedKey = null,
-}: CustomMultiLineChartProps) => (
-  <ResponsiveContainer width="100%" height="100%">
-    <ComposedChart data={data} margin={{ top: 15, right: 20, left: 15, bottom: 15 }}>
-      <defs>
-        {lines.map((line, index) => {
-          // Enhanced gradients matching contributors page
-          const baseColor = line.stroke;
-          const match = baseColor.match(/rgba?\(([^)]+)\)/);
-          let r = 56,
-            g = 232,
-            b = 225; // Default teal
+  isWhiteBackground = false,
+}: CustomMultiLineChartProps) => {
+  const gridColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.08)';
+  const axisColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.6)';
+  const tickColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.6)';
 
-          if (match) {
-            const values = match[1].split(',').map(v => parseFloat(v.trim()));
-            r = values[0];
-            g = values[1];
-            b = values[2];
-          }
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <ComposedChart data={data} margin={{ top: 15, right: 20, left: 15, bottom: 15 }}>
+        <defs>
+          {lines.map((line, index) => {
+            let r, g, b;
+            
+            if (isWhiteBackground) {
+              // Use pure black for all lines on white background
+              r = 0;
+              g = 0;
+              b = 0;
+            } else {
+              // Enhanced gradients matching contributors page
+              const baseColor = line.stroke;
+              const match = baseColor.match(/rgba?\(([^)]+)\)/);
+              r = 56;
+              g = 232;
+              b = 225; // Default teal
 
-          const bright = `rgb(${Math.min(255, Math.round(r * 1.2))}, ${Math.min(255, Math.round(g * 1.2))}, ${Math.min(255, Math.round(b * 1.2))})`;
-          const dim = `rgb(${Math.round(r * 0.4)}, ${Math.round(g * 0.4)}, ${Math.round(b * 0.4)})`;
+              if (match) {
+                const values = match[1].split(',').map(v => parseFloat(v.trim()));
+                r = values[0];
+                g = values[1];
+                b = values[2];
+              }
+            }
 
-          return [
-            <linearGradient
-              key={`line-${index}`}
-              id={`lineGradient-${chartId}-${line.dataKey}`}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop offset="0%" stopColor={bright} />
-              <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} />
-              <stop offset="100%" stopColor={dim} />
-            </linearGradient>,
-            <linearGradient
-              key={`area-${index}`}
-              id={`areaGradient-${chartId}-${line.dataKey}`}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop offset="0%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0.3" />
-              <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0.1" />
-              <stop offset="100%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0" />
-            </linearGradient>,
-          ];
-        })}
-      </defs>
-      <CartesianGrid
-        strokeDasharray="2 2"
-        stroke="rgba(255, 255, 255, 0.08)"
-        horizontal={true}
-        vertical={false}
-      />
-      <XAxis
-        dataKey="month"
-        stroke="rgba(255, 255, 255, 0.6)"
-        fontSize={9}
-        fontWeight={500}
-        angle={-60}
-        textAnchor="end"
-        height={70}
-        tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
-        tickMargin={8}
-        interval={0}
-      />
-      <YAxis
-        stroke="rgba(255, 255, 255, 0.6)"
-        fontSize={10}
-        fontWeight={500}
-        tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
-      />
-      <Tooltip content={<CustomRepositoryTooltip />} cursor={false} />
-      {lines.map((line, index) => (
-        <Area
-          key={`area-${index}`}
-          type="monotone"
-          dataKey={line.dataKey}
-          fill={`url(#areaGradient-${chartId}-${line.dataKey})`}
-          stroke="none"
-          fillOpacity={highlightedKey ? (line.dataKey === highlightedKey ? 0.25 : 0.06) : undefined}
+            const bright = `rgb(${Math.min(255, Math.round(r * 1.2))}, ${Math.min(255, Math.round(g * 1.2))}, ${Math.min(255, Math.round(b * 1.2))})`;
+            const dim = `rgb(${Math.round(r * 0.4)}, ${Math.round(g * 0.4)}, ${Math.round(b * 0.4)})`;
+
+            return [
+              <linearGradient
+                key={`line-${index}`}
+                id={`lineGradient-${chartId}-${line.dataKey}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="0%" stopColor={bright} />
+                <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} />
+                <stop offset="100%" stopColor={dim} />
+              </linearGradient>,
+              <linearGradient
+                key={`area-${index}`}
+                id={`areaGradient-${chartId}-${line.dataKey}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="0%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity={isWhiteBackground ? "0.15" : "0.3"} />
+                <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity={isWhiteBackground ? "0.05" : "0.1"} />
+                <stop offset="100%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0" />
+              </linearGradient>,
+            ];
+          })}
+        </defs>
+        <CartesianGrid
+          strokeDasharray="2 2"
+          stroke={gridColor}
+          horizontal={true}
+          vertical={false}
         />
-      ))}
+        <XAxis
+          dataKey="month"
+          stroke={axisColor}
+          fontSize={9}
+          fontWeight={500}
+          angle={-60}
+          textAnchor="end"
+          height={70}
+          tick={{ fill: tickColor }}
+          tickMargin={8}
+          interval={0}
+        />
+        <YAxis
+          stroke={axisColor}
+          fontSize={10}
+          fontWeight={500}
+          tick={{ fill: tickColor }}
+        />
+        <Tooltip content={<CustomRepositoryTooltip isWhiteBackground={isWhiteBackground} />} cursor={false} />
+       {lines.map((line, index) => {
+         const isHighlighted = highlightedKey && line.dataKey === highlightedKey;
+         return (
+           <Area
+             key={`area-${index}`}
+             type="monotone"
+             dataKey={line.dataKey}
+             fill={isHighlighted ? (isWhiteBackground ? "#000000" : "#ffffff") : `url(#areaGradient-${chartId}-${line.dataKey})`}
+             stroke="none"
+             fillOpacity={isHighlighted ? (isWhiteBackground ? 1 : 1) : (highlightedKey ? (isWhiteBackground ? 0.03 : 0.06) : undefined)}
+           />
+         );
+       })}
       {lines.map((line, index) => (
         <Line
           key={`line-${index}`}
@@ -500,19 +587,20 @@ const CustomMultiLineChart = ({
           dot={false}
           activeDot={{
             r: 4,
-            fill: line.stroke,
-            stroke: 'rgba(255, 255, 255, 0.8)',
+            fill: isWhiteBackground ? '#000000' : line.stroke,
+            stroke: isWhiteBackground ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.8)',
             strokeWidth: 1.5,
-            filter: `drop-shadow(0 0 6px ${line.stroke.replace('1)', '0.4)')})`,
+            filter: isWhiteBackground ? 'none' : `drop-shadow(0 0 6px ${line.stroke.replace('1)', '0.4)')})`,
           }}
           connectNulls={false}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       ))}
-    </ComposedChart>
-  </ResponsiveContainer>
-);
+      </ComposedChart>
+    </ResponsiveContainer>
+  );
+};
 
 interface CustomSingleLineChartProps {
   data: Array<{
@@ -524,77 +612,108 @@ interface CustomSingleLineChartProps {
   name: string;
   stroke: string;
   yAxisDomain?: [number | string, number | string];
+  isWhiteBackground?: boolean;
 }
 
 // Enhanced Discord tooltip matching the glassmorphism style
-const CustomDiscordSingleTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
-  if (active && payload && payload.length && payload[0].value !== undefined) {
-    return (
+const CustomDiscordSingleTooltip = ({ active, payload, label, isWhiteBackground = false }: TooltipProps<number, string> & { isWhiteBackground?: boolean }) => {
+  if (!active || !payload || payload.length === 0) return null;
+
+  // Filter to only show Line components (not Area components) to avoid duplicates
+  // Area components don't have a name property, Line components do
+  const filteredPayload = payload.filter(
+    (entry: any) => entry.name && entry.name !== entry.dataKey
+  );
+  
+  const linePayload = filteredPayload.length > 0 ? filteredPayload[0] : payload[0];
+  
+  if (!linePayload || (linePayload.value === undefined && linePayload.payload === undefined)) return null;
+  
+  // Get the value - it might be directly on linePayload or in linePayload.payload
+  const value = linePayload.value !== undefined 
+    ? linePayload.value 
+    : (linePayload.payload && linePayload.dataKey ? linePayload.payload[linePayload.dataKey] : null);
+  
+  if (value === null || value === undefined) return null;
+
+  const backgroundColor = isWhiteBackground ? 'rgba(255, 255, 255, 0.98)' : 'rgba(0, 0, 0, 0.95)';
+  const borderColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)';
+  const textColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+  const labelColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.8)';
+  const dividerColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
+  const boxShadow = isWhiteBackground 
+    ? '0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1) inset'
+    : '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
+  
+  return (
+    <div
+      style={{
+        backgroundColor,
+        border: `1px solid ${borderColor}`,
+        borderRadius: '8px',
+        padding: '12px 16px',
+        boxShadow,
+        backdropFilter: isWhiteBackground ? 'none' : 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: isWhiteBackground ? 'none' : 'blur(20px) saturate(180%)',
+        maxWidth: '280px',
+      }}
+    >
       <div
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.95)',
-          border: '1px solid rgba(56, 232, 225, 0.3)',
-          borderRadius: '8px',
-          padding: '12px 16px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          maxWidth: '280px',
+          fontSize: '11px',
+          color: labelColor,
+          marginBottom: '6px',
+          fontWeight: '600',
+          borderBottom: `1px solid ${dividerColor}`,
+          paddingBottom: '3px',
         }}
       >
-        <div
-          style={{
-            fontSize: '11px',
-            color: 'rgba(255, 255, 255, 0.8)',
-            marginBottom: '6px',
-            fontWeight: '600',
-            borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
-            paddingBottom: '3px',
-          }}
-        >
-          {label}
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '10px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginRight: '16px' }}>
-            <div
-              style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '1px',
-                backgroundColor: payload[0].stroke,
-                boxShadow: `0 0 3px ${payload[0].stroke}`,
-              }}
-            />
-            <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
-              {payload[0].name}
-            </span>
-          </div>
-          <span
+        {label}
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '10px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginRight: '16px' }}>
+          <div
             style={{
-              color: payload[0].stroke,
-              fontWeight: '600',
-              textShadow: `0 0 4px ${payload[0].stroke}40`,
+              width: '6px',
+              height: '6px',
+              borderRadius: '1px',
+              backgroundColor: linePayload.stroke || linePayload.color,
+              boxShadow: isWhiteBackground ? 'none' : `0 0 3px ${linePayload.stroke || linePayload.color}`,
             }}
-          >
-            {formatNumber(payload[0].value)}
+          />
+          <span style={{ color: textColor, fontWeight: '500' }}>
+            {linePayload.name || 'Value'}
           </span>
         </div>
+        <span
+          style={{
+            color: isWhiteBackground ? '#000000' : (linePayload.stroke || linePayload.color || '#ffffff'),
+            fontWeight: '600',
+            textShadow: isWhiteBackground ? 'none' : `0 0 4px ${linePayload.stroke || linePayload.color}40`,
+            minWidth: '60px',
+            textAlign: 'right',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {formatNumber(value)}
+        </span>
       </div>
-    );
-  }
-  return null;
+    </div>
+  );
 };
 
 // Custom tick component for Discord charts
 const CustomDiscordTick = (props: any) => {
-  const { x, y, payload } = props;
+  const { x, y, payload, isWhiteBackground = false } = props;
+  const textColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.9)';
+  const textShadow = isWhiteBackground ? 'none' : '0px 1px 2px rgba(0, 0, 0, 0.5)';
   return (
     <g transform={`translate(${x},${y})`}>
       <text
@@ -602,11 +721,11 @@ const CustomDiscordTick = (props: any) => {
         y={0}
         dy={16}
         textAnchor="end"
-        fill="rgba(255, 255, 255, 0.9)"
+        fill={textColor}
         fontSize="11"
         fontWeight="500"
         transform="rotate(-45)"
-        style={{ textShadow: '0px 1px 2px rgba(0, 0, 0, 0.5)' }}
+        style={{ textShadow }}
       >
         {payload.value}
       </text>
@@ -621,13 +740,18 @@ const CustomSingleLineChart = ({
   name,
   stroke,
   yAxisDomain,
+  isWhiteBackground = false,
 }: CustomSingleLineChartProps) => {
+  const gridColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.08)';
+  const axisColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.6)';
+  const tickColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.6)';
+  
   // Enhanced gradients matching contributors page
   const baseColor = stroke;
   const match = baseColor.match(/rgba?\(([^)]+)\)/);
-  let r = 56,
-    g = 232,
-    b = 225; // Default teal
+  let r = isWhiteBackground ? 0 : 255;
+  let g = isWhiteBackground ? 0 : 255;
+  let b = isWhiteBackground ? 0 : 255; // Default black for white background
 
   if (match) {
     const values = match[1].split(',').map(v => parseFloat(v.trim()));
@@ -649,33 +773,33 @@ const CustomSingleLineChart = ({
             <stop offset="100%" stopColor={dim} />
           </linearGradient>
           <linearGradient id={`areaGradient-${chartId}-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0.3" />
-            <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0.1" />
+            <stop offset="0%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity={isWhiteBackground ? "0.15" : "0.3"} />
+            <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity={isWhiteBackground ? "0.05" : "0.1"} />
             <stop offset="100%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0" />
           </linearGradient>
         </defs>
         <CartesianGrid
           strokeDasharray="2 2"
-          stroke="rgba(255, 255, 255, 0.08)"
+          stroke={gridColor}
           horizontal={true}
           vertical={false}
         />
         <XAxis
           dataKey="month"
-          stroke="rgba(255, 255, 255, 0.6)"
+          stroke={axisColor}
           height={80}
-          tick={<CustomDiscordTick />}
-          tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          tick={<CustomDiscordTick isWhiteBackground={isWhiteBackground} />}
+          tickLine={{ stroke: axisColor }}
           interval={0}
         />
         <YAxis
-          stroke="rgba(255, 255, 255, 0.6)"
+          stroke={axisColor}
           fontSize={10}
           fontWeight={500}
-          tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+          tick={{ fill: tickColor }}
           domain={yAxisDomain || ['auto', 'auto']}
         />
-        <Tooltip content={<CustomDiscordSingleTooltip />} cursor={false} />
+        <Tooltip content={<CustomDiscordSingleTooltip isWhiteBackground={isWhiteBackground} />} cursor={false} />
         <Area
           type="monotone"
           dataKey={dataKey}
@@ -693,9 +817,9 @@ const CustomSingleLineChart = ({
           activeDot={{
             r: 4,
             fill: stroke,
-            stroke: 'rgba(255, 255, 255, 0.8)',
+            stroke: isWhiteBackground ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.8)',
             strokeWidth: 1.5,
-            filter: `drop-shadow(0 0 6px ${stroke.replace('1)', '0.4)')})`,
+            filter: isWhiteBackground ? 'none' : `drop-shadow(0 0 6px ${stroke.replace('1)', '0.4)')})`,
           }}
           connectNulls={false}
           strokeLinecap="round"
@@ -708,15 +832,25 @@ const CustomSingleLineChart = ({
 
 export interface MeshStatsViewProps extends Omit<OriginalMeshStatsViewProps, 'meshPackagesData'> {
   meshPackagesData?: MeshPackagesApiResponse | null;
+  repoStats?: { repoStats: Array<{ name: string; stars: number; forks: number; full_name: string }> } | null;
 }
 
 const MeshStatsView: FC<MeshStatsViewProps> = ({
   discordStats,
   contributorStats,
   meshPackagesData,
+  repoStats,
 }) => {
   // Chart ready state to prevent jarring animations on initial load
   const [chartsReady, setChartsReady] = React.useState(false);
+
+  // Calculate total forks across all repositories
+  const totalForks = React.useMemo(() => {
+    if (!repoStats?.repoStats || !Array.isArray(repoStats.repoStats)) {
+      return 0;
+    }
+    return repoStats.repoStats.reduce((sum, repo) => sum + (repo.forks || 0), 0);
+  }, [repoStats]);
 
   // Find the @meshsdk/core package
   const corePackage = meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core');
@@ -1001,16 +1135,16 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
 
   // Badge options derived from the lines config used in the historical chart
   const historicalLines = [
-    { name: 'Core', dataKey: 'core', stroke: 'rgba(56, 232, 225, 1)' },
-    { name: 'Core CST', dataKey: 'core_cst', stroke: 'rgba(12, 242, 180, 1)' },
-    { name: 'Common', dataKey: 'common', stroke: 'rgba(20, 184, 166, 1)' },
-    { name: 'Transaction', dataKey: 'transaction', stroke: 'rgba(45, 212, 191, 1)' },
-    { name: 'Wallet', dataKey: 'wallet', stroke: 'rgba(94, 234, 212, 1)' },
-    { name: 'React', dataKey: 'react', stroke: 'rgba(153, 246, 228, 1)' },
-    { name: 'Provider', dataKey: 'provider', stroke: 'rgba(204, 251, 241, 1)' },
-    { name: 'Web3 SDK', dataKey: 'web3_sdk', stroke: 'rgba(240, 253, 250, 1)' },
-    { name: 'Core CSL', dataKey: 'core_csl', stroke: 'rgba(255, 255, 255, 0.9)' },
-    { name: 'Contract', dataKey: 'contract', stroke: 'rgba(255, 255, 255, 0.7)' },
+    { name: 'Core', dataKey: 'core', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'Core CST', dataKey: 'core_cst', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'Common', dataKey: 'common', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'Transaction', dataKey: 'transaction', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'Wallet', dataKey: 'wallet', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'React', dataKey: 'react', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'Provider', dataKey: 'provider', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'Web3 SDK', dataKey: 'web3_sdk', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'Core CSL', dataKey: 'core_csl', stroke: 'rgba(255, 255, 255, 1)' },
+    { name: 'Contract', dataKey: 'contract', stroke: 'rgba(255, 255, 255, 1)' },
   ];
 
   const handleToggleBadge = (key: string | null) => {
@@ -1277,92 +1411,97 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
 
       {packageData.length > 0 && monthlyData.length > 0 && (
         <>
-          {!chartsReady && (
-            <div className={styles.chartsGrid}>
-              <div className={styles.chartSection}>
-                <h2>Package Downloads (All Time)</h2>
-                <div
-                  className={styles.chart}
-                  style={{
-                    height: '520px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <div style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px' }}>
-                    Loading chart...
+          <div className={styles.chartsContainer}>
+            {!chartsReady && (
+              <div className={styles.chartsGrid}>
+                <div className={styles.chartSection}>
+                  <h2>Package Downloads (All Time)</h2>
+                  <div
+                    className={styles.chart}
+                    style={{
+                      height: '520px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <div style={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '14px' }}>
+                      Loading chart...
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.chartSection}>
+                  <h2>Monthly Downloads ({latestYear})</h2>
+                  <div
+                    className={styles.chart}
+                    style={{
+                      height: '520px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <div style={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '14px' }}>
+                      Loading chart...
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className={styles.chartSection}>
-                <h2>Monthly Downloads ({latestYear})</h2>
-                <div
-                  className={styles.chart}
-                  style={{
-                    height: '520px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <div style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px' }}>
-                    Loading chart...
+            )}
+
+            {chartsReady && (
+              <div className={styles.chartsGrid}>
+                <div className={styles.chartSection}>
+                  <h2>Package Downloads (All Time)</h2>
+                  <div className={styles.chart} style={{ height: '520px' }}>
+                    <PackageDownloadsDonut packageData={packageData} />
+                  </div>
+                </div>
+
+                <div className={styles.chartSection}>
+                  <h2>Monthly Downloads ({latestYear})</h2>
+                  <div className={styles.chart} style={{ height: '520px' }}>
+                    <CustomBarChart data={monthlyData} chartId="monthly" isWhiteBackground={true} />
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          {chartsReady && (
-            <div className={styles.chartsGrid}>
-              <div className={styles.chartSection}>
-                <h2>Package Downloads (All Time)</h2>
-                <div className={styles.chart} style={{ height: '520px' }}>
-                  <PackageDownloadsDonut packageData={packageData} />
-                </div>
-              </div>
-
-              <div className={styles.chartSection}>
-                <h2>Monthly Downloads ({latestYear})</h2>
-                <div className={styles.chart} style={{ height: '520px' }}>
-                  <CustomBarChart data={monthlyData} chartId="monthly" />
-                </div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Historical Package Downloads Chart */}
           {historicalPackageDownloads.length > 0 && (
-            <div className={styles.chartSection}>
-              <h2>Package Downloads per month 2025</h2>
-              <div className={styles.badges}>
-                <button
-                  type="button"
-                  className={`${styles.badge} ${!highlightedPackageKey ? styles.badgeSelected : ''}`}
-                  onClick={() => handleToggleBadge(null)}
-                >
-                  All
-                </button>
-                {historicalLines.map(line => (
+            <div className={styles.chartsContainer}>
+              <div className={styles.chartSection}>
+                <h2>Package Downloads per month 2025</h2>
+                <div className={styles.badges}>
                   <button
-                    key={line.dataKey}
                     type="button"
-                    className={`${styles.badge} ${highlightedPackageKey === line.dataKey ? styles.badgeSelected : ''}`}
-                    onClick={() => handleToggleBadge(line.dataKey)}
-                    title={line.name}
+                    className={`${styles.badge} ${!highlightedPackageKey ? styles.badgeSelected : ''}`}
+                    onClick={() => handleToggleBadge(null)}
                   >
-                    {line.name}
+                    All
                   </button>
-                ))}
-              </div>
-              <div className={styles.chart}>
-                <CustomMultiLineChart
-                  data={historicalPackageDownloads}
-                  chartId="historical-downloads"
-                  lines={historicalLines}
-                  highlightedKey={highlightedPackageKey}
-                />
+                  {historicalLines.map(line => (
+                    <button
+                      key={line.dataKey}
+                      type="button"
+                      className={`${styles.badge} ${highlightedPackageKey === line.dataKey ? styles.badgeSelected : ''}`}
+                      onClick={() => handleToggleBadge(line.dataKey)}
+                      title={line.name}
+                    >
+                      {line.name}
+                    </button>
+                  ))}
+                </div>
+                <div className={styles.chart} style={{ height: '520px' }}>
+                  <CustomMultiLineChart
+                    data={historicalPackageDownloads}
+                    chartId="historical-downloads"
+                    lines={historicalLines}
+                    highlightedKey={highlightedPackageKey}
+                    isWhiteBackground={true}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -1371,7 +1510,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
 
       {meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/core') && (
         <div className={styles.githubStats}>
-          <h2>GitHub Usage</h2>
+          <SectionTitle title="GitHub Usage" />
           <div className={styles.statsGrid}>
             <div className={styles.stat}>
               <h3>Projects Using Mesh</h3>
@@ -1397,63 +1536,77 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
                 <p>{formatNumber(contributorStats.total_contributions)}</p>
               </div>
             )}
+            {totalForks > 0 && (
+              <div className={styles.stat}>
+                <h3>Total Forks</h3>
+                <p>{formatNumber(totalForks)}</p>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {packageData.length > 0 && monthlyData.length > 0 && combinedRepositoriesData.length > 0 && (
-        <div className={styles.chartSection}>
-          <h2>Repository Dependencies Growth ({new Date().getFullYear()})</h2>
-          <div className={styles.chart}>
-            <CustomMultiLineChart
-              data={combinedRepositoriesData}
-              chartId="combined-repositories"
-              lines={[
-                {
-                  dataKey: 'core',
-                  name: 'Mesh SDK',
-                  stroke: 'rgba(12, 242, 180, 1)',
-                },
-                {
-                  dataKey: 'web3sdk',
-                  name: 'Web3 SDK',
-                  stroke: 'rgba(20, 184, 166, 1)',
-                },
-              ]}
-            />
-          </div>
-        </div>
-      )}
-
-      {(contributionsData.length > 0 || contributorsGrowthData.length > 0) && (
-        <div className={styles.chartsGrid}>
-          {contributionsData.length > 0 && (
+      {((packageData.length > 0 && monthlyData.length > 0 && combinedRepositoriesData.length > 0) || 
+        (contributionsData.length > 0 || contributorsGrowthData.length > 0)) && (
+        <div className={styles.chartsContainer}>
+          {packageData.length > 0 && monthlyData.length > 0 && combinedRepositoriesData.length > 0 && (
             <div className={styles.chartSection}>
-              <h2>Monthly Contributions ({new Date().getFullYear()})</h2>
-              <div className={styles.chart}>
-                <CustomLineChart
-                  data={contributionsData.map(item => ({
-                    month: item.month,
-                    repositories: item.contributions,
-                  }))}
-                  chartId="contributions"
+              <h2>Repository Dependencies Growth ({new Date().getFullYear()})</h2>
+              <div className={styles.chart} style={{ height: '520px' }}>
+                <CustomMultiLineChart
+                  data={combinedRepositoriesData}
+                  chartId="combined-repositories"
+                  lines={[
+                    {
+                      dataKey: 'core',
+                      name: 'Mesh SDK',
+                      stroke: 'rgba(0, 0, 0, 1)',
+                    },
+                    {
+                      dataKey: 'web3sdk',
+                      name: 'Web3 SDK',
+                      stroke: 'rgba(0, 0, 0, 1)',
+                    },
+                  ]}
+                  isWhiteBackground={true}
                 />
               </div>
             </div>
           )}
 
-          {contributorsGrowthData.length > 0 && (
-            <div className={styles.chartSection}>
-              <h2>Contributors Growth ({new Date().getFullYear()})</h2>
-              <div className={styles.chart}>
-                <CustomLineChart
-                  data={contributorsGrowthData.map(item => ({
-                    month: item.month,
-                    repositories: item.contributors,
-                  }))}
-                  chartId="contributors"
-                />
-              </div>
+          {(contributionsData.length > 0 || contributorsGrowthData.length > 0) && (
+            <div className={styles.chartsGrid}>
+              {contributionsData.length > 0 && (
+                <div className={styles.chartSection}>
+                  <h2>Monthly Contributions ({new Date().getFullYear()})</h2>
+                  <div className={styles.chart} style={{ height: '520px' }}>
+                    <CustomLineChart
+                      data={contributionsData.map(item => ({
+                        month: item.month,
+                        repositories: item.contributions,
+                      }))}
+                      chartId="contributions"
+                      isWhiteBackground={true}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {contributorsGrowthData.length > 0 && (
+                <div className={styles.chartSection}>
+                  <h2>Contributors Growth ({new Date().getFullYear()})</h2>
+                  <div className={styles.chart} style={{ height: '520px' }}>
+                    <CustomLineChart
+                      data={contributorsGrowthData.map(item => ({
+                        month: item.month,
+                        repositories: item.contributors,
+                      }))}
+                      chartId="contributors"
+                      isWhiteBackground={true}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1462,51 +1615,54 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
       {/* Discord stats summary and charts */}
       {discordStatsData.length > 0 && (
         <>
-          <div className={styles.githubStats}>
-            <h2>Discord Community</h2>
-          </div>
+          <SectionTitle title="Discord Community" />
 
-          <div className={styles.chartsGrid}>
-            <div className={styles.chartSection}>
-              <h2>Discord Active Users</h2>
-              <div className={styles.chart}>
-                <CustomSingleLineChart
-                  data={discordStatsData}
-                  chartId="discord-posters"
-                  dataKey="uniquePosters"
-                  name="Unique Posters"
-                  stroke="rgba(12, 242, 180, 1)"
-                  yAxisDomain={[0, 'auto']}
-                />
+          <div className={styles.chartsContainer}>
+            <div className={styles.chartsGrid}>
+              <div className={styles.chartSection}>
+                <h2>Discord Active Users</h2>
+                <div className={styles.chart} style={{ height: '520px' }}>
+                  <CustomSingleLineChart
+                    data={discordStatsData}
+                    chartId="discord-posters"
+                    dataKey="uniquePosters"
+                    name="Unique Posters"
+                    stroke="rgba(0, 0, 0, 1)"
+                    yAxisDomain={[0, 'auto']}
+                    isWhiteBackground={true}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.chartSection}>
+                <h2>Discord Messages Activity</h2>
+                <div className={styles.chart} style={{ height: '520px' }}>
+                  <CustomSingleLineChart
+                    data={discordStatsData}
+                    chartId="discord-messages"
+                    dataKey="totalMessages"
+                    name="Messages"
+                    stroke="rgba(0, 0, 0, 1)"
+                    yAxisDomain={[0, 'auto']}
+                    isWhiteBackground={true}
+                  />
+                </div>
               </div>
             </div>
 
             <div className={styles.chartSection}>
-              <h2>Discord Messages Activity</h2>
-              <div className={styles.chart}>
+              <h2>Discord Members Growth</h2>
+              <div className={styles.chart} style={{ height: '520px' }}>
                 <CustomSingleLineChart
                   data={discordStatsData}
-                  chartId="discord-messages"
-                  dataKey="totalMessages"
-                  name="Messages"
-                  stroke="rgba(20, 184, 166, 1)"
+                  chartId="discord-members"
+                  dataKey="memberCount"
+                  name="Members"
+                  stroke="rgba(0, 0, 0, 1)"
                   yAxisDomain={[0, 'auto']}
+                  isWhiteBackground={true}
                 />
               </div>
-            </div>
-          </div>
-
-          <div className={styles.chartSection}>
-            <h2>Discord Members Growth</h2>
-            <div className={styles.chart}>
-              <CustomSingleLineChart
-                data={discordStatsData}
-                chartId="discord-members"
-                dataKey="memberCount"
-                name="Members"
-                stroke="rgba(56, 232, 225, 1)"
-                yAxisDomain={[0, 'auto']}
-              />
             </div>
           </div>
         </>

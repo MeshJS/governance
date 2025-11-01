@@ -110,7 +110,7 @@ export function MilestoneProgressBars({
                       style={{
                         width: isCompleted ? '100%' : '0%',
                         background: isCompleted
-                          ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
+                          ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95))'
                           : 'transparent',
                       }}
                     />
@@ -185,7 +185,7 @@ export function MilestoneProgressBars({
                       width: completedCount >= totalMilestones ? '100%' : '0%',
                       background:
                         completedCount >= totalMilestones
-                          ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
+                          ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95))'
                           : 'transparent',
                     }}
                   />

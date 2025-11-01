@@ -2,16 +2,21 @@ import MeshStatsView from '../components/MeshStatsView';
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/MeshStats.module.css';
 import { useMemo, useEffect } from 'react';
-import PageHeader from '../components/PageHeader';
+import SectionTitle from '../components/SectionTitle';
 
 export default function MeshStatsPage() {
-  const { meshData, discordStats, contributorStats, isLoading, error, loadContributorStats } =
+  const { meshData, discordStats, contributorStats, repoStats, isLoading, error, loadContributorStats, loadRepoStats } =
     useData();
 
   // Load contributor stats when component mounts
   useEffect(() => {
     loadContributorStats();
   }, [loadContributorStats]);
+
+  // Load repo stats when component mounts
+  useEffect(() => {
+    loadRepoStats();
+  }, [loadRepoStats]);
 
   // Version subtitle for PageHeader
   const versionSubtitle = useMemo(() => {
@@ -67,7 +72,7 @@ export default function MeshStatsPage() {
 
   return (
     <div className={styles.container}>
-      <PageHeader
+      <SectionTitle
         title={
           <>
             Mesh Usage <span>Statistics</span>
@@ -84,6 +89,7 @@ export default function MeshStatsPage() {
             : undefined
         }
         meshPackagesData={meshData.meshPackagesData}
+        repoStats={repoStats || undefined}
       />
     </div>
   );

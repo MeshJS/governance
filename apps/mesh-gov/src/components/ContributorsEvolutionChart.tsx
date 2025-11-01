@@ -50,10 +50,10 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
     <div
       style={{
         backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        border: '1px solid rgba(56, 232, 225, 0.3)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
         borderRadius: '8px',
         padding: '8px 12px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         maxWidth: '220px',
@@ -66,7 +66,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
           color: 'rgba(255, 255, 255, 0.8)',
           marginBottom: '6px',
           fontWeight: '600',
-          borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
           paddingBottom: '3px',
         }}
       >
@@ -136,24 +136,24 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
   );
 };
 
-// Generate cohesive teal/green color variations matching the dashboard theme
+// Generate cohesive white/grey color variations matching the dashboard theme
 const generateColor = (login: string, index: number): string => {
   const colors = [
-    'rgba(56, 232, 225, 0.95)', // Primary bright teal
-    'rgba(20, 184, 166, 0.95)', // Deep teal
-    'rgba(34, 211, 238, 0.95)', // Light cyan
-    'rgba(16, 185, 129, 0.95)', // Emerald green
-    'rgba(12, 242, 180, 0.95)', // Bright mint
-    'rgba(8, 145, 178, 0.95)', // Steel teal
-    'rgba(45, 212, 191, 0.95)', // Turquoise
-    'rgba(6, 182, 212, 0.95)', // Sky cyan
-    'rgba(20, 158, 147, 0.95)', // Dark teal
-    'rgba(96, 255, 248, 0.95)', // Bright aqua
-    'rgba(34, 197, 194, 0.95)', // Medium teal
-    'rgba(14, 116, 144, 0.95)', // Deep cyan
-    'rgba(77, 208, 225, 0.95)', // Light blue-green
-    'rgba(26, 188, 156, 0.95)', // Sea green
-    'rgba(52, 199, 89, 0.95)', // System green
+    'rgba(255, 255, 255, 0.95)', // Pure white
+    'rgba(255, 255, 255, 0.9)', // Slightly dimmed white
+    'rgba(255, 255, 255, 0.85)', // More dimmed white
+    'rgba(255, 255, 255, 0.8)', // Dimmed white
+    'rgba(255, 255, 255, 0.75)', // More dimmed white
+    'rgba(255, 255, 255, 0.7)', // Dimmed white
+    'rgba(255, 255, 255, 0.65)', // More dimmed white
+    'rgba(255, 255, 255, 0.6)', // Dimmed white
+    'rgba(255, 255, 255, 0.55)', // More dimmed white
+    'rgba(255, 255, 255, 0.5)', // Dimmed white
+    'rgba(255, 255, 255, 0.45)', // More dimmed white
+    'rgba(255, 255, 255, 0.4)', // Dimmed white
+    'rgba(255, 255, 255, 0.35)', // More dimmed white
+    'rgba(255, 255, 255, 0.3)', // Dimmed white
+    'rgba(255, 255, 255, 0.25)', // More dimmed white
   ];
   return colors[index % colors.length];
 };
@@ -185,8 +185,8 @@ const getColorVariations = (baseColor: string) => {
 
 // Get dimmed version of a color for non-selected state
 const getDimmedColor = (originalColor: string): string => {
-  // Convert to a muted gray-teal for consistency
-  return 'rgba(100, 116, 139, 0.4)'; // Slate gray with low opacity
+  // Convert to a muted grey for consistency
+  return 'rgba(148, 163, 184, 0.4)'; // Slate gray with low opacity
 };
 
 // Check if a timestamp falls within the given date range
@@ -221,6 +221,16 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
   selectedContributors,
   onContributorToggle,
 }) => {
+  const hasAnySelected = selectedContributors.size > 0;
+  const isAllSelected = !hasAnySelected;
+
+  const handleAllClick = () => {
+    // Clear all selections to show all contributors
+    selectedContributors.forEach(login => {
+      onContributorToggle(login);
+    });
+  };
+
   return (
     <div
       style={{
@@ -233,9 +243,64 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
         borderTop: '1px solid rgba(255, 255, 255, 0.08)',
       }}
     >
+      {/* "All" button */}
+      <div
+        onClick={handleAllClick}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '6px 10px',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+          background: isAllSelected
+            ? '#ffffff'
+            : 'linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
+          backdropFilter: isAllSelected ? 'none' : 'blur(10px) saturate(180%)',
+          WebkitBackdropFilter: isAllSelected ? 'none' : 'blur(10px) saturate(180%)',
+          border: `1px solid ${
+            isAllSelected
+              ? 'rgba(255, 255, 255, 0.3)'
+              : 'rgba(255, 255, 255, 0.15)'
+          }`,
+          opacity: 1,
+          transform: isAllSelected ? 'scale(1.02) translateY(-1px)' : 'scale(1)',
+          boxShadow: isAllSelected
+            ? '0 0 15px rgba(0, 0, 0, 0.2)'
+            : '0 2px 8px rgba(0, 0, 0, 0.05)',
+        }}
+      >
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '1px',
+            backgroundColor: isAllSelected ? '#000000' : 'rgba(255, 255, 255, 0.9)',
+            border: `1px solid ${
+              isAllSelected
+                ? 'rgba(255, 255, 255, 0.3)'
+                : 'rgba(255, 255, 255, 0.3)'
+            }`,
+            transition: 'all 0.3s ease',
+            boxShadow: isAllSelected ? 'none' : 'none',
+          }}
+        />
+        <span
+          style={{
+            fontSize: '10px',
+            color: isAllSelected ? '#000000' : 'rgba(255, 255, 255, 0.9)',
+            fontWeight: isAllSelected ? '600' : '500',
+            transition: 'all 0.3s ease',
+            letterSpacing: '0.01em',
+          }}
+        >
+          All
+        </span>
+      </div>
+
       {topContributors.map((contributor, index) => {
         const isSelected = selectedContributors.has(contributor.login);
-        const hasAnySelected = selectedContributors.size > 0;
         const color = generateColor(contributor.login, index);
         const shouldHighlight = !hasAnySelected || isSelected;
 
@@ -251,18 +316,24 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
               borderRadius: '6px',
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
-              background: shouldHighlight
+              background: isSelected
+                ? '#ffffff'
+                : shouldHighlight
                 ? 'linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)'
                 : 'linear-gradient(165deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
-              backdropFilter: 'blur(10px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(10px) saturate(180%)',
+              backdropFilter: isSelected ? 'none' : 'blur(10px) saturate(180%)',
+              WebkitBackdropFilter: isSelected ? 'none' : 'blur(10px) saturate(180%)',
               border: `1px solid ${
-                shouldHighlight ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)'
+                isSelected
+                  ? 'rgba(255, 255, 255, 0.3)'
+                  : shouldHighlight
+                  ? 'rgba(255, 255, 255, 0.15)'
+                  : 'rgba(255, 255, 255, 0.05)'
               }`,
               opacity: shouldHighlight ? 1 : 0.5,
               transform: isSelected ? 'scale(1.02) translateY(-1px)' : 'scale(1)',
               boxShadow: isSelected
-                ? '0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
+                ? '0 0 15px rgba(0, 0, 0, 0.2)'
                 : '0 2px 8px rgba(0, 0, 0, 0.05)',
             }}
           >
@@ -271,16 +342,30 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                 width: '8px',
                 height: '8px',
                 borderRadius: '1px',
-                backgroundColor: shouldHighlight ? color : getDimmedColor(color),
-                border: `1px solid ${shouldHighlight ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
+                backgroundColor: isSelected
+                  ? '#000000'
+                  : shouldHighlight
+                  ? color
+                  : getDimmedColor(color),
+                border: `1px solid ${
+                  isSelected
+                    ? 'rgba(255, 255, 255, 0.3)'
+                    : shouldHighlight
+                    ? 'rgba(255, 255, 255, 0.3)'
+                    : 'rgba(255, 255, 255, 0.1)'
+                }`,
                 transition: 'all 0.3s ease',
-                boxShadow: shouldHighlight ? `0 0 6px ${color.replace('0.95', '0.3')}` : 'none',
+                boxShadow: shouldHighlight && !isSelected ? `0 0 6px ${color.replace('0.95', '0.3')}` : 'none',
               }}
             />
             <span
               style={{
                 fontSize: '10px',
-                color: shouldHighlight ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.5)',
+                color: isSelected
+                  ? '#000000'
+                  : shouldHighlight
+                  ? 'rgba(255, 255, 255, 0.9)'
+                  : 'rgba(255, 255, 255, 0.5)',
                 fontWeight: isSelected ? '600' : '500',
                 transition: 'all 0.3s ease',
                 letterSpacing: '0.01em',
@@ -452,8 +537,8 @@ export const ContributorsEvolutionChart: React.FC<ContributorsEvolutionChartProp
                       x2="0"
                       y2="1"
                     >
-                      <stop offset="0%" stopColor="rgba(100, 116, 139, 0.5)" />
-                      <stop offset="100%" stopColor="rgba(100, 116, 139, 0.2)" />
+                      <stop offset="0%" stopColor="rgba(148, 163, 184, 0.5)" />
+                      <stop offset="100%" stopColor="rgba(148, 163, 184, 0.2)" />
                     </linearGradient>
                   );
                 }

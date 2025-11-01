@@ -55,10 +55,10 @@ const CustomTooltip: FC<TooltipProps<number, string> & { chartId?: string }> = (
       <div
         style={{
           backgroundColor: 'rgba(0, 0, 0, 0.95)',
-          border: '1px solid rgba(56, 232, 225, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
           borderRadius: '8px',
           padding: '12px 16px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           maxWidth: '280px',
@@ -70,7 +70,7 @@ const CustomTooltip: FC<TooltipProps<number, string> & { chartId?: string }> = (
             color: 'rgba(255, 255, 255, 0.8)',
             marginBottom: '6px',
             fontWeight: '600',
-            borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
             paddingBottom: '3px',
           }}
         >
@@ -90,17 +90,17 @@ const CustomTooltip: FC<TooltipProps<number, string> & { chartId?: string }> = (
                 width: '6px',
                 height: '6px',
                 borderRadius: '1px',
-                backgroundColor: 'rgba(12, 242, 180, 1)',
-                boxShadow: '0 0 3px rgba(12, 242, 180, 1)',
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+                boxShadow: '0 0 3px rgba(255, 255, 255, 1)',
               }}
             />
             <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>downloads</span>
           </div>
           <span
             style={{
-              color: 'rgba(12, 242, 180, 1)',
+              color: 'rgba(255, 255, 255, 1)',
               fontWeight: '600',
-              textShadow: '0 0 4px rgba(12, 242, 180, 0.4)',
+              textShadow: '0 0 4px rgba(255, 255, 255, 0.4)',
             }}
           >
             {formatNumber(payload[0].value)}
@@ -142,7 +142,7 @@ interface CustomBarChartProps {
 }
 
 const CustomBarChart: FC<CustomBarChartProps> = ({ data, chartId }) => {
-  const gradientId = `tealGradient-${chartId}`;
+  const gradientId = `whiteGradient-${chartId}`;
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -154,8 +154,8 @@ const CustomBarChart: FC<CustomBarChartProps> = ({ data, chartId }) => {
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#14B8A6" />
-            <stop offset="100%" stopColor="#0F172A" />
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="100%" stopColor="#94a3b8" />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.03)" vertical={false} />
@@ -205,10 +205,10 @@ const CustomRepositoryTooltip = ({ active, payload, label }: any) => {
     <div
       style={{
         backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        border: '1px solid rgba(56, 232, 225, 0.3)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
         borderRadius: '8px',
         padding: '12px 16px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         maxWidth: '280px',
@@ -220,7 +220,7 @@ const CustomRepositoryTooltip = ({ active, payload, label }: any) => {
           color: 'rgba(255, 255, 255, 0.8)',
           marginBottom: '6px',
           fontWeight: '600',
-          borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
           paddingBottom: '3px',
         }}
       >
@@ -361,16 +361,19 @@ const CustomMultiLineChart: FC<CustomMultiLineChartProps> = ({
         tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
       />
       <Tooltip content={<CustomRepositoryTooltip />} cursor={false} />
-      {lines.map((line, index) => (
-        <Area
-          key={`area-${index}`}
-          type="monotone"
-          dataKey={line.dataKey}
-          fill={`url(#areaGradient-${chartId}-${line.dataKey})`}
-          stroke="none"
-          fillOpacity={highlightedKey ? (line.dataKey === highlightedKey ? 0.25 : 0.06) : undefined}
-        />
-      ))}
+      {lines.map((line, index) => {
+        const isHighlighted = highlightedKey && line.dataKey === highlightedKey;
+        return (
+          <Area
+            key={`area-${index}`}
+            type="monotone"
+            dataKey={line.dataKey}
+            fill={isHighlighted ? "#ffffff" : `url(#areaGradient-${chartId}-${line.dataKey})`}
+            stroke="none"
+            fillOpacity={isHighlighted ? 1 : (highlightedKey ? 0.06 : undefined)}
+          />
+        );
+      })}
       {lines.map((line, index) => (
         <Line
           key={`line-${index}`}
@@ -504,16 +507,16 @@ const getMonthlyDownloadData = (meshPackagesData: any) => {
 
 // Define historical lines for the multi-line chart
 const historicalLines = [
-  { name: 'Core', dataKey: 'core', stroke: 'rgba(56, 232, 225, 1)' },
-  { name: 'Core CST', dataKey: 'core_cst', stroke: 'rgba(12, 242, 180, 1)' },
-  { name: 'Common', dataKey: 'common', stroke: 'rgba(20, 184, 166, 1)' },
-  { name: 'Transaction', dataKey: 'transaction', stroke: 'rgba(45, 212, 191, 1)' },
-  { name: 'Wallet', dataKey: 'wallet', stroke: 'rgba(94, 234, 212, 1)' },
-  { name: 'React', dataKey: 'react', stroke: 'rgba(153, 246, 228, 1)' },
-  { name: 'Provider', dataKey: 'provider', stroke: 'rgba(204, 251, 241, 1)' },
-  { name: 'Web3 SDK', dataKey: 'web3_sdk', stroke: 'rgba(240, 253, 250, 1)' },
-  { name: 'Core CSL', dataKey: 'core_csl', stroke: 'rgba(255, 255, 255, 0.9)' },
-  { name: 'Contract', dataKey: 'contract', stroke: 'rgba(255, 255, 255, 0.7)' },
+  { name: 'Core', dataKey: 'core', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Core CST', dataKey: 'core_cst', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Common', dataKey: 'common', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Transaction', dataKey: 'transaction', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Wallet', dataKey: 'wallet', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'React', dataKey: 'react', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Provider', dataKey: 'provider', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Web3 SDK', dataKey: 'web3_sdk', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Core CSL', dataKey: 'core_csl', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Contract', dataKey: 'contract', stroke: 'rgba(255, 255, 255, 1)' },
 ];
 
 // Get historical package downloads data (excluding web3-sdk)

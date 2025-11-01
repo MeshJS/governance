@@ -5,49 +5,60 @@
 }
 
 .mainHeader {
+    width: 100%;
+    background: #ffffff;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+}
+
+.headerContent {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2rem;
-    padding: 3rem 0;
-    margin-bottom: 3rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), transparent);
+    width: 100%;
+}
+
+.logoBox {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+.timerBox {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
 }
 
 .meshLogo {
     max-width: 300px;
     height: auto;
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+    filter: invert(1) drop-shadow(0 0 10px rgba(0, 0, 0, 0.1));
     transition: filter 0.3s ease;
-    background: linear-gradient(90deg,
-            rgba(12, 242, 180, 0.9) 0%,
-            rgba(255, 255, 255, 0.95) 50%,
-            rgba(12, 242, 180, 0.9) 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientText 3s ease infinite;
 }
 
 .meshLogo:hover {
-    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
+    filter: invert(1) drop-shadow(0 0 15px rgba(0, 0, 0, 0.2));
 }
 
-@keyframes gradientText {
-    0% {
-        background-position: 0% center;
-    }
-
-    50% {
-        background-position: 100% center;
-    }
-
-    100% {
-        background-position: 0% center;
-    }
-}
 
 /* Grid Layout */
 .grid {
@@ -482,6 +493,10 @@
     .mainHeader {
         padding: 2rem 0;
         margin-bottom: 1rem;
+    }
+
+    .headerContent {
+        padding: 0 1rem;
     }
 }
 

@@ -283,6 +283,12 @@ h6 {
     font-weight: 500 !important;
 }
 
+.chartsContainer .recharts-cartesian-axis-x .recharts-text,
+.chartsContainer .recharts-cartesian-axis-x text {
+    fill: #000000 !important;
+    opacity: 1 !important;
+}
+
 .recharts-legend-item-text {
     color: rgba(255, 255, 255, 0.7) !important;
     font-size: 0.875rem !important;
@@ -292,7 +298,7 @@ h6 {
 /* Activity Panel Scrollbar Styling */
 .activity-scroll-container {
     scrollbar-width: thin;
-    scrollbar-color: rgba(12, 242, 180, 0.6) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
 .activity-scroll-container::-webkit-scrollbar {
@@ -304,13 +310,13 @@ h6 {
 }
 
 .activity-scroll-container::-webkit-scrollbar-thumb {
-    background: rgba(12, 242, 180, 0.4);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
     transition: background 0.2s ease;
 }
 
 .activity-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(12, 242, 180, 0.8);
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .activity-scroll-container::-webkit-scrollbar-corner {
