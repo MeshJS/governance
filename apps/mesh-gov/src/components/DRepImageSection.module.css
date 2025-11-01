@@ -15,8 +15,6 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    /* Completely invisible - no visual styling */
-    animation: parallaxFloat 6s ease-in-out infinite;
 }
 
 .imageContainer::before {
@@ -31,14 +29,11 @@
     object-fit: contain;
     position: relative;
     z-index: 0;
-    /* Add subtle glow effect */
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-    animation: imageGlow 4s ease-in-out infinite alternate;
 }
 
 .imageContainer:hover {
     /* Removed hover effects from container */
-    animation-play-state: paused;
 }
 
 .imageContainer:hover::before {
@@ -46,9 +41,7 @@
 }
 
 .imageContainer:hover .drepImage {
-    transform: scale(1.01) rotateY(2deg);
     filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.4));
-    animation-play-state: paused;
 }
 
 @keyframes fadeInUp {
@@ -62,23 +55,6 @@
     }
 }
 
-@keyframes parallaxFloat {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-8px);
-    }
-}
-
-@keyframes imageGlow {
-    from {
-        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-    }
-    to {
-        filter: drop-shadow(0 6px 20px rgba(56, 232, 225, 0.2));
-    }
-}
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -97,14 +73,6 @@
         border-radius: 12px;
     }
     
-    @keyframes parallaxFloat {
-        0%, 100% {
-            transform: translateY(0px);
-        }
-        50% {
-            transform: translateY(-4px);
-        }
-    }
 }
 
 @media (max-width: 480px) {
@@ -120,12 +88,4 @@
         border-radius: 10px;
     }
     
-    @keyframes parallaxFloat {
-        0%, 100% {
-            transform: translateY(0px);
-        }
-        50% {
-            transform: translateY(-2px);
-        }
-    }
 } 

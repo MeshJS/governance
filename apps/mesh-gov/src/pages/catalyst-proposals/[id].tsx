@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useData } from '../../contexts/DataContext';
 import styles from '../../styles/ProposalDetail.module.css';
-import PageHeader from '../../components/PageHeader';
+import SectionTitle from '../../components/SectionTitle';
 import { useEffect, useState, useMemo } from 'react';
 import { CatalystProject } from '../../types';
 import Link from 'next/link';
@@ -71,17 +71,17 @@ export default function ProposalDetail() {
   }
 
   return (
-    <div className={styles.container}>
-      <Link href="/catalyst-proposals" className={styles.backLink}>
-        ← Back to Proposals
-      </Link>
-
-      <PageHeader
+    <>
+      <SectionTitle
         title={<>{proposal.projectDetails.title}</>}
         subtitle={`${getFundingRound(proposal.projectDetails.category)} Proposal`}
       />
+      <div className={styles.container}>
+        <Link href="/catalyst-proposals" className={styles.backLink}>
+          ← Back to Proposals
+        </Link>
 
-      <div className={styles.content}>
+        <div className={styles.content}>
         <div className={styles.mainInfo}>
           {proposal && (
             <ProposalDetails
@@ -129,6 +129,7 @@ export default function ProposalDetail() {
           />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -130,9 +130,9 @@ const MeshSDKCarousel: React.FC<MeshSDKCarouselProps> = ({ onNodeSelect, meshPac
     // Make the core package stand out more
     if (id === 'core') {
       return {
-        background: 'linear-gradient(135deg, rgba(12, 242, 180, 0.2) 0%, rgba(56, 232, 225, 0.15) 100%)',
-        border: '1px solid rgba(12, 242, 180, 0.4)',
-        textColor: 'rgba(12, 242, 180, 1)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.15) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        textColor: 'rgba(255, 255, 255, 1)',
       };
     }
     
@@ -140,7 +140,7 @@ const MeshSDKCarousel: React.FC<MeshSDKCarouselProps> = ({ onNodeSelect, meshPac
     return {
       background: 'linear-gradient(165deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
       border: '1px solid rgba(255, 255, 255, 0.08)',
-      textColor: 'rgba(12, 242, 180, 0.9)',
+      textColor: 'rgba(255, 255, 255, 0.9)',
     };
   };
 

@@ -38,10 +38,10 @@ const formatTitleForUrl = (title: string): string => {
     .replace(/^-+|-+$/g, '');
 };
 
-// Get funding round from category (e.g., "Fund 10")
+// Get funding round from category (e.g., "F10", "F11")
 const getFundingRound = (category: string): string => {
-  const match = category.match(/Fund \d+/i);
-  return match ? match[0] : category;
+  const match = category.match(/Fund\s+(\d+)/i) || category.match(/F\s*(\d+)/i);
+  return match ? `F${match[1]}` : category;
 };
 
 // Extract numeric fund number from category string
@@ -132,10 +132,10 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                       width: `${progressPercent}%`,
                       background:
                         progressPercent === 100
-                          ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
+                          ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95))'
                           : progressPercent > 50
-                            ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
-                            : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))',
+                            ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.7))'
+                            : 'linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.5))',
                     }}
                   />
                 </div>
@@ -214,10 +214,10 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                             width: `${progressPercent}%`,
                             background:
                               progressPercent === 100
-                                ? 'linear-gradient(90deg, rgba(56, 232, 225, 0.25), rgba(56, 232, 225, 0.35))'
+                                ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95))'
                                 : progressPercent > 50
-                                  ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25))'
-                                  : 'linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.15))',
+                                  ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.7))'
+                                  : 'linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.5))',
                           }}
                         />
                       </div>
@@ -249,7 +249,6 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
           );
         })}
       </ul>
-      <div className={styles.timestamp}>Last updated: {formatDate(data.timestamp)}</div>
     </>
   );
 };

@@ -2,24 +2,13 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: var(--background);
+    background-color: #000000;
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
-    background-image: radial-gradient(circle at 15% 50%,
-            rgba(41, 171, 226, 0.05) 0%,
-            transparent 25%),
-        radial-gradient(circle at 85% 30%,
-            rgba(12, 242, 180, 0.05) 0%,
-            transparent 25%);
 }
 
 [data-theme="dark"] .container {
-    background-image: radial-gradient(circle at 15% 50%,
-            rgba(41, 171, 226, 0.08) 0%,
-            transparent 35%),
-        radial-gradient(circle at 85% 30%,
-            rgba(12, 242, 180, 0.08) 0%,
-            transparent 35%);
+    background-color: #000000;
 }
 
 .headerContainer {
@@ -30,8 +19,8 @@
     width: 100%;
     z-index: 1000;
     display: flex;
-    justify-content: center;
-    padding: 1rem 0;
+    justify-content: flex-start;
+    padding: 0;
 }
 
 .cardanoSection {
@@ -75,7 +64,7 @@
     height: 100px;
     margin: -50px 0 0 -50px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 20px rgba(12, 242, 180, 0.3);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -84,7 +73,7 @@
     height: 80px;
     margin: -40px 0 0 -40px;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 15px rgba(12, 242, 180, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -92,7 +81,7 @@
 .cardanoLogo:hover .logoOrbit::after {
     width: 8px;
     height: 8px;
-    box-shadow: 0 0 15px rgba(12, 242, 180, 0.6);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -100,7 +89,7 @@
 .cardanoLogo:hover .logoOrbitInner::after {
     width: 6px;
     height: 6px;
-    box-shadow: 0 0 12px rgba(12, 242, 180, 0.5);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

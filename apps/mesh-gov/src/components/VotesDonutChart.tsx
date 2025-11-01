@@ -113,17 +113,17 @@ const VotesDonutChart = ({ proposals }: VotesDonutChartProps) => {
       const gradient = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
       const hoverGradient = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
 
-      // Base gradient
-      gradient.addColorStop(0, 'rgba(56, 232, 225, 0.95)');
-      gradient.addColorStop(0.4, 'rgba(20, 184, 166, 0.85)');
-      gradient.addColorStop(0.8, 'rgba(8, 74, 67, 0.8)');
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
+      // Base gradient - black/grey
+      gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
+      gradient.addColorStop(0.4, 'rgba(30, 41, 59, 0.9)');
+      gradient.addColorStop(0.8, 'rgba(71, 85, 105, 0.85)');
+      gradient.addColorStop(1, 'rgba(148, 163, 184, 0.8)');
 
       // Hover gradient
-      hoverGradient.addColorStop(0, 'rgba(96, 255, 248, 1)');
-      hoverGradient.addColorStop(0.4, 'rgba(34, 211, 238, 0.95)');
-      hoverGradient.addColorStop(0.8, 'rgba(12, 100, 90, 0.9)');
-      hoverGradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
+      hoverGradient.addColorStop(0, 'rgba(30, 41, 59, 1)');
+      hoverGradient.addColorStop(0.4, 'rgba(51, 65, 85, 0.95)');
+      hoverGradient.addColorStop(0.8, 'rgba(100, 116, 139, 0.9)');
+      hoverGradient.addColorStop(1, 'rgba(148, 163, 184, 0.85)');
 
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, startAngle, endAngle);

@@ -1,6 +1,7 @@
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/Projects.module.css';
 import PageHeader from '../components/PageHeader';
+import SectionTitle from '../components/SectionTitle';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaGithub } from 'react-icons/fa';
@@ -143,24 +144,24 @@ const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: strin
   );
 };
 
-// Generate cohesive teal/green color variations matching the dashboard theme
+// Generate cohesive white/grey color variations matching the dashboard theme
 const generateColor = (repoName: string, index: number): string => {
   const colors = [
-    'rgba(56, 232, 225, 0.95)', // Primary bright teal
-    'rgba(20, 184, 166, 0.95)', // Deep teal
-    'rgba(34, 211, 238, 0.95)', // Light cyan
-    'rgba(16, 185, 129, 0.95)', // Emerald green
-    'rgba(12, 242, 180, 0.95)', // Bright mint
-    'rgba(8, 145, 178, 0.95)', // Steel teal
-    'rgba(45, 212, 191, 0.95)', // Turquoise
-    'rgba(6, 182, 212, 0.95)', // Sky cyan
-    'rgba(20, 158, 147, 0.95)', // Dark teal
-    'rgba(96, 255, 248, 0.95)', // Bright aqua
-    'rgba(34, 197, 194, 0.95)', // Medium teal
-    'rgba(14, 116, 144, 0.95)', // Deep cyan
-    'rgba(77, 208, 225, 0.95)', // Light blue-green
-    'rgba(26, 188, 156, 0.95)', // Sea green
-    'rgba(52, 199, 89, 0.95)', // System green
+    'rgba(255, 255, 255, 0.95)', // Pure white
+    'rgba(255, 255, 255, 0.9)', // Slightly dimmed white
+    'rgba(255, 255, 255, 0.85)', // More dimmed white
+    'rgba(255, 255, 255, 0.8)', // Dimmed white
+    'rgba(255, 255, 255, 0.75)', // More dimmed white
+    'rgba(255, 255, 255, 0.7)', // Dimmed white
+    'rgba(255, 255, 255, 0.65)', // More dimmed white
+    'rgba(255, 255, 255, 0.6)', // Dimmed white
+    'rgba(255, 255, 255, 0.55)', // More dimmed white
+    'rgba(255, 255, 255, 0.5)', // Dimmed white
+    'rgba(255, 255, 255, 0.45)', // More dimmed white
+    'rgba(255, 255, 255, 0.4)', // Dimmed white
+    'rgba(255, 255, 255, 0.35)', // More dimmed white
+    'rgba(255, 255, 255, 0.3)', // Dimmed white
+    'rgba(255, 255, 255, 0.25)', // More dimmed white
   ];
   return colors[index % colors.length];
 };
@@ -192,7 +193,7 @@ const getColorVariations = (baseColor: string) => {
 
 // Get dimmed version of a color for non-selected state
 const getDimmedColor = (originalColor: string): string => {
-  return 'rgba(100, 116, 139, 0.4)'; // Slate gray with low opacity
+  return 'rgba(148, 163, 184, 0.4)'; // Slate gray with low opacity
 };
 
 // Check if a timestamp falls within the given date range
@@ -396,8 +397,8 @@ const createRepositoryChart = (repoName: string) => {
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="0%" stopColor="rgba(100, 116, 139, 0.5)" />
-                    <stop offset="100%" stopColor="rgba(100, 116, 139, 0.2)" />
+                    <stop offset="0%" stopColor="rgba(148, 163, 184, 0.5)" />
+                    <stop offset="100%" stopColor="rgba(148, 163, 184, 0.2)" />
                   </linearGradient>
                 );
               }
@@ -672,8 +673,8 @@ const UTXOSRepositoryChart: React.FC<{
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="0%" stopColor="rgba(100, 116, 139, 0.5)" />
-                  <stop offset="100%" stopColor="rgba(100, 116, 139, 0.2)" />
+                  <stop offset="0%" stopColor="rgba(148, 163, 184, 0.5)" />
+                  <stop offset="100%" stopColor="rgba(148, 163, 184, 0.2)" />
                 </linearGradient>
               );
             }
@@ -1117,7 +1118,7 @@ const ProjectCard = ({
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="rgb(12, 242, 180)"
+                  stroke="rgba(255, 255, 255, 1)"
                   strokeWidth={2}
                   dot={false}
                   activeDot={false}
@@ -1261,7 +1262,7 @@ export default function Projects() {
 
   return (
     <div className={styles.container}>
-      <PageHeader
+      <SectionTitle
         title={
           <>
             Mesh <span>Projects</span>
@@ -1339,10 +1340,10 @@ export default function Projects() {
 
       {/* Governance Initiatives Section */}
       <div className={styles.governanceSection}>
-        <h2 className={styles.governanceTitle}>Governance initiatives</h2>
-        <p className={styles.governanceDescription}>
-          Initiatives to improve Cardano Onchain Governance
-        </p>
+        <SectionTitle
+          title="Governance initiatives"
+          subtitle="Initiatives to improve Cardano Onchain Governance"
+        />
         
         <div className={styles.governanceCards}>
           <div className={styles.governanceCard}>

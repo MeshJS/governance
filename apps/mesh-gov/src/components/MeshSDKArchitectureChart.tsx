@@ -68,15 +68,15 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
       onClick={handleClick}
       style={{
         background: isHighlighted
-          ? 'linear-gradient(135deg, rgba(12, 242, 180, 0.2) 0%, rgba(56, 232, 225, 0.15) 100%)'
+          ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.15) 100%)'
           : isExternal
           ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)'
-          : 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(45, 212, 191, 0.1) 100%)',
+          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%)',
         border: selected || isHighlighted
-          ? '2px solid rgba(12, 242, 180, 0.8)' 
+          ? '2px solid rgba(255, 255, 255, 0.8)' 
           : isExternal
           ? '1px solid rgba(255, 255, 255, 0.2)'
-          : '1px solid rgba(20, 184, 166, 0.3)',
+          : '1px solid rgba(255, 255, 255, 0.3)',
         borderRadius: '12px',
         padding: '8px 12px',
         minWidth: '120px',
@@ -85,9 +85,9 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
         backdropFilter: 'blur(10px) saturate(180%)',
         WebkitBackdropFilter: 'blur(10px) saturate(180%)',
         boxShadow: isHighlighted
-          ? '0 6px 20px rgba(12, 242, 180, 0.15), 0 2px 8px rgba(12, 242, 180, 0.1), 0 0 0 1px rgba(12, 242, 180, 0.1) inset'
+          ? '0 6px 20px rgba(255, 255, 255, 0.15), 0 2px 8px rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
           : selected
-          ? '0 4px 20px rgba(12, 242, 180, 0.2)'
+          ? '0 4px 20px rgba(255, 255, 255, 0.2)'
           : '0 2px 10px rgba(0, 0, 0, 0.2)',
         transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         position: 'relative',
@@ -97,14 +97,14 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
         setShowTooltip(true);
         if (nodeData.url) {
           e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-          e.currentTarget.style.boxShadow = '0 4px 20px rgba(12, 242, 180, 0.3)';
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(255, 255, 255, 0.3)';
         }
       }}
       onMouseLeave={(e) => {
         setShowTooltip(false);
         e.currentTarget.style.transform = 'translateY(0) scale(1)';
         e.currentTarget.style.boxShadow = selected || isHighlighted
-          ? '0 6px 20px rgba(12, 242, 180, 0.15), 0 2px 8px rgba(12, 242, 180, 0.1), 0 0 0 1px rgba(12, 242, 180, 0.1) inset'
+          ? '0 6px 20px rgba(255, 255, 255, 0.15), 0 2px 8px rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
           : '0 2px 10px rgba(0, 0, 0, 0.2)';
       }}
     >
@@ -114,8 +114,8 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
           position={Position.Top}
           id="top"
           style={{ 
-            background: 'rgba(12, 242, 180, 0.9)', 
-            border: '1px solid rgba(12, 242, 180, 1)',
+            background: 'rgba(255, 255, 255, 0.9)', 
+            border: '1px solid rgba(255, 255, 255, 1)',
             width: 5,
             height: 5,
           }}
@@ -127,8 +127,8 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
           position={Position.Bottom}
           id="bottom"
           style={{ 
-            background: 'rgba(12, 242, 180, 0.9)', 
-            border: '1px solid rgba(12, 242, 180, 1)',
+            background: 'rgba(255, 255, 255, 0.9)', 
+            border: '1px solid rgba(255, 255, 255, 1)',
             width: 5,
             height: 5,
           }}
@@ -136,12 +136,12 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
       )}
       <div style={{
         color: isHighlighted 
-          ? 'rgba(12, 242, 180, 1)' 
+          ? 'rgba(255, 255, 255, 1)' 
           : 'rgba(255, 255, 255, 0.9)',
         fontWeight: isHighlighted ? '650' : '600',
         fontSize: isHighlighted ? '12px' : '11px',
         textShadow: isHighlighted 
-          ? '0 0 8px rgba(12, 242, 180, 0.3)' 
+          ? '0 0 8px rgba(255, 255, 255, 0.3)' 
           : 'none',
         lineHeight: '1.2',
         wordBreak: 'break-word',
@@ -158,7 +158,7 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
           transform: 'translateX(-50%)',
           marginBottom: '12px',
           background: 'rgba(0, 0, 0, 0.95)',
-          border: '1px solid rgba(12, 242, 180, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
           borderRadius: '6px',
           padding: '8px 12px',
           color: 'rgba(255, 255, 255, 0.9)',
@@ -170,7 +170,7 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
           lineHeight: '1.3',
           whiteSpace: 'normal',
           zIndex: 9999,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(12, 242, 180, 0.1) inset',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
           backdropFilter: 'blur(10px) saturate(180%)',
           WebkitBackdropFilter: 'blur(10px) saturate(180%)',
           pointerEvents: 'none',
@@ -197,7 +197,7 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
 // Custom edge style
 const defaultEdgeOptions = {
   style: {
-    stroke: 'rgba(12, 242, 180, 0.6)',
+    stroke: 'rgba(255, 255, 255, 0.6)',
     strokeWidth: 2,
   },
   markerEnd: 'arrowclosed' as const,
@@ -534,7 +534,7 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
         }}
       >
         <Background
-          color="rgba(12, 242, 180, 0.1)"
+          color="rgba(255, 255, 255, 0.1)"
           gap={20}
           size={1}
           style={{

@@ -1,14 +1,15 @@
 .timerContainer {
-    text-align: left;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    margin: 2rem 0;
-    width: fit-content;
+    text-align: center;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin: 0 0 2rem 0;
+    width: 100%;
 }
 
 .timerTitle {
-    color: #fff;
+    color: #000000;
     font-size: 1.2rem;
     margin-bottom: 1.5rem;
     font-weight: 500;
@@ -16,7 +17,7 @@
 
 .timerUnits {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 2rem;
 }
 
@@ -29,7 +30,7 @@
 .value {
     font-size: 2rem;
     font-weight: 600;
-    color: #fff;
+    color: #000000;
     min-width: 2.5ch;
     text-align: center;
     font-variant-numeric: tabular-nums;
@@ -37,7 +38,7 @@
 
 .label {
     font-size: 0.8rem;
-    color: #aaa;
+    color: rgba(0, 0, 0, 0.6);
     text-transform: uppercase;
     margin-top: 0.25rem;
 }

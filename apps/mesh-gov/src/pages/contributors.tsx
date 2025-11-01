@@ -3,10 +3,10 @@ import styles from '../styles/Contributors.module.css';
 import Image from 'next/image';
 import PageHeader from '../components/PageHeader';
 import ContributorModal from '../components/ContributorModal';
+import SectionTitle from '../components/SectionTitle';
 import { useState, useMemo, useEffect } from 'react';
 import { Contributor, ContributorRepository } from '../types';
-import { FaUsers, FaCalendarAlt } from 'react-icons/fa';
-import { VscGitCommit, VscGitPullRequest, VscRepo } from 'react-icons/vsc';
+import { FaCalendarAlt } from 'react-icons/fa';
 import ContributionTimeline from '../components/ContributionTimeline';
 import { getFilteredMetrics, getFilteredSummaryMetrics } from '../utils/contributorMetrics';
 import ContributorsEvolutionChart from '../components/ContributorsEvolutionChart';
@@ -280,51 +280,36 @@ export default function Contributors() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.headerSection}>
-        <PageHeader
-          title={
-            <>
-              Mesh <span>Contributors</span>
-            </>
-          }
-          subtitle="Mesh is build by many minds and hands, here our Contributors"
-        />
-      </div>
+      <SectionTitle
+        title={
+          <>
+            Mesh <span>Contributors</span>
+          </>
+        }
+        subtitle="Mesh is build by many minds and hands, here our Contributors"
+      />
 
       <div className={styles.summaryContainer}>
         <div className={styles.summaryCards}>
-          <div className={`${styles.summaryCard} ${styles.card}`}>
-            <div className={styles.summaryContent}>
-              <div className={styles.statColumn}>
-                <FaUsers className={styles.summaryIcon} />
-                <p className={styles.statLabel}>Total Contributors</p>
-                <p className={styles.summaryNumber}>
-                  {filteredSummaryMetrics?.activeContributors || 0}
-                </p>
-              </div>
-              <div className={styles.statColumn}>
-                <VscRepo className={styles.summaryIcon} />
-                <p className={styles.statLabel}>Total Repositories</p>
-                <p className={styles.summaryNumber}>
-                  {filteredSummaryMetrics?.activeRepositories || 0}
-                </p>
-              </div>
-            </div>
+          <div className={styles.summaryCard}>
+            <p className={styles.statLabel}>Total Contributors</p>
+            <p className={styles.summaryNumber}>
+              {filteredSummaryMetrics?.activeContributors || 0}
+            </p>
           </div>
-
-          <div className={`${styles.summaryCard} ${styles.card}`}>
-            <div className={styles.summaryContent}>
-              <div className={styles.statColumn}>
-                <VscGitCommit className={styles.summaryIcon} />
-                <p className={styles.statLabel}>Commits</p>
-                <p className={styles.summaryNumber}>{filteredSummaryMetrics?.totalCommits || 0}</p>
-              </div>
-              <div className={styles.statColumn}>
-                <VscGitPullRequest className={styles.summaryIcon} />
-                <p className={styles.statLabel}>Pull Requests</p>
-                <p className={styles.summaryNumber}>{filteredSummaryMetrics?.totalPRs || 0}</p>
-              </div>
-            </div>
+          <div className={styles.summaryCard}>
+            <p className={styles.statLabel}>Total Repositories</p>
+            <p className={styles.summaryNumber}>
+              {filteredSummaryMetrics?.activeRepositories || 0}
+            </p>
+          </div>
+          <div className={styles.summaryCard}>
+            <p className={styles.statLabel}>Commits</p>
+            <p className={styles.summaryNumber}>{filteredSummaryMetrics?.totalCommits || 0}</p>
+          </div>
+          <div className={styles.summaryCard}>
+            <p className={styles.statLabel}>Pull Requests</p>
+            <p className={styles.summaryNumber}>{filteredSummaryMetrics?.totalPRs || 0}</p>
           </div>
         </div>
       </div>

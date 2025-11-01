@@ -55,28 +55,28 @@ const CatalystMilestonesDonut: React.FC<CatalystMilestonesDonutProps> = ({
     ];
 
     // Set up gradients
-    // Completed milestones - green gradient
-    data[0].gradient.addColorStop(0, 'rgba(56, 232, 225, 0.95)');
-    data[0].gradient.addColorStop(0.4, 'rgba(20, 184, 166, 0.85)');
-    data[0].gradient.addColorStop(0.8, 'rgba(8, 74, 67, 0.8)');
-    data[0].gradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
+    // Completed milestones - white gradient
+    data[0].gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+    data[0].gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.9)');
+    data[0].gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.85)');
+    data[0].gradient.addColorStop(1, 'rgba(255, 255, 255, 0.8)');
 
-    // Remaining milestones - gray gradient
-    data[1].gradient.addColorStop(0, 'rgba(226, 232, 240, 0.85)');
-    data[1].gradient.addColorStop(0.4, 'rgba(148, 163, 184, 0.8)');
-    data[1].gradient.addColorStop(0.8, 'rgba(71, 85, 105, 0.75)');
-    data[1].gradient.addColorStop(1, 'rgba(30, 41, 59, 0.9)');
+    // Remaining milestones - black gradient
+    data[1].gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
+    data[1].gradient.addColorStop(0.4, 'rgba(0, 0, 0, 0.9)');
+    data[1].gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.85)');
+    data[1].gradient.addColorStop(1, 'rgba(0, 0, 0, 0.8)');
 
     // Hover gradients
-    data[0].hoverGradient.addColorStop(0, 'rgba(96, 255, 248, 1)');
-    data[0].hoverGradient.addColorStop(0.4, 'rgba(34, 211, 238, 0.95)');
-    data[0].hoverGradient.addColorStop(0.8, 'rgba(12, 100, 90, 0.9)');
-    data[0].hoverGradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
+    data[0].hoverGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    data[0].hoverGradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.95)');
+    data[0].hoverGradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.9)');
+    data[0].hoverGradient.addColorStop(1, 'rgba(255, 255, 255, 0.85)');
 
-    data[1].hoverGradient.addColorStop(0, 'rgba(241, 245, 249, 0.95)');
-    data[1].hoverGradient.addColorStop(0.4, 'rgba(203, 213, 225, 0.9)');
-    data[1].hoverGradient.addColorStop(0.8, 'rgba(100, 116, 139, 0.85)');
-    data[1].hoverGradient.addColorStop(1, 'rgba(51, 65, 85, 0.95)');
+    data[1].hoverGradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+    data[1].hoverGradient.addColorStop(0.4, 'rgba(0, 0, 0, 0.95)');
+    data[1].hoverGradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.9)');
+    data[1].hoverGradient.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
 
     // Draw donut chart
     const centerX = canvas.width / (2 * dpr);
