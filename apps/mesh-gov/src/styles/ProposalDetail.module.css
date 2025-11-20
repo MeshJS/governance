@@ -2,7 +2,8 @@
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1.5rem;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
 }
 
 .loading,
@@ -10,20 +11,19 @@
     padding: 2rem;
     text-align: center;
     font-size: 1.125rem;
-    background: linear-gradient(165deg, 
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
-    backdrop-filter: blur(20px) saturate(180%);
+    background: #ffffff;
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--text-color);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        0 4px 24px -1px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.95);
 }
 
 .error {
     color: rgba(255, 76, 76, 0.95);
-    background: rgba(255, 76, 76, 0.1);
-    border-color: rgba(255, 76, 76, 0.3);
+    background: rgba(255, 76, 76, 0.05);
+    border-color: rgba(255, 76, 76, 0.2);
 }
 
 .proposalHeader {
@@ -131,21 +131,40 @@
 .title {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--text-color);
+    color: rgba(0, 0, 0, 0.95);
     margin: 0 0 1rem 0;
     line-height: 1.2;
 }
 
 .shortDescription {
     font-size: 1.125rem;
-    color: var(--text-secondary);
+    color: rgba(0, 0, 0, 0.7);
     line-height: 1.5;
     margin: 0;
+}
+
+.noMilestones {
+    padding: 2rem;
+    text-align: center;
+    font-size: 1rem;
+    color: rgba(0, 0, 0, 0.6);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 
+        0 4px 24px -1px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .content {
     display: grid;
     grid-template-columns: 1fr 350px;
+    gap: 2rem;
+}
+
+.mainInfo {
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
 }
 

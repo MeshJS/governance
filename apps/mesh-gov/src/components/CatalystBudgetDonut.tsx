@@ -88,11 +88,11 @@ const CatalystBudgetDonut: React.FC<CatalystBudgetDonutProps> = ({
     const radius = Math.min(centerX, centerY) * 0.8;
     const innerRadius = radius * 0.6;
 
-    // Add overall shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-    ctx.shadowBlur = 20;
+    // Reduced shadow for cleaner look - CSS will handle 3D effect
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+    ctx.shadowBlur = 8;
     ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 10;
+    ctx.shadowOffsetY = 2;
 
     let startAngle = -Math.PI / 2;
     const newSegments: typeof segments = [];
@@ -116,10 +116,10 @@ const CatalystBudgetDonut: React.FC<CatalystBudgetDonutProps> = ({
         ctx.scale(scale, scale);
         ctx.translate(-centerX, -centerY);
 
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-        ctx.shadowBlur = 25;
-        ctx.shadowOffsetX = 3;
-        ctx.shadowOffsetY = 5;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 3;
       }
 
       ctx.beginPath();
@@ -131,17 +131,7 @@ const CatalystBudgetDonut: React.FC<CatalystBudgetDonutProps> = ({
       ctx.globalAlpha = 1;
       ctx.fill();
 
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-      ctx.lineWidth = segment.type === isHovered ? 3 : 2;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, innerRadius, startAngle, endAngle);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.lineWidth = segment.type === isHovered ? 2 : 1;
-      ctx.stroke();
+      // Removed outer border strokes for cleaner look
 
       ctx.restore();
 
@@ -217,7 +207,6 @@ const CatalystBudgetDonut: React.FC<CatalystBudgetDonutProps> = ({
           <span className={styles.legendValue}>{formatAda(totalBudget - distributedBudget)}</span>
         </div>
       </div>
-      <div className={styles.completionText}>{distributionPercentage}% Distributed</div>
     </div>
   );
 };

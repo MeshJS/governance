@@ -187,8 +187,9 @@ const CustomBarChart = ({ data, chartId, isWhiteBackground = false }: CustomBarC
   const tickColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.6)';
   const cursorColor = isWhiteBackground ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.03)';
   const barColor = isWhiteBackground ? '#ffffff' : `url(#${gradientId})`;
-  const barStroke = isWhiteBackground ? '#000000' : undefined;
-  const barStrokeWidth = isWhiteBackground ? 1 : 0;
+  const barStroke = undefined;
+  const barStrokeWidth = 0;
+  const barShadowFilter = isWhiteBackground ? 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))' : undefined;
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -241,7 +242,7 @@ const CustomBarChart = ({ data, chartId, isWhiteBackground = false }: CustomBarC
             setHoveredIndex(index);
           }}
           onMouseLeave={() => setHoveredIndex(null)}
-          style={{ cursor: 'pointer', filter: isWhiteBackground ? 'none' : undefined }}
+          style={{ cursor: 'pointer', filter: barShadowFilter }}
           animationBegin={150}
           animationDuration={1200}
           animationEasing="ease-out"

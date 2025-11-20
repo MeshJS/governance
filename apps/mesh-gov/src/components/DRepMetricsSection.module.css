@@ -32,7 +32,11 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     animation: slideInScale 0.6s ease-out both;
-    transition: transform 0.3s ease;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 4px 16px rgba(0, 0, 0, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .metricCard:nth-child(1) {
@@ -56,8 +60,11 @@
 }
 
 .metricCard:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.16),
+        0 6px 24px rgba(0, 0, 0, 0.12),
+        0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
 .metricCard:hover::before {

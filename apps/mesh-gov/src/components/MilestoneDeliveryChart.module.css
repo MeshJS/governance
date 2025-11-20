@@ -5,6 +5,22 @@
     transition: all 0.3s ease;
 }
 
+.chartContainer :global(.recharts-text),
+.chartContainer :global(text),
+.chartContainer :global(.recharts-cartesian-axis-x) :global(.recharts-text),
+.chartContainer :global(.recharts-cartesian-axis-x) text,
+.chartContainer :global(.recharts-cartesian-axis-y) :global(.recharts-text),
+.chartContainer :global(.recharts-cartesian-axis-y) text {
+    fill: rgba(0, 0, 0, 0.6) !important;
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.chartWrapper :global(.recharts-text),
+.chartWrapper :global(text) {
+    fill: rgba(0, 0, 0, 0.6) !important;
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
 .chartContainer:hover {
     border-color: transparent;
     box-shadow: none;
@@ -13,7 +29,7 @@
 .chartTitle {
     font-size: 1.25rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(0, 0, 0, 0.95);
     margin: 0 0 0.75rem 0;
 }
 
@@ -31,7 +47,7 @@
 
 .chartSubtitle {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.6);
     margin: 0;
     line-height: 1.4;
 }
@@ -67,6 +83,14 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+}
+
+.chartWrapper :global(.recharts-area) {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.chartWrapper :global(.recharts-line path) {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
 }
 
 .detailPanel {
@@ -184,8 +208,8 @@
 }
 
 .milestoneItem {
-    background: #000000;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     padding: 0.6rem 0.5rem;
     transition: all 0.3s ease;
@@ -199,7 +223,7 @@
 }
 
 .milestoneItem:hover {
-    background: #ffffff;
+    background: rgba(0, 0, 0, 0.02);
     border-color: rgba(0, 0, 0, 0.2);
     transform: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -246,20 +270,20 @@
 
 .divider {
     height: 1px;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.1);
     margin: 0.35rem 0;
     flex-shrink: 0;
 }
 
 .milestoneItem:hover .divider {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .projectId {
     font-size: 0.65rem;
     color: #000000;
     font-weight: 500;
-    background: #ffffff;
+    background: rgba(0, 0, 0, 0.05);
     padding: 0.15rem 0.4rem;
     border-radius: 3px;
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -271,14 +295,14 @@
 }
 
 .milestoneItem:hover .projectId {
-    background: #000000;
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.1);
+    color: #000000;
+    border-color: rgba(0, 0, 0, 0.3);
 }
 
 .milestoneNumber {
     font-size: 0.65rem;
-    color: #ffffff;
+    color: rgba(0, 0, 0, 0.9);
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
@@ -287,12 +311,12 @@
 }
 
 .milestoneItem:hover .milestoneNumber {
-    color: #000000;
+    color: rgba(0, 0, 0, 0.95);
 }
 
 .deliveryDate {
     font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.7);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -300,12 +324,12 @@
 }
 
 .milestoneItem:hover .deliveryDate {
-    color: rgba(0, 0, 0, 0.8);
+    color: rgba(0, 0, 0, 0.9);
 }
 
 .milestoneBudget {
     font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.7);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -313,7 +337,7 @@
 }
 
 .milestoneItem:hover .milestoneBudget {
-    color: rgba(0, 0, 0, 0.8);
+    color: rgba(0, 0, 0, 0.9);
 }
 
 .detailPlaceholder {
@@ -333,31 +357,31 @@
 }
 
 .tooltip {
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 0.75rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .tooltipLabel {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.7);
     margin: 0 0 0.25rem 0;
     font-weight: 500;
 }
 
 .tooltipValue {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(0, 0, 0, 0.95);
     margin: 0;
     font-weight: 600;
 }
 
 .tooltipHint {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.5);
     margin: 0.25rem 0 0 0;
     font-style: italic;
 }
@@ -367,7 +391,7 @@
     gap: 2rem;
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .statItem {
@@ -378,7 +402,7 @@
 
 .statLabel {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.6);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 500;
@@ -386,18 +410,18 @@
 
 .statValue {
     font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     font-weight: 600;
 }
 
 .noData {
     text-align: center;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.6);
     font-size: 0.9rem;
     padding: 2rem;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
     border-radius: 8px;
-    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive design */

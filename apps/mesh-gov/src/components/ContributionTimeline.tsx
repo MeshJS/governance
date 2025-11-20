@@ -189,7 +189,7 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
           <>
             <CartesianGrid
               strokeDasharray="2 2"
-              stroke="rgba(255, 255, 255, 0.08)"
+              stroke="rgba(0, 0, 0, 0.1)"
               horizontal={true}
               vertical={false}
             />
@@ -197,10 +197,11 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
               dataKey="date"
               ticks={monthTicks}
               tickFormatter={monthTickFormatter}
-              stroke="rgba(255, 255, 255, 0.6)"
+              stroke="rgba(0, 0, 0, 0.6)"
               fontSize={10}
               height={28}
               interval={0}
+              tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
             />
             <YAxis hide domain={[0, 'auto']} />
           </>
@@ -208,7 +209,7 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
         <Line
           type="monotone"
           dataKey="total"
-          stroke="#FFFFFF"
+          stroke="#000000"
           strokeWidth={1.5}
           dot={false}
           filter="url(#glow)"
@@ -220,28 +221,27 @@ export const ContributionTimeline: React.FC<ContributionTimelineProps> = ({
               return (
                 <div
                   style={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     padding: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(0, 0, 0, 0.2)',
                     borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                    backdropFilter: 'blur(8px)',
-                    color: 'rgba(255, 255, 255, 0.9)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    color: 'rgba(0, 0, 0, 0.9)',
                     fontSize: '0.875rem',
                     fontFamily: 'system-ui, -apple-system, sans-serif',
                   }}
                 >
-                  <p style={{ margin: '0 0 8px 0', color: 'rgba(255, 255, 255, 0.7)' }}>
+                  <p style={{ margin: '0 0 8px 0', color: 'rgba(0, 0, 0, 0.7)' }}>
                     Date: {data.date}
                   </p>
                   <p style={{ margin: '0 0 4px 0' }}>
-                    Commits: <span style={{ color: '#FFFFFF' }}>{data.commits}</span>
+                    Commits: <span style={{ color: '#000000', fontFamily: "'JetBrains Mono', monospace" }}>{data.commits}</span>
                   </p>
                   <p style={{ margin: '0 0 4px 0' }}>
-                    PRs: <span style={{ color: '#FFFFFF' }}>{data.prs}</span>
+                    PRs: <span style={{ color: '#000000', fontFamily: "'JetBrains Mono', monospace" }}>{data.prs}</span>
                   </p>
                   <p style={{ margin: '0', fontWeight: '600' }}>
-                    Total: <span style={{ color: '#FFFFFF' }}>{data.total}</span>
+                    Total: <span style={{ color: '#000000', fontFamily: "'JetBrains Mono', monospace" }}>{data.total}</span>
                   </p>
                 </div>
               );

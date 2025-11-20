@@ -62,11 +62,11 @@ const PackageDownloadsDonut = ({ packageData }: PackageDownloadsDonutProps) => {
     const radius = Math.min(centerX, centerY) * 0.8;
     const innerRadius = radius * 0.6;
 
-    // No shadow effects
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
+    // Shadow effects for 3D look
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+    ctx.shadowBlur = 10;
     ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
+    ctx.shadowOffsetY = 3;
 
     let startAngle = -Math.PI / 2;
     const newSegments: typeof segments = [];
@@ -89,6 +89,18 @@ const PackageDownloadsDonut = ({ packageData }: PackageDownloadsDonutProps) => {
         ctx.translate(centerX, centerY);
         ctx.scale(scale, scale);
         ctx.translate(-centerX, -centerY);
+        
+        // Enhanced shadow for hovered segment
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 4;
+      } else {
+        // Standard shadow for non-hovered segments
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 3;
       }
 
       ctx.beginPath();
@@ -101,32 +113,7 @@ const PackageDownloadsDonut = ({ packageData }: PackageDownloadsDonutProps) => {
       ctx.globalAlpha = 1;
       ctx.fill();
 
-      // Simple black borders - outer and inner arcs
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, innerRadius, startAngle, endAngle);
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Draw radial borders between segments (at end angle for each segment)
-      ctx.beginPath();
-      ctx.moveTo(
-        centerX + Math.cos(endAngle) * innerRadius,
-        centerY + Math.sin(endAngle) * innerRadius
-      );
-      ctx.lineTo(
-        centerX + Math.cos(endAngle) * radius,
-        centerY + Math.sin(endAngle) * radius
-      );
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      // Removed all border strokes for cleaner 3D look
 
       ctx.restore();
 

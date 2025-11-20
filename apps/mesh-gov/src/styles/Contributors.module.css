@@ -68,14 +68,10 @@
 }
 
 .contributorCard {
-    background: linear-gradient(165deg,
-            rgba(255, 255, 255, 0.05) 0%,
-            rgba(255, 255, 255, 0.02) 100%);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: #ffffff;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 12px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
     overflow: hidden;
     position: relative;
     transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
@@ -116,31 +112,29 @@
 }
 
 .rankingBadge {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.9);
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     width: fit-content;
     letter-spacing: 0.02em;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .avatar {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
 
 .username {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(0, 0, 0, 0.95);
     margin: -8px 0 0 0;
     font-weight: 700;
 }
@@ -154,8 +148,8 @@
 }
 
 .statItem {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     padding: 0.75rem;
     display: flex;
@@ -170,9 +164,10 @@
 
 .statValue {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     font-weight: 600;
     text-align: center;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .statLabel {
@@ -186,23 +181,23 @@
 
 .contributorCard:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(0, 0, 0, 0.15);
     box-shadow:
-        0 8px 32px -4px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        0 8px 32px -4px rgba(0, 0, 0, 0.15),
+        0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .contributorCard:hover .avatar {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(0, 0, 0, 0.2);
 }
 
 .contributorCard:hover .username {
-    color: rgba(255, 255, 255, 1);
+    color: rgba(0, 0, 0, 1);
 }
 
 .contributorCard:hover .statItem {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
 }
 
 .contributorCard:hover .avatar::after {
@@ -274,7 +269,7 @@
 
 .repoSmallStats {
     font-size: 0.625rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.5);
     white-space: nowrap;
 }
 
@@ -289,9 +284,9 @@
     font-size: 0.625rem;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.7);
     font-weight: 500;
     letter-spacing: 0.02em;
     display: flex;
@@ -1000,9 +995,22 @@
     gap: 0.75rem;
 }
 
+.chartContainer :global(.recharts-cartesian-axis-x) :global(.recharts-text),
+.chartContainer :global(.recharts-cartesian-axis-x) text,
+.chartContainer :global(.recharts-cartesian-axis-y) :global(.recharts-text),
+.chartContainer :global(.recharts-cartesian-axis-y) text {
+    fill: rgba(0, 0, 0, 0.6) !important;
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.chartContainer :global(.recharts-text) {
+    fill: rgba(0, 0, 0, 0.6) !important;
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
 .chartTitle {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     font-weight: 600;
     letter-spacing: -0.02em;
     margin: 0;
@@ -1011,7 +1019,7 @@
 
 .chartSubtitle {
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.6);
     margin: 0;
     text-align: center;
     line-height: 1.4;

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styles from '../styles/MeshSDKComponents.module.css';
 import { FaChevronLeft, FaChevronRight, FaExternalLinkAlt } from 'react-icons/fa';
 
@@ -91,7 +91,9 @@ const MeshSDKCarousel: React.FC<MeshSDKCarouselProps> = ({ onNodeSelect, meshPac
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isExternalUpdate, setIsExternalUpdate] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const cardsContainerRef = useRef<HTMLDivElement>(null);
 
   const handlePrevious = () => {
     const newIndex = currentIndex === 0 ? meshSDKNodes.length - 1 : currentIndex - 1;
@@ -127,20 +129,11 @@ const MeshSDKCarousel: React.FC<MeshSDKCarouselProps> = ({ onNodeSelect, meshPac
   };
 
   const getCategoryColor = (category: string, isCore: boolean, id: string) => {
-    // Make the core package stand out more
-    if (id === 'core') {
-      return {
-        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.15) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        textColor: 'rgba(255, 255, 255, 1)',
-      };
-    }
-    
-    // All other cards use the same background as the page
+    // All cards use solid white background with black text
     return {
-      background: 'linear-gradient(165deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      textColor: 'rgba(255, 255, 255, 0.9)',
+      background: '#ffffff',
+      border: '1px solid rgba(0, 0, 0, 0.1)',
+      textColor: 'rgba(0, 0, 0, 0.95)',
     };
   };
 
@@ -218,13 +211,13 @@ const MeshSDKCarousel: React.FC<MeshSDKCarouselProps> = ({ onNodeSelect, meshPac
     return 0.3; // Further cards
   };
 
-  // Calculate vertical offset for stacking effect
+  // Calculate vertical offset for stacking effect (reduced to prevent cutoff)
   const getCardYOffset = (position: number) => {
     const absPos = Math.abs(position);
     if (absPos === 0) return 0; // Center card
-    if (absPos === 1) return 15; // Adjacent cards
-    if (absPos === 2) return 25; // Second layer
-    return 35; // Further cards
+    if (absPos === 1) return 10; // Adjacent cards
+    if (absPos === 2) return 15; // Second layer
+    return 20; // Further cards
   };
 
   // Format number for display
@@ -285,14 +278,40 @@ const MeshSDKCarousel: React.FC<MeshSDKCarouselProps> = ({ onNodeSelect, meshPac
   React.useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
+      if (cardsContainerRef.current) {
+        setContainerWidth(cardsContainerRef.current.offsetWidth);
+      } else if (carouselRef.current) {
+        // Fallback to carousel container width minus nav buttons and padding
+        setContainerWidth(carouselRef.current.offsetWidth - 120);
+      }
     };
     
-    // Initial check
-    handleResize();
+    // Initial check with delay to ensure DOM is ready
+    setTimeout(handleResize, 100);
     
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Calculate responsive card spacing based on container width
+  const getCardSpacing = useCallback(() => {
+    if (!containerWidth || containerWidth === 0) {
+      return isMobile ? 260 : 180; // Default spacing
+    }
+    
+    if (isMobile) {
+      // On mobile, use smaller spacing to fit within screen
+      return Math.min(260, containerWidth * 0.75);
+    }
+    
+    // Calculate spacing to fit cards within container with margins
+    // Account for nav buttons (48px each) and padding (40px total)
+    const availableWidth = containerWidth - 100;
+    // We want to show up to 3 cards visible (center + 2 on each side)
+    // Each card is ~280px wide when scaled, so we need spacing that fits
+    const maxSpacing = Math.min(200, availableWidth / 2.8);
+    return Math.max(140, maxSpacing);
+  }, [containerWidth, isMobile]);
 
   return (
     <div className={styles.carousel}>
@@ -305,7 +324,7 @@ const MeshSDKCarousel: React.FC<MeshSDKCarouselProps> = ({ onNodeSelect, meshPac
           <FaChevronLeft />
         </button>
 
-        <div className={styles.cardsContainer}>
+        <div className={styles.cardsContainer} ref={cardsContainerRef}>
           <div className={styles.cardsTrack}>
             {getAllCardsWithPositions().map((cardData) => {
               const colorScheme = getCategoryColor(cardData.category, cardData.isCore, cardData.id);
@@ -319,7 +338,10 @@ const MeshSDKCarousel: React.FC<MeshSDKCarouselProps> = ({ onNodeSelect, meshPac
                   style={{
                     background: colorScheme.background,
                     border: colorScheme.border,
-                    transform: `translateX(${cardData.position * (isMobile ? 280 : 200)}px) scale(${getCardScale(cardData.position)}) translateY(${getCardYOffset(cardData.position)}px)`,
+                    boxShadow: isCenter 
+                      ? '0 8px 32px -4px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)'
+                      : '0 4px 24px -1px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
+                    transform: `translateX(${cardData.position * getCardSpacing()}px) scale(${getCardScale(cardData.position)}) translateY(${getCardYOffset(cardData.position)}px)`,
                     opacity: getCardOpacity(cardData.position, isVisible),
                     zIndex: 10 - Math.abs(cardData.position),
                     transition: isTransitioning ? 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'all 0.3s ease',

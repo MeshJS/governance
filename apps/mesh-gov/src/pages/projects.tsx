@@ -58,23 +58,21 @@ const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: strin
   return (
     <div
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        border: '1px solid rgba(56, 232, 225, 0.3)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        border: '1px solid rgba(0, 0, 0, 0.2)',
         borderRadius: '8px',
         padding: '8px 12px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 232, 225, 0.1) inset',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)',
         maxWidth: '220px',
       }}
     >
       <div
         style={{
           fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.8)',
+          color: 'rgba(0, 0, 0, 0.8)',
           marginBottom: '6px',
           fontWeight: '600',
-          borderBottom: '1px solid rgba(56, 232, 225, 0.2)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
           paddingBottom: '3px',
         }}
       >
@@ -98,13 +96,13 @@ const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: strin
                 width: '6px',
                 height: '6px',
                 borderRadius: '1px',
-                backgroundColor: entry.color,
-                boxShadow: `0 0 3px ${entry.color}`,
+                backgroundColor: '#000000',
+                boxShadow: '0 0 3px rgba(0, 0, 0, 0.3)',
               }}
             />
             <span
               style={{
-                color: 'rgba(255, 255, 255, 0.9)',
+                color: 'rgba(0, 0, 0, 0.9)',
                 fontWeight: '500',
                 maxWidth: '100px',
                 overflow: 'hidden',
@@ -117,10 +115,11 @@ const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: strin
           </div>
           <span
             style={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(0, 0, 0, 0.7)',
               fontWeight: '600',
               minWidth: '20px',
               textAlign: 'right',
+              fontFamily: "'JetBrains Mono', monospace",
             }}
           >
             {entry.value}
@@ -131,7 +130,7 @@ const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: strin
         <div
           style={{
             fontSize: '9px',
-            color: 'rgba(255, 255, 255, 0.5)',
+            color: 'rgba(0, 0, 0, 0.5)',
             textAlign: 'center',
             marginTop: '2px',
             fontStyle: 'italic',
@@ -352,12 +351,9 @@ const createRepositoryChart = (repoName: string) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'rgba(255, 255, 255, 0.6)',
-            background:
-              'linear-gradient(165deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 100%)',
-            backdropFilter: 'blur(10px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-            border: '1px dashed rgba(255, 255, 255, 0.1)',
+            color: 'rgba(0, 0, 0, 0.6)',
+            background: 'rgba(0, 0, 0, 0.02)',
+            border: '1px dashed rgba(0, 0, 0, 0.1)',
             borderRadius: '12px',
             fontSize: '14px',
             fontWeight: '500',
@@ -424,25 +420,25 @@ const createRepositoryChart = (repoName: string) => {
           </defs>
           <CartesianGrid
             strokeDasharray="2 2"
-            stroke="rgba(255, 255, 255, 0.08)"
+            stroke="rgba(0, 0, 0, 0.1)"
             horizontal={true}
             vertical={false}
           />
           <XAxis
             dataKey="month"
-            stroke="rgba(255, 255, 255, 0.6)"
+            stroke="rgba(0, 0, 0, 0.6)"
             fontSize={7}
             fontWeight={500}
             angle={-45}
             textAnchor="end"
             height={45}
-            tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 5 }}
+            tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
           />
           <YAxis
-            stroke="rgba(255, 255, 255, 0.6)"
+            stroke="rgba(0, 0, 0, 0.6)"
             fontSize={7}
             fontWeight={500}
-            tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 5 }}
+            tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
             width={25}
             domain={maxYValue ? [0, maxYValue] : undefined}
           />
@@ -460,22 +456,18 @@ const createRepositoryChart = (repoName: string) => {
                 <Line
                   type="monotone"
                   dataKey={repository.name}
-                  stroke={
-                    shouldHighlight
-                      ? `url(#gradient-repo-${repository.name}-card)`
-                      : getDimmedColor(baseColor)
-                  }
-                  strokeWidth={shouldHighlight ? 1.5 : 1}
-                  strokeOpacity={shouldHighlight ? 0.85 : 0.4}
+                  stroke="#000000"
+                  strokeWidth={shouldHighlight ? 1.5 : 0.8}
+                  strokeOpacity={shouldHighlight ? 1 : 0.3}
                   dot={false}
                   activeDot={{
                     r: shouldHighlight ? 4 : 2.5,
-                    fill: shouldHighlight ? baseColor : getDimmedColor(baseColor),
+                    fill: '#000000',
                     stroke: 'rgba(255, 255, 255, 0.8)',
                     strokeWidth: 1.5,
-                    opacity: shouldHighlight ? 1 : 0.7,
+                    opacity: shouldHighlight ? 1 : 0.5,
                     filter: shouldHighlight
-                      ? `drop-shadow(0 0 6px ${baseColor.replace('0.95', '0.4')})`
+                      ? 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.3))'
                       : 'none',
                   }}
                   connectNulls={false}
@@ -622,27 +614,24 @@ const UTXOSRepositoryChart: React.FC<{
   }, [contributors, globalStartDate, globalEndDate]);
 
   if (!chartData?.monthlyData?.length) {
-    return (
-      <div
-        style={{
-          height: 280,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'rgba(255, 255, 255, 0.6)',
-          background:
-            'linear-gradient(165deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 100%)',
-          backdropFilter: 'blur(10px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-          border: '1px dashed rgba(255, 255, 255, 0.1)',
-          borderRadius: '12px',
-          fontSize: '14px',
-          fontWeight: '500',
-        }}
-      >
-        No repository data available for the selected time period
-      </div>
-    );
+      return (
+        <div
+          style={{
+            height: 280,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'rgba(0, 0, 0, 0.6)',
+            background: 'rgba(0, 0, 0, 0.02)',
+            border: '1px dashed rgba(0, 0, 0, 0.1)',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontWeight: '500',
+          }}
+        >
+          No repository data available for the selected time period
+        </div>
+      );
   }
 
   const hasAnySelected = selectedRepositories.size > 0;
@@ -700,25 +689,25 @@ const UTXOSRepositoryChart: React.FC<{
         </defs>
         <CartesianGrid
           strokeDasharray="2 2"
-          stroke="rgba(255, 255, 255, 0.08)"
+          stroke="rgba(0, 0, 0, 0.1)"
           horizontal={true}
           vertical={false}
         />
         <XAxis
           dataKey="month"
-          stroke="rgba(255, 255, 255, 0.6)"
+          stroke="rgba(0, 0, 0, 0.6)"
           fontSize={7}
           fontWeight={500}
           angle={-45}
           textAnchor="end"
           height={45}
-          tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 5 }}
+          tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
         />
         <YAxis
-          stroke="rgba(255, 255, 255, 0.6)"
+          stroke="rgba(0, 0, 0, 0.6)"
           fontSize={7}
           fontWeight={500}
-          tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 5 }}
+          tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
           width={25}
           domain={maxYValue ? [0, maxYValue] : undefined}
         />
@@ -734,22 +723,18 @@ const UTXOSRepositoryChart: React.FC<{
               <Line
                 type="monotone"
                 dataKey={repository.name}
-                stroke={
-                  shouldHighlight
-                    ? `url(#gradient-repo-${repository.name}-utxos)`
-                    : getDimmedColor(baseColor)
-                }
-                strokeWidth={shouldHighlight ? 1.5 : 1}
-                strokeOpacity={shouldHighlight ? 0.85 : 0.4}
+                stroke="#000000"
+                strokeWidth={shouldHighlight ? 1.5 : 0.8}
+                strokeOpacity={shouldHighlight ? 1 : 0.3}
                 dot={false}
                 activeDot={{
                   r: shouldHighlight ? 4 : 2.5,
-                  fill: shouldHighlight ? baseColor : getDimmedColor(baseColor),
+                  fill: '#000000',
                   stroke: 'rgba(255, 255, 255, 0.8)',
                   strokeWidth: 1.5,
-                  opacity: shouldHighlight ? 1 : 0.7,
+                  opacity: shouldHighlight ? 1 : 0.5,
                   filter: shouldHighlight
-                    ? `drop-shadow(0 0 6px ${baseColor.replace('0.95', '0.4')})`
+                    ? 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.3))'
                     : 'none',
                 }}
                 connectNulls={false}
@@ -1262,24 +1247,10 @@ export default function Projects() {
 
   return (
     <div className={styles.container}>
-      <SectionTitle
-        title={
-          <>
-            Mesh <span>Projects</span>
-          </>
-        }
-        subtitle="Mesh is busy building tools to enhance and grow the Cardano Ecosystem, here a few of our most active and promising projects"
-      />
 
       {/* Top Repositories Chart */}
       <div className={styles.repositoriesSection}>
         <div className={styles.chartHeader}>
-          <div className={styles.chartTitleSection}>
-            <h3 className={styles.chartTitle}>Projects Activity</h3>
-            <p className={styles.chartSubtitle}>
-              Monthly contribution trends for the most active repositories
-            </p>
-          </div>
           <div className={styles.timeWindowSelectorContainer}>
             <div className={styles.timeWindowSelector}>
               {TIME_WINDOW_PRESETS.map(preset => (
