@@ -29,23 +29,47 @@
     background: #ffffff;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 4px 16px rgba(0, 0, 0, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     max-width: 600px;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.logoBox:hover {
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.16),
+        0 6px 24px rgba(0, 0, 0, 0.12),
+        0 3px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
 }
 
 .timerBox {
     background: #ffffff;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 4px 16px rgba(0, 0, 0, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 600px;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.timerBox:hover {
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.16),
+        0 6px 24px rgba(0, 0, 0, 0.12),
+        0 3px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
 }
 
 .meshLogo {

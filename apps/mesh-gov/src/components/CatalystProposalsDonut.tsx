@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../styles/Proposals.module.css';
 
-interface CatalystMilestonesDonutProps {
-  totalMilestones: number;
-  completedMilestones: number;
+interface CatalystProposalsDonutProps {
+  totalProposals: number;
+  completedProposals: number;
 }
 
-const CatalystMilestonesDonut: React.FC<CatalystMilestonesDonutProps> = ({
-  totalMilestones,
-  completedMilestones,
+const CatalystProposalsDonut: React.FC<CatalystProposalsDonutProps> = ({
+  totalProposals,
+  completedProposals,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeSegment, setActiveSegment] = useState<string | null>(null);
@@ -38,30 +38,30 @@ const CatalystMilestonesDonut: React.FC<CatalystMilestonesDonutProps> = ({
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Calculate data
-    const remainingMilestones = totalMilestones - completedMilestones;
+    const remainingProposals = totalProposals - completedProposals;
     const data = [
       {
         type: 'completed',
-        value: completedMilestones,
+        value: completedProposals,
         gradient: ctx.createLinearGradient(0, canvas.height, canvas.width, 0),
         hoverGradient: ctx.createLinearGradient(0, canvas.height, canvas.width, 0),
       },
       {
         type: 'remaining',
-        value: remainingMilestones,
+        value: remainingProposals,
         gradient: ctx.createLinearGradient(0, canvas.height, canvas.width, 0),
         hoverGradient: ctx.createLinearGradient(0, canvas.height, canvas.width, 0),
       },
     ];
 
     // Set up gradients
-    // Completed milestones - white gradient
+    // Completed proposals - white gradient
     data[0].gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
     data[0].gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.9)');
     data[0].gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.85)');
     data[0].gradient.addColorStop(1, 'rgba(255, 255, 255, 0.8)');
 
-    // Remaining milestones - black gradient
+    // Remaining proposals - black gradient
     data[1].gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
     data[1].gradient.addColorStop(0.4, 'rgba(0, 0, 0, 0.9)');
     data[1].gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.85)');
@@ -95,7 +95,7 @@ const CatalystMilestonesDonut: React.FC<CatalystMilestonesDonutProps> = ({
 
     // Draw segments
     data.forEach(segment => {
-      const segmentAngle = (segment.value / totalMilestones) * (Math.PI * 2);
+      const segmentAngle = (segment.value / totalProposals) * (Math.PI * 2);
       const endAngle = startAngle + segmentAngle;
 
       newSegments.push({
@@ -135,11 +135,11 @@ const CatalystMilestonesDonut: React.FC<CatalystMilestonesDonutProps> = ({
     });
 
     setSegments(newSegments);
-  }, [totalMilestones, completedMilestones]);
+  }, [totalProposals, completedProposals]);
 
   useEffect(() => {
     drawChart(activeSegment);
-  }, [totalMilestones, completedMilestones, activeSegment, drawChart]);
+  }, [totalProposals, completedProposals, activeSegment, drawChart]);
 
   const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -173,7 +173,7 @@ const CatalystMilestonesDonut: React.FC<CatalystMilestonesDonutProps> = ({
     setActiveSegment(null);
   };
 
-  const completionPercentage = Math.round((completedMilestones / totalMilestones) * 100);
+  const completionPercentage = Math.round((completedProposals / totalProposals) * 100);
 
   return (
     <div className={styles.donutChartContainer}>
@@ -190,8 +190,8 @@ const CatalystMilestonesDonut: React.FC<CatalystMilestonesDonutProps> = ({
           onMouseLeave={() => setActiveSegment(null)}
         >
           <div className={`${styles.legendColor} ${styles.completed}`} />
-          <span className={styles.legendLabel}>Completed Milestones</span>
-          <span className={styles.legendValue}>{completedMilestones}</span>
+          <span className={styles.legendLabel}>Completed Proposals</span>
+          <span className={styles.legendValue}>{completedProposals}</span>
         </div>
         <div
           className={`${styles.legendItem} ${activeSegment === 'remaining' ? styles.active : ''}`}
@@ -199,12 +199,13 @@ const CatalystMilestonesDonut: React.FC<CatalystMilestonesDonutProps> = ({
           onMouseLeave={() => setActiveSegment(null)}
         >
           <div className={`${styles.legendColor} ${styles.remaining}`} />
-          <span className={styles.legendLabel}>Remaining Milestones</span>
-          <span className={styles.legendValue}>{totalMilestones - completedMilestones}</span>
+          <span className={styles.legendLabel}>Remaining Proposals</span>
+          <span className={styles.legendValue}>{totalProposals - completedProposals}</span>
         </div>
       </div>
     </div>
   );
 };
 
-export default CatalystMilestonesDonut;
+export default CatalystProposalsDonut;
+

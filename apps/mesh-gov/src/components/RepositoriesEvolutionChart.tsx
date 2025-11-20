@@ -64,13 +64,11 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   return (
     <div
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        border: `1px solid ${isSticky ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.3)'}`,
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        border: `1px solid ${isSticky ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.2)'}`,
         borderRadius: '8px',
         padding: '8px 12px',
-        boxShadow: `0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px ${isSticky ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'} inset`,
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: `0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1) inset`,
         maxWidth: '220px',
         position: 'relative',
       }}
@@ -100,10 +98,10 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
       <div
         style={{
           fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.8)',
+          color: 'rgba(0, 0, 0, 0.8)',
           marginBottom: '6px',
           fontWeight: '600',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.2)',
           paddingBottom: '3px',
           display: 'flex',
           alignItems: 'center',
@@ -115,7 +113,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           <span
             style={{
               fontSize: '9px',
-              color: 'rgba(255, 255, 255, 0.8)',
+              color: 'rgba(0, 0, 0, 0.6)',
               fontWeight: '500',
             }}
           >
@@ -147,7 +145,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
             />
             <span
               style={{
-                color: 'rgba(255, 255, 255, 0.9)',
+                color: 'rgba(0, 0, 0, 0.9)',
                 fontWeight: '500',
                 maxWidth: '100px',
                 overflow: 'hidden',
@@ -160,7 +158,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           </div>
           <span
             style={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(0, 0, 0, 0.7)',
               fontWeight: '600',
               minWidth: '20px',
               textAlign: 'right',
@@ -174,7 +172,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         <div
           style={{
             fontSize: '9px',
-            color: 'rgba(255, 255, 255, 0.5)',
+            color: 'rgba(0, 0, 0, 0.5)',
             textAlign: 'center',
             marginTop: '2px',
             fontStyle: 'italic',
@@ -187,24 +185,24 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   );
 };
 
-// Generate cohesive white/grey color variations matching the dashboard theme
+// Generate harmonious, elegant colors for each project line
 const generateColor = (repoName: string, index: number): string => {
   const colors = [
-    'rgba(255, 255, 255, 0.95)', // Pure white
-    'rgba(255, 255, 255, 0.9)', // Slightly dimmed white
-    'rgba(255, 255, 255, 0.85)', // More dimmed white
-    'rgba(255, 255, 255, 0.8)', // Dimmed white
-    'rgba(255, 255, 255, 0.75)', // More dimmed white
-    'rgba(255, 255, 255, 0.7)', // Dimmed white
-    'rgba(255, 255, 255, 0.65)', // More dimmed white
-    'rgba(255, 255, 255, 0.6)', // Dimmed white
-    'rgba(255, 255, 255, 0.55)', // More dimmed white
-    'rgba(255, 255, 255, 0.5)', // Dimmed white
-    'rgba(255, 255, 255, 0.45)', // More dimmed white
-    'rgba(255, 255, 255, 0.4)', // Dimmed white
-    'rgba(255, 255, 255, 0.35)', // More dimmed white
-    'rgba(255, 255, 255, 0.3)', // Dimmed white
-    'rgba(255, 255, 255, 0.25)', // More dimmed white
+    '#1a1a1a', // Deep charcoal
+    '#4a5568', // Slate gray
+    '#2d3748', // Dark slate
+    '#718096', // Medium gray
+    '#4a5568', // Slate
+    '#2c5282', // Deep blue-gray
+    '#2c7a7b', // Teal-gray
+    '#744210', // Warm brown
+    '#553c9a', // Muted purple
+    '#7c2d12', // Burnt sienna
+    '#1e3a8a', // Navy blue
+    '#065f46', // Forest green
+    '#6b21a8', // Deep purple
+    '#831843', // Deep rose
+    '#78350f', // Dark amber
   ];
   return colors[index % colors.length];
 };
@@ -292,7 +290,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
         justifyContent: 'center',
         marginTop: '24px',
         paddingTop: '20px',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        borderTop: '1px solid rgba(0, 0, 0, 0.1)',
       }}
     >
       {topRepositories.map((repository, index) => {
@@ -316,16 +314,14 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
               background: isSelected
                 ? '#ffffff'
                 : shouldHighlight
-                ? 'linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)'
-                : 'linear-gradient(165deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
-              backdropFilter: isSelected ? 'none' : 'blur(10px) saturate(180%)',
-              WebkitBackdropFilter: isSelected ? 'none' : 'blur(10px) saturate(180%)',
+                ? 'rgba(0, 0, 0, 0.03)'
+                : 'rgba(0, 0, 0, 0.01)',
               border: `1px solid ${
                 isSelected
-                  ? 'rgba(255, 255, 255, 0.3)'
+                  ? 'rgba(0, 0, 0, 0.2)'
                   : shouldHighlight
-                  ? 'rgba(255, 255, 255, 0.15)'
-                  : 'rgba(255, 255, 255, 0.05)'
+                  ? 'rgba(0, 0, 0, 0.1)'
+                  : 'rgba(0, 0, 0, 0.05)'
               }`,
               opacity: shouldHighlight ? 1 : 0.5,
               transform: isSelected ? 'scale(1.02) translateY(-1px)' : 'scale(1)',
@@ -339,20 +335,17 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                 width: '8px',
                 height: '8px',
                 borderRadius: '1px',
-                backgroundColor: isSelected
-                  ? '#000000'
-                  : shouldHighlight
-                  ? color
-                  : getDimmedColor(color),
+                backgroundColor: color,
+                opacity: shouldHighlight ? 1 : 0.3,
                 border: `1px solid ${
                   isSelected
-                    ? 'rgba(255, 255, 255, 0.3)'
+                    ? 'rgba(0, 0, 0, 0.2)'
                     : shouldHighlight
-                    ? 'rgba(255, 255, 255, 0.3)'
-                    : 'rgba(255, 255, 255, 0.1)'
+                    ? 'rgba(0, 0, 0, 0.1)'
+                    : 'rgba(0, 0, 0, 0.05)'
                 }`,
                 transition: 'all 0.3s ease',
-                boxShadow: shouldHighlight && !isSelected ? `0 0 6px ${color.replace('0.95', '0.3')}` : 'none',
+                boxShadow: shouldHighlight && !isSelected ? `0 0 4px ${color}40` : 'none',
               }}
             />
             <span
@@ -361,8 +354,8 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                 color: isSelected
                   ? '#000000'
                   : shouldHighlight
-                  ? 'rgba(255, 255, 255, 0.9)'
-                  : 'rgba(255, 255, 255, 0.5)',
+                  ? 'rgba(0, 0, 0, 0.9)'
+                  : 'rgba(0, 0, 0, 0.5)',
                 fontWeight: isSelected ? '600' : '500',
                 transition: 'all 0.3s ease',
                 letterSpacing: '0.01em',
@@ -622,7 +615,7 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
         style={{
           flex: 1,
           minWidth: 0,
-          marginRight: isMobile ? '0' : '300px', // Make space for absolutely positioned Activity panel
+          marginRight: isMobile ? '0' : '313px', // Make space for Activity panel (280px + 1.5rem spacing)
         }}
       >
         <div style={{ position: 'relative' }}>
@@ -642,8 +635,10 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                   const isSelected = selectedRepositories.has(repository.name);
                   const shouldHighlight = !hasAnySelected || isSelected;
 
+                  const baseColor = generateColor(repository.name, index);
+                  
                   if (!shouldHighlight) {
-                    // Simple gray gradient for non-selected
+                    // Dimmed version for non-selected
                     return (
                       <linearGradient
                         key={`gradient-${repository.name}`}
@@ -653,14 +648,11 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                         x2="0"
                         y2="1"
                       >
-                        <stop offset="0%" stopColor="rgba(100, 116, 139, 0.5)" />
-                        <stop offset="100%" stopColor="rgba(100, 116, 139, 0.2)" />
+                        <stop offset="0%" stopColor={baseColor} stopOpacity="0.3" />
+                        <stop offset="100%" stopColor={baseColor} stopOpacity="0.15" />
                       </linearGradient>
                     );
                   }
-
-                  const baseColor = generateColor(repository.name, index);
-                  const colorVariations = getColorVariations(baseColor);
 
                   return (
                     <linearGradient
@@ -671,34 +663,33 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                       x2="0"
                       y2="1"
                     >
-                      <stop offset="0%" stopColor={colorVariations.bright} />
-                      <stop offset="50%" stopColor={rgbaToRgb(baseColor)} />
-                      <stop offset="100%" stopColor={colorVariations.dim} />
+                      <stop offset="0%" stopColor={baseColor} stopOpacity="1" />
+                      <stop offset="100%" stopColor={baseColor} stopOpacity="0.8" />
                     </linearGradient>
                   );
                 }) || []}
               </defs>
               <CartesianGrid
                 strokeDasharray="2 2"
-                stroke="rgba(255, 255, 255, 0.08)"
+                stroke="rgba(0, 0, 0, 0.1)"
                 horizontal={true}
                 vertical={false}
               />
               <XAxis
                 dataKey="month"
-                stroke="rgba(255, 255, 255, 0.6)"
+                stroke="rgba(0, 0, 0, 0.6)"
                 fontSize={10}
                 fontWeight={500}
                 angle={-45}
                 textAnchor="end"
                 height={60}
-                tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+                tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
               />
               <YAxis
-                stroke="rgba(255, 255, 255, 0.6)"
+                stroke="rgba(0, 0, 0, 0.6)"
                 fontSize={10}
                 fontWeight={500}
-                tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+                tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
               />
               <Tooltip content={<CustomTooltip />} cursor={false} />
 
@@ -714,13 +705,9 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                     <Line
                       type="monotone"
                       dataKey={repository.name}
-                      stroke={
-                        shouldHighlight
-                          ? `url(#gradient-repo-${repository.name})`
-                          : getDimmedColor(baseColor)
-                      }
-                      strokeWidth={shouldHighlight ? 1.5 : 1}
-                      strokeOpacity={shouldHighlight ? 0.85 : 0.4}
+                      stroke={baseColor}
+                      strokeWidth={shouldHighlight ? 1.5 : 0.8}
+                      strokeOpacity={shouldHighlight ? 1 : 0.3}
                       dot={false}
                       activeDot={false}
                       connectNulls={false}
@@ -738,12 +725,12 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                       dot={false}
                       activeDot={{
                         r: shouldHighlight ? 4 : 2.5,
-                        fill: shouldHighlight ? baseColor : getDimmedColor(baseColor),
+                        fill: baseColor,
                         stroke: 'rgba(255, 255, 255, 0.8)',
                         strokeWidth: 1.5,
-                        opacity: shouldHighlight ? 1 : 0.7,
+                        opacity: shouldHighlight ? 1 : 0.5,
                         filter: shouldHighlight
-                          ? `drop-shadow(0 0 6px ${baseColor.replace('0.95', '0.4')})`
+                          ? `drop-shadow(0 0 4px ${baseColor})`
                           : 'none',
                       }}
                       connectNulls={false}
@@ -787,18 +774,17 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
         style={{
           width: isMobile ? '100%' : '280px',
           flexShrink: 0,
-          background: '#000000',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '16px',
+          background: '#ffffff',
+          border: '1px solid rgba(0, 0, 0, 0.1)',
+          borderRadius: '12px',
           padding: '1.5rem',
-          height: isMobile ? 'auto' : `${height + 120}px`, // EXTENDED: More height to reach bottom
+          height: isMobile ? 'auto' : `${height}px`,
           display: 'flex',
           flexDirection: 'column',
           position: isMobile ? 'relative' : 'absolute',
-          top: isMobile ? 'auto' : '-120px', // HIGHER: Start above the title
-          right: isMobile ? 'auto' : '0',
+          top: isMobile ? 'auto' : '-2.5rem',
+          right: isMobile ? 'auto' : '1.5rem',
+          boxShadow: '0 4px 24px -1px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
         }}
       >
         <h4
@@ -806,7 +792,7 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
             margin: '0 0 1rem 0',
             fontSize: '1.1rem',
             fontWeight: '600',
-            color: 'rgba(255, 255, 255, 0.9)',
+            color: 'rgba(0, 0, 0, 0.9)',
             textAlign: 'center',
             flexShrink: 0,
           }}
@@ -845,11 +831,17 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                   borderRadius: '8px',
                   cursor: 'pointer',
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  background: shouldHighlight
-                    ? 'rgba(255, 255, 255, 0.05)'
-                    : 'rgba(255, 255, 255, 0.02)',
+                  background: isSelected
+                    ? '#000000'
+                    : shouldHighlight
+                    ? 'rgba(0, 0, 0, 0.03)'
+                    : '#ffffff',
                   border: `1px solid ${
-                    shouldHighlight ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'
+                    isSelected
+                      ? 'rgba(0, 0, 0, 0.2)'
+                      : shouldHighlight
+                      ? 'rgba(0, 0, 0, 0.1)'
+                      : 'rgba(0, 0, 0, 0.05)'
                   }`,
                   opacity: shouldHighlight ? 1 : 0.6,
                 }}
@@ -864,7 +856,7 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                     height: '18px',
                     cursor: 'pointer',
                     marginTop: '2px',
-                    accentColor: '#ffffff',
+                    accentColor: '#000000',
                     flexShrink: 0,
                   }}
                 />
@@ -880,9 +872,11 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                     style={{
                       fontSize: '0.85rem',
                       fontWeight: '600',
-                      color: shouldHighlight
-                        ? 'rgba(255, 255, 255, 0.9)'
-                        : 'rgba(255, 255, 255, 0.6)',
+                      color: isSelected
+                        ? '#ffffff'
+                        : shouldHighlight
+                        ? 'rgba(0, 0, 0, 0.9)'
+                        : 'rgba(0, 0, 0, 0.6)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.02em',
                     }}
@@ -892,7 +886,9 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
                   <div
                     style={{
                       fontSize: '0.75rem',
-                      color: 'rgba(255, 255, 255, 0.6)',
+                      color: isSelected
+                        ? 'rgba(255, 255, 255, 0.8)'
+                        : 'rgba(0, 0, 0, 0.6)',
                       fontWeight: '500',
                     }}
                   >

@@ -67,28 +67,22 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
     <div
       onClick={handleClick}
       style={{
-        background: isHighlighted
-          ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.15) 100%)'
-          : isExternal
-          ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)'
-          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%)',
+        background: '#ffffff',
         border: selected || isHighlighted
-          ? '2px solid rgba(255, 255, 255, 0.8)' 
+          ? '2px solid rgba(0, 0, 0, 0.3)' 
           : isExternal
-          ? '1px solid rgba(255, 255, 255, 0.2)'
-          : '1px solid rgba(255, 255, 255, 0.3)',
+          ? '1px solid rgba(0, 0, 0, 0.15)'
+          : '1px solid rgba(0, 0, 0, 0.2)',
         borderRadius: '12px',
         padding: '8px 12px',
         minWidth: '120px',
         textAlign: 'center',
         cursor: nodeData.url ? 'pointer' : 'default',
-        backdropFilter: 'blur(10px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(10px) saturate(180%)',
         boxShadow: isHighlighted
-          ? '0 6px 20px rgba(255, 255, 255, 0.15), 0 2px 8px rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+          ? '0 8px 32px -4px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)'
           : selected
-          ? '0 4px 20px rgba(255, 255, 255, 0.2)'
-          : '0 2px 10px rgba(0, 0, 0, 0.2)',
+          ? '0 6px 24px -2px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)'
+          : '0 4px 16px -2px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
         transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         position: 'relative',
         overflow: 'visible',
@@ -97,15 +91,17 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
         setShowTooltip(true);
         if (nodeData.url) {
           e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-          e.currentTarget.style.boxShadow = '0 4px 20px rgba(255, 255, 255, 0.3)';
+          e.currentTarget.style.boxShadow = '0 8px 32px -4px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.15)';
         }
       }}
       onMouseLeave={(e) => {
         setShowTooltip(false);
         e.currentTarget.style.transform = 'translateY(0) scale(1)';
-        e.currentTarget.style.boxShadow = selected || isHighlighted
-          ? '0 6px 20px rgba(255, 255, 255, 0.15), 0 2px 8px rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
-          : '0 2px 10px rgba(0, 0, 0, 0.2)';
+        e.currentTarget.style.boxShadow = isHighlighted
+          ? '0 8px 32px -4px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)'
+          : selected
+          ? '0 6px 24px -2px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)'
+          : '0 4px 16px -2px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)';
       }}
     >
       {hasIncomingEdges && (
@@ -114,8 +110,8 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
           position={Position.Top}
           id="top"
           style={{ 
-            background: 'rgba(255, 255, 255, 0.9)', 
-            border: '1px solid rgba(255, 255, 255, 1)',
+            background: '#000000', 
+            border: '1px solid rgba(0, 0, 0, 0.3)',
             width: 5,
             height: 5,
           }}
@@ -127,8 +123,8 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
           position={Position.Bottom}
           id="bottom"
           style={{ 
-            background: 'rgba(255, 255, 255, 0.9)', 
-            border: '1px solid rgba(255, 255, 255, 1)',
+            background: '#000000', 
+            border: '1px solid rgba(0, 0, 0, 0.3)',
             width: 5,
             height: 5,
           }}
@@ -136,13 +132,10 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
       )}
       <div style={{
         color: isHighlighted 
-          ? 'rgba(255, 255, 255, 1)' 
-          : 'rgba(255, 255, 255, 0.9)',
+          ? 'rgba(0, 0, 0, 0.95)' 
+          : 'rgba(0, 0, 0, 0.9)',
         fontWeight: isHighlighted ? '650' : '600',
         fontSize: isHighlighted ? '12px' : '11px',
-        textShadow: isHighlighted 
-          ? '0 0 8px rgba(255, 255, 255, 0.3)' 
-          : 'none',
         lineHeight: '1.2',
         wordBreak: 'break-word',
       }}>
@@ -157,11 +150,11 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
           left: '50%',
           transform: 'translateX(-50%)',
           marginBottom: '12px',
-          background: 'rgba(0, 0, 0, 0.95)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
+          background: 'rgba(255, 255, 255, 0.95)',
+          border: '1px solid rgba(0, 0, 0, 0.2)',
           borderRadius: '6px',
           padding: '8px 12px',
-          color: 'rgba(255, 255, 255, 0.9)',
+          color: 'rgba(0, 0, 0, 0.9)',
           fontSize: '11px',
           fontWeight: '500',
           width: '300px',
@@ -170,9 +163,7 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
           lineHeight: '1.3',
           whiteSpace: 'normal',
           zIndex: 9999,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-          backdropFilter: 'blur(10px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(10px) saturate(180%)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)',
           pointerEvents: 'none',
         }}>
           {nodeData.description}
@@ -186,7 +177,7 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
             height: 0,
             borderLeft: '6px solid transparent',
             borderRight: '6px solid transparent',
-            borderTop: '6px solid rgba(0, 0, 0, 0.95)',
+            borderTop: '6px solid rgba(255, 255, 255, 0.95)',
           }} />
         </div>
       )}
@@ -197,13 +188,69 @@ const SDKPackageNode: React.FC<NodeProps & { highlightedNodeId?: string; onNodeC
 // Custom edge style
 const defaultEdgeOptions = {
   style: {
-    stroke: 'rgba(255, 255, 255, 0.6)',
-    strokeWidth: 2,
+    stroke: '#000000',
+    strokeWidth: 1.5,
+    strokeOpacity: 0.4,
   },
   markerEnd: 'arrowclosed' as const,
 };
 
 const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ height = 600, highlightedNodeId, onNodeClick }) => {
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const reactFlowInstance = React.useRef<any>(null);
+
+  // Handle window resize
+  React.useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Calculate responsive positions based on window width
+  const calculatePositions = useCallback(() => {
+    const containerWidth = Math.min(windowWidth - 100, 1200); // Max width with padding
+    const centerX = containerWidth / 2;
+    
+    // Responsive spacing
+    const spacing = Math.max(200, Math.min(300, containerWidth / 5));
+    const rowSpacing = 120;
+    
+    return {
+      centerX,
+      spacing,
+      rowSpacing,
+      // Row 1 - Core (center)
+      row1: { x: centerX, y: 80 },
+      // Row 2 - React (center)
+      row2: { x: centerX, y: 80 + rowSpacing },
+      // Row 3 - Application packages (4 items)
+      row3: {
+        x1: centerX - spacing * 1.5,
+        x2: centerX - spacing * 0.5,
+        x3: centerX + spacing * 0.5,
+        x4: centerX + spacing * 1.5,
+        y: 80 + rowSpacing * 2,
+      },
+      // Row 4 - Core packages (3 items)
+      row4: {
+        x1: centerX - spacing,
+        x2: centerX,
+        x3: centerX + spacing,
+        y: 80 + rowSpacing * 3,
+      },
+      // Row 5 - External dependencies (3 items)
+      row5: {
+        x1: centerX - spacing,
+        x2: centerX,
+        x3: centerX + spacing,
+        y: 80 + rowSpacing * 4,
+      },
+    };
+  }, [windowWidth]);
+
   // Simple node click handler
   const handleNodeClick = useCallback((nodeId: string) => {
     if (onNodeClick) {
@@ -222,138 +269,142 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
     ),
   }), [highlightedNodeId, handleNodeClick]);
 
-  // Define initial nodes in structured rows
-  const initialNodes: Node[] = useMemo(() => [
-    // Row 1 - Core package (center)
-    {
-      id: 'core',
-      type: 'sdkPackage',
-      position: { x: 500, y: 80 },
-      data: { 
-        label: '@meshsdk/core',
-        description: 'Exports all the functionalities including wallets, transactions, and providers',
-        url: 'https://docs.meshjs.dev/core'
-      },
-    },
+  // Define nodes with responsive positions
+  const initialNodes: Node[] = useMemo(() => {
+    const pos = calculatePositions();
     
-    // Row 2 - React package (center)
-    {
-      id: 'react',
-      type: 'sdkPackage',
-      position: { x: 500, y: 200 },
-      data: { 
-        label: '@meshsdk/react',
-        description: 'React component library',
-        url: 'https://meshjs.dev/react'
+    return [
+      // Row 1 - Core package (center)
+      {
+        id: 'core',
+        type: 'sdkPackage',
+        position: { x: pos.row1.x, y: pos.row1.y },
+        data: { 
+          label: '@meshsdk/core',
+          description: 'Exports all the functionalities including wallets, transactions, and providers',
+          url: 'https://docs.meshjs.dev/core'
+        },
       },
-    },
-    
-    // Row 3 - Application packages (evenly spaced)
-    {
-      id: 'transaction',
-      type: 'sdkPackage',
-      position: { x: 150, y: 320 },
-      data: { 
-        label: '@meshsdk/transaction',
-        description: 'Transactions to send assets, mint tokens, and interact with smart contracts',
-        url: 'https://docs.meshjs.dev/transactions'
+      
+      // Row 2 - React package (center)
+      {
+        id: 'react',
+        type: 'sdkPackage',
+        position: { x: pos.row2.x, y: pos.row2.y },
+        data: { 
+          label: '@meshsdk/react',
+          description: 'React component library',
+          url: 'https://meshjs.dev/react'
+        },
       },
-    },
-    {
-      id: 'wallet',
-      type: 'sdkPackage',
-      position: { x: 400, y: 320 },
-      data: { 
-        label: '@meshsdk/wallet',
-        description: 'Wallets to manage assets and interact with the blockchain',
-        url: 'https://docs.meshjs.dev/wallets'
+      
+      // Row 3 - Application packages (evenly spaced)
+      {
+        id: 'transaction',
+        type: 'sdkPackage',
+        position: { x: pos.row3.x1, y: pos.row3.y },
+        data: { 
+          label: '@meshsdk/transaction',
+          description: 'Transactions to send assets, mint tokens, and interact with smart contracts',
+          url: 'https://docs.meshjs.dev/transactions'
+        },
       },
-    },
-    {
-      id: 'provider',
-      type: 'sdkPackage',
-      position: { x: 650, y: 320 },
-      data: { 
-        label: '@meshsdk/provider',
-        description: 'Blockchain data providers',
-        url: 'https://docs.meshjs.dev/providers'
+      {
+        id: 'wallet',
+        type: 'sdkPackage',
+        position: { x: pos.row3.x2, y: pos.row3.y },
+        data: { 
+          label: '@meshsdk/wallet',
+          description: 'Wallets to manage assets and interact with the blockchain',
+          url: 'https://docs.meshjs.dev/wallets'
+        },
       },
-    },
-    {
-      id: 'contract',
-      type: 'sdkPackage',
-      position: { x: 900, y: 320 },
-      data: { 
-        label: '@meshsdk/contract',
-        description: 'A collection of smart contracts and its transactions',
-        url: 'https://github.com/MeshJS/mesh/tree/main/packages/mesh-contract'
+      {
+        id: 'provider',
+        type: 'sdkPackage',
+        position: { x: pos.row3.x3, y: pos.row3.y },
+        data: { 
+          label: '@meshsdk/provider',
+          description: 'Blockchain data providers',
+          url: 'https://docs.meshjs.dev/providers'
+        },
       },
-    },
-    
-    // Row 4 - Core packages (evenly spaced)
-    {
-      id: 'common',
-      type: 'sdkPackage',
-      position: { x: 250, y: 440 },
-      data: { 
-        label: '@meshsdk/common',
-        description: 'Contains constants, types and interfaces used across the SDK and different serialization libraries',
-        url: 'https://github.com/MeshJS/mesh/tree/main/packages/mesh-common'
+      {
+        id: 'contract',
+        type: 'sdkPackage',
+        position: { x: pos.row3.x4, y: pos.row3.y },
+        data: { 
+          label: '@meshsdk/contract',
+          description: 'A collection of smart contracts and its transactions',
+          url: 'https://github.com/MeshJS/mesh/tree/main/packages/mesh-contract'
+        },
       },
-    },
-    {
-      id: 'core_csl',
-      type: 'sdkPackage',
-      position: { x: 500, y: 440 },
-      data: { 
-        label: '@meshsdk/core-csl',
-        description: 'Types and utilities functions between Mesh and cardano-serialization-lib',
-        url: 'https://docs.meshjs.dev/core-csl'
+      
+      // Row 4 - Core packages (evenly spaced)
+      {
+        id: 'common',
+        type: 'sdkPackage',
+        position: { x: pos.row4.x1, y: pos.row4.y },
+        data: { 
+          label: '@meshsdk/common',
+          description: 'Contains constants, types and interfaces used across the SDK and different serialization libraries',
+          url: 'https://github.com/MeshJS/mesh/tree/main/packages/mesh-common'
+        },
       },
-    },
-    {
-      id: 'core_cst',
-      type: 'sdkPackage',
-      position: { x: 750, y: 440 },
-      data: { 
-        label: '@meshsdk/core-cst',
-        description: 'Types and utilities functions between Mesh and cardano-js-sdk',
-        url: 'https://docs.meshjs.dev/core-cst'
+      {
+        id: 'core_csl',
+        type: 'sdkPackage',
+        position: { x: pos.row4.x2, y: pos.row4.y },
+        data: { 
+          label: '@meshsdk/core-csl',
+          description: 'Types and utilities functions between Mesh and cardano-serialization-lib',
+          url: 'https://docs.meshjs.dev/core-csl'
+        },
       },
-    },
-    
-    // Row 5 - External dependencies (evenly spaced)
-    {
-      id: 'sidan_csl',
-      type: 'sdkPackage',
-      position: { x: 200, y: 560 },
-      data: { 
-        label: '@sidan-lab/*',
-        description: 'CSL utilities',
-        url: 'https://github.com/sidan-lab'
+      {
+        id: 'core_cst',
+        type: 'sdkPackage',
+        position: { x: pos.row4.x3, y: pos.row4.y },
+        data: { 
+          label: '@meshsdk/core-cst',
+          description: 'Types and utilities functions between Mesh and cardano-js-sdk',
+          url: 'https://docs.meshjs.dev/core-cst'
+        },
       },
-    },
-    {
-      id: 'cardano_sdk',
-      type: 'sdkPackage',
-      position: { x: 500, y: 560 },
-      data: { 
-        label: '@cardano-sdk/*',
-        description: 'Cardano SDK',
-        url: 'https://github.com/input-output-hk'
+      
+      // Row 5 - External dependencies (evenly spaced)
+      {
+        id: 'sidan_csl',
+        type: 'sdkPackage',
+        position: { x: pos.row5.x1, y: pos.row5.y },
+        data: { 
+          label: '@sidan-lab/*',
+          description: 'CSL utilities',
+          url: 'https://github.com/sidan-lab'
+        },
       },
-    },
-    {
-      id: 'harmoniclabs',
-      type: 'sdkPackage',
-      position: { x: 800, y: 560 },
-      data: { 
-        label: '@harmoniclabs/*',
-        description: 'Harmonic Labs',
-        url: 'https://github.com/HarmonicLabs'
+      {
+        id: 'cardano_sdk',
+        type: 'sdkPackage',
+        position: { x: pos.row5.x2, y: pos.row5.y },
+        data: { 
+          label: '@cardano-sdk/*',
+          description: 'Cardano SDK',
+          url: 'https://github.com/input-output-hk'
+        },
       },
-    },
-  ], []);
+      {
+        id: 'harmoniclabs',
+        type: 'sdkPackage',
+        position: { x: pos.row5.x3, y: pos.row5.y },
+        data: { 
+          label: '@harmoniclabs/*',
+          description: 'Harmonic Labs',
+          url: 'https://github.com/HarmonicLabs'
+        },
+      },
+    ];
+  }, [calculatePositions]);
 
   // Define initial edges with only top/bottom connections for clean vertical flow
   const initialEdges: Edge[] = useMemo(() => [
@@ -364,7 +415,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'react',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     
     // React to application packages (all from bottom to top)
@@ -374,7 +430,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'transaction',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'react-wallet', 
@@ -382,7 +443,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'wallet',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     
     // Core to other packages
@@ -392,7 +458,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'provider',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'core-transaction', 
@@ -400,7 +471,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'transaction',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'core-wallet', 
@@ -408,7 +484,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'wallet',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'core-contract', 
@@ -416,7 +497,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'contract',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     
     // Core to common
@@ -426,7 +512,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'common',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     
     // Core to serialization packages
@@ -436,7 +527,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'core_csl',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'core-core_cst', 
@@ -444,7 +540,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'core_cst',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     
     // Application packages to serialization layer (all vertical)
@@ -454,7 +555,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'core_csl',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'transaction-core_cst', 
@@ -462,7 +568,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'core_cst',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'provider-core_cst', 
@@ -470,7 +581,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'core_cst',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     
     // Serialization to external dependencies (straight down)
@@ -480,7 +596,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'sidan_csl',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'core_cst-cardano_sdk', 
@@ -488,7 +609,12 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'cardano_sdk',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
     { 
       id: 'core_cst-harmoniclabs', 
@@ -496,17 +622,63 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
       target: 'harmoniclabs',
       sourceHandle: 'bottom',
       targetHandle: 'top',
-      ...defaultEdgeOptions 
+      style: {
+        stroke: '#000000',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.4,
+      },
+      markerEnd: 'arrowclosed' as const,
     },
   ], []);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  // Update node positions when window size changes
+  React.useEffect(() => {
+    const pos = calculatePositions();
+    setNodes((nds) => 
+      nds.map((node) => {
+        const positions: { [key: string]: { x: number; y: number } } = {
+          core: { x: pos.row1.x, y: pos.row1.y },
+          react: { x: pos.row2.x, y: pos.row2.y },
+          transaction: { x: pos.row3.x1, y: pos.row3.y },
+          wallet: { x: pos.row3.x2, y: pos.row3.y },
+          provider: { x: pos.row3.x3, y: pos.row3.y },
+          contract: { x: pos.row3.x4, y: pos.row3.y },
+          common: { x: pos.row4.x1, y: pos.row4.y },
+          core_csl: { x: pos.row4.x2, y: pos.row4.y },
+          core_cst: { x: pos.row4.x3, y: pos.row4.y },
+          sidan_csl: { x: pos.row5.x1, y: pos.row5.y },
+          cardano_sdk: { x: pos.row5.x2, y: pos.row5.y },
+          harmoniclabs: { x: pos.row5.x3, y: pos.row5.y },
+        };
+        return {
+          ...node,
+          position: positions[node.id] || node.position,
+        };
+      })
+    );
+  }, [windowWidth, calculatePositions, setNodes]);
+
+  // Fit view when nodes change
+  React.useEffect(() => {
+    if (reactFlowInstance.current) {
+      setTimeout(() => {
+        reactFlowInstance.current.fitView({ padding: 0.2, duration: 300 });
+      }, 100);
+    }
+  }, [nodes, windowWidth]);
+
+  const onInit = React.useCallback((instance: any) => {
+    reactFlowInstance.current = instance;
+    instance.fitView({ padding: 0.2 });
+  }, []);
+
   return (
     <div 
       className={styles.architectureChart}
-      style={{ height }}
+      style={{ height, width: '100%' }}
     >
       <ReactFlow
         nodes={nodes}
@@ -515,11 +687,11 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
+        onInit={onInit}
         fitView
-        fitViewOptions={{ padding: 0.15 }}
-        minZoom={1.0}
-        maxZoom={1.0}
-        defaultViewport={{ x: 0, y: 0, zoom: 1.0 }}
+        fitViewOptions={{ padding: 0.2 }}
+        minZoom={0.5}
+        maxZoom={1.5}
         proOptions={{ hideAttribution: true }}
         nodesDraggable={false}
         nodesConnectable={false}
@@ -531,6 +703,7 @@ const MeshSDKArchitectureChart: React.FC<MeshSDKArchitectureChartProps> = ({ hei
         style={{
           background: 'transparent',
           borderRadius: 0,
+          width: '100%',
         }}
       >
         <Background

@@ -1,9 +1,18 @@
 .imageSection {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background: #000000;
+    padding: 2rem 0;
     margin-bottom: 2rem;
-    padding: 1.5rem;
-    /* Completely invisible - no visual styling */
     animation: fadeInUp 0.8s ease-out;
     transform: translateY(0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .imageSection:hover {
@@ -15,6 +24,9 @@
     justify-content: center;
     align-items: center;
     position: relative;
+    max-width: 1200px;
+    width: 100%;
+    padding: 0 1.5rem;
 }
 
 .imageContainer::before {

@@ -32,7 +32,7 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
     d3.select(chartRef.current).selectAll('*').remove();
 
     // Set up dimensions
-    const margin = { top: 40, right: 60, bottom: 30, left: 60 };
+    const margin = { top: 40, right: 60, bottom: 60, left: 60 };
     const width = chartRef.current.clientWidth - margin.left - margin.right;
     const height = 300 - margin.top - margin.bottom;
 
@@ -77,11 +77,19 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
       .curve(d3.curveMonotoneX);
 
     // Add axes
-    svg
+    const xAxis = svg
       .append('g')
       .attr('class', styles.xAxis)
       .attr('transform', `translate(0,${height})`)
       .call(d3.axisBottom(xScale));
+
+    // Rotate X-axis labels to prevent overlap
+    xAxis
+      .selectAll('text')
+      .style('text-anchor', 'end')
+      .attr('dx', '-0.5em')
+      .attr('dy', '0.5em')
+      .attr('transform', 'rotate(-45)');
 
     svg
       .append('g')
@@ -112,12 +120,12 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
       .attr('x2', '100%')
       .attr('y2', '0%');
 
-    gradientAda.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(255, 255, 255, 0.9)');
+    gradientAda.append('stop').attr('offset', '0%').attr('stop-color', '#000000');
 
     gradientAda
       .append('stop')
       .attr('offset', '100%')
-      .attr('stop-color', 'rgba(255, 255, 255, 0.9)');
+      .attr('stop-color', '#000000');
 
     const gradientDelegators = svg
       .append('defs')
@@ -131,12 +139,12 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
     gradientDelegators
       .append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', 'rgba(203, 213, 225, 0.8)');
+      .attr('stop-color', '#ef4444');
 
     gradientDelegators
       .append('stop')
       .attr('offset', '100%')
-      .attr('stop-color', 'rgba(203, 213, 225, 0.8)');
+      .attr('stop-color', '#ef4444');
 
     // Add the lines
     svg
@@ -290,7 +298,7 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
           onMouseEnter={() => setHovered('ada')}
           onMouseLeave={() => setHovered(null)}
         >
-          <span className={styles.legendLine} style={{ background: 'rgba(255, 255, 255, 0.9)' }} />
+          <span className={styles.legendLine} style={{ background: '#000000' }} />
           <span className={styles.legendText}>Total ADA Delegated</span>
         </div>
         <div
@@ -300,7 +308,7 @@ export default function DelegationGrowthChart({ data }: DelegationGrowthChartPro
           onMouseEnter={() => setHovered('delegators')}
           onMouseLeave={() => setHovered(null)}
         >
-          <span className={styles.legendLine} style={{ background: 'rgba(203, 213, 225, 0.8)' }} />
+          <span className={styles.legendLine} style={{ background: '#ef4444' }} />
           <span className={styles.legendText}>Number of Delegators</span>
         </div>
         <div className={`${styles.tooltip} ${hovered ? styles.visible : ''}`}>

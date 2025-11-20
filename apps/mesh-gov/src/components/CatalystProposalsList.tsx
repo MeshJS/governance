@@ -132,10 +132,10 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                       width: `${progressPercent}%`,
                       background:
                         progressPercent === 100
-                          ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95))'
+                          ? 'linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 1))'
                           : progressPercent > 50
-                            ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.7))'
-                            : 'linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.5))',
+                            ? 'linear-gradient(90deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8))'
+                            : 'linear-gradient(90deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6))',
                     }}
                   />
                 </div>
@@ -214,10 +214,10 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
                             width: `${progressPercent}%`,
                             background:
                               progressPercent === 100
-                                ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95))'
+                                ? 'linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 1))'
                                 : progressPercent > 50
-                                  ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.7))'
-                                  : 'linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.5))',
+                                  ? 'linear-gradient(90deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8))'
+                                  : 'linear-gradient(90deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6))',
                           }}
                         />
                       </div>

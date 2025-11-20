@@ -216,11 +216,11 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
       return (
         <div
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.95)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            border: '1px solid rgba(0, 0, 0, 0.1)',
             borderRadius: '8px',
             padding: '12px 16px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
             backdropFilter: 'blur(20px) saturate(180%)',
             WebkitBackdropFilter: 'blur(20px) saturate(180%)',
             maxWidth: '280px',
@@ -229,10 +229,10 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
           <div
             style={{
               fontSize: '11px',
-              color: 'rgba(255, 255, 255, 0.8)',
+              color: 'rgba(0, 0, 0, 0.8)',
               marginBottom: '6px',
               fontWeight: '600',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+              borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
               paddingBottom: '3px',
             }}
           >
@@ -253,17 +253,17 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
                   width: '6px',
                   height: '6px',
                   borderRadius: '1px',
-                  backgroundColor: 'rgba(255, 255, 255, 1)',
-                  boxShadow: '0 0 3px rgba(255, 255, 255, 0.5)',
+                  backgroundColor: 'rgba(0, 0, 0, 1)',
+                  boxShadow: '0 0 3px rgba(0, 0, 0, 0.3)',
                 }}
               />
-              <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
+              <span style={{ color: 'rgba(0, 0, 0, 0.8)', fontWeight: '500' }}>
                 Milestones
               </span>
             </div>
             <span
               style={{
-                color: 'rgba(255, 255, 255, 1)',
+                color: 'rgba(0, 0, 0, 0.95)',
                 fontWeight: '600',
               }}
             >
@@ -273,7 +273,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
           <div
             style={{
               fontSize: '9px',
-              color: 'rgba(255, 255, 255, 0.6)',
+              color: 'rgba(0, 0, 0, 0.5)',
               fontStyle: 'italic',
               textAlign: 'center',
               marginTop: '4px',
@@ -345,63 +345,70 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
               >
                 <defs>
                   <linearGradient id="milestoneGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
-                    <stop offset="50%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
-                    <stop offset="100%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
+                    <stop offset="0%" stopColor="rgba(0, 0, 0, 0.2)" stopOpacity="1" />
+                    <stop offset="20%" stopColor="rgba(0, 0, 0, 0.15)" stopOpacity="1" />
+                    <stop offset="40%" stopColor="rgba(0, 0, 0, 0.1)" stopOpacity="1" />
+                    <stop offset="70%" stopColor="rgba(0, 0, 0, 0.05)" stopOpacity="1" />
+                    <stop offset="100%" stopColor="rgba(0, 0, 0, 0.01)" stopOpacity="1" />
                   </linearGradient>
                   <linearGradient id="milestoneLineGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(255, 255, 255, 1)" />
-                    <stop offset="50%" stopColor="rgba(255, 255, 255, 0.9)" />
-                    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.8)" />
+                    <stop offset="0%" stopColor="rgba(0, 0, 0, 1)" />
+                    <stop offset="50%" stopColor="rgba(0, 0, 0, 0.9)" />
+                    <stop offset="100%" stopColor="rgba(0, 0, 0, 0.8)" />
                   </linearGradient>
+                  <filter id="lineShadow3D" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+                    <feOffset dx="0" dy="2" result="offsetblur"/>
+                    <feComponentTransfer>
+                      <feFuncA type="linear" slope="0.3"/>
+                    </feComponentTransfer>
+                    <feMerge>
+                      <feMergeNode/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
                 </defs>
                 <CartesianGrid
                   strokeDasharray="2 2"
-                  stroke="rgba(255, 255, 255, 0.08)"
+                  stroke="rgba(0, 0, 0, 0.1)"
                   horizontal={true}
                   vertical={false}
                 />
                 <XAxis
                   dataKey="month"
-                  stroke="rgba(255, 255, 255, 0.6)"
+                  stroke="rgba(0, 0, 0, 0.6)"
                   fontSize={10}
                   fontWeight={500}
                   angle={-45}
                   textAnchor="end"
                   height={60}
-                  tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+                  tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
                   interval={0}
                 />
                 <YAxis
-                  stroke="rgba(255, 255, 255, 0.6)"
+                  stroke="rgba(0, 0, 0, 0.6)"
                   fontSize={10}
                   fontWeight={500}
-                  tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+                  tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
                   allowDecimals={false}
                   domain={[0, maxCount]}
                   ticks={yAxisTicks}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={false} />
-                <Area
-                  type="monotone"
-                  dataKey="count"
-                  fill="url(#milestoneGradient)"
-                  fillOpacity={1}
-                  stroke="none"
-                />
                 <Line
                   type="monotone"
                   dataKey="count"
                   stroke="url(#milestoneLineGradient)"
                   strokeWidth={1.5}
-                  strokeOpacity={0.85}
+                  strokeOpacity={1}
                   dot={false}
+                  filter="url(#lineShadow3D)"
                   activeDot={{
                     r: 4,
-                    fill: 'rgba(255, 255, 255, 1)',
-                    stroke: 'rgba(0, 0, 0, 0.8)',
+                    fill: 'rgba(0, 0, 0, 1)',
+                    stroke: 'rgba(255, 255, 255, 0.8)',
                     strokeWidth: 1.5,
-                    filter: 'drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))',
+                    filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))',
                   }}
                   connectNulls={false}
                   strokeLinecap="round"

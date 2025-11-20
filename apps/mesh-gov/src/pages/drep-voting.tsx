@@ -1,7 +1,6 @@
 import DRepVotingList from '../components/DRepVotingList';
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/Voting.module.css';
-import SectionTitle from '../components/SectionTitle';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DelegationGrowthChart from '../components/DelegationGrowthChart';
@@ -196,10 +195,6 @@ export default function DRepVoting() {
 
   return (
     <>
-      <SectionTitle
-        title="Mesh DRep Dashboard"
-        subtitle="Overview and Insights on Mesh DRep voting activities at Cardano onchain Governance"
-      />
       <div className={styles.container}>
 
       <DRepImageSection />

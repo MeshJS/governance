@@ -1,5 +1,6 @@
 import { useState, useMemo, FC, useEffect } from 'react';
 import styles from '../../styles/Contributors.module.css';
+import projectsStyles from '../../styles/Projects.module.css';
 import projectStyles from '../../styles/ProjectDetail.module.css';
 import carouselStyles from '../../styles/MeshSDKComponents.module.css';
 import meshStatsStyles from '../../styles/MeshStats.module.css';
@@ -54,23 +55,21 @@ const CustomTooltip: FC<TooltipProps<number, string> & { chartId?: string }> = (
     return (
       <div
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.95)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          border: '1px solid rgba(0, 0, 0, 0.2)',
           borderRadius: '8px',
           padding: '12px 16px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)',
           maxWidth: '280px',
         }}
       >
         <div
           style={{
             fontSize: '11px',
-            color: 'rgba(255, 255, 255, 0.8)',
+            color: 'rgba(0, 0, 0, 0.8)',
             marginBottom: '6px',
             fontWeight: '600',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
             paddingBottom: '3px',
           }}
         >
@@ -90,17 +89,17 @@ const CustomTooltip: FC<TooltipProps<number, string> & { chartId?: string }> = (
                 width: '6px',
                 height: '6px',
                 borderRadius: '1px',
-                backgroundColor: 'rgba(255, 255, 255, 1)',
-                boxShadow: '0 0 3px rgba(255, 255, 255, 1)',
+                backgroundColor: '#000000',
+                boxShadow: '0 0 3px rgba(0, 0, 0, 0.3)',
               }}
             />
-            <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>downloads</span>
+            <span style={{ color: 'rgba(0, 0, 0, 0.9)', fontWeight: '500' }}>downloads</span>
           </div>
           <span
             style={{
-              color: 'rgba(255, 255, 255, 1)',
+              color: 'rgba(0, 0, 0, 0.9)',
               fontWeight: '600',
-              textShadow: '0 0 4px rgba(255, 255, 255, 0.4)',
+              fontFamily: "'JetBrains Mono', monospace",
             }}
           >
             {formatNumber(payload[0].value)}
@@ -122,7 +121,7 @@ const CustomTick = (props: any) => {
         y={0}
         dy={16}
         textAnchor="end"
-        fill="rgba(255, 255, 255, 0.6)"
+        fill="rgba(0, 0, 0, 0.6)"
         fontSize="9"
         transform="rotate(-60)"
       >
@@ -154,29 +153,29 @@ const CustomBarChart: FC<CustomBarChartProps> = ({ data, chartId }) => {
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="100%" stopColor="#94a3b8" />
+            <stop offset="0%" stopColor="#000000" />
+            <stop offset="100%" stopColor="#4a5568" />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.03)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.1)" vertical={false} />
         <XAxis
           dataKey="name"
-          axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          axisLine={{ stroke: 'rgba(0, 0, 0, 0.1)' }}
           tick={<CustomTick />}
-          tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          tickLine={{ stroke: 'rgba(0, 0, 0, 0.1)' }}
           height={80}
           interval={0}
           tickMargin={8}
         />
         <YAxis
-          axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
-          tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}
-          tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+          axisLine={{ stroke: 'rgba(0, 0, 0, 0.1)' }}
+          tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 11 }}
+          tickLine={{ stroke: 'rgba(0, 0, 0, 0.1)' }}
           tickFormatter={value => (value >= 1000 ? `${value / 1000}k` : value)}
         />
         <Tooltip
           content={<CustomTooltip chartId={chartId} />}
-          cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+          cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
         />
         <Bar
           dataKey="downloads"
@@ -204,23 +203,21 @@ const CustomRepositoryTooltip = ({ active, payload, label }: any) => {
   return (
     <div
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        border: '1px solid rgba(0, 0, 0, 0.2)',
         borderRadius: '8px',
         padding: '12px 16px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)',
         maxWidth: '280px',
       }}
     >
       <div
         style={{
           fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.8)',
+          color: 'rgba(0, 0, 0, 0.8)',
           marginBottom: '6px',
           fontWeight: '600',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
           paddingBottom: '3px',
         }}
       >
@@ -243,19 +240,19 @@ const CustomRepositoryTooltip = ({ active, payload, label }: any) => {
                 width: '6px',
                 height: '6px',
                 borderRadius: '1px',
-                backgroundColor: entry.color,
-                boxShadow: `0 0 3px ${entry.color}`,
+                backgroundColor: '#000000',
+                boxShadow: '0 0 3px rgba(0, 0, 0, 0.3)',
               }}
             />
-            <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.9)', fontWeight: '500' }}>
               {entry.name}
             </span>
           </div>
           <span
             style={{
-              color: entry.color,
+              color: 'rgba(0, 0, 0, 0.9)',
               fontWeight: '600',
-              textShadow: `0 0 4px ${entry.color}40`,
+              fontFamily: "'JetBrains Mono', monospace",
             }}
           >
             {formatNumber(entry.value)}
@@ -291,36 +288,7 @@ const CustomMultiLineChart: FC<CustomMultiLineChartProps> = ({
     <ComposedChart data={data} margin={{ top: 15, right: 20, left: 15, bottom: 15 }}>
       <defs>
         {lines.map((line, index) => {
-          // Enhanced gradients
-          const baseColor = line.stroke;
-          const match = baseColor.match(/rgba?\(([^)]+)\)/);
-          let r = 56,
-            g = 232,
-            b = 225; // Default teal
-
-          if (match) {
-            const values = match[1].split(',').map(v => parseFloat(v.trim()));
-            r = values[0];
-            g = values[1];
-            b = values[2];
-          }
-
-          const bright = `rgb(${Math.min(255, Math.round(r * 1.2))}, ${Math.min(255, Math.round(g * 1.2))}, ${Math.min(255, Math.round(b * 1.2))})`;
-          const dim = `rgb(${Math.round(r * 0.4)}, ${Math.round(g * 0.4)}, ${Math.round(b * 0.4)})`;
-
-          return [
-            <linearGradient
-              key={`line-${index}`}
-              id={`lineGradient-${chartId}-${line.dataKey}`}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop offset="0%" stopColor={bright} />
-              <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} />
-              <stop offset="100%" stopColor={dim} />
-            </linearGradient>,
+          return (
             <linearGradient
               key={`area-${index}`}
               id={`areaGradient-${chartId}-${line.dataKey}`}
@@ -329,36 +297,36 @@ const CustomMultiLineChart: FC<CustomMultiLineChartProps> = ({
               x2="0"
               y2="1"
             >
-              <stop offset="0%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0.3" />
-              <stop offset="50%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0.1" />
-              <stop offset="100%" stopColor={`rgb(${r}, ${g}, ${b})`} stopOpacity="0" />
-            </linearGradient>,
-          ];
+              <stop offset="0%" stopColor="#000000" stopOpacity="0.1" />
+              <stop offset="50%" stopColor="#000000" stopOpacity="0.05" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+            </linearGradient>
+          );
         })}
       </defs>
       <CartesianGrid
         strokeDasharray="2 2"
-        stroke="rgba(255, 255, 255, 0.08)"
+        stroke="rgba(0, 0, 0, 0.1)"
         horizontal={true}
         vertical={false}
       />
       <XAxis
         dataKey="month"
-        stroke="rgba(255, 255, 255, 0.6)"
+        stroke="rgba(0, 0, 0, 0.6)"
         fontSize={9}
         fontWeight={500}
         angle={-60}
         textAnchor="end"
         height={70}
-        tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+        tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
         tickMargin={8}
         interval={0}
       />
       <YAxis
-        stroke="rgba(255, 255, 255, 0.6)"
+        stroke="rgba(0, 0, 0, 0.6)"
         fontSize={10}
         fontWeight={500}
-        tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+        tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
       />
       <Tooltip content={<CustomRepositoryTooltip />} cursor={false} />
       {lines.map((line, index) => {
@@ -375,26 +343,26 @@ const CustomMultiLineChart: FC<CustomMultiLineChartProps> = ({
         );
       })}
       {lines.map((line, index) => (
-        <Line
-          key={`line-${index}`}
-          type="monotone"
-          name={line.name}
-          dataKey={line.dataKey}
-          stroke={`url(#lineGradient-${chartId}-${line.dataKey})`}
-          strokeWidth={highlightedKey ? (line.dataKey === highlightedKey ? 2.5 : 1) : 1.5}
-          strokeOpacity={highlightedKey ? (line.dataKey === highlightedKey ? 1 : 0.25) : 0.85}
-          dot={false}
-          activeDot={{
-            r: 4,
-            fill: line.stroke,
-            stroke: 'rgba(255, 255, 255, 0.8)',
-            strokeWidth: 1.5,
-            filter: `drop-shadow(0 0 6px ${line.stroke.replace('1)', '0.4)')})`,
-          }}
-          connectNulls={false}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+          <Line
+            key={`line-${index}`}
+            type="monotone"
+            name={line.name}
+            dataKey={line.dataKey}
+            stroke="#000000"
+            strokeWidth={highlightedKey ? (line.dataKey === highlightedKey ? 2.5 : 0.8) : 1.5}
+            strokeOpacity={highlightedKey ? (line.dataKey === highlightedKey ? 1 : 0.3) : 1}
+            dot={false}
+            activeDot={{
+              r: 4,
+              fill: '#000000',
+              stroke: 'rgba(255, 255, 255, 0.8)',
+              strokeWidth: 1.5,
+              filter: 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.3))',
+            }}
+            connectNulls={false}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
       ))}
     </ComposedChart>
   </ResponsiveContainer>
@@ -507,16 +475,16 @@ const getMonthlyDownloadData = (meshPackagesData: any) => {
 
 // Define historical lines for the multi-line chart
 const historicalLines = [
-  { name: 'Core', dataKey: 'core', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'Core CST', dataKey: 'core_cst', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'Common', dataKey: 'common', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'Transaction', dataKey: 'transaction', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'Wallet', dataKey: 'wallet', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'React', dataKey: 'react', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'Provider', dataKey: 'provider', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'Web3 SDK', dataKey: 'web3_sdk', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'Core CSL', dataKey: 'core_csl', stroke: 'rgba(255, 255, 255, 1)' },
-  { name: 'Contract', dataKey: 'contract', stroke: 'rgba(255, 255, 255, 1)' },
+  { name: 'Core', dataKey: 'core', stroke: '#000000' },
+  { name: 'Core CST', dataKey: 'core_cst', stroke: '#000000' },
+  { name: 'Common', dataKey: 'common', stroke: '#000000' },
+  { name: 'Transaction', dataKey: 'transaction', stroke: '#000000' },
+  { name: 'Wallet', dataKey: 'wallet', stroke: '#000000' },
+  { name: 'React', dataKey: 'react', stroke: '#000000' },
+  { name: 'Provider', dataKey: 'provider', stroke: '#000000' },
+  { name: 'Web3 SDK', dataKey: 'web3_sdk', stroke: '#000000' },
+  { name: 'Core CSL', dataKey: 'core_csl', stroke: '#000000' },
+  { name: 'Contract', dataKey: 'contract', stroke: '#000000' },
 ];
 
 // Get historical package downloads data (excluding web3-sdk)
@@ -964,7 +932,7 @@ export default function MeshSDKProject() {
                       </button>
                     ))}
                 </div>
-                <div className={meshStatsStyles.chart}>
+                <div className={meshStatsStyles.chart} style={{ height: '500px' }}>
                   <CustomMultiLineChart
                     data={getHistoricalPackageDownloadsData(meshData.meshPackagesData)}
                     chartId="historical-downloads"
@@ -984,31 +952,6 @@ export default function MeshSDKProject() {
               <p className={carouselStyles.carouselSubtitle}>
                 The people behind Mesh SDK development
               </p>
-            </div>
-            
-            {/* Time Window Selector */}
-            <div className={styles.timeWindowSection}>
-              <div className={styles.timeWindowSelector}>
-                <div className={styles.timeWindowHeader}>
-                  <FaCalendarAlt className={styles.timeWindowIcon} />
-                  <h3>Time Window</h3>
-                </div>
-                <div className={styles.timeWindowControls}>
-                  <div className={styles.presetButtons}>
-                    {TIME_WINDOW_PRESETS.map(preset => (
-                      <button
-                        key={preset.value}
-                        className={`${styles.presetButton} ${
-                          timeWindow.preset === preset.value ? styles.active : ''
-                        }`}
-                        onClick={() => handleTimeWindowPresetChange(preset.value)}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
             
             {/* Contributors Metrics - Updates based on time window */}
@@ -1036,36 +979,72 @@ export default function MeshSDKProject() {
               </div>
             )}
             
-            {/* Mesh Repository Activity Chart */}
-            <div style={{ marginTop: '20px', marginBottom: '40px' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '10px' }}>
-                Mesh SDK Repository Activity
-              </h3>
-              <p style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '20px' }}>
-                Monthly contribution trends for the main Mesh repository
-              </p>
-              {contributorStats?.contributors && (
-                <MeshRepositoriesEvolutionChart
-                  contributors={contributorStats.contributors}
-                  height={400}
-                  maxRepositories={1}
-                  globalStartDate={timeWindowBoundaries.startDate || undefined}
-                  globalEndDate={timeWindowBoundaries.endDate || undefined}
-                />
-              )}
-            </div>
-            
-            {/* Contributors Chart - No container styling */}
-            <div style={{ marginTop: '40px' }}>
-              {contributorStats?.contributors && (
-                <MeshSdkContributorsChart
-                  contributors={filterMeshSdkContributors(contributorStats.contributors, timeWindowBoundaries.startDate, timeWindowBoundaries.endDate)}
-                  height={400}
-                  maxContributors={15}
-                  globalStartDate={timeWindowBoundaries.startDate || undefined}
-                  globalEndDate={timeWindowBoundaries.endDate || undefined}
-                />
-              )}
+            {/* Line Charts Grid */}
+            <div className={meshStatsStyles.chartsGrid} style={{ 
+              marginTop: '20px',
+              marginBottom: '40px'
+            }}>
+              {/* Mesh Repository Activity Chart */}
+              <div className={meshStatsStyles.chart} style={{ 
+                background: '#ffffff',
+                border: '1px solid rgba(0, 0, 0, 0.1)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                boxShadow: '0 4px 24px -1px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '600px',
+                height: '600px'
+              }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '10px', color: 'rgba(0, 0, 0, 0.95)' }}>
+                  Mesh SDK Repository Activity
+                </h3>
+                <p style={{ fontSize: '0.9rem', color: 'rgba(0, 0, 0, 0.7)', marginBottom: '20px' }}>
+                  Monthly contribution trends for the main Mesh repository
+                </p>
+                <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  {contributorStats?.contributors && (
+                    <MeshRepositoriesEvolutionChart
+                      contributors={contributorStats.contributors}
+                      height={400}
+                      maxRepositories={1}
+                      globalStartDate={timeWindowBoundaries.startDate || undefined}
+                      globalEndDate={timeWindowBoundaries.endDate || undefined}
+                    />
+                  )}
+                </div>
+              </div>
+              
+              {/* Contributors Chart */}
+              <div className={meshStatsStyles.chart} style={{ 
+                background: '#ffffff',
+                border: '1px solid rgba(0, 0, 0, 0.1)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                boxShadow: '0 4px 24px -1px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '600px',
+                height: '600px'
+              }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '10px', color: 'rgba(0, 0, 0, 0.95)' }}>
+                  Contributors Activity
+                </h3>
+                <p style={{ fontSize: '0.9rem', color: 'rgba(0, 0, 0, 0.7)', marginBottom: '20px' }}>
+                  Monthly contribution trends by contributor
+                </p>
+                <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  {contributorStats?.contributors && (
+                    <MeshSdkContributorsChart
+                      contributors={filterMeshSdkContributors(contributorStats.contributors, timeWindowBoundaries.startDate, timeWindowBoundaries.endDate)}
+                      height={350}
+                      maxContributors={15}
+                      globalStartDate={timeWindowBoundaries.startDate || undefined}
+                      globalEndDate={timeWindowBoundaries.endDate || undefined}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
         </div>
         

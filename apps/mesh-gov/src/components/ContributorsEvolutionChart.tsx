@@ -49,13 +49,11 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
   return (
     <div
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        border: '1px solid rgba(0, 0, 0, 0.2)',
         borderRadius: '8px',
         padding: '8px 12px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)',
         maxWidth: '220px',
         position: 'relative',
       }}
@@ -63,10 +61,10 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
       <div
         style={{
           fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.8)',
+          color: 'rgba(0, 0, 0, 0.8)',
           marginBottom: '6px',
           fontWeight: '600',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
           paddingBottom: '3px',
         }}
       >
@@ -90,13 +88,13 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
                 width: '6px',
                 height: '6px',
                 borderRadius: '1px',
-                backgroundColor: entry.color,
-                boxShadow: `0 0 3px ${entry.color}`,
+                backgroundColor: '#000000',
+                boxShadow: '0 0 3px rgba(0, 0, 0, 0.3)',
               }}
             />
             <span
               style={{
-                color: 'rgba(255, 255, 255, 0.9)',
+                color: 'rgba(0, 0, 0, 0.9)',
                 fontWeight: '500',
                 maxWidth: '100px',
                 overflow: 'hidden',
@@ -109,10 +107,11 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
           </div>
           <span
             style={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(0, 0, 0, 0.9)',
               fontWeight: '600',
               minWidth: '20px',
               textAlign: 'right',
+              fontFamily: "'JetBrains Mono', monospace",
             }}
           >
             {entry.value}
@@ -123,7 +122,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
         <div
           style={{
             fontSize: '9px',
-            color: 'rgba(255, 255, 255, 0.5)',
+            color: 'rgba(0, 0, 0, 0.5)',
             textAlign: 'center',
             marginTop: '2px',
             fontStyle: 'italic',
@@ -240,7 +239,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
         justifyContent: 'center',
         marginTop: '24px',
         paddingTop: '20px',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        borderTop: '1px solid rgba(0, 0, 0, 0.1)',
       }}
     >
       {/* "All" button */}
@@ -256,13 +255,11 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
           transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
           background: isAllSelected
             ? '#ffffff'
-            : 'linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
-          backdropFilter: isAllSelected ? 'none' : 'blur(10px) saturate(180%)',
-          WebkitBackdropFilter: isAllSelected ? 'none' : 'blur(10px) saturate(180%)',
+            : 'rgba(0, 0, 0, 0.03)',
           border: `1px solid ${
             isAllSelected
-              ? 'rgba(255, 255, 255, 0.3)'
-              : 'rgba(255, 255, 255, 0.15)'
+              ? 'rgba(0, 0, 0, 0.2)'
+              : 'rgba(0, 0, 0, 0.1)'
           }`,
           opacity: 1,
           transform: isAllSelected ? 'scale(1.02) translateY(-1px)' : 'scale(1)',
@@ -276,12 +273,8 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
             width: '8px',
             height: '8px',
             borderRadius: '1px',
-            backgroundColor: isAllSelected ? '#000000' : 'rgba(255, 255, 255, 0.9)',
-            border: `1px solid ${
-              isAllSelected
-                ? 'rgba(255, 255, 255, 0.3)'
-                : 'rgba(255, 255, 255, 0.3)'
-            }`,
+            backgroundColor: '#000000',
+            border: `1px solid rgba(0, 0, 0, 0.2)`,
             transition: 'all 0.3s ease',
             boxShadow: isAllSelected ? 'none' : 'none',
           }}
@@ -289,7 +282,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
         <span
           style={{
             fontSize: '10px',
-            color: isAllSelected ? '#000000' : 'rgba(255, 255, 255, 0.9)',
+            color: isAllSelected ? '#000000' : 'rgba(0, 0, 0, 0.9)',
             fontWeight: isAllSelected ? '600' : '500',
             transition: 'all 0.3s ease',
             letterSpacing: '0.01em',
@@ -316,20 +309,18 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
               borderRadius: '6px',
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
-              background: isSelected
-                ? '#ffffff'
-                : shouldHighlight
-                ? 'linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)'
-                : 'linear-gradient(165deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
-              backdropFilter: isSelected ? 'none' : 'blur(10px) saturate(180%)',
-              WebkitBackdropFilter: isSelected ? 'none' : 'blur(10px) saturate(180%)',
-              border: `1px solid ${
-                isSelected
-                  ? 'rgba(255, 255, 255, 0.3)'
-                  : shouldHighlight
-                  ? 'rgba(255, 255, 255, 0.15)'
-                  : 'rgba(255, 255, 255, 0.05)'
-              }`,
+          background: isSelected
+            ? '#ffffff'
+            : shouldHighlight
+            ? 'rgba(0, 0, 0, 0.03)'
+            : 'rgba(0, 0, 0, 0.01)',
+          border: `1px solid ${
+            isSelected
+              ? 'rgba(0, 0, 0, 0.2)'
+              : shouldHighlight
+              ? 'rgba(0, 0, 0, 0.1)'
+              : 'rgba(0, 0, 0, 0.05)'
+          }`,
               opacity: shouldHighlight ? 1 : 0.5,
               transform: isSelected ? 'scale(1.02) translateY(-1px)' : 'scale(1)',
               boxShadow: isSelected
@@ -342,30 +333,20 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                 width: '8px',
                 height: '8px',
                 borderRadius: '1px',
-                backgroundColor: isSelected
-                  ? '#000000'
-                  : shouldHighlight
-                  ? color
-                  : getDimmedColor(color),
-                border: `1px solid ${
-                  isSelected
-                    ? 'rgba(255, 255, 255, 0.3)'
-                    : shouldHighlight
-                    ? 'rgba(255, 255, 255, 0.3)'
-                    : 'rgba(255, 255, 255, 0.1)'
-                }`,
+                backgroundColor: '#000000',
+                border: `1px solid rgba(0, 0, 0, 0.2)`,
                 transition: 'all 0.3s ease',
-                boxShadow: shouldHighlight && !isSelected ? `0 0 6px ${color.replace('0.95', '0.3')}` : 'none',
+                boxShadow: shouldHighlight ? '0 0 4px rgba(0, 0, 0, 0.2)' : 'none',
               }}
             />
             <span
               style={{
                 fontSize: '10px',
-                color: isSelected
-                  ? '#000000'
-                  : shouldHighlight
-                  ? 'rgba(255, 255, 255, 0.9)'
-                  : 'rgba(255, 255, 255, 0.5)',
+            color: isSelected
+              ? '#000000'
+              : shouldHighlight
+              ? 'rgba(0, 0, 0, 0.9)'
+              : 'rgba(0, 0, 0, 0.5)',
                 fontWeight: isSelected ? '600' : '500',
                 transition: 'all 0.3s ease',
                 letterSpacing: '0.01em',
@@ -490,12 +471,9 @@ export const ContributorsEvolutionChart: React.FC<ContributorsEvolutionChartProp
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'rgba(255, 255, 255, 0.6)',
-          background:
-            'linear-gradient(165deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 100%)',
-          backdropFilter: 'blur(10px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-          border: '1px dashed rgba(255, 255, 255, 0.1)',
+          color: 'rgba(0, 0, 0, 0.6)',
+          background: '#ffffff',
+          border: '1px dashed rgba(0, 0, 0, 0.1)',
           borderRadius: '12px',
           fontSize: '14px',
           fontWeight: '500',
@@ -564,25 +542,25 @@ export const ContributorsEvolutionChart: React.FC<ContributorsEvolutionChartProp
             </defs>
             <CartesianGrid
               strokeDasharray="2 2"
-              stroke="rgba(255, 255, 255, 0.08)"
+              stroke="rgba(0, 0, 0, 0.1)"
               horizontal={true}
               vertical={false}
             />
             <XAxis
               dataKey="month"
-              stroke="rgba(255, 255, 255, 0.6)"
+              stroke="rgba(0, 0, 0, 0.6)"
               fontSize={11}
               fontWeight={500}
               angle={-45}
               textAnchor="end"
               height={80}
-              tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+              tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
             />
             <YAxis
-              stroke="rgba(255, 255, 255, 0.6)"
+              stroke="rgba(0, 0, 0, 0.6)"
               fontSize={11}
               fontWeight={500}
-              tick={{ fill: 'rgba(255, 255, 255, 0.6)' }}
+              tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
             />
             <Tooltip content={<CustomTooltip />} cursor={false} />
 
@@ -598,13 +576,9 @@ export const ContributorsEvolutionChart: React.FC<ContributorsEvolutionChartProp
                   <Line
                     type="monotone"
                     dataKey={contributor.login}
-                    stroke={
-                      shouldHighlight
-                        ? `url(#gradient-${contributor.login})`
-                        : getDimmedColor(baseColor)
-                    }
-                    strokeWidth={shouldHighlight ? 1.5 : 1}
-                    strokeOpacity={shouldHighlight ? 0.85 : 0.4}
+                    stroke="#000000"
+                    strokeWidth={shouldHighlight ? 1.5 : 0.8}
+                    strokeOpacity={shouldHighlight ? 1 : 0.3}
                     dot={false}
                     activeDot={false}
                     connectNulls={false}
@@ -621,12 +595,12 @@ export const ContributorsEvolutionChart: React.FC<ContributorsEvolutionChartProp
                     dot={false}
                     activeDot={{
                       r: shouldHighlight ? 4 : 2.5,
-                      fill: shouldHighlight ? baseColor : getDimmedColor(baseColor),
+                      fill: '#000000',
                       stroke: 'rgba(255, 255, 255, 0.8)',
                       strokeWidth: 1.5,
-                      opacity: shouldHighlight ? 1 : 0.7,
+                      opacity: shouldHighlight ? 1 : 0.5,
                       filter: shouldHighlight
-                        ? `drop-shadow(0 0 6px ${baseColor.replace('0.95', '0.4')})`
+                        ? 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.3))'
                         : 'none',
                     }}
                     connectNulls={false}

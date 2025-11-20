@@ -3,11 +3,14 @@
 }
 
 .section {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    box-shadow: 
+        0 4px 24px -1px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .sectionHeader {
@@ -20,17 +23,18 @@
 .sectionTitle {
     font-size: 1.25rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.95);
     margin: 0;
 }
 
 .projectId {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.7);
     padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .statusAndCategory {
@@ -52,9 +56,9 @@
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-size: 0.875rem;
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .completed {
@@ -64,15 +68,15 @@
 }
 
 .inprogress {
-    background: rgba(41, 128, 185, 0.15);
-    color: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(41, 128, 185, 0.3);
+    background: rgba(41, 128, 185, 0.1);
+    color: rgba(41, 128, 185, 0.95);
+    border: 1px solid rgba(41, 128, 185, 0.2);
 }
 
 .pending {
-    background: rgba(243, 156, 18, 0.15);
-    color: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(243, 156, 18, 0.3);
+    background: rgba(243, 156, 18, 0.1);
+    color: rgba(243, 156, 18, 0.95);
+    border: 1px solid rgba(243, 156, 18, 0.2);
 }
 
 .statsGrid {
@@ -82,8 +86,8 @@
 }
 
 .statCard {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 1.25rem;
 }
@@ -91,37 +95,38 @@
 .statCard h3 {
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.6);
     margin: 0 0 0.5rem;
 }
 
 .statValue {
     font-size: 1.5rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.95);
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .finishedDate {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
 .label {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.6);
     font-size: 0.875rem;
 }
 
 .value {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.95);
     font-size: 0.875rem;
 }
 
 .description {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
     line-height: 1.6;
     font-size: 0.95rem;
     white-space: pre-wrap;
@@ -174,12 +179,12 @@
 .objectiveHeader svg {
     width: 1rem;
     height: 1rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.6);
     transition: transform 0.2s ease;
 }
 
 .objectivePreview {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.7);
     font-size: 0.95rem;
     line-height: 1.6;
     margin: 0;
@@ -190,7 +195,7 @@
 }
 
 .objectiveContent {
-    color: var(--text-primary);
+    color: rgba(0, 0, 0, 0.9);
     line-height: 1.6;
 }
 
@@ -200,11 +205,11 @@
 }
 
 .objectiveToggle:hover .objectiveHeader svg {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
 }
 
 .objectiveToggle:hover .objectivePreview {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
 }
 
 .readFullProposalButton {
