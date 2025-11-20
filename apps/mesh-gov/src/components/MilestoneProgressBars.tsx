@@ -185,7 +185,7 @@ export function MilestoneProgressBars({
                       width: completedCount >= totalMilestones ? '100%' : '0%',
                       background:
                         completedCount >= totalMilestones
-                          ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95))'
+                          ? 'linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 1))'
                           : 'transparent',
                     }}
                   />
