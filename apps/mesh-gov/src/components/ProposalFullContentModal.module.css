@@ -1,22 +1,24 @@
 .modalOverlay {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
 }
 
 .modal {
-    background: linear-gradient(135deg, 
-        rgba(45, 212, 191, 0.1) 0%,
-        rgba(17, 25, 40, 0.95) 100%
-    );
-    border: 1px solid rgba(45, 212, 191, 0.2);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        0 0 32px rgba(45, 212, 191, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+        0 8px 32px rgba(0, 0, 0, 0.15),
+        0 4px 16px rgba(0, 0, 0, 0.1);
     width: 900px;
     max-width: calc(100vw - 4rem);
     max-height: calc(100vh - 4rem);
@@ -27,11 +29,11 @@
 
 @keyframes slideIn {
     from {
-        transform: translateY(100%);
+        transform: scale(0.95);
         opacity: 0;
     }
     to {
-        transform: translateY(0);
+        transform: scale(1);
         opacity: 1;
     }
 }
@@ -41,27 +43,22 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid rgba(45, 212, 191, 0.2);
-    background: linear-gradient(135deg, 
-        rgba(45, 212, 191, 0.15) 0%,
-        rgba(17, 25, 40, 0.98) 100%
-    );
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: #ffffff;
     border-radius: 12px 12px 0 0;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
 }
 
 .modalHeader h2 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     margin: 0;
 }
 
 .closeButton {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.7);
     cursor: pointer;
     padding: 0.75rem;
     display: flex;
@@ -73,8 +70,8 @@
 }
 
 .closeButton:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 1);
     transform: scale(1.05);
 }
 
@@ -86,31 +83,9 @@
 .sectionSidebar {
     width: 240px;
     flex-shrink: 0;
-    border-right: 1px solid rgba(45, 212, 191, 0.2);
-    background: linear-gradient(135deg, 
-        rgba(45, 212, 191, 0.1) 0%,
-        rgba(17, 25, 40, 0.95) 100%
-    );
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    background: #ffffff;
     position: relative;
-    box-shadow: 
-        inset -1px 0 0 0 rgba(45, 212, 191, 0.1),
-        inset 1px 0 0 0 rgba(255, 255, 255, 0.02);
-}
-
-.sectionSidebar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(180deg,
-        rgba(45, 212, 191, 0.05) 0%,
-        rgba(45, 212, 191, 0.02) 100%
-    );
-    pointer-events: none;
 }
 
 .sectionList {
@@ -125,43 +100,39 @@
     text-align: left;
     padding: 0.75rem 1rem;
     border-radius: 8px;
-    background: rgba(45, 212, 191, 0.03);
-    border: 1px solid rgba(45, 212, 191, 0.1);
-    color: rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.7);
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
 }
 
 .sectionLink:hover {
-    background: rgba(45, 212, 191, 0.05);
-    border-color: rgba(45, 212, 191, 0.15);
-    color: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 20px rgba(45, 212, 191, 0.05);
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .sectionLink.active {
-    background: linear-gradient(135deg,
-        rgba(45, 212, 191, 0.1) 0%,
-        rgba(45, 212, 191, 0.05) 100%
-    );
-    border-color: rgba(45, 212, 191, 0.2);
-    color: rgb(45, 212, 191);
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.2);
+    color: rgba(0, 0, 0, 0.9);
     box-shadow: 
-        0 0 20px rgba(45, 212, 191, 0.05),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        0 2px 8px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .modalContent {
     flex-grow: 1;
     padding: 1.5rem;
     overflow-y: auto;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
+    background: #ffffff;
 }
 
 .modalContentFullWidth {
@@ -170,42 +141,42 @@
 }
 
 .modalContent h3 {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 .modalContent p {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
 }
 
 .loading, .error {
     text-align: center;
     padding: 2rem;
-    color: rgba(45, 212, 191, 0.7);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 .error {
-    color: var(--color-danger);
+    color: rgba(220, 38, 38, 0.9);
 }
 
 .proposalContent {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     line-height: 1.6;
 }
 
 .proposalContent p {
     margin: 0.75rem 0;
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
 }
 
 .sectionHeader {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.9);
     font-size: 0.95rem;
     font-weight: 500;
     margin: 2rem 0 1rem;
     padding: 0.75rem 1rem;
-    background: rgba(45, 212, 191, 0.02);
-    border: 1px solid rgba(45, 212, 191, 0.08);
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 8px;
     scroll-margin-top: 1rem;
     transition: all 0.2s ease;
@@ -216,6 +187,6 @@
 }
 
 .sectionHeader:hover {
-    background: rgba(45, 212, 191, 0.03);
-    border-color: rgba(45, 212, 191, 0.1);
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
 } 
