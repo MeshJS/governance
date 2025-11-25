@@ -2,6 +2,22 @@
 
 | MeshJS      | Cardano Governance Actions |
 | -------------- | ------------------------------------------------------- |
+| Proposal Title | [Constitutional Committee Compensation Epochs 581-653](https://adastat.net/governances/d2745225498d1c56c0f01be9971074a49144d625df0e73a86c51689624fbadb000) |
+| Hash           | d2745225498d1c56c0f01be9971074a49144d625df0e73a86c51689624fbadb000 |
+| Action ID      | gov_action16f69yf2f35w9ds8sr05ewyr55jg5f439mu8882rv295fvf8m4kcqql7y6nc |
+| Type           | InfoAction |
+| Proposed Epoch | 589 |
+| Expires Epoch  | 596 |
+| Vote           | ❌No |
+| Vote Submitted | 11/19/2025 |
+| Rationale       | Members of the Mesh DRep have voted as following Yes: 0 votes No: 4 votes Abstain: 0 votes Therefore, we vote NO on the proposal. Rationale: We definitely appreciate and deeply respect the CC members for their service to the Ecosystem, yet we do not believe that the outlined budget matches the actual workload across the CC Seats, while some CC members indeed did an awesome job and therefore indeed deszrve financial compensation, others lacked heavily on their performance. We would rather prefer the Individual CC seats to submit separate budget requests for their service instead of a lumb sum for several CC members in one proposal. |
+|Link|https://adastat.net/transactions/23449882be573ce4921c15336ac14bbe1308bb21d65c5edd072cad175edfc660 |
+
+
+---
+
+| MeshJS      | Cardano Governance Actions |
+| -------------- | ------------------------------------------------------- |
 | Proposal Title | [CARDANO BLOCKCHAIN ECOSYSTEM CONSTITUTION v2.3](https://adastat.net/governances/c882f194684d672316212f01efc6d28177e8965b7cd6956981fe37cc6715961e00) |
 | Hash           | c882f194684d672316212f01efc6d28177e8965b7cd6956981fe37cc6715961e00 |
 | Action ID      | gov_action1ezp0r9rgf4njx93p9uq7l3kjs9m739jm0ntf26vplcmucec4jc0qqxjlfrc |
