@@ -1,113 +1,132 @@
-MAINTAIN MESH Q3-Q4 2025
+# MAINTAIN MESH SDK - Q3 & Q4 2025
 
+## Abstract
+This proposal aims to fund the Q3 & Q4, 2025 maintenance and operations of the Mesh SDK, maintaining Discord dev support and core operations to support more than currently 800 public projects building on the Mesh SDK.
 
-# MAINTAIN MESH 2025
+## Motivation
 
+### Who we are
+The Mesh SDK crew consists of a small yet highly skilled & committed collective of Cardano coders.
 
-#### Abstract <br>
-Maintenance and operations of the Mesh open source libraries and tool suits, maintaining discord dev support and core operations to support more than currently 800 Cardano open source projects building on Mesh
+- TW, senior developer, owner and lead dev of the Mesh SDK, responsible for the Mesh SDK roadmap and execution  
+- Eugene, a senior developer and long-term core contributor at the Mesh SDK  
+- Emmanuel, a young junior developer, core contributor at the Mesh SDK with focus on Hydra  
+- Jingles, the initial founder and main lead of Mesh and, since the first days of Mesh, a core contributor to the Mesh SDK, its direction and further evolution  
 
-#### Motivation
-## Who we are
-Mesh is a open source developer collective, providing tools and support for developers building on Cardano since 2022. 
-Our SDK is one of the most used open source stacks within the Cardano ecosystem with more than 800 public projects building upon our stack, in September 2025 we passed a total of 1M downloads of our SDK npm packages, positioning mesh as indeed, a core infrastruc ture and tool provide to the Cardano Ecosystem. 
-Our maintenance has been in the past funded through Project Catalyst, with approved maintain-mesh proposals in Fund 10,11,12 and 13. 
-Since we now have a onchain governance & treasury which is able to provide maintenance support, (as bootstrapped via Pragma & Intersect), we decided to move our maintenance requests from Catalyst towards the Onchain Treasury directly. 
-Since we aim to stay as independent and neutral as possible, we didn't want to Join the annual budget proposal process administrated by Intersect, hence, here we are, on our own, asking for your support and approval. 
- 
-## Why... your project?
-A short list of well phrased reasons to support the value of your project. Ideas to get you thinking
-Our project addresses the following key areas: 
-1. Resource efficiency: 
+In total, we request 300,000 Ada (300K Ada).
 
-2. Alignment with industry trends: 
+### Why maintaining Mesh SDK
+If you are not a dev, you may have probably not heard about us yet; if you are a dev, you probably used our tools already.. guess that’s somehow a good intro for us as Mesh XD.
 
-3. Community alignment:
+We are a long-term open source developer collective on Cardano, and what started in 2021 as a side project became over time one of the most used open source stacks on Cardano. We are here to build, here to stay.
 
-4. Additional benefits: 
+Anyways, here is what matters most about the Mesh SDK:
 
+#### Widely used
+As of the date of submission, we have more than 800 public projects building and therefore depending on our SDK. The Mesh SDK plays in the highest ranks of actively used open source stacks on Cardano, and indeed counts, due to its metrics, as core infrastructure in today’s Cardano open source ecosystem.
 
-#### Rationale
-## Executive summary (of costs)
-_A successful proposal recently illustrated the costs in simple breakdowns:_
-- Full Time Employee’s annual costs
-- A chart, reflecting each scope of the project and how many FTE’s
-- Independent auditors should be mentioned here
-- A 25% treasury-refundable contingency was included
-- A final number highlighted the total amount and duration of the project
-  
-## Administration of the budget
-> _Per the requirement: “Budgets shall specify a process for overseeing use of funds from Cardano Blockchain treasury withdrawals, including designating one or more administrators who shall be responsible for such oversight.”_
+#### Cost effective
+The core team of the SDK is rather small, yet highly aligned and effective. This allows us to avoid spending much time & resources in project management or whatever admin resources and to keep work code-centric and outcome-oriented, ensuring that we always focus on constantly shipping improvements which are authentic to the real needs of developers who rely on our stack.
 
-_In this section, explain how your budget will be administered, including the roles and responsibilities and any oversight mechanisms you plan to implement._ <br>
-_You should address:_
-- How funds will be safeguarded (including use of smart contracts, multisig wallets, or legal frameworks)
-- Remuneration of vendors, contributors and independent auditors
-- Under what conditions and how would funds be returned to the treasury
-- How decisions will be made and recorded for scope changes, fund reallocation, or credential updates
-- Define the dispute resolution process
-  
-_Smart contracts are strongly preferred as a mechanism to enforce transparency and accountability. If used, describe the capabilities. For example:_
+#### Community support
+Our dev tools & interfaces, docs and playground make it way easier for devs to build on Cardano, and it indeed takes time to maintain and update those. One of our best ways to make sure updates are actually really addressing real developer needs is by maintaining a 24/7 Discord channel on our public Mesh Discord where Mesh core devs directly engage and support any Cardano developers who come with questions or need help in debugging or building their projects on Cardano. This direct & constant engagement allows us to always see where pain points are and how our updates and further improvements can effectively solve current issues.
 
-Our smart contract will enforce fund disbursement according to defined scopes and permissions. The following capabilities are anticipated:
-- Standard withdrawal: A scope owner may request a withdrawal, subject to approval by other scope owners.
-- Contingency withdrawal: Emergency funds may be accessed from a shared contingency pool, subject to approval by other scope owners.
-- Scope reconciliation: Budget or scope ownership may be reassigned through consensus of designated scope owners.
-- Contingency refund/closure: Unused contingency funds will be returned to the treasury.
-- Credential rotation: In the event of lost access or contributor departure, a defined process allows secure transfer of control.
-- Failsafe: If access is irrecoverably lost, remaining funds are returned automatically to the treasury via a failsafe clause. <br>
+#### Reliable and community funded
+Mesh maintenance & dev support has been covered until June 2025 via proposals in Project Catalyst, with approved and funded maintain-mesh proposals from Fund 10 till Fund 13 and was completed in June 2025. Since then, the Mesh SDK received no further funding for maintenance work since all our proposals covered new features or tools. Since we now have on-chain governance and treasury, we see it as a more stable solution to apply maintenance via on-chain governance instead of Catalyst. Especially since our SDK became part of the Cardano open source infrastructure and is therefore less applicable to Project Catalyst objectives and purpose.
 
-_Additionally, if your project relies on an existing governance or legal framework (e.g., PRAGMA’s Maintainer Committee Framework), link to or briefly summarize its relevance. Reference them externally (ie link to a document on IPFS or GitHub) and keep them managed “off-chain” and outside the proposal’s modifiable scope._
+## Rationale
+
+### Executive summary (of costs)
+This proposal requests 300K Ada for deliveries and ongoing Mesh maintenance from July–December 2025 (6 months).  
+We aim to keep Mesh SDK maintenance at a fixed budget (regardless of any fiat/Ada rates) at 50K Ada per month, totalling 600K Ada per year.
+
+In total, we request 300,000.00 Ada (300K Ada).
+
+### Administration of the budget
+The budget will be managed via a multisignature account. The signers consist of members of the Mesh Team as well as neutral signers which will ensure that any transactions are properly handled.
+
+**Signers:**
+- Jingles (Mesh)  
+- TW (Mesh)  
+- Christina (Blinklabs)  
+- Mike Hornan (Able SPO)  
+- James Dunseight (Andamio)  
+
+The multisignature wallet is set at a quorum which requires 3/5 signers to approve transactions.  
+Since this proposal applies retrospectively, no contingency funds or unused funds have to be managed.
+
+The multisignature addr: **[TO BE ADDED BEFORE SUBMISSION]**  
+
+Mesh addr1 to which funds will be received from the multisig (not delegated to SPO, delegated to auto-abstain DRep):  
+`addr1qyvmvs4knvw3ld76nd8duz3wjh2n50enynu7wa834dtzrteyu9w8hnp60sanlwj7vupexc8qrfjc95fz52g0x4afxxkq9qn9hd`
+
+### Criteria for forwarding funds from multisig to Mesh
+- Mesh has to complete a general 2025 Mesh maintenance report  
+- Signers have to review and approve the report before publishing  
+- After publishing the report, Mesh has to submit the transaction via the multisig (either Jingles or TW) which forwards the funds from the multisig address to Mesh  
+- Signers approve and sign the submitted transaction  
 
 ## Reporting
-### Regular reporting
-_Oversight metrics are required so we recommend a reporting section. Specify the frequency and location the reporting can be found, then detail what the reporting will include._
+
+### Regular reporting & proof of work
+Since we had maintain-mesh proposals in our past Catalyst rounds, we already have some experience in reporting on the SDK maintenance performance & metrics, KPIs/OKRs, so we mainly draw from that and optimise our initial reporting into an annual Mesh SDK 2025 maintenance report.
+
+The annual report will cover:
+- Development pulse metrics (number of commits & pull requests), and number of changes (lines of code added) on the respective Mesh GitHub repository  
+- Developer activity metrics, the number of contributors to our open source SDK repo on GitHub  
+- Usage metrics, the number of public dependents on the Mesh SDK GitHub repository as well as npm downloads per month  
+
+All metrics are already publicly tracked and accessible via our Mesh Dashboard at:  
+https://gov.meshjs.dev/projects/mesh-sdk
+
+The report will be released on a dedicated page on our Mesh Dashboard and shared on Twitter via our account at:  
+https://x.com/meshsdk
 
 ### Regular proof of work
-_Consider a recurring public check-in to showcase your project’s progress, whether it is technical, operational, or community-focused. This could look like software demos, AMA sessions on Twitter or YouTube or a series of blog posts._
+Regular proof of work is provided by multiple publicly accessible sources:
+- Check dev activity via the Mesh SDK GitHub repository activity at: https://github.com/MeshJS/mesh/pulse  
+- Check dev community support via the Mesh Discord server at: https://discord.gg/dH48jH3BKa  
+
+For anyone with questions, ideas or suggestions, feel free to join the Discord, the Mesh crew is usually quite responsive.
 
 ## Constitutionality checklist
-_A simple checklist of the points covered from the Cardano Constitution. Self assess, ensuring each is covered. Avoid modifying to cite specific threshold figures that could change within the lifespan of your proposal. Include something like this in your proposal:_
+This proposal uses (with slight adjustments) the Pragma Mnemos template for budget info-action proposals available at:  
+https://github.com/pragma-org/mnemos/blob/main/BudgetInfoActionProposalTemplate.md
+
 ### Purpose
-- This proposal is for work intended to … 
-### Article III.5: the process of on-chain governance
+- This proposal is for work intended to enhance the security, decentralization and long-term sustainability of Cardano.
+
+**Article III.5: On-chain governance**
 - We have submitted this proposal in a standardized, legible format, which includes a URL and hash of all documented off-chain content. We believe our rationale to be detailed and sufficient. The proposal contains a title, abstract, reason for the proposal and relevant supporting materials.
-### Article IV.1: proposing budgets
-- This proposal accords with the provisions of this article as it is intended to cover the maintenance and future development of the Cardano Blockchain.
+
+**Article IV.1: Proposing budgets**
+- This proposal accords with the provisions of this article as it is intended to cover the maintenance and future development of the Cardano blockchain.  
 - This proposal covers a shorter period than 73 epochs, which is permitted in this section of the Constitution, to match the Net-Change Limit period.
-### Article IV.2: funds administration
-- This proposal specifies an administrator in accordance with this provision.
-- This proposal specifies a process for the administrator to oversee the use of funds,meeting the requirements of this clause.
-### Article IV.3: Net-Change Limit
+
+**Article IV.2: Funds administration**
+- This proposal specifies an administrator in accordance with this provision.  
+- This proposal specifies a process for the administrator to oversee the use of funds, meeting the requirements of this clause.
+
+**Article IV.3: Net-Change Limit**
 - This proposal and the treasury withdrawals it would enable do not violate the currently agreed upon Net-Change Limit.
-### Article IV.4: Auditor
+
+**Article IV.4: Auditor**
 - This proposal makes provisions for an auditor.
+
 ### Guardrails
 This proposal is subject to TREASURY-04a in that it defines a Cardano blockchain ecosystem budget. It requires a threshold greater than 50% of the DReps' active voting stake to be considered approved and enable subsequent withdrawals pertaining to this budget.
 
 ## Conclusion
-_Use this final section to clearly state the long-term value your project brings to the Cardano ecosystem. Reinforce your team’s ability to deliver with transparency and thoughtful governance. Be candid about assumptions, the timelines, and the risks, then show how your team is prepared to manage that. Emphasize the tangible benefits to the ecosystem and the measurable impact the community can expect in return for its investment. Your conclusion should leave the feeling that funding your project is both a responsible and forward-looking choice for Cardano._
+Mesh SDK is a widely used open source stack on Cardano. Its cost-effective maintenance and strong community support currently help more than 800 public projects building on Cardano. A project worth the Ada it asks for.
 
-<br>
+## Metadata Anchor Link
 
-**Metadata Anchor Link**<br>
-[ipfs://bafkreibqma7t2k4rcywvx5afukahhi3dp2so2ugh7t4ljuawhanvk7sr34](ipfs://bafkreibqma7t2k4rcywvx5afukahhi3dp2so2ugh7t4ljuawhanvk7sr34)
+## Metadata Anchor Hash
 
-**Metadata Anchor Hash**  
-`7d2f344f3651a8372ad603abf11fcb310fb3c5154a6592591d1ff97d951156e3`
-
-**Supporting Links:**
-
-**PRAGMA Maintainer Committee Framework**  
-[ipfs://bafkreiabxyva5lfm6zztg7tnktxvvbbucljrce7hlrp4p6hropqzfaip3y](ipfs://bafkreiabxyva5lfm6zztg7tnktxvvbbucljrce7hlrp4p6hropqzfaip3y)
-
-**Amaru Detailed Budget Proposal for 2025**  
-[ipfs://bafybeicyqwjcg4x52l4ml5ocjlqnproqdjgfbguxdge4saxxvu2hidzvpq](ipfs://bafybeicyqwjcg4x52l4ml5ocjlqnproqdjgfbguxdge4saxxvu2hidzvpq)
-
-**Cardanoブロックチェーン・エコシステム予算：Amaru 2025年度**  
-[ipfs://bafybeihigkjin5njp7fgpehzfh6n4dtzv2xetpxwkwmskzl2xv2zx2fjfu](ipfs://bafybeihigkjin5njp7fgpehzfh6n4dtzv2xetpxwkwmskzl2xv2zx2fjfu)
-
-**Amaruノード開発2025年度**  
-[ipfs://bafybeig7w6zfv5zuxrtgmxlr7bzyftjbrsc5pormmjaeg2aqgzx53a5ppq](ipfs://bafybeig7w6zfv5zuxrtgmxlr7bzyftjbrsc5pormmjaeg2aqgzx53a5ppq)
-
-
+## Supporting Links
+- Website: https://meshjs.dev/  
+- GitHub: https://github.com/MeshJS/mesh  
+- X / Twitter: https://x.com/meshsdk  
+- Cardano Constitution: https://docs.intersect.co/cardano-constitution  
+- Proposal content hash: **[TO BE ADDED BEFORE SUBMISSION]**  
+- Proposal Template: https://github.com/pragma-org/mnemos/blob/main/BudgetInfoActionProposalTemplate.md
