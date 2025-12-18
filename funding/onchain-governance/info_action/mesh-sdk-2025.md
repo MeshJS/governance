@@ -40,7 +40,7 @@ Mesh maintenance & dev support has been covered until June 2025 via proposals in
 This proposal requests 300K Ada for deliveries and ongoing Mesh maintenance from July–December 2025 (6 months).  
 We aim to keep Mesh SDK maintenance at a fixed budget (regardless of any fiat/Ada rates) at 50K Ada per month, totalling 600K Ada per year.
 
-In total, we request 300,000.00 Ada (300K Ada).
+In total, we request 300,000 Ada (300K Ada).
 
 ### Administration of the budget
 The budget will be managed via a multisignature account. The signers consist of members of the Mesh Team as well as neutral signers which will ensure that any transactions are properly handled.
