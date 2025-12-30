@@ -50,7 +50,17 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Members of the Mesh DRep have voted as following
+
+Yes: 2 votes 
+No: 0 votes 
+Abstain: 0 votes  
+
+Therefore, we vote YES on the proposal.
+
+Rationale:
+
+Since this proposal is rather a functional correction on the current active NCL which does not introduce new fancy changes, we agree with the proposal intent."
   },
   "hashAlgorithm": "blake2b-256"
 }
