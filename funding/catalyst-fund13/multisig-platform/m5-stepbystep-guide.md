@@ -47,4 +47,4 @@ All members have to click the "verify" button in order to complete their check i
 From here you can go and use your multisig wallet for whatever suits your needs.
 
 For a overall feature video rundown, check this video which gives you a neat overview on all features
-[]()
+- https://youtu.be/-TuPP0jQ7UU
