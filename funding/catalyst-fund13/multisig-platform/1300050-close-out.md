@@ -118,6 +118,6 @@ We also want to thank everyone involved in this proposal. From devs, to voters t
 - Proposal on Mesh Dashboard: https://gov.meshjs.dev/catalyst-proposals/1300050 
 
 ### Link to Close-out video - must be either YouTube or Vimeo link only
-
+Close out video on youtube: https://youtu.be/arOBnyL8qzE
 
 
