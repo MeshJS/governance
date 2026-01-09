@@ -22,6 +22,6 @@ The close out report (following the official close out guidelines at Catalyst) h
 
 ### 1. Close out Video
 The close out Video (following the official close out guidelines at Catalyst) has been completed and is accessible via:
-- Youtube:
+- Youtube: https://youtu.be/arOBnyL8qzE
 
 And thats it. We hope the milestone reviewers approve the final close out report & video. If anythiing seems missing, please let us know.
