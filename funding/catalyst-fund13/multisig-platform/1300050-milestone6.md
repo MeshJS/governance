@@ -8,7 +8,7 @@
 
 # Milestone Report
 
-Hey there Milestone reviewers and everyone who is following the progress of this proposal. Here we are, reporting the succesfull completion of the last and final milestone of this proposal and with that, closing the proposal.
+Hey there Milestone reviewers and everyone who is following the progress of this proposal. Here we are, reporting the succesful completion of the last and final milestone of this proposal and with that, closing the proposal.
 
 The Milestone outcomes for the final milestones have been stated as:
 - Create and publish the final Close out Report
@@ -24,4 +24,4 @@ The close out report (following the official close out guidelines at Catalyst) h
 The close out Video (following the official close out guidelines at Catalyst) has been completed and is accessible via:
 - Youtube: https://youtu.be/arOBnyL8qzE
 
-And thats it. We hope the milestone reviewers approve the final close out report & video. If anythiing seems missing, please let us know.
+And thats it. We hope the milestone reviewers approve the final close out report & video. If anything seems missing, please let us know.
