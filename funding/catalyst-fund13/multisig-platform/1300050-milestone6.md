@@ -19,6 +19,7 @@ And here the links to the completed deliverables:
 ### 1. Close out Report
 The close out report (following the official close out guidelines at Catalyst) has been completed and is accessible via:
 - Github: https://github.com/MeshJS/governance/blob/main/funding/catalyst-fund13/multisig-platform/1300050-close-out.md
+- PDF: https://drive.google.com/file/d/1sTyzfolMpnt04SF7rVSZJ1GwdGsjS5-k/view?usp=sharing
 
 ### 1. Close out Video
 The close out Video (following the official close out guidelines at Catalyst) has been completed and is accessible via:
