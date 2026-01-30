@@ -3,7 +3,7 @@
 |-----------|-------------|
 |Link|[Open full project](https://projectcatalyst.io/funds/14/cardano-open-developers/mesh-cross-chain-production-ready-wallet-sdk)|
 |Milestone|[Milestone 1](https://milestones.projectcatalyst.io/projects/1400080/milestones/1)
-|Challenge|F13: Cardano Open: Developer|
+|Challenge|F14: Cardano Open: Developer|
 |Milestone Budget|ADA 20,000 Ada|
 |Delivered|January 30, 2026|
 
@@ -36,3 +36,6 @@ E. Output: Develop CIP30 interface
 F. Output: Post a twitter thread to inform the public
 - Acceptance criteria: Post a twitter thread to inform the public
 - Evidence: https://x.com/meshsdk/status/2017172545204576371
+
+
+And thats it, hope all evidence satisfies the Milestone Reviewers, see you at the next Milestone.
