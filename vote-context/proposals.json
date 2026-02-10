@@ -1,5 +1,9 @@
 [
   {
+    "action_id": "gov_action1mldvtys6ketjg87wtpvr6cd77kdrd8sp62a8sxgadhmxx2s8lh7sqp2qedq",
+    "title": "Reduce minimum Constitutional Committee size (committeeMinSize) from 7 to 5"
+  },
+  {
     "action_id": "gov_action1wwjwkg2g0qwr0mehey9r8gwn6qz3r28wl6wdl2s75kfmpy8j87tqqtft9tp",
     "title": "Net Change Limit of 300 Million ADA for Epochs 613–713"
   },
@@ -110,10 +114,6 @@
   {
     "action_id": "gov_action193leqzml768nz7nmpepzx822a5mzyanqhtewaxjtul5gp6uhwvfsqgl2qg0",
     "title": "Withdraw ₳99,600 for BloxBean Java Tools Maintenance and Enhancement"
-  },
-  {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpcdq823y",
-    "title": "Withdraw ₳3,126,000 for Ecosystem Exchange Listing and Market Making service..."
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlp679xfzf",
@@ -258,6 +258,10 @@
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpk0mqrnw",
     "title": "Withdraw ₳1,500,000 for Complement Catalyst: Extended Quadratic Funding---Zer..."
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpcdq823y",
+    "title": "Withdraw ₳3,126,000 for Ecosystem Exchange Listing and Market Making service..."
   },
   {
     "action_id": "gov_action18nefry4qacd80xzs2srjahxm2e4vz3c8wvrr03rrtk8mdqfuknysq66459t",
