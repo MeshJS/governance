@@ -858,6 +858,14 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
   // Find the @meshsdk/web3-sdk package
   const web3SdkPackage = meshPackagesData?.packages.find(pkg => pkg.name === '@meshsdk/web3-sdk');
 
+  // Cutoff: only show completed months (exclude current in-progress month)
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1; // 1-based
+
+  // Helper to check if a year/month is before the current month (i.e., completed)
+  const isCompletedMonth = (year: number, month: number) =>
+    year < currentYear || (year === currentYear && month < currentMonth);
+
   // Set charts ready with a small delay to prevent immediate animation
   React.useEffect(() => {
     if (meshPackagesData?.packages && meshPackagesData.packages.length > 0) {
@@ -880,188 +888,105 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
       : [];
   }, [meshPackagesData]);
 
-  // Aggregate monthly downloads across all packages for current year
-  const currentYear = new Date().getFullYear();
-  const currentMonthIndex1Based = new Date().getMonth() + 1;
-  
-  // Always show only completed months (previous month is the latest to show)
-  const includeCurrentMonth = false; // Never include current month, only show completed months
+  // Entry-point packages: only these are counted for the aggregate chart
+  // to avoid double-counting transitive dependencies
+  const ENTRY_POINT_PACKAGES = ['@meshsdk/core', '@meshsdk/react', '@meshsdk/contract'];
+
+  // Aggregate monthly downloads for entry-point packages only — full timeline
   const monthlyData = useMemo(() => {
     if (!meshPackagesData?.packages) return [];
 
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    const monthlyTotals: { [key: number]: number } = {};
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyTotals: Record<string, number> = {};
 
-    // Aggregate downloads from all packages for current year
-    // Include all months up to and including the previous month (completed months)
-    meshPackagesData.packages.forEach(pkg => {
-      if (pkg.monthly_downloads) {
-        pkg.monthly_downloads
-          .filter(
-            (monthObj: any) =>
-              monthObj.year === currentYear && monthObj.month < currentMonthIndex1Based
-          )
-          .forEach((monthObj: any) => {
-            const monthNum = monthObj.month;
-            if (!monthlyTotals[monthNum]) {
-              monthlyTotals[monthNum] = 0;
-            }
-            monthlyTotals[monthNum] += monthObj.downloads || 0;
-          });
-      }
-    });
-
-    // Convert to array format sorted by month
-    return Object.entries(monthlyTotals)
-      .map(([month, downloads]) => ({
-        name: `${monthNames[parseInt(month) - 1]} ${currentYear}`,
-        downloads: downloads,
-      }))
-      .sort((a, b) => {
-        const aMonth = monthNames.indexOf(a.name.split(' ')[0]) + 1;
-        const bMonth = monthNames.indexOf(b.name.split(' ')[0]) + 1;
-        return aMonth - bMonth;
+    meshPackagesData.packages
+      .filter(pkg => ENTRY_POINT_PACKAGES.includes(pkg.name))
+      .forEach(pkg => {
+        if (pkg.monthly_downloads) {
+          pkg.monthly_downloads
+            .filter((m: any) => isCompletedMonth(m.year, m.month))
+            .forEach((m: any) => {
+              const key = `${m.year}-${String(m.month).padStart(2, '0')}`;
+              monthlyTotals[key] = (monthlyTotals[key] || 0) + (m.downloads || 0);
+            });
+        }
       });
-  }, [meshPackagesData, currentYear, currentMonthIndex1Based]);
 
-  // Get the latest year for display
-  const latestYear =
-    monthlyData.length > 0 ? monthlyData[monthlyData.length - 1].name.split(' ')[1] : '';
+    return Object.entries(monthlyTotals)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, downloads]) => {
+        const [year, month] = key.split('-');
+        return {
+          name: `${shortMonths[parseInt(month) - 1]} ${year}`,
+          downloads,
+        };
+      });
+  }, [meshPackagesData, currentYear, currentMonth]);
 
-  // repositoriesData: Use corePackage.package_stats_history for the current year
+  // repositoriesData: Use corePackage.package_stats_history — full timeline
   const repositoriesData = useMemo(() => {
     if (!corePackage?.package_stats_history) return [];
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return corePackage.package_stats_history
       .filter((stat: any) => {
-        // stat.month can be 'YYYY-MM' or a number
         if (typeof stat.month === 'string' && stat.month.length === 7) {
-          return Number(stat.month.split('-')[0]) === currentYear;
+          const y = Number(stat.month.split('-')[0]);
+          const m = Number(stat.month.split('-')[1]);
+          return isCompletedMonth(y, m);
         }
         return false;
       })
-      .filter((stat: any) => {
-        if (typeof stat.month === 'string' && stat.month.length === 7) {
-          const m = Number(stat.month.split('-')[1]);
-          // Only show completed months for consistency with other charts
-          return m < currentMonthIndex1Based;
-        }
-        return true;
-      })
-      .sort((a: any, b: any) => {
-        // sort by month number
-        const aMonth = typeof a.month === 'string' ? Number(a.month.split('-')[1]) : 0;
-        const bMonth = typeof b.month === 'string' ? Number(b.month.split('-')[1]) : 0;
-        return aMonth - bMonth;
-      })
+      .sort((a: any, b: any) => a.month.localeCompare(b.month))
       .map((stat: any) => {
-        const monthIdx = typeof stat.month === 'string' ? Number(stat.month.split('-')[1]) - 1 : 0;
+        const [year, month] = stat.month.split('-');
         return {
-          month: months[monthIdx],
+          month: `${shortMonths[parseInt(month) - 1]} ${year}`,
           repositories: stat.github_dependents_count ?? 0,
         };
       });
-  }, [corePackage, currentYear, currentMonthIndex1Based]);
+  }, [corePackage, currentYear, currentMonth]);
 
   // web3SdkRepositoriesData: Use historical data + real database data
   const web3SdkRepositoriesData = useMemo(() => {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     // Historical data for web3-sdk launch (March-July 2025)
     const historicalData = [
-      { month: 'March', repositories: 18 },
-      { month: 'April', repositories: 32 },
-      { month: 'May', repositories: 68 },
-      { month: 'June', repositories: 98 },
-      { month: 'July', repositories: 125 },
+      { month: 'Mar 2025', repositories: 18 },
+      { month: 'Apr 2025', repositories: 32 },
+      { month: 'May 2025', repositories: 68 },
+      { month: 'Jun 2025', repositories: 98 },
+      { month: 'Jul 2025', repositories: 125 },
     ];
 
-    // Get real data from database for August onwards
+    // Get real data from database for August 2025 onwards
     const databaseData = web3SdkPackage?.package_stats_history
       ? web3SdkPackage.package_stats_history
           .filter((stat: any) => {
             if (typeof stat.month === 'string' && stat.month.length === 7) {
-              const year = Number(stat.month.split('-')[0]);
-              const month = Number(stat.month.split('-')[1]);
-              // Only include August 2025 and later, but only show completed months
-              return year === currentYear && month >= 8 && month < currentMonthIndex1Based;
+              const y = Number(stat.month.split('-')[0]);
+              const m = Number(stat.month.split('-')[1]);
+              // Only include August 2025 and later
+              return (y > 2025 || (y === 2025 && m >= 8)) && isCompletedMonth(y, m);
             }
             return false;
           })
-          .sort((a: any, b: any) => {
-            const aMonth = typeof a.month === 'string' ? Number(a.month.split('-')[1]) : 0;
-            const bMonth = typeof b.month === 'string' ? Number(b.month.split('-')[1]) : 0;
-            return aMonth - bMonth;
-          })
+          .sort((a: any, b: any) => a.month.localeCompare(b.month))
           .map((stat: any) => {
-            const monthIdx =
-              typeof stat.month === 'string' ? Number(stat.month.split('-')[1]) - 1 : 0;
+            const [year, month] = stat.month.split('-');
             return {
-              month: months[monthIdx],
+              month: `${shortMonths[parseInt(month) - 1]} ${year}`,
               repositories: stat.github_dependents_count ?? 0,
             };
           })
       : [];
 
-    // Combine historical and database data
     return [...historicalData, ...databaseData];
-  }, [web3SdkPackage, currentYear, currentMonthIndex1Based]);
+  }, [web3SdkPackage, currentYear, currentMonth]);
 
   // Combined repositories data for both core and web3-sdk
   const combinedRepositoriesData = useMemo(() => {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const combined: Record<string, any> = {};
 
     // Add core data
@@ -1086,50 +1011,41 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
       }
     });
 
-    // Convert to array and sort by month order
+    // Sort chronologically by parsing "Mon YYYY" labels
     return Object.values(combined).sort((a: any, b: any) => {
-      return months.indexOf(a.month) - months.indexOf(b.month);
+      const [aM, aY] = a.month.split(' ');
+      const [bM, bY] = b.month.split(' ');
+      const aIdx = shortMonths.indexOf(aM) + parseInt(aY) * 12;
+      const bIdx = shortMonths.indexOf(bM) + parseInt(bY) * 12;
+      return aIdx - bIdx;
     });
   }, [repositoriesData, web3SdkRepositoriesData]);
 
-  // Package downloads data for 2025 (all available months)
+  // Per-package monthly downloads — full timeline
   const historicalPackageDownloads = useMemo(() => {
     if (!meshPackagesData?.packages) return [];
 
-    const allMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    // Only include completed months (exclude current month since it's still in progress)
-    const maxMonth = currentMonthIndex1Based - 1; // Previous month is the latest completed month
-    const months = allMonths.slice(0, Math.max(1, maxMonth)); // At least include January
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const combined: { [key: string]: any } = {};
 
-    // Initialize months
-    months.forEach(month => {
-      combined[month] = { month };
-    });
-
-    // Process each package's monthly downloads for 2025
+    // Process each package's monthly downloads across all years
     meshPackagesData.packages.forEach(pkg => {
-      const monthlyData = pkg.monthly_downloads
-        ?.filter(item => item.year === 2025 && item.month >= 1 && item.month <= maxMonth)
-        ?.sort((a, b) => a.month - b.month);
-
-      if (monthlyData && monthlyData.length > 0) {
-        monthlyData.forEach(item => {
-          const monthName = months[item.month - 1];
+      pkg.monthly_downloads
+        ?.filter(item => isCompletedMonth(item.year, item.month))
+        ?.forEach(item => {
+          const key = `${item.year}-${String(item.month).padStart(2, '0')}`;
+          const label = `${shortMonths[item.month - 1]} ${item.year}`;
+          if (!combined[key]) combined[key] = { month: label, _sortKey: key };
           const packageKey = pkg.name.replace('@meshsdk/', '').replace('-', '_');
-          if (combined[monthName]) {
-            combined[monthName][packageKey] = item.downloads || 0;
-          }
+          combined[key][packageKey] = item.downloads || 0;
         });
-      }
     });
 
-    // Convert to array and filter out months with no data
-    return Object.values(combined).filter((monthData: any) => {
-      const hasData = Object.keys(monthData).length > 1; // More than just 'month' property
-      return hasData;
-    });
-  }, [meshPackagesData, currentMonthIndex1Based]);
+    // Sort chronologically and strip sort key
+    return Object.values(combined)
+      .sort((a: any, b: any) => a._sortKey.localeCompare(b._sortKey))
+      .map(({ _sortKey, ...rest }: any) => rest);
+  }, [meshPackagesData, currentYear, currentMonth]);
 
   // State to control highlighted package in historical downloads chart
   const [highlightedPackageKey, setHighlightedPackageKey] = React.useState<string | null>(null);
@@ -1152,176 +1068,125 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
     setHighlightedPackageKey(prev => (prev === key ? null : key));
   };
 
-  // Generate monthly contribution data from timestamp arrays
+  // Generate monthly contribution data from timestamp arrays — full timeline
   const contributionsData = useMemo(() => {
     if (!contributorStats?.contributors) return [];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth();
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const totals: Record<string, number> = {};
 
-    // Initialize monthly data for current year up to previous month only (completed months)
-    const monthlyContributions = months.slice(0, currentMonth).map(month => ({
-      month,
-      contributions: 0,
-    }));
-
-    // Process all contributors' timestamps
     contributorStats.contributors.forEach(contributor => {
       contributor.repositories.forEach(repo => {
-        // Process commit timestamps
-        repo.commit_timestamps?.forEach(timestamp => {
+        const processTimestamp = (timestamp: string) => {
           const date = new Date(timestamp);
-          if (date.getFullYear() === currentYear) {
-            const monthIndex = date.getMonth();
-            if (monthIndex < currentMonth && monthIndex < monthlyContributions.length) {
-              monthlyContributions[monthIndex].contributions += 1;
-            }
+          const y = date.getFullYear();
+          const m = date.getMonth() + 1;
+          if (isCompletedMonth(y, m)) {
+            const key = `${y}-${String(m).padStart(2, '0')}`;
+            totals[key] = (totals[key] || 0) + 1;
           }
-        });
-
-        // Process PR timestamps
-        repo.pr_timestamps?.forEach(timestamp => {
-          const date = new Date(timestamp);
-          if (date.getFullYear() === currentYear) {
-            const monthIndex = date.getMonth();
-            if (monthIndex < currentMonth && monthIndex < monthlyContributions.length) {
-              monthlyContributions[monthIndex].contributions += 1;
-            }
-          }
-        });
+        };
+        repo.commit_timestamps?.forEach(processTimestamp);
+        repo.pr_timestamps?.forEach(processTimestamp);
       });
     });
 
-    return monthlyContributions;
-  }, [contributorStats]);
+    return Object.entries(totals)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, contributions]) => {
+        const [year, month] = key.split('-');
+        return { month: `${shortMonths[parseInt(month) - 1]} ${year}`, contributions };
+      });
+  }, [contributorStats, currentYear, currentMonth]);
 
   // Generate monthly contributor growth data
+  // Cumulative contributor growth — full timeline
   const contributorsGrowthData = useMemo(() => {
     if (!contributorStats?.contributors) return [];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth();
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    // Calculate cumulative contributors per month (including previously existing ones)
-    const monthlyGrowth = months.slice(0, currentMonth).map((month, index) => {
+    // Collect all completed year-month keys from contributor timestamps
+    const allKeys = new Set<string>();
+    contributorStats.contributors.forEach(contributor => {
+      contributor.repositories.forEach(repo => {
+        const addKey = (timestamp: string) => {
+          const d = new Date(timestamp);
+          const y = d.getFullYear();
+          const m = d.getMonth() + 1;
+          if (isCompletedMonth(y, m)) {
+            allKeys.add(`${y}-${String(m).padStart(2, '0')}`);
+          }
+        };
+        repo.commit_timestamps?.forEach(addKey);
+        repo.pr_timestamps?.forEach(addKey);
+      });
+    });
+
+    const sortedKeys = [...allKeys].sort();
+    if (sortedKeys.length === 0) return [];
+
+    // For each month, count cumulative unique contributors up to that point
+    return sortedKeys.map(key => {
+      const [keyYear, keyMonth] = key.split('-').map(Number);
       const activeContributors = new Set<string>();
 
       contributorStats.contributors.forEach(contributor => {
-        let hasContributedByThisMonth = false;
-
+        let contributed = false;
         contributor.repositories.forEach(repo => {
-          // Check commit timestamps up to this month
-          repo.commit_timestamps?.forEach(timestamp => {
-            const date = new Date(timestamp);
-            // Include contributions from any year, but only up to the previous month in current year
-            if (
-              date.getFullYear() < currentYear ||
-              (date.getFullYear() === currentYear && date.getMonth() <= index)
-            ) {
-              hasContributedByThisMonth = true;
+          const check = (timestamp: string) => {
+            const d = new Date(timestamp);
+            const y = d.getFullYear();
+            const m = d.getMonth() + 1;
+            if (y < keyYear || (y === keyYear && m <= keyMonth)) {
+              contributed = true;
             }
-          });
-
-          // Check PR timestamps up to this month
-          repo.pr_timestamps?.forEach(timestamp => {
-            const date = new Date(timestamp);
-            // Include contributions from any year, but only up to the previous month in current year
-            if (
-              date.getFullYear() < currentYear ||
-              (date.getFullYear() === currentYear && date.getMonth() <= index)
-            ) {
-              hasContributedByThisMonth = true;
-            }
-          });
+          };
+          repo.commit_timestamps?.forEach(check);
+          repo.pr_timestamps?.forEach(check);
         });
-
-        if (hasContributedByThisMonth) {
-          activeContributors.add(contributor.login);
-        }
+        if (contributed) activeContributors.add(contributor.login);
       });
 
       return {
-        month,
+        month: `${shortMonths[keyMonth - 1]} ${keyYear}`,
         contributors: activeContributors.size,
       };
     });
-
-    return monthlyGrowth;
-  }, [contributorStats]);
+  }, [contributorStats, currentYear, currentMonth]);
 
   // Format the Discord stats for the chart
   const discordStatsData = useMemo(() => {
     if (!discordStats?.stats) return [];
 
-    // Get sorted months and only filter to show completed months (exclude current month September)
+    const now = new Date();
+    const thisYear = now.getFullYear();
+    const thisMonth = now.getMonth() + 1;
+
+    // Get sorted months and only filter to show completed months
     const sortedMonths = Object.keys(discordStats.stats)
       .filter(monthKey => {
         const [year, month] = monthKey.split('-');
         const monthNum = parseInt(month);
         const yearNum = parseInt(year);
-        // Only show completed months - exclude current month (September = 9)
-        return yearNum < currentYear || (yearNum === currentYear && monthNum < currentMonthIndex1Based);
+        return yearNum < thisYear || (yearNum === thisYear && monthNum < thisMonth);
       })
       .sort((a, b) => a.localeCompare(b));
 
-    // Create an array of formatted data for the chart using real data only
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
     return sortedMonths.map(monthKey => {
       const stats = discordStats.stats[monthKey];
-      // Extract year and month from the key (format: "YYYY-MM")
       const [year, month] = monthKey.split('-');
-      // Convert month number to month name
-      const monthNames = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-      ];
-      const monthName = monthNames[parseInt(month) - 1];
 
       return {
-        month: monthName,
+        month: `${shortMonths[parseInt(month) - 1]} ${year}`,
         memberCount: stats.memberCount,
         totalMessages: stats.totalMessages,
         uniquePosters: stats.uniquePosters,
       };
     });
-  }, [discordStats, currentYear, currentMonthIndex1Based]);
+  }, [discordStats]);
 
   // Calculate the minimum member count to create a better visualization
   const memberCountMin = useMemo(() => {
@@ -1356,20 +1221,22 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
     let last12Months = 0;
     let allTime = 0;
 
-    meshPackagesData.packages.forEach(pkg => {
-      // Use API fields for recent periods (more reliable)
-      lastWeek += pkg.last_week_downloads || 0;
-      lastMonth += pkg.last_month_downloads || 0;
-      last12Months += pkg.last_12_months_downloads || 0;
+    meshPackagesData.packages
+      .filter(pkg => ENTRY_POINT_PACKAGES.includes(pkg.name))
+      .forEach(pkg => {
+        // Use API fields for recent periods (more reliable)
+        lastWeek += pkg.last_week_downloads || 0;
+        lastMonth += pkg.last_month_downloads || 0;
+        last12Months += pkg.last_12_months_downloads || 0;
 
-      // Calculate true all-time from monthly_downloads data
-      if (pkg.monthly_downloads && Array.isArray(pkg.monthly_downloads)) {
-        const packageAllTime = pkg.monthly_downloads.reduce((sum, monthData) => {
-          return sum + (monthData.downloads || 0);
-        }, 0);
-        allTime += packageAllTime;
-      }
-    });
+        // Calculate true all-time from monthly_downloads data
+        if (pkg.monthly_downloads && Array.isArray(pkg.monthly_downloads)) {
+          const packageAllTime = pkg.monthly_downloads.reduce((sum, monthData) => {
+            return sum + (monthData.downloads || 0);
+          }, 0);
+          allTime += packageAllTime;
+        }
+      });
 
     // Validation: All-time should be >= 12 months (if not, monthly data might be incomplete)
     if (allTime < last12Months) {
@@ -1410,7 +1277,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
         </>
       )}
 
-      {packageData.length > 0 && monthlyData.length > 0 && (
+      {packageData.length > 0 && (
         <>
           <div className={styles.chartsContainer}>
             {!chartsReady && (
@@ -1431,22 +1298,24 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className={styles.chartSection}>
-                  <h2>Monthly Downloads ({latestYear})</h2>
-                  <div
-                    className={styles.chart}
-                    style={{
-                      height: '520px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <div style={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '14px' }}>
-                      Loading chart...
+                {monthlyData.length > 0 && (
+                  <div className={styles.chartSection}>
+                    <h2>Monthly Downloads</h2>
+                    <div
+                      className={styles.chart}
+                      style={{
+                        height: '520px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <div style={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '14px' }}>
+                        Loading chart...
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -1459,12 +1328,14 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
                   </div>
                 </div>
 
-                <div className={styles.chartSection}>
-                  <h2>Monthly Downloads ({latestYear})</h2>
-                  <div className={styles.chart} style={{ height: '520px' }}>
-                    <CustomBarChart data={monthlyData} chartId="monthly" isWhiteBackground={true} />
+                {monthlyData.length > 0 && (
+                  <div className={styles.chartSection}>
+                    <h2>Monthly Downloads</h2>
+                    <div className={styles.chart} style={{ height: '520px' }}>
+                      <CustomBarChart data={monthlyData} chartId="monthly" isWhiteBackground={true} />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>
@@ -1473,7 +1344,7 @@ const MeshStatsView: FC<MeshStatsViewProps> = ({
           {historicalPackageDownloads.length > 0 && (
             <div className={styles.chartsContainer}>
               <div className={styles.chartSection}>
-                <h2>Package Downloads per month 2025</h2>
+                <h2>Package Downloads per Month</h2>
                 <div className={styles.badges}>
                   <button
                     type="button"
