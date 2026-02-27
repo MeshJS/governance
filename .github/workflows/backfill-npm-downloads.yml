@@ -1,0 +1,22 @@
+name: Backfill Missing NPM Downloads
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backfill:
+    if: github.repository == 'MeshJS/governance'
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Run backfill
+        run: node scripts/mesh-stats/backfill-monthly-downloads.js
