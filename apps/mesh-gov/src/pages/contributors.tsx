@@ -39,13 +39,14 @@ interface ContributorWithMetrics {
 }
 
 export default function Contributors() {
-  const { contributorStats, isLoadingContributors, contributorsError, loadContributorStats } =
+  const { contributorStats, isLoadingContributors, contributorsError, loadContributorStats, nomosStats, loadNomosStats } =
     useData();
 
   // Trigger lazy loading when component mounts
   useEffect(() => {
     loadContributorStats();
-  }, [loadContributorStats]);
+    loadNomosStats();
+  }, [loadContributorStats, loadNomosStats]);
   const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
   // Default time window is set to "All time" when page loads
   const [timeWindow, setTimeWindow] = useState<TimeWindow>({
@@ -63,9 +64,53 @@ export default function Contributors() {
     Array.isArray(contributorStats.contributors);
 
   const humanContributors = useMemo(() => {
-    if (!isOrgStats) return [] as Contributor[];
-    return contributorStats.contributors as Contributor[];
-  }, [contributorStats, isOrgStats]);
+    const meshContributors: Contributor[] = isOrgStats
+      ? (contributorStats.contributors as Contributor[])
+      : [];
+
+    // Merge nomos-guild contributors
+    if (!nomosStats?.contributorStats?.contributors) return meshContributors;
+
+    const merged = new Map<string, Contributor>();
+
+    // Add all MeshJS contributors
+    meshContributors.forEach(c => {
+      merged.set(c.login, { ...c, repositories: [...c.repositories] });
+    });
+
+    // Merge nomos contributors — combine repos for shared logins
+    nomosStats.contributorStats.contributors.forEach((nc: any) => {
+      const nomosRepos: ContributorRepository[] = (nc.repositories || []).map((r: any) => ({
+        name: `nomos/${r.name}`,
+        commits: r.commits || 0,
+        pull_requests: r.pull_requests || 0,
+        contributions: (r.commits || 0) + (r.pull_requests || 0),
+        commit_timestamps: r.commit_timestamps || [],
+        pr_timestamps: r.pr_timestamps || [],
+      }));
+
+      if (merged.has(nc.login)) {
+        const existing = merged.get(nc.login)!;
+        existing.repositories = [...existing.repositories, ...nomosRepos];
+        existing.commits += nc.commits || 0;
+        existing.pull_requests += nc.pull_requests || 0;
+        existing.contributions += nc.contributions || 0;
+        existing.repoNames = existing.repositories.map(r => r.name);
+      } else {
+        merged.set(nc.login, {
+          login: nc.login,
+          avatar_url: nc.avatar_url || '',
+          commits: nc.commits || 0,
+          pull_requests: nc.pull_requests || 0,
+          contributions: nc.contributions || 0,
+          repositories: nomosRepos,
+          repoNames: nomosRepos.map(r => r.name),
+        });
+      }
+    });
+
+    return Array.from(merged.values());
+  }, [contributorStats, isOrgStats, nomosStats]);
 
   // Calculate global earliest contribution date across all contributors
   const globalEarliestDate = useMemo(() => {

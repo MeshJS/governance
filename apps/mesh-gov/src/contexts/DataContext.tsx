@@ -1,4 +1,3 @@
-// ../contexts/DataContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   MeshData,
@@ -25,160 +24,143 @@ const DREP_VOTING_STORAGE_KEY = 'drepVotingData';
 const DISCORD_STATS_STORAGE_KEY = 'discordStats';
 const CONTRIBUTOR_STATS_STORAGE_KEY = 'contributorStats';
 
-// Utility function to check if localStorage is available
 const isLocalStorageAvailable = (): boolean => {
   try {
     const testKey = '__test__';
     localStorage.setItem(testKey, testKey);
     localStorage.removeItem(testKey);
     return true;
-  } catch (e) {
-    console.warn('localStorage is not available:', e);
+  } catch {
     return false;
   }
 };
 
-// Safe localStorage getItem with fallback
 const safeGetItem = (key: string): string | null => {
   if (!isLocalStorageAvailable()) return null;
   try {
     return localStorage.getItem(key);
-  } catch (e) {
-    console.error(`Error reading ${key} from localStorage:`, e);
+  } catch {
     return null;
   }
 };
 
-// Safe localStorage setItem
 const safeSetItem = (key: string, value: string): void => {
   if (!DEV_CACHE_ENABLED) return;
   if (!isLocalStorageAvailable()) return;
-  // Rough guard to avoid exceeding typical 5MB quota (UTF-16 ~2 bytes/char)
-  // 4.5M chars ~ 9MB worst case; this is conservative. Skip if too large.
   const MAX_CACHE_CHARS = 4_500_000;
-  if (value.length > MAX_CACHE_CHARS) {
-    console.warn(`Skipping cache for ${key}: payload too large (${value.length} chars)`);
-    return;
-  }
+  if (value.length > MAX_CACHE_CHARS) return;
   try {
     localStorage.setItem(key, value);
-  } catch (e) {
-    // Swallow quota errors in development to avoid crashing the app
-    console.warn(`Skipping cache for ${key} due to storage error:`, e);
+  } catch {
+    // Swallow quota errors
   }
 };
+
+/** Try to load fresh cached data from localStorage. Returns parsed data or null. */
+function loadFreshCache<T extends { lastFetched: number }>(key: string): T | null {
+  const raw = safeGetItem(key);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as T;
+    if (Date.now() - parsed.lastFetched < CACHE_DURATION) return parsed;
+  } catch {
+    // Corrupted cache
+  }
+  return null;
+}
+
+/** Create a fetch wrapper that manages loading + error state around a fetch fn. */
+function createFetchWrapper(
+  setLoading: (v: boolean) => void,
+  setError: (v: string | null) => void,
+  fetchFn: () => Promise<any>
+): () => Promise<void> {
+  return async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await fetchFn();
+    } finally {
+      setLoading(false);
+    }
+  };
+}
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [meshData, setMeshData] = useState<MeshData | null>(null);
   const [catalystData, setCatalystData] = useState<CatalystContextData | null>(null);
   const [drepVotingData, setDrepVotingData] = useState<DRepVotingData | null>(null);
   const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
-
-  // Contributor stats only
   const [contributorStats, setContributorStats] = useState<ContributorStats | null>(null);
-
-  // Repository stats (stars, forks)
   const [repoStats, setRepoStats] = useState<any>(null);
+  const [nomosStats, setNomosStats] = useState<any>(null);
 
-  // Individual loading states
   const [isLoadingMesh, setIsLoadingMesh] = useState(true);
   const [isLoadingCatalyst, setIsLoadingCatalyst] = useState(true);
   const [isLoadingDRep, setIsLoadingDRep] = useState(true);
   const [isLoadingDiscord, setIsLoadingDiscord] = useState(true);
   const [isLoadingContributors, setIsLoadingContributors] = useState(false);
 
-  // Individual error states
   const [meshError, setMeshError] = useState<string | null>(null);
   const [catalystError, setCatalystError] = useState<string | null>(null);
   const [drepError, setDrepError] = useState<string | null>(null);
   const [discordError, setDiscordError] = useState<string | null>(null);
   const [contributorsError, setContributorsError] = useState<string | null>(null);
 
-  // Computed overall loading state (exclude contributors for initial load)
   const isLoading = isLoadingMesh || isLoadingCatalyst || isLoadingDRep || isLoadingDiscord;
-
-  // Computed overall error state
   const error = meshError || catalystError || drepError || discordError || contributorsError;
 
   const getCurrentYear = () => new Date().getFullYear();
 
-  const fetchDRepVotingDataWrapper = async () => {
-    setIsLoadingDRep(true);
-    setDrepError(null);
-    try {
-      await fetchDRepVotingDataForContext({
-        getCurrentYear,
-        safeSetItem,
-        setDrepVotingData,
-        setError: setDrepError,
-        DREP_VOTING_STORAGE_KEY,
-      });
-    } finally {
-      setIsLoadingDRep(false);
-    }
-  };
+  const fetchMeshDataWrapper = createFetchWrapper(setIsLoadingMesh, setMeshError, () =>
+    fetchMeshDataForContext({
+      getCurrentYear,
+      safeSetItem,
+      setMeshData,
+      setError: setMeshError,
+      MESH_STORAGE_KEY,
+    })
+  );
 
-  const fetchCatalystDataWrapper = async () => {
-    setIsLoadingCatalyst(true);
-    setCatalystError(null);
-    try {
-      await fetchCatalystDataForContext({
-        safeSetItem,
-        setCatalystData,
-        setError: setCatalystError,
-        CATALYST_STORAGE_KEY,
-      });
-    } finally {
-      setIsLoadingCatalyst(false);
-    }
-  };
+  const fetchCatalystDataWrapper = createFetchWrapper(setIsLoadingCatalyst, setCatalystError, () =>
+    fetchCatalystDataForContext({
+      safeSetItem,
+      setCatalystData,
+      setError: setCatalystError,
+      CATALYST_STORAGE_KEY,
+    })
+  );
 
-  const fetchDiscordStatsWrapper = async () => {
-    setIsLoadingDiscord(true);
-    setDiscordError(null);
-    try {
-      await fetchDiscordStatsForContext({
-        safeSetItem,
-        setDiscordStats,
-        setError: setDiscordError,
-        DISCORD_STATS_STORAGE_KEY,
-      });
-    } finally {
-      setIsLoadingDiscord(false);
-    }
-  };
+  const fetchDRepVotingDataWrapper = createFetchWrapper(setIsLoadingDRep, setDrepError, () =>
+    fetchDRepVotingDataForContext({
+      getCurrentYear,
+      safeSetItem,
+      setDrepVotingData,
+      setError: setDrepError,
+      DREP_VOTING_STORAGE_KEY,
+    })
+  );
 
-  const fetchContributorsAllWrapper = async () => {
-    setIsLoadingContributors(true);
-    setContributorsError(null);
-    try {
-      const combined = await fetchContributorsAllForContext({
+  const fetchDiscordStatsWrapper = createFetchWrapper(setIsLoadingDiscord, setDiscordError, () =>
+    fetchDiscordStatsForContext({
+      safeSetItem,
+      setDiscordStats,
+      setError: setDiscordError,
+      DISCORD_STATS_STORAGE_KEY,
+    })
+  );
+
+  const fetchContributorsAllWrapper = createFetchWrapper(
+    setIsLoadingContributors,
+    setContributorsError,
+    () =>
+      fetchContributorsAllForContext({
         safeSetItem,
         setContributorStats,
         setError: setContributorsError,
         CONTRIBUTOR_STATS_STORAGE_KEY,
-      });
-      return combined;
-    } finally {
-      setIsLoadingContributors(false);
-    }
-  };
-
-  const fetchMeshDataWrapper = async () => {
-    setIsLoadingMesh(true);
-    setMeshError(null);
-    try {
-      await fetchMeshDataForContext({
-        getCurrentYear,
-        safeSetItem,
-        setMeshData,
-        setError: setMeshError,
-        MESH_STORAGE_KEY,
-      });
-    } finally {
-      setIsLoadingMesh(false);
-    }
-  };
+      })
+  );
 
   const loadContributorStats = async () => {
     if (!contributorStats) {
@@ -196,90 +178,64 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           const data = await response.json();
           setRepoStats(data);
         }
-      } catch (error) {
-        console.error('Error loading repo stats:', error);
+      } catch {
+        // Repo stats fetch failed
+      }
+    }
+  };
+
+  const loadNomosStats = async () => {
+    if (!nomosStats) {
+      try {
+        const cached = loadFreshCache<{ lastFetched: number }>('nomosStats');
+        if (cached) {
+          setNomosStats(cached);
+          return;
+        }
+        const response = await fetch('/api/github/nomos-stats');
+        if (response.ok) {
+          const data = await response.json();
+          setNomosStats(data);
+          safeSetItem('nomosStats', JSON.stringify({ ...data, lastFetched: Date.now() }));
+        }
+      } catch {
+        // Nomos stats fetch failed
       }
     }
   };
 
   useEffect(() => {
     const load = async () => {
-      // Load cached data immediately for better UX
-      if (isLocalStorageAvailable() && process.env.NEXT_PUBLIC_ENABLE_DEV_CACHE !== 'false') {
-        const cachedMeshData = safeGetItem(MESH_STORAGE_KEY);
-        const cachedCatalystData = safeGetItem(CATALYST_STORAGE_KEY);
-        const cachedDRepVotingData = safeGetItem(DREP_VOTING_STORAGE_KEY);
-        const cachedDiscordStats = safeGetItem(DISCORD_STATS_STORAGE_KEY);
-        const cachedContributorStats = safeGetItem(CONTRIBUTOR_STATS_STORAGE_KEY);
+      // Load cached data immediately for better UX (stale-while-revalidate)
+      if (isLocalStorageAvailable() && DEV_CACHE_ENABLED) {
+        const cacheEntries: Array<{
+          key: string;
+          setData: (data: any) => void;
+          setLoading: (v: boolean) => void;
+        }> = [
+          { key: MESH_STORAGE_KEY, setData: setMeshData, setLoading: setIsLoadingMesh },
+          { key: CATALYST_STORAGE_KEY, setData: setCatalystData, setLoading: setIsLoadingCatalyst },
+          { key: DREP_VOTING_STORAGE_KEY, setData: setDrepVotingData, setLoading: setIsLoadingDRep },
+          { key: DISCORD_STATS_STORAGE_KEY, setData: setDiscordStats, setLoading: setIsLoadingDiscord },
+          { key: CONTRIBUTOR_STATS_STORAGE_KEY, setData: setContributorStats, setLoading: setIsLoadingContributors },
+        ];
 
-        // Load cached data immediately if available and fresh
-        if (cachedMeshData) {
-          const parsed = JSON.parse(cachedMeshData);
-          const cacheAge = Date.now() - parsed.lastFetched;
-          if (cacheAge < CACHE_DURATION) {
-            setMeshData(parsed);
-            setIsLoadingMesh(false);
-          }
-        }
-
-        if (cachedCatalystData) {
-          const parsed = JSON.parse(cachedCatalystData);
-          const cacheAge = Date.now() - parsed.lastFetched;
-          if (cacheAge < CACHE_DURATION) {
-            setCatalystData(parsed);
-            setIsLoadingCatalyst(false);
-          }
-        }
-
-        if (cachedDRepVotingData) {
-          const parsed = JSON.parse(cachedDRepVotingData);
-          const cacheAge = Date.now() - parsed.lastFetched;
-          if (cacheAge < CACHE_DURATION) {
-            setDrepVotingData(parsed);
-            setIsLoadingDRep(false);
-          }
-        }
-
-        if (cachedDiscordStats) {
-          const parsed = JSON.parse(cachedDiscordStats);
-          const cacheAge = Date.now() - parsed.lastFetched;
-          if (cacheAge < CACHE_DURATION) {
-            setDiscordStats(parsed);
-            setIsLoadingDiscord(false);
-          }
-        }
-
-        // Load cached contributor stats
-        if (cachedContributorStats) {
-          const parsed = JSON.parse(cachedContributorStats);
-          const cacheAge = Date.now() - parsed.lastFetched;
-          if (cacheAge < CACHE_DURATION) {
-            setContributorStats(parsed);
-            setIsLoadingContributors(false);
+        for (const { key, setData, setLoading } of cacheEntries) {
+          const cached = loadFreshCache(key);
+          if (cached) {
+            setData(cached);
+            setLoading(false);
           }
         }
       }
 
       // Start fetching fresh data in parallel (excluding contributors for lazy loading)
-      const fetchPromises = [] as Promise<any>[];
+      const fetchPromises: Promise<void>[] = [];
+      if (isLoadingMesh) fetchPromises.push(fetchMeshDataWrapper());
+      if (isLoadingCatalyst) fetchPromises.push(fetchCatalystDataWrapper());
+      if (isLoadingDRep) fetchPromises.push(fetchDRepVotingDataWrapper());
+      if (isLoadingDiscord) fetchPromises.push(fetchDiscordStatsWrapper());
 
-      // Always fetch mesh data first (it's most critical)
-      if (isLoadingMesh) {
-        fetchPromises.push(fetchMeshDataWrapper());
-      }
-
-      // Fetch other data in parallel
-      if (isLoadingCatalyst) {
-        fetchPromises.push(fetchCatalystDataWrapper());
-      }
-      if (isLoadingDRep) {
-        fetchPromises.push(fetchDRepVotingDataWrapper());
-      }
-      if (isLoadingDiscord) {
-        fetchPromises.push(fetchDiscordStatsWrapper());
-      }
-
-      // Wait for all fetches to complete
       await Promise.all(fetchPromises);
     };
     void load();
@@ -288,14 +244,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refetchData = async () => {
-    // Reset all loading states
     setIsLoadingMesh(true);
     setIsLoadingCatalyst(true);
     setIsLoadingDRep(true);
     setIsLoadingDiscord(true);
     setIsLoadingContributors(true);
-
-    // Clear all errors
     setMeshError(null);
     setCatalystError(null);
     setDrepError(null);
@@ -320,24 +273,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         discordStats,
         contributorStats,
         repoStats,
+        nomosStats,
         isLoading,
         error,
-        // Individual loading states
         isLoadingMesh,
         isLoadingCatalyst,
         isLoadingDRep,
         isLoadingDiscord,
         isLoadingContributors,
-        // Individual error states
         meshError,
         catalystError,
         drepError,
         discordError,
         contributorsError,
         refetchData,
-        // Lazy loading functions
         loadContributorStats,
         loadRepoStats,
+        loadNomosStats,
       }}
     >
       {children}

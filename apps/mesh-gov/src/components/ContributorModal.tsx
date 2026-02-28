@@ -147,10 +147,10 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
       .filter(repo => repo.contributions > 0); // Only include repos with contributions in the time window
   }, [contributor, localStartDate, localEndDate]);
 
-  // Sort repositories by contributions in descending order (for table display)
-  const sortedRepos = [...contributor.repositories].sort(
-    (a, b) => b.contributions - a.contributions
-  );
+  // Sorted filtered repo data for table display (reuses filteredRepoData, no duplicate computation)
+  const sortedFilteredRepos = useMemo(() => {
+    return [...filteredRepoData].sort((a, b) => b.contributions - a.contributions);
+  }, [filteredRepoData]);
 
   return (
     <div className={styles.overlay}>
@@ -255,33 +255,25 @@ export const ContributorModal: React.FC<ContributorModalProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {sortedRepos.map(repo => {
-                  // Calculate filtered metrics for this specific repository
-                  const repoFilteredMetrics = getFilteredMetrics(
-                    { ...contributor, repositories: [repo] } as Contributor,
-                    localStartDate || null,
-                    localEndDate || null
-                  );
-
-                  // Only show repositories that have contributions in the selected time window
-                  if (repoFilteredMetrics.contributions === 0 && (localStartDate || localEndDate)) {
-                    return null;
-                  }
+                {sortedFilteredRepos.map(repo => {
+                  const repoUrl = repo.name.startsWith('nomos/')
+                    ? `https://github.com/nomos-guild/${repo.name.replace('nomos/', '')}`
+                    : `https://github.com/MeshJS/${repo.name}`;
 
                   return (
                     <tr key={repo.name}>
                       <td>
                         <a
-                          href={`https://github.com/MeshJS/${repo.name}`}
+                          href={repoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
                           {repo.name}
                         </a>
                       </td>
-                      <td>{repoFilteredMetrics.commits}</td>
-                      <td>{repoFilteredMetrics.pullRequests}</td>
-                      <td>{repoFilteredMetrics.contributions}</td>
+                      <td>{repo.commits}</td>
+                      <td>{repo.pull_requests}</td>
+                      <td>{repo.contributions}</td>
                     </tr>
                   );
                 })}

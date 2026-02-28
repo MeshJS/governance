@@ -50,17 +50,16 @@ function findAllMilestoneFiles(fundingDir: string): string[] {
                   }
                 }
               } catch (err) {
-                console.error(`Error accessing project directory ${projectDir}:`, err);
+                // Skip inaccessible project directories
               }
             }
           }
         } catch (err) {
-          console.error(`Error accessing fund directory ${fundDir}:`, err);
+          // Skip inaccessible fund directories
         }
       }
     }
   } catch (err) {
-    console.error('Error accessing funding directory:', err);
     throw err;
   }
 
@@ -92,7 +91,6 @@ function extractContent(content: string): string {
 
     return content.trim();
   } catch (err) {
-    console.error('Error extracting content:', err);
     return '';
   }
 }
@@ -135,7 +133,6 @@ function parseMilestoneFile(
       content.match(/\|Challenge\|(.*?)\|/) || content.match(/\| Challenge \|(.*?)\|/);
 
     if (!projectIdMatch) {
-      console.log(`No project ID found in file ${fileName}`);
       return null;
     }
 
@@ -161,7 +158,6 @@ function parseMilestoneFile(
       isCloseOut: fileName.includes('close-out'),
     };
   } catch (err) {
-    console.error(`Error parsing milestone file ${fileName}:`, err);
     return null;
   }
 }
@@ -177,22 +173,17 @@ export default async function handler(
   }
 
   try {
-    console.log('Starting milestone search for all projects');
-
     let fundingDir;
     try {
       fundingDir = getFundingDir();
     } catch (err) {
-      console.error('Error finding funding directory:', err);
       res.status(500).json({ error: 'Funding directory not found' });
       return;
     }
 
     const milestoneFiles = findAllMilestoneFiles(fundingDir);
-    console.log('Found milestone files:', milestoneFiles.length);
 
     if (milestoneFiles.length === 0) {
-      console.log('No milestone files found');
       res.status(200).json([]);
       return;
     }
@@ -223,11 +214,9 @@ export default async function handler(
           }
         }
       } catch (err) {
-        console.error(`Error processing file ${fileName}:`, err);
+        // Skip files that can't be processed
       }
     }
-
-    console.log(`Found ${milestones.length} milestones from all projects`);
 
     // Sort milestones by project ID and number
     const sortedMilestones = milestones.sort((a, b) => {
@@ -241,7 +230,6 @@ export default async function handler(
 
     res.status(200).json(sortedMilestones);
   } catch (error) {
-    console.error('Error reading all milestones:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }

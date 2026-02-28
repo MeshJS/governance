@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMemo } from 'react';
+import CanvasDonutChart from './CanvasDonutChart';
 import styles from '../styles/Proposals.module.css';
 import { CatalystProject } from '../types';
 
@@ -6,211 +7,68 @@ interface VotesDonutChartProps {
   proposals: CatalystProject[];
 }
 
+const GRADIENT = [
+  'rgba(0, 0, 0, 0.95)',
+  'rgba(30, 41, 59, 0.9)',
+  'rgba(71, 85, 105, 0.85)',
+  'rgba(148, 163, 184, 0.8)',
+];
+const HOVER_GRADIENT = [
+  'rgba(30, 41, 59, 1)',
+  'rgba(51, 65, 85, 0.95)',
+  'rgba(100, 116, 139, 0.9)',
+  'rgba(148, 163, 184, 0.85)',
+];
+
+const formatNumber = (num: number): string => {
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toString();
+};
+
+const getFundingRound = (category: string): string => {
+  return category.trim().substring(0, 3);
+};
+
 const VotesDonutChart = ({ proposals }: VotesDonutChartProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [activeSegment, setActiveSegment] = useState<string | null>(null);
-  const [segments, setSegments] = useState<
-    Array<{
-      id: string;
-      title: string;
-      fund: string;
-      startAngle: number;
-      endAngle: number;
-      votes: number;
-    }>
-  >([]);
+  const proposalsWithVotes = useMemo(
+    () =>
+      proposals
+        .map(p => ({
+          id: p.projectDetails.id.toString(),
+          title: p.projectDetails.title,
+          fund: getFundingRound(p.projectDetails.category),
+          votes: p.projectDetails.voting?.yes_votes_count || 0,
+        }))
+        .filter(p => p.votes > 0)
+        .sort((a, b) => b.votes - a.votes),
+    [proposals]
+  );
 
-  // Helper function to get funding round from category
-  const getFundingRound = (category: string): string => {
-    return category.trim().substring(0, 3);
-  };
+  const segments = useMemo(
+    () =>
+      proposalsWithVotes.map(p => ({
+        key: p.id,
+        value: p.votes,
+        label: p.title,
+        gradientStops: GRADIENT,
+        hoverGradientStops: HOVER_GRADIENT,
+      })),
+    [proposalsWithVotes]
+  );
 
-  // Helper function to format numbers with suffixes
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    }
-    if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
-    }
-    return num.toString();
-  };
-
-  const drawChart = useCallback((isHovered: string | null) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size with device pixel ratio for sharper rendering
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Get proposals with votes, sorted by vote count
-    const proposalsWithVotes = proposals
-      .map(proposal => ({
-        id: proposal.projectDetails.id.toString(),
-        title: proposal.projectDetails.title,
-        fund: getFundingRound(proposal.projectDetails.category),
-        votes: proposal.projectDetails.voting?.yes_votes_count || 0,
-      }))
-      .filter(p => p.votes > 0)
-      .sort((a, b) => b.votes - a.votes);
-
-    const totalVotes = proposalsWithVotes.reduce((sum, p) => sum + p.votes, 0);
-
-    // Draw donut chart
-    const centerX = canvas.width / (2 * dpr);
-    const centerY = canvas.height / (2 * dpr);
-    const radius = Math.min(centerX, centerY) * 0.8;
-    const innerRadius = radius * 0.6;
-
-    // Add overall shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 10;
-
-    let startAngle = -Math.PI / 2;
-    const newSegments: typeof segments = [];
-
-    // Draw segments for each proposal
-    proposalsWithVotes.forEach((proposal, index) => {
-      const segmentAngle = (proposal.votes / totalVotes) * (Math.PI * 2);
-      const endAngle = startAngle + segmentAngle;
-
-      newSegments.push({
-        id: proposal.id,
-        title: proposal.title,
-        fund: proposal.fund,
-        startAngle,
-        endAngle,
-        votes: proposal.votes,
-      });
-
-      ctx.save();
-
-      if (proposal.id === isHovered) {
-        const scale = 1.03;
-        ctx.translate(centerX, centerY);
-        ctx.scale(scale, scale);
-        ctx.translate(-centerX, -centerY);
-
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-        ctx.shadowBlur = 25;
-        ctx.shadowOffsetX = 3;
-        ctx.shadowOffsetY = 5;
-      }
-
-      // Create gradients
-      const gradient = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
-      const hoverGradient = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
-
-      // Base gradient - black/grey
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
-      gradient.addColorStop(0.4, 'rgba(30, 41, 59, 0.9)');
-      gradient.addColorStop(0.8, 'rgba(71, 85, 105, 0.85)');
-      gradient.addColorStop(1, 'rgba(148, 163, 184, 0.8)');
-
-      // Hover gradient
-      hoverGradient.addColorStop(0, 'rgba(30, 41, 59, 1)');
-      hoverGradient.addColorStop(0.4, 'rgba(51, 65, 85, 0.95)');
-      hoverGradient.addColorStop(0.8, 'rgba(100, 116, 139, 0.9)');
-      hoverGradient.addColorStop(1, 'rgba(148, 163, 184, 0.85)');
-
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-      ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
-      ctx.closePath();
-
-      ctx.fillStyle = proposal.id === isHovered ? hoverGradient : gradient;
-      ctx.globalAlpha = 1;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-      ctx.lineWidth = proposal.id === isHovered ? 3 : 2;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, innerRadius, startAngle, endAngle);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.lineWidth = proposal.id === isHovered ? 2 : 1;
-      ctx.stroke();
-
-      ctx.restore();
-
-      startAngle = endAngle;
-    });
-
-    setSegments(newSegments);
-  }, [proposals]);
-
-  useEffect(() => {
-    drawChart(activeSegment);
-  }, [proposals, activeSegment, drawChart]);
-
-  const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const radius = Math.min(centerX, centerY) * 0.8;
-    const innerRadius = radius * 0.6;
-
-    const angle = Math.atan2(y - centerY, x - centerX);
-    const adjustedAngle = angle < -Math.PI / 2 ? angle + Math.PI * 2 : angle;
-
-    const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
-
-    if (distance > innerRadius && distance < radius) {
-      const activeSegment = segments.find(
-        segment => adjustedAngle >= segment.startAngle && adjustedAngle <= segment.endAngle
-      );
-      setActiveSegment(activeSegment ? activeSegment.id : null);
-    } else {
-      setActiveSegment(null);
-    }
-  };
-
-  const handleCanvasMouseLeave = () => {
-    setActiveSegment(null);
-  };
-
-  // Get active segment data
-  const activeSegmentData = segments.find(s => s.id === activeSegment);
+  const legend = useMemo(
+    () =>
+      proposalsWithVotes.map(p => ({
+        key: p.id,
+        label: `${p.fund} - ${p.title}`,
+        formattedValue: formatNumber(p.votes),
+      })),
+    [proposalsWithVotes]
+  );
 
   return (
-    <div className={styles.donutChartContainer}>
-      <canvas
-        ref={canvasRef}
-        className={styles.donutChart}
-        onMouseMove={handleCanvasMouseMove}
-        onMouseLeave={handleCanvasMouseLeave}
-      />
-      {activeSegmentData && (
-        <div className={styles.tooltip}>
-          <div className={styles.tooltipTitle}>{activeSegmentData.title}</div>
-          <div className={styles.tooltipContent}>
-            <div>Fund: {activeSegmentData.fund}</div>
-            <div>Votes: {formatNumber(activeSegmentData.votes)}</div>
-          </div>
-        </div>
-      )}
-    </div>
+    <CanvasDonutChart segments={segments} legend={legend} styles={styles} showStrokes />
   );
 };
 

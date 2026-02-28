@@ -14,7 +14,6 @@ import CatalystProposalsDonut from '../components/CatalystProposalsDonut';
 import { useScrollRestoration } from '../hooks/useScrollRestoration';
 import MilestoneDeliveryChart from '../components/MilestoneDeliveryChart';
 import { extractAllMilestonesFromProjects } from '../utils/catalystDataTransform';
-import { CountUpTimer } from '../components/CountUpTimer';
 
 // Helper functions
 const calculateProgress = (completed: number, total: number): number => {
@@ -240,11 +239,6 @@ export default function CatalystProposals() {
       <div className={styles.container}>
 
       <div className={styles.chartsContainer}>
-        <div className={styles.timerWrapper}>
-          <div className={styles.chartSection}>
-            <CountUpTimer startDate={new Date('2024-03-19')} title="Catalyst Funded Proposer Since" />
-          </div>
-        </div>
         <div className={styles.chartsGrid}>
           <div className={styles.chartSection}>
             <CatalystProposalsDonut

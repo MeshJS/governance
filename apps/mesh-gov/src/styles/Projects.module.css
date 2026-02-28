@@ -449,11 +449,11 @@
 
 .chartArea {
     flex: 1;
-    margin-bottom: 1rem;
+    margin-bottom: 0.25rem;
     padding: 0.5rem;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.02);
-    min-height: 220px;
+    min-height: 0;
 }
 
 .actionBar {

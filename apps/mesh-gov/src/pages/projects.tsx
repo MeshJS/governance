@@ -367,14 +367,14 @@ const createRepositoryChart = (repoName: string) => {
     const hasAnySelected = selectedRepositories.size > 0;
 
     return (
-      <ResponsiveContainer width="100%" height={280}>
+      <ResponsiveContainer width="100%" height={160}>
         <LineChart
           data={chartData.monthlyData}
           margin={{
-            top: 10,
-            right: 10,
-            left: 5,
-            bottom: 50,
+            top: 5,
+            right: 5,
+            left: -10,
+            bottom: 5,
           }}
         >
           <defs>
@@ -431,15 +431,19 @@ const createRepositoryChart = (repoName: string) => {
             fontWeight={500}
             angle={-45}
             textAnchor="end"
-            height={45}
+            height={25}
+            tickLine={false}
+            axisLine={false}
             tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
           />
           <YAxis
             stroke="rgba(0, 0, 0, 0.6)"
             fontSize={7}
             fontWeight={500}
+            tickLine={false}
+            axisLine={false}
             tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
-            width={25}
+            width={20}
             domain={maxYValue ? [0, maxYValue] : undefined}
           />
           <Tooltip content={<CustomTooltip />} cursor={false} />
@@ -637,14 +641,14 @@ const UTXOSRepositoryChart: React.FC<{
   const hasAnySelected = selectedRepositories.size > 0;
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={160}>
       <LineChart
         data={chartData.monthlyData}
         margin={{
-          top: 10,
-          right: 10,
-          left: 5,
-          bottom: 50,
+          top: 5,
+          right: 5,
+          left: -10,
+          bottom: 5,
         }}
       >
         <defs>
@@ -700,15 +704,19 @@ const UTXOSRepositoryChart: React.FC<{
           fontWeight={500}
           angle={-45}
           textAnchor="end"
-          height={45}
+          height={25}
+          tickLine={false}
+          axisLine={false}
           tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
         />
         <YAxis
           stroke="rgba(0, 0, 0, 0.6)"
           fontSize={7}
           fontWeight={500}
+          tickLine={false}
+          axisLine={false}
           tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
-          width={25}
+          width={20}
           domain={maxYValue ? [0, maxYValue] : undefined}
         />
         <Tooltip content={<CustomTooltip />} cursor={false} />
@@ -750,8 +758,419 @@ const UTXOSRepositoryChart: React.FC<{
 };
 const MultisigRepositoryChart = createRepositoryChart('multisig');
 const MidnightRepositoryChart = createRepositoryChart('midnight');
-const MimirRepositoryChart = createRepositoryChart('mimir');
+// Multi-repo Mimir chart (mimir + skills + Mesh-AI + evolving-claude-skills)
+const MimirRepositoryChart: React.FC<{
+  contributors: Contributor[];
+  globalStartDate?: string;
+  globalEndDate?: string;
+  maxYValue?: number;
+}> = ({ contributors, globalStartDate, globalEndDate, maxYValue }) => {
+  const [selectedRepositories, setSelectedRepositories] = useState<Set<string>>(new Set());
+
+  const chartData = useMemo(() => {
+    if (!contributors.length) return null;
+
+    const repositoryMap = new Map<string, RepositoryData>();
+    const targetRepos = ['mimir', 'skills', 'Mesh-AI', 'evolving-claude-skills'];
+
+    contributors.forEach(contributor => {
+      contributor.repositories.forEach(repo => {
+        if (targetRepos.includes(repo.name)) {
+          const filteredCommits = repo.commit_timestamps.filter(timestamp =>
+            isTimestampInRange(timestamp, globalStartDate || null, globalEndDate || null)
+          );
+          const filteredPRs = repo.pr_timestamps.filter(timestamp =>
+            isTimestampInRange(timestamp, globalStartDate || null, globalEndDate || null)
+          );
+
+          if (!repositoryMap.has(repo.name)) {
+            repositoryMap.set(repo.name, {
+              name: repo.name,
+              contributions: 0,
+              commits: 0,
+              pullRequests: 0,
+              contributors: [],
+            });
+          }
+
+          const repoData = repositoryMap.get(repo.name)!;
+          repoData.contributions += filteredCommits.length + filteredPRs.length;
+          repoData.commits += filteredCommits.length;
+          repoData.pullRequests += filteredPRs.length;
+
+          if (!repoData.contributors.includes(contributor.login)) {
+            repoData.contributors.push(contributor.login);
+          }
+        }
+      });
+    });
+
+    const topRepositories = Array.from(repositoryMap.values());
+    if (topRepositories.length === 0) return null;
+
+    const allTimestamps: string[] = [];
+    contributors.forEach(contributor => {
+      contributor.repositories.forEach(repo => {
+        [...repo.commit_timestamps, ...repo.pr_timestamps].forEach(timestamp => {
+          if (isTimestampInRange(timestamp, globalStartDate || null, globalEndDate || null)) {
+            allTimestamps.push(timestamp);
+          }
+        });
+      });
+    });
+
+    if (allTimestamps.length === 0) return null;
+
+    const sortedTimestamps = allTimestamps.sort();
+    let earliestDate = new Date(sortedTimestamps[0]);
+    let latestDate = new Date(sortedTimestamps[sortedTimestamps.length - 1]);
+
+    if (globalStartDate) {
+      const gs = new Date(globalStartDate);
+      if (gs < earliestDate) earliestDate = gs;
+    }
+    if (globalEndDate) {
+      const ge = new Date(globalEndDate);
+      if (ge > latestDate) latestDate = ge;
+    }
+
+    const monthlyData: Array<{ month: string; [key: string]: number | string }> = [];
+    const currentDate = new Date(earliestDate.getFullYear(), earliestDate.getMonth(), 1);
+    const endDate = new Date(latestDate.getFullYear(), latestDate.getMonth(), 1);
+
+    while (currentDate <= endDate) {
+      const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+      const monthData: { month: string; [key: string]: number | string } = { month: monthKey };
+
+      topRepositories.forEach(repository => {
+        monthData[repository.name] = 0;
+      });
+
+      topRepositories.forEach(repository => {
+        let monthlyContributions = 0;
+        contributors.forEach(contributor => {
+          const repo = contributor.repositories.find(r => r.name === repository.name);
+          if (repo) {
+            [...repo.commit_timestamps, ...repo.pr_timestamps].forEach(timestamp => {
+              if (isTimestampInRange(timestamp, globalStartDate || null, globalEndDate || null)) {
+                const date = new Date(timestamp);
+                if (
+                  date.getFullYear() === currentDate.getFullYear() &&
+                  date.getMonth() === currentDate.getMonth()
+                ) {
+                  monthlyContributions++;
+                }
+              }
+            });
+          }
+        });
+        monthData[repository.name] = monthlyContributions;
+      });
+
+      monthlyData.push(monthData);
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+
+    return { topRepositories, monthlyData };
+  }, [contributors, globalStartDate, globalEndDate]);
+
+  if (!chartData) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 160, color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
+        No repository data available
+      </div>
+    );
+  }
+
+  const hasAnySelected = selectedRepositories.size > 0;
+
+  return (
+    <ResponsiveContainer width="100%" height={160}>
+      <LineChart data={chartData.monthlyData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+        <defs>
+          {chartData.topRepositories.map((repository: RepositoryData, index: number) => {
+            const baseColor = generateColor(repository.name, index);
+            const colorVariations = getColorVariations(baseColor);
+            return (
+              <linearGradient
+                key={`gradient-${repository.name}`}
+                id={`gradient-repo-${repository.name}-mimir`}
+                x1="0" y1="0" x2="0" y2="1"
+              >
+                <stop offset="0%" stopColor={colorVariations.bright} />
+                <stop offset="50%" stopColor={rgbaToRgb(baseColor)} />
+                <stop offset="100%" stopColor={colorVariations.dim} />
+              </linearGradient>
+            );
+          })}
+        </defs>
+        <CartesianGrid strokeDasharray="2 2" stroke="rgba(0, 0, 0, 0.1)" horizontal={true} vertical={false} />
+        <XAxis
+          dataKey="month"
+          stroke="rgba(0, 0, 0, 0.6)"
+          fontSize={7}
+          fontWeight={500}
+          angle={-45}
+          textAnchor="end"
+          height={25}
+          tickLine={false}
+          axisLine={false}
+          tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
+        />
+        <YAxis
+          stroke="rgba(0, 0, 0, 0.6)"
+          fontSize={7}
+          fontWeight={500}
+          tickLine={false}
+          axisLine={false}
+          tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
+          width={20}
+          domain={maxYValue ? [0, maxYValue] : undefined}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={false} />
+        {chartData.topRepositories.map((repository: RepositoryData, index: number) => {
+          const isSelected = selectedRepositories.has(repository.name);
+          const shouldHighlight = !hasAnySelected || isSelected;
+          return (
+            <React.Fragment key={repository.name}>
+              <Line
+                type="monotone"
+                dataKey={repository.name}
+                stroke="#000000"
+                strokeWidth={shouldHighlight ? 1.5 : 0.8}
+                strokeOpacity={shouldHighlight ? 1 : 0.3}
+                dot={false}
+                activeDot={{
+                  r: shouldHighlight ? 4 : 2.5,
+                  fill: '#000000',
+                  stroke: 'rgba(255, 255, 255, 0.8)',
+                  strokeWidth: 1.5,
+                  opacity: shouldHighlight ? 1 : 0.5,
+                  filter: shouldHighlight ? 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.3))' : 'none',
+                }}
+                connectNulls={false}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </React.Fragment>
+          );
+        })}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
 const CquisitorRepositoryChart = createRepositoryChart('cquisitor-lib');
+
+// Nomos chart — uses nomosStats JSON data (all nomos-guild repos)
+const NomosRepositoryChart: React.FC<{
+  nomosStats: any;
+  globalStartDate?: string;
+  globalEndDate?: string;
+  maxYValue?: number;
+  sharedStartDate?: string;
+}> = ({ nomosStats, globalStartDate, globalEndDate, maxYValue, sharedStartDate }) => {
+  const [selectedRepositories, setSelectedRepositories] = useState<Set<string>>(new Set());
+
+  const chartData = useMemo(() => {
+    if (!nomosStats?.contributorStats?.contributors?.length) return null;
+
+    const contributors = nomosStats.contributorStats.contributors;
+
+    // Build repository aggregates
+    const repositoryMap = new Map<string, RepositoryData>();
+
+    contributors.forEach((contributor: any) => {
+      contributor.repositories?.forEach((repo: any) => {
+        const filteredCommits = (repo.commit_timestamps || []).filter((ts: string) =>
+          isTimestampInRange(ts, globalStartDate || null, globalEndDate || null)
+        );
+        const filteredPRs = (repo.pr_timestamps || []).filter((ts: string) =>
+          isTimestampInRange(ts, globalStartDate || null, globalEndDate || null)
+        );
+
+        if (!repositoryMap.has(repo.name)) {
+          repositoryMap.set(repo.name, {
+            name: repo.name,
+            contributions: 0,
+            commits: 0,
+            pullRequests: 0,
+            contributors: [],
+          });
+        }
+
+        const repoData = repositoryMap.get(repo.name)!;
+        repoData.contributions += filteredCommits.length + filteredPRs.length;
+        repoData.commits += filteredCommits.length;
+        repoData.pullRequests += filteredPRs.length;
+
+        if (!repoData.contributors.includes(contributor.login)) {
+          repoData.contributors.push(contributor.login);
+        }
+      });
+    });
+
+    const topRepositories = Array.from(repositoryMap.values())
+      .filter(r => r.contributions > 0)
+      .sort((a, b) => b.contributions - a.contributions);
+
+    if (topRepositories.length === 0) return null;
+
+    // Collect all timestamps in range
+    const allTimestamps: string[] = [];
+    contributors.forEach((contributor: any) => {
+      contributor.repositories?.forEach((repo: any) => {
+        [...(repo.commit_timestamps || []), ...(repo.pr_timestamps || [])].forEach((ts: string) => {
+          if (isTimestampInRange(ts, globalStartDate || null, globalEndDate || null)) {
+            allTimestamps.push(ts);
+          }
+        });
+      });
+    });
+
+    if (allTimestamps.length === 0) return null;
+
+    const sortedTimestamps = allTimestamps.sort();
+    let earliestDate = new Date(sortedTimestamps[0]);
+    let latestDate = new Date(sortedTimestamps[sortedTimestamps.length - 1]);
+
+    // When a time window is active, use it as the start; otherwise align with other charts
+    if (globalStartDate) {
+      earliestDate = new Date(globalStartDate);
+    } else if (sharedStartDate) {
+      const shared = new Date(sharedStartDate);
+      if (shared < earliestDate) earliestDate = shared;
+    }
+    if (globalEndDate) {
+      const ge = new Date(globalEndDate);
+      if (ge > latestDate) latestDate = ge;
+    }
+
+    // Generate monthly data points
+    const monthlyData: Array<{ month: string; [key: string]: number | string }> = [];
+    const currentDate = new Date(earliestDate.getFullYear(), earliestDate.getMonth(), 1);
+    const endDate = new Date(latestDate.getFullYear(), latestDate.getMonth(), 1);
+
+    while (currentDate <= endDate) {
+      const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+      const monthData: { month: string; [key: string]: number | string } = { month: monthKey };
+
+      topRepositories.forEach(repository => {
+        monthData[repository.name] = 0;
+      });
+
+      topRepositories.forEach(repository => {
+        let monthlyContributions = 0;
+        contributors.forEach((contributor: any) => {
+          const repo = contributor.repositories?.find((r: any) => r.name === repository.name);
+          if (repo) {
+            [...(repo.commit_timestamps || []), ...(repo.pr_timestamps || [])].forEach((ts: string) => {
+              if (isTimestampInRange(ts, globalStartDate || null, globalEndDate || null)) {
+                const date = new Date(ts);
+                if (
+                  date.getFullYear() === currentDate.getFullYear() &&
+                  date.getMonth() === currentDate.getMonth()
+                ) {
+                  monthlyContributions++;
+                }
+              }
+            });
+          }
+        });
+        monthData[repository.name] = monthlyContributions;
+      });
+
+      monthlyData.push(monthData);
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+
+    return { topRepositories, monthlyData };
+  }, [nomosStats, globalStartDate, globalEndDate, sharedStartDate]);
+
+  if (!chartData) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200, color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
+        No contribution data available
+      </div>
+    );
+  }
+
+  const hasAnySelected = selectedRepositories.size > 0;
+
+  return (
+    <ResponsiveContainer width="100%" height={160}>
+      <LineChart data={chartData.monthlyData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+        <defs>
+          {chartData.topRepositories.map((repository: RepositoryData, index: number) => {
+            const baseColor = generateColor(repository.name, index);
+            const colorVariations = getColorVariations(baseColor);
+            return (
+              <linearGradient
+                key={`gradient-${repository.name}`}
+                id={`gradient-repo-${repository.name}-card`}
+                x1="0" y1="0" x2="0" y2="1"
+              >
+                <stop offset="0%" stopColor={colorVariations.bright} />
+                <stop offset="50%" stopColor={rgbaToRgb(baseColor)} />
+                <stop offset="100%" stopColor={colorVariations.dim} />
+              </linearGradient>
+            );
+          })}
+        </defs>
+        <CartesianGrid strokeDasharray="2 2" stroke="rgba(0, 0, 0, 0.1)" horizontal={true} vertical={false} />
+        <XAxis
+          dataKey="month"
+          stroke="rgba(0, 0, 0, 0.6)"
+          fontSize={7}
+          fontWeight={500}
+          angle={-45}
+          textAnchor="end"
+          height={25}
+          tickLine={false}
+          axisLine={false}
+          tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
+        />
+        <YAxis
+          stroke="rgba(0, 0, 0, 0.6)"
+          fontSize={7}
+          fontWeight={500}
+          tickLine={false}
+          axisLine={false}
+          tick={{ fill: 'rgba(0, 0, 0, 0.6)', fontSize: 5 }}
+          width={20}
+          domain={maxYValue ? [0, maxYValue] : undefined}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={false} />
+        {chartData.topRepositories.map((repository: RepositoryData, index: number) => {
+          const isSelected = selectedRepositories.has(repository.name);
+          const shouldHighlight = !hasAnySelected || isSelected;
+          return (
+            <React.Fragment key={repository.name}>
+              <Line
+                type="monotone"
+                dataKey={repository.name}
+                stroke="#000000"
+                strokeWidth={shouldHighlight ? 1.5 : 0.8}
+                strokeOpacity={shouldHighlight ? 1 : 0.3}
+                dot={false}
+                activeDot={{
+                  r: shouldHighlight ? 4 : 2.5,
+                  fill: '#000000',
+                  stroke: 'rgba(255, 255, 255, 0.8)',
+                  strokeWidth: 1.5,
+                  opacity: shouldHighlight ? 1 : 0.5,
+                  filter: shouldHighlight ? 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.3))' : 'none',
+                }}
+                connectNulls={false}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </React.Fragment>
+          );
+        })}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
 
 interface ProjectLinks {
   github?: string;
@@ -799,6 +1218,19 @@ const projects: Project[] = [
     category: 'Development Tool',
   },
   {
+    id: '8',
+    name: 'Nomos',
+    description:
+      'Open source governance tools for Cardano. CGOV frontend, backend API, MCP server, and more.',
+    icon: '/logo-mesh-white-512x512.png',
+    previewImage: '/logo-mesh-white-512x512.png',
+    links: {
+      github: 'https://github.com/nomos-guild',
+      web: 'https://nomos.cgov.io/',
+    },
+    category: 'Governance Tool',
+  },
+  {
     id: '3',
     name: 'Multisig Platform',
     description:
@@ -818,7 +1250,7 @@ const projects: Project[] = [
     icon: '/Midnight-RGB_Symbol-White.png',
     previewImage: '/pr-midnight.png',
     links: {
-      github: 'https://github.com/MeshJS/midnight',
+      web: 'https://meshjs.dev/midnight',
     },
     category: 'Development Tool',
   },
@@ -830,7 +1262,7 @@ const projects: Project[] = [
     icon: '/logo-mesh-white-512x512.png',
     previewImage: '/pr-mimir.png',
     links: {
-      github: 'https://github.com/MeshJS/mimir',
+      web: 'https://meshjs.dev/ai',
     },
     category: 'Development Tool',
   },
@@ -856,6 +1288,7 @@ const ProjectCard = ({
   timeWindowBoundaries,
   meshData,
   repoStats,
+  nomosStats,
 }: {
   project: Project;
   contributorStats: any;
@@ -863,6 +1296,7 @@ const ProjectCard = ({
   timeWindowBoundaries: { startDate: string | null; endDate: string | null };
   meshData: any;
   repoStats: any;
+  nomosStats?: any;
 }) => {
   // Check if this is the Mesh SDK card to make it navigable
   const isNavigable = project.name === 'Mesh SDK';
@@ -877,6 +1311,7 @@ const ProjectCard = ({
       Midnight: 'midnight',
       Mimir: 'mimir',
       Cquisitor: 'cquisitor-lib',
+      Nomos: 'cgov',
     };
     return projectToRepoMapping[projectName] || projectName.toLowerCase().replace(/\s+/g, '-');
   };
@@ -884,8 +1319,56 @@ const ProjectCard = ({
   const repoName = getRepositoryName(project.name);
   const contributorRepoStats = contributorStats?.perRepo?.[repoName];
 
+  // Compute earliest timestamp across all humanContributors (shared x-axis origin)
+  const sharedStartDate = useMemo(() => {
+    if (!humanContributors.length) return undefined;
+    let earliest = '';
+    humanContributors.forEach(c => {
+      c.repositories.forEach(r => {
+        [...r.commit_timestamps, ...r.pr_timestamps].forEach(ts => {
+          if (ts && (!earliest || ts < earliest)) earliest = ts;
+        });
+      });
+    });
+    return earliest || undefined;
+  }, [humanContributors]);
+
   // Get real statistics from GitHub data with time filtering
   const stats = useMemo(() => {
+    // Special handling for Nomos — data comes from nomosStats JSON
+    if (project.name === 'Nomos') {
+      if (!nomosStats?.contributorStats?.contributors) {
+        return { contributors: 0, contributions: 0, dependents: 0, stars: 0, forks: 0 };
+      }
+
+      const nomosContributors = new Set<string>();
+      let totalContributions = 0;
+
+      nomosStats.contributorStats.contributors.forEach((contributor: any) => {
+        contributor.repositories?.forEach((repo: any) => {
+          const filteredCommits = (repo.commit_timestamps || []).filter((ts: string) =>
+            isTimestampInRange(ts, timeWindowBoundaries.startDate || null, timeWindowBoundaries.endDate || null)
+          );
+          const filteredPRs = (repo.pr_timestamps || []).filter((ts: string) =>
+            isTimestampInRange(ts, timeWindowBoundaries.startDate || null, timeWindowBoundaries.endDate || null)
+          );
+          if (filteredCommits.length > 0 || filteredPRs.length > 0) {
+            nomosContributors.add(contributor.login);
+            totalContributions += filteredCommits.length + filteredPRs.length;
+          }
+        });
+      });
+
+      let stars = 0;
+      let forks = 0;
+      nomosStats.repoStats?.forEach((r: any) => {
+        stars += r.stars || 0;
+        forks += r.forks || 0;
+      });
+
+      return { contributors: nomosContributors.size, contributions: totalContributions, dependents: 0, stars, forks };
+    }
+
     if (!humanContributors.length) {
       return {
         contributors: 0,
@@ -897,8 +1380,11 @@ const ProjectCard = ({
     const repoContributors = new Set<string>();
     let totalContributions = 0;
 
-    // Special handling for UTXOS project (combines web3-services and web3-sdk)
-    const targetRepos = project.name === 'UTXOS' ? ['web3-services', 'web3-sdk'] : [repoName];
+    // Special handling for multi-repo projects
+    const mimirRepos = ['mimir', 'skills', 'Mesh-AI', 'evolving-claude-skills'];
+    const targetRepos = project.name === 'UTXOS' ? ['web3-services', 'web3-sdk']
+      : project.name === 'Mimir' ? mimirRepos
+      : [repoName];
 
     humanContributors.forEach(contributor => {
       targetRepos.forEach(targetRepo => {
@@ -956,7 +1442,7 @@ const ProjectCard = ({
     let stars = 0;
     let forks = 0;
     if (repoStats?.repoStats) {
-      // For UTXOS, combine stats from both repos
+      // For multi-repo projects, combine stats from all repos
       if (project.name === 'UTXOS') {
         const web3ServicesStats = repoStats.repoStats.find(
           (repo: any) => repo.name === 'web3-services'
@@ -964,6 +1450,12 @@ const ProjectCard = ({
         const web3SdkStats = repoStats.repoStats.find((repo: any) => repo.name === 'web3-sdk');
         stars = (web3ServicesStats?.stars || 0) + (web3SdkStats?.stars || 0);
         forks = (web3ServicesStats?.forks || 0) + (web3SdkStats?.forks || 0);
+      } else if (project.name === 'Mimir') {
+        mimirRepos.forEach(name => {
+          const r = repoStats.repoStats.find((repo: any) => repo.name === name);
+          stars += r?.stars || 0;
+          forks += r?.forks || 0;
+        });
       } else {
         const repoStat = repoStats.repoStats.find((repo: any) => repo.name === repoName);
         stars = repoStat?.stars || 0;
@@ -978,7 +1470,7 @@ const ProjectCard = ({
       stars,
       forks,
     };
-  }, [humanContributors, repoName, timeWindowBoundaries, meshData, project.name, repoStats]);
+  }, [humanContributors, repoName, timeWindowBoundaries, meshData, project.name, repoStats, nomosStats]);
 
   // Generate chart data - use mock data for now since timestamp data structure needs investigation
   const generateChartDataFromTimestamps = () => {
@@ -1074,6 +1566,13 @@ const ProjectCard = ({
             globalEndDate={timeWindowBoundaries.endDate || undefined}
             maxYValue={400}
           />
+        ) : project.name === 'Nomos' && nomosStats ? (
+          <NomosRepositoryChart
+            nomosStats={nomosStats}
+            globalStartDate={timeWindowBoundaries.startDate || undefined}
+            globalEndDate={timeWindowBoundaries.endDate || undefined}
+            sharedStartDate={sharedStartDate}
+          />
         ) : (
           <>
             {/* Debug: Show chart data */}
@@ -1083,8 +1582,8 @@ const ProjectCard = ({
                 {Math.max(...chartData.map(d => d.value))}
               </div>
             )}
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={chartData} margin={{ top: 5, right: 5, left: 20, bottom: 20 }}>
+            <ResponsiveContainer width="100%" height={160}>
+              <LineChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
                 <XAxis
                   dataKey="month"
                   axisLine={false}
@@ -1092,13 +1591,13 @@ const ProjectCard = ({
                   tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 10 }}
                   angle={-45}
                   textAnchor="end"
-                  height={40}
+                  height={25}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 10 }}
-                  width={15}
+                  width={20}
                 />
                 <Line
                   type="monotone"
@@ -1161,19 +1660,22 @@ export default function Projects() {
     meshData,
     contributorStats,
     repoStats,
+    nomosStats,
     isLoading,
     isLoadingContributors,
     error,
     contributorsError,
     loadContributorStats,
     loadRepoStats,
+    loadNomosStats,
   } = useData();
 
   // Trigger lazy loading when component mounts
   useEffect(() => {
     loadContributorStats();
     loadRepoStats();
-  }, [loadContributorStats, loadRepoStats]);
+    loadNomosStats();
+  }, [loadContributorStats, loadRepoStats, loadNomosStats]);
 
   // Defensive: treat as no data if contributorStats is a legacy yearly record
   const isOrgStats =
@@ -1277,6 +1779,7 @@ export default function Projects() {
               maxRepositories={10}
               globalStartDate={timeWindowBoundaries.startDate || undefined}
               globalEndDate={timeWindowBoundaries.endDate || undefined}
+              nomosStats={nomosStats}
             />
           )}
         </div>
@@ -1293,6 +1796,7 @@ export default function Projects() {
                 timeWindowBoundaries={timeWindowBoundaries}
                 meshData={meshData}
                 repoStats={repoStats}
+                nomosStats={nomosStats}
               />
             </Link>
           ) : (
@@ -1304,6 +1808,7 @@ export default function Projects() {
               timeWindowBoundaries={timeWindowBoundaries}
               meshData={meshData}
               repoStats={repoStats}
+              nomosStats={nomosStats}
             />
           )
         ))}
