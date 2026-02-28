@@ -1,4 +1,4 @@
-import CanvasDonutChart from './CanvasDonutChart';
+import CanvasDonutChart, { GradientStop } from './CanvasDonutChart';
 import styles from '../styles/Proposals.module.css';
 
 interface CatalystProposalsDonutProps {
@@ -6,29 +6,29 @@ interface CatalystProposalsDonutProps {
   completedProposals: number;
 }
 
-const WHITE_GRADIENT = [
-  'rgba(255, 255, 255, 0.95)',
-  'rgba(255, 255, 255, 0.9)',
-  'rgba(255, 255, 255, 0.85)',
-  'rgba(255, 255, 255, 0.8)',
+const WHITE_GRADIENT: GradientStop[] = [
+  { offset: 0, color: 'rgba(255, 255, 255, 0.95)' },
+  { offset: 0.4, color: 'rgba(255, 255, 255, 0.9)' },
+  { offset: 0.8, color: 'rgba(255, 255, 255, 0.85)' },
+  { offset: 1, color: 'rgba(255, 255, 255, 0.8)' },
 ];
-const WHITE_HOVER = [
-  'rgba(255, 255, 255, 1)',
-  'rgba(255, 255, 255, 0.95)',
-  'rgba(255, 255, 255, 0.9)',
-  'rgba(255, 255, 255, 0.85)',
+const WHITE_HOVER: GradientStop[] = [
+  { offset: 0, color: 'rgba(255, 255, 255, 1)' },
+  { offset: 0.4, color: 'rgba(255, 255, 255, 0.95)' },
+  { offset: 0.8, color: 'rgba(255, 255, 255, 0.9)' },
+  { offset: 1, color: 'rgba(255, 255, 255, 0.85)' },
 ];
-const BLACK_GRADIENT = [
-  'rgba(0, 0, 0, 0.95)',
-  'rgba(0, 0, 0, 0.9)',
-  'rgba(0, 0, 0, 0.85)',
-  'rgba(0, 0, 0, 0.8)',
+const BLACK_GRADIENT: GradientStop[] = [
+  { offset: 0, color: 'rgba(0, 0, 0, 0.95)' },
+  { offset: 0.4, color: 'rgba(0, 0, 0, 0.9)' },
+  { offset: 0.8, color: 'rgba(0, 0, 0, 0.85)' },
+  { offset: 1, color: 'rgba(0, 0, 0, 0.8)' },
 ];
-const BLACK_HOVER = [
-  'rgba(0, 0, 0, 1)',
-  'rgba(0, 0, 0, 0.95)',
-  'rgba(0, 0, 0, 0.9)',
-  'rgba(0, 0, 0, 0.85)',
+const BLACK_HOVER: GradientStop[] = [
+  { offset: 0, color: 'rgba(0, 0, 0, 1)' },
+  { offset: 0.4, color: 'rgba(0, 0, 0, 0.95)' },
+  { offset: 0.8, color: 'rgba(0, 0, 0, 0.9)' },
+  { offset: 1, color: 'rgba(0, 0, 0, 0.85)' },
 ];
 
 const CatalystProposalsDonut: React.FC<CatalystProposalsDonutProps> = ({

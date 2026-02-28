@@ -35,6 +35,7 @@ const PackageDownloadsDonut = ({ packageData }: PackageDownloadsDonutProps) => {
         key: pkg.name,
         label: pkg.name,
         formattedValue: formatNumber(pkg.downloads),
+        colorStyle: { background: 'rgba(255, 255, 255, 0.9)', border: '1px solid rgba(0, 0, 0, 0.2)' } as React.CSSProperties,
       })),
     [sortedData]
   );

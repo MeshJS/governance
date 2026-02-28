@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import CanvasDonutChart from './CanvasDonutChart';
+import CanvasDonutChart, { GradientStop } from './CanvasDonutChart';
 import styles from '../styles/ContributorModal.module.css';
 
 interface ContributorRepository {
@@ -13,7 +13,12 @@ interface RepoDonutChartProps {
   repositories: ContributorRepository[];
 }
 
-const GRADIENT_STOPS = ['#FFFFFF', '#E6E6E6', '#CCCCCC', '#000'];
+const GRADIENT_STOPS: GradientStop[] = [
+  { offset: 0, color: '#FFFFFF' },
+  { offset: 0.4, color: '#E6E6E6' },
+  { offset: 0.8, color: '#CCCCCC' },
+  { offset: 1, color: '#000' },
+];
 const LEGEND_GRADIENT = 'linear-gradient(135deg, #FFFFFF 0%, #E6E6E6 40%, #CCCCCC 80%, #000 100%)';
 
 const RepoDonutChart: React.FC<RepoDonutChartProps> = ({ repositories }) => {

@@ -80,6 +80,8 @@ function createFetchWrapper(
     setError(null);
     try {
       await fetchFn();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }

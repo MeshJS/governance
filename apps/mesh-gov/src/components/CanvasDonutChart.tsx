@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+export interface GradientStop {
+  offset: number;
+  color: string;
+}
+
 export interface DonutSegment {
   key: string;
   value: number;
   label: string;
-  gradientStops: string[];
-  hoverGradientStops?: string[];
+  gradientStops: string[] | GradientStop[];
+  hoverGradientStops?: string[] | GradientStop[];
 }
 
 export interface DonutLegendItem {
@@ -24,6 +29,7 @@ interface CanvasDonutChartProps {
   title?: string;
   showStrokes?: boolean;
   children?: React.ReactNode;
+  onActiveSegmentChange?: (key: string | null) => void;
 }
 
 const CanvasDonutChart: React.FC<CanvasDonutChartProps> = ({
@@ -33,6 +39,7 @@ const CanvasDonutChart: React.FC<CanvasDonutChartProps> = ({
   title,
   showStrokes = false,
   children,
+  onActiveSegmentChange,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeSegment, setActiveSegment] = useState<string | null>(null);
@@ -41,6 +48,10 @@ const CanvasDonutChart: React.FC<CanvasDonutChartProps> = ({
     () => segments.reduce((sum, seg) => sum + seg.value, 0),
     [segments]
   );
+
+  useEffect(() => {
+    onActiveSegmentChange?.(activeSegment);
+  }, [activeSegment, onActiveSegmentChange]);
 
   const computedSegments = useMemo(() => {
     if (total === 0) return [];
@@ -106,11 +117,18 @@ const CanvasDonutChart: React.FC<CanvasDonutChartProps> = ({
             : segData.gradientStops;
 
         if (stops.length === 1) {
-          ctx.fillStyle = stops[0];
+          const s = stops[0];
+          ctx.fillStyle = typeof s === 'string' ? s : s.color;
         } else {
           const gradient = ctx.createLinearGradient(0, canvas.height, canvas.width, 0);
-          const step = 1 / (stops.length - 1);
-          stops.forEach((color, i) => gradient.addColorStop(i * step, color));
+          stops.forEach((s, i) => {
+            if (typeof s === 'string') {
+              // Uniform spacing fallback for plain string arrays
+              gradient.addColorStop(i / (stops.length - 1), s);
+            } else {
+              gradient.addColorStop(s.offset, s.color);
+            }
+          });
           ctx.fillStyle = gradient;
         }
         ctx.globalAlpha = 1;
@@ -202,7 +220,7 @@ const CanvasDonutChart: React.FC<CanvasDonutChartProps> = ({
           const content = (
             <>
               <div
-                className={`${styles.legendColor} ${item.colorClassName || ''}`}
+                className={item.colorClassName || styles.legendColor}
                 style={item.colorStyle}
               />
               <span className={styles.legendLabel}>{item.label}</span>
