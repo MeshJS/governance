@@ -72,7 +72,7 @@
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
+    overflow: visible;
     position: relative;
     transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     cursor: pointer;
@@ -581,7 +581,7 @@
     height: 60px;
     margin: 0.5rem 0;
     border-radius: 6px;
-    overflow: hidden;
+    overflow: visible;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.04);
 }

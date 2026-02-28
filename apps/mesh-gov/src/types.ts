@@ -139,23 +139,6 @@ export interface PerRepoStats {
   commits: any[];
   pullRequests: any[];
 }
-// Individual contributor data types for better caching
-// Deprecated in context: individual contributor datasets are no longer exposed
-export interface ContributorSummaryData {
-  contributorSummary: any[];
-  lastFetched: number;
-}
-export interface ContributorRepoActivityData {
-  contributorRepoActivity: any[];
-  lastFetched: number;
-}
-export interface ContributorTimestampsData {
-  contributorTimestamps: Record<
-    string,
-    Record<string, { commit_timestamps: string[]; pr_timestamps: string[] }>
-  >;
-  lastFetched: number;
-}
 export interface ContributorStats {
   unique_count: number;
   contributors: Contributor[];
@@ -175,6 +158,8 @@ export interface DataContextType {
   contributorStats: ContributorStats | null;
   // Repository stats (stars, forks)
   repoStats: any;
+  // Nomos Guild stats (from committed JSON)
+  nomosStats: any;
   isLoading: boolean;
   error: string | null;
   // Individual loading states
@@ -193,6 +178,7 @@ export interface DataContextType {
   // Lazy loading functions
   loadContributorStats: () => Promise<void>;
   loadRepoStats: () => Promise<void>;
+  loadNomosStats: () => Promise<void>;
 }
 export interface MeshStatsViewProps {
   filteredStats?: FilteredStats;
@@ -214,7 +200,7 @@ export interface CatalystProposal {
   milestones_qty: number;
   funds_distributed: number;
   project_id: string;
-  challenges: any;
+  challenges: Record<string, string> | null;
   name: string;
   category: string;
   category_slug: string | null;

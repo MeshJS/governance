@@ -13,6 +13,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Invalid project ID' });
   }
 
+  // Validate projectId to prevent path traversal
+  if (!/^[a-zA-Z0-9_-]+$/.test(projectId)) {
+    return res.status(400).json({ error: 'Invalid project ID format' });
+  }
+
   try {
     // Search for the -main.md file in all fund directories
     const fundDirs = ['catalyst-fund10', 'catalyst-fund11', 'catalyst-fund12', 'catalyst-fund13'];
@@ -26,7 +31,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const fundPath = path.join(fundingBasePath, fundDir);
 
       if (!fs.existsSync(fundPath)) {
-        console.log(`Fund directory not found: ${fundPath}`);
         continue;
       }
 
@@ -37,10 +41,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       for (const subDir of subDirs) {
         const filePath = path.join(fundPath, subDir, `${projectId}-main.md`);
-        console.log(`Checking file path: ${filePath}`);
 
         if (fs.existsSync(filePath)) {
-          console.log(`Found proposal file: ${filePath}`);
           content = fs.readFileSync(filePath, 'utf8');
           break;
         }
@@ -50,14 +52,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (!content) {
-      console.log(`No proposal file found for project ID: ${projectId}`);
       return res.status(404).json({ error: 'Proposal content not found' });
     }
 
     res.setHeader('Content-Type', 'text/plain');
     res.status(200).send(content);
-  } catch (error) {
-    console.error('Error reading proposal content:', error);
+  } catch {
     res.status(500).json({ error: 'Failed to read proposal content' });
   }
 }

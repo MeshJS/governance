@@ -5,7 +5,7 @@ import { useMemo, useEffect } from 'react';
 import SectionTitle from '../components/SectionTitle';
 
 export default function MeshStatsPage() {
-  const { meshData, discordStats, contributorStats, repoStats, isLoading, error, loadContributorStats, loadRepoStats } =
+  const { meshData, contributorStats, repoStats, isLoading, error, loadContributorStats, loadRepoStats } =
     useData();
 
   // Load contributor stats when component mounts
@@ -82,7 +82,6 @@ export default function MeshStatsPage() {
       />
 
       <MeshStatsView
-        discordStats={discordStats || undefined}
         contributorStats={
           contributorStats?.unique_count || contributorStats?.total_contributions
             ? contributorStats

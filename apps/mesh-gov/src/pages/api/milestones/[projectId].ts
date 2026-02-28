@@ -16,10 +16,8 @@ function getFundingDir() {
 
   for (const dir of possiblePaths) {
     if (fs.existsSync(dir)) {
-      console.log('Found funding directory at:', dir);
       return dir;
     }
-    console.log('Tried funding directory at:', dir);
   }
 
   throw new Error('Funding directory not found in any of the expected locations');
@@ -37,22 +35,17 @@ export interface MilestoneData {
 }
 
 function findMilestoneFiles(fundingDir: string, projectId: string): string[] {
-  console.log(`Looking for milestone files for project ID ${projectId} in ${fundingDir}`);
-
   const allFiles: string[] = [];
 
   try {
     // Search through all fund directories
     const fundDirs = fs.readdirSync(fundingDir).filter(dir => dir.startsWith('catalyst-fund'));
 
-    console.log('Found fund directories:', fundDirs);
-
     for (const fundDir of fundDirs) {
       const fundPath = path.join(fundingDir, fundDir);
 
       try {
         const projectDirs = fs.readdirSync(fundPath);
-        console.log(`Checking fund directory ${fundDir}, found projects:`, projectDirs);
 
         for (const projectDir of projectDirs) {
           const projectPath = path.join(fundPath, projectDir);
@@ -94,26 +87,24 @@ function findMilestoneFiles(fundingDir: string, projectId: string): string[] {
                       break;
                     }
                   } catch (err) {
-                    console.error(`Error reading file ${file}:`, err);
+                    // Skip unreadable files
                   }
                 }
               }
             }
 
             if (mdFiles.length > 0) {
-              console.log(`Found milestone files in ${projectDir}:`, mdFiles);
               allFiles.push(...mdFiles.map(file => path.join(projectPath, file)));
             }
           } catch (err) {
-            console.error(`Error accessing project directory ${projectDir}:`, err);
+            // Skip inaccessible project directories
           }
         }
       } catch (err) {
-        console.error(`Error accessing fund directory ${fundDir}:`, err);
+        // Skip inaccessible fund directories
       }
     }
   } catch (err) {
-    console.error('Error accessing funding directory:', err);
     throw err;
   }
 
@@ -145,7 +136,6 @@ function extractContent(content: string): string {
 
     return content.trim();
   } catch (err) {
-    console.error('Error extracting content:', err);
     return '';
   }
 }
@@ -188,15 +178,10 @@ function parseMilestoneFile(
       content.match(/\|Challenge\|(.*?)\|/) || content.match(/\| Challenge \|(.*?)\|/);
 
     if (!projectIdMatch) {
-      console.log(`No project ID found in file ${fileName}`);
       return null;
     }
 
     const mainContent = extractContent(content);
-
-    if (!mainContent) {
-      console.log(`No content found after heading in file ${fileName}`);
-    }
 
     // Extract the actual link from nested markdown links
     let link = '';
@@ -218,7 +203,6 @@ function parseMilestoneFile(
       isCloseOut: fileName.includes('close-out'),
     };
   } catch (err) {
-    console.error(`Error parsing milestone file ${fileName}:`, err);
     return null;
   }
 }
@@ -239,23 +223,25 @@ export default async function handler(
     return;
   }
 
+  // Validate projectId to prevent path traversal
+  if (!/^[a-zA-Z0-9_-]+$/.test(projectId)) {
+    res.status(400).json({ error: 'Invalid project ID format' });
+    return;
+  }
+
   try {
-    console.log('Starting milestone search for project ID:', projectId);
 
     let fundingDir;
     try {
       fundingDir = getFundingDir();
     } catch (err) {
-      console.error('Error finding funding directory:', err);
       res.status(500).json({ error: 'Funding directory not found' });
       return;
     }
 
     const milestoneFiles = findMilestoneFiles(fundingDir, projectId);
-    console.log('Found milestone files:', milestoneFiles);
 
     if (milestoneFiles.length === 0) {
-      console.log('No milestone files found');
       res.status(404).json({ error: 'No milestone files found' });
       return;
     }
@@ -264,14 +250,12 @@ export default async function handler(
 
     for (const filePath of milestoneFiles) {
       const fileName = path.basename(filePath);
-      console.log(`Processing file: ${fileName}`);
 
       try {
         const content = fs.readFileSync(filePath, 'utf-8');
         const milestone = parseMilestoneFile(content, fileName);
 
         if (milestone) {
-          console.log(`Successfully parsed milestone from ${fileName}`);
           if (fileName.includes('close-out')) {
             milestones.push({
               ...milestone,
@@ -286,21 +270,17 @@ export default async function handler(
               });
             }
           }
-        } else {
-          console.log(`Failed to parse milestone from ${fileName}`);
         }
       } catch (err) {
-        console.error(`Error processing file ${fileName}:`, err);
+        // Skip files that can't be processed
       }
     }
 
     if (milestones.length === 0) {
-      console.log('No milestones could be parsed');
       res.status(404).json({ error: 'No milestones could be parsed' });
       return;
     }
 
-    console.log(`Found ${milestones.length} milestones`);
     // Sort milestones by number, ensuring close-out reports appear at the end
     const sortedMilestones = milestones.sort((a, b) => {
       if (a.isCloseOut) return 1;
@@ -309,7 +289,6 @@ export default async function handler(
     });
     res.status(200).json(sortedMilestones);
   } catch (error) {
-    console.error('Error reading milestones:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }

@@ -146,7 +146,13 @@ const CatalystProposalsList: FC<CatalystProposalsListProps> = ({ data }) => {
       </div>
 
       <ul className={styles.list}>
-        {data.projects.map(project => {
+        {[...data.projects]
+          .sort((a, b) => {
+            const fundDiff = getFundNumber(b.projectDetails.category) - getFundNumber(a.projectDetails.category);
+            if (fundDiff !== 0) return fundDiff;
+            return a.projectDetails.title.localeCompare(b.projectDetails.title);
+          })
+          .map(project => {
           const progressPercent = calculateProgress(
             project.milestonesCompleted,
             project.projectDetails.milestones_qty

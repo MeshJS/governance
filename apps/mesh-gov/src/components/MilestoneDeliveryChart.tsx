@@ -337,7 +337,7 @@ const MilestoneDeliveryChart: React.FC<MilestoneDeliveryChartProps> = ({ milesto
       <div className={styles.chartLayout}>
         <div className={styles.chartSection}>
           <div className={styles.chartWrapper}>
-            <ResponsiveContainer width="100%" height={500}>
+            <ResponsiveContainer width="100%" height={320}>
               <ComposedChart
                 data={monthlyData}
                 margin={{ top: 15, right: 20, left: -40, bottom: 15 }}

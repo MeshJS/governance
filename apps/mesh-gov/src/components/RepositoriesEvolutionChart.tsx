@@ -16,6 +16,7 @@ interface RepositoriesEvolutionChartProps {
   maxRepositories?: number;
   globalStartDate?: string;
   globalEndDate?: string;
+  nomosStats?: any;
 }
 
 // Repository data structure for tracking
@@ -376,6 +377,7 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
   maxRepositories = 10,
   globalStartDate,
   globalEndDate,
+  nomosStats,
 }) => {
   const [selectedRepositories, setSelectedRepositories] = useState<Set<string>>(new Set());
   const [stickyTooltip, setStickyTooltip] = useState<{
@@ -446,6 +448,40 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
       });
     });
 
+    // Merge all nomos-guild repos as a single "Nomos" entry
+    if (nomosStats?.contributorStats?.contributors) {
+      const nomosKey = 'Nomos';
+      if (!repositoryMap.has(nomosKey)) {
+        repositoryMap.set(nomosKey, {
+          name: nomosKey,
+          contributions: 0,
+          commits: 0,
+          pullRequests: 0,
+          contributors: [],
+        });
+      }
+      const nomosData = repositoryMap.get(nomosKey)!;
+
+      nomosStats.contributorStats.contributors.forEach((contributor: any) => {
+        contributor.repositories?.forEach((repo: any) => {
+          const filteredCommits = (repo.commit_timestamps || []).filter((ts: string) =>
+            isTimestampInRange(ts, globalStartDate || null, globalEndDate || null)
+          );
+          const filteredPRs = (repo.pr_timestamps || []).filter((ts: string) =>
+            isTimestampInRange(ts, globalStartDate || null, globalEndDate || null)
+          );
+
+          nomosData.contributions += filteredCommits.length + filteredPRs.length;
+          nomosData.commits += filteredCommits.length;
+          nomosData.pullRequests += filteredPRs.length;
+        });
+
+        if (!nomosData.contributors.includes(contributor.login)) {
+          nomosData.contributors.push(contributor.login);
+        }
+      });
+    }
+
     // Convert to array and sort by total contributions
     const allRepositories = Array.from(repositoryMap.values()).sort(
       (a, b) => b.contributions - a.contributions
@@ -475,6 +511,18 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
         });
       });
     });
+
+    if (nomosStats?.contributorStats?.contributors) {
+      nomosStats.contributorStats.contributors.forEach((contributor: any) => {
+        contributor.repositories?.forEach((repo: any) => {
+          [...(repo.commit_timestamps || []), ...(repo.pr_timestamps || [])].forEach((ts: string) => {
+            if (isTimestampInRange(ts, globalStartDate || null, globalEndDate || null)) {
+              allTimestamps.push(ts);
+            }
+          });
+        });
+      });
+    }
 
     if (allTimestamps.length === 0) return null;
 
@@ -513,22 +561,42 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
       // Count contributions for each repository in this month
       topRepositories.forEach(repository => {
         let monthlyContributions = 0;
-        contributors.forEach(contributor => {
-          const repo = contributor.repositories.find(r => r.name === repository.name);
-          if (repo) {
-            [...repo.commit_timestamps, ...repo.pr_timestamps].forEach(timestamp => {
-              if (isTimestampInRange(timestamp, globalStartDate || null, globalEndDate || null)) {
-                const date = new Date(timestamp);
-                if (
-                  date.getFullYear() === currentDate.getFullYear() &&
-                  date.getMonth() === currentDate.getMonth()
-                ) {
-                  monthlyContributions++;
+
+        if (repository.name === 'Nomos' && nomosStats?.contributorStats?.contributors) {
+          // Aggregate all nomos-guild repos for the combined Nomos entry
+          nomosStats.contributorStats.contributors.forEach((contributor: any) => {
+            contributor.repositories?.forEach((repo: any) => {
+              [...(repo.commit_timestamps || []), ...(repo.pr_timestamps || [])].forEach((ts: string) => {
+                if (isTimestampInRange(ts, globalStartDate || null, globalEndDate || null)) {
+                  const date = new Date(ts);
+                  if (
+                    date.getFullYear() === currentDate.getFullYear() &&
+                    date.getMonth() === currentDate.getMonth()
+                  ) {
+                    monthlyContributions++;
+                  }
                 }
-              }
+              });
             });
-          }
-        });
+          });
+        } else {
+          contributors.forEach(contributor => {
+            const repo = contributor.repositories.find(r => r.name === repository.name);
+            if (repo) {
+              [...repo.commit_timestamps, ...repo.pr_timestamps].forEach(timestamp => {
+                if (isTimestampInRange(timestamp, globalStartDate || null, globalEndDate || null)) {
+                  const date = new Date(timestamp);
+                  if (
+                    date.getFullYear() === currentDate.getFullYear() &&
+                    date.getMonth() === currentDate.getMonth()
+                  ) {
+                    monthlyContributions++;
+                  }
+                }
+              });
+            }
+          });
+        }
         monthData[repository.name] = monthlyContributions;
       });
 
@@ -537,7 +605,7 @@ export const RepositoriesEvolutionChart: React.FC<RepositoriesEvolutionChartProp
     }
 
     return { monthlyData, topRepositories };
-  }, [contributors, maxRepositories, globalStartDate, globalEndDate]);
+  }, [contributors, maxRepositories, globalStartDate, globalEndDate, nomosStats]);
 
   const handlePointClick = (data: any, event: any) => {
     if (stickyTooltip && stickyTooltip.label === data.month) {
