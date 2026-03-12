@@ -50,7 +50,8 @@
   },
   "authors": [],
   "body": {
-    "comment": ""
+    "comment": "Mesh votes No on the Dingo Cardano node in Go.
+We are generally in favor for node diversity and think that multiple nodes are in fact a good thing for Cardano. Yet, we would like to first see the Amaru node being fully implemented, figure if the Amaru node actually achieves its objectives and ideally draw some important lessons & learnings before we already launch the funding of a additional new Dingo node."
   },
   "hashAlgorithm": "blake2b-256"
 }
