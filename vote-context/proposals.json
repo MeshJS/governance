@@ -28,18 +28,6 @@
     "title": "Revised Cardano Summit 2026 Singapore"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qyxkn2yk",
-    "title": "IO: Consensus Initiative"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qz6es0cp",
-    "title": "IO: Cardano Upgrades"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
-    "title": "IO & Midgard Labs: L2 Scalability Initiative"
-  },
-  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3q2yd5rxu",
     "title": "IO: Cardano High Assurance Technical Collaboration"
   },
@@ -52,16 +40,28 @@
     "title": "Blockfrost: Maintenance and Next Generation Indexing"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qsuae57l",
-    "title": "Pogun: Capital Without Compromise"
-  },
-  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qx4njfhm",
     "title": "IO & Ensurable Systems: Cardano Maintenance Initiative"
   },
   {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qyxkn2yk",
+    "title": "IO: Consensus Initiative"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qz6es0cp",
+    "title": "IO: Cardano Upgrades"
+  },
+  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
     "title": "IO: Developer Experience Initiative"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qsuae57l",
+    "title": "Pogun: Capital Without Compromise"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
+    "title": "IO & Midgard Labs: L2 Scalability Initiative"
   },
   {
     "action_id": "gov_action1hkgl5l4fknsf7aktmcatkz6kfl7xpvn7rzh5vnxwexl0n3cc6zrsqt5459v",
@@ -268,10 +268,6 @@
     "title": "Withdraw ₳69,459,000 for Catalyst 2025 Proposal by Input Output: Advancing De..."
   },
   {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqyxzxz7k",
-    "title": "Withdraw ₳1,300,000 for Blockfrost Platform community budget proposal"
-  },
-  {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqghuqg03",
     "title": "Withdraw ₳220,914 for Pallas: Sustaining Critical Rust Tooling for Cardano"
   },
@@ -358,6 +354,10 @@
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzgf074ea",
     "title": "Withdraw ₳104,347 for MLabs Research towards Tooling for Elliptical Curves..."
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqyxzxz7k",
+    "title": "Withdraw ₳1,300,000 for Blockfrost Platform community budget proposal"
   },
   {
     "action_id": "gov_action18nefry4qacd80xzs2srjahxm2e4vz3c8wvrr03rrtk8mdqfuknysq66459t",
