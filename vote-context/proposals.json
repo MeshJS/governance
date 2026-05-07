@@ -1,5 +1,9 @@
 [
   {
+    "action_id": "gov_action1ttgs45ulfxs0jwkfrecystc3flduhszmyzk8wnd7yw5za77tsg9qq4afmus",
+    "title": "Cardano Vision 2026: Human Centred, Scalable, Post Quantum Secure - IO Research"
+  },
+  {
     "action_id": "gov_action1ggr2uz7prwn5l84cdn2krwngfez0p7wluy4u3u3ez9pz5ls2whesqnsjly8",
     "title": "Pebble & Ecosystem maintenance: TypeScript core of Cardano"
   },
@@ -28,24 +32,16 @@
     "title": "Revised Cardano Summit 2026 Singapore"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qyxkn2yk",
-    "title": "IO: Consensus Initiative"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qz6es0cp",
-    "title": "IO: Cardano Upgrades"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
-    "title": "IO & Midgard Labs: L2 Scalability Initiative"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3q2yd5rxu",
-    "title": "IO: Cardano High Assurance Technical Collaboration"
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
+    "title": "IO: Developer Experience Initiative"
   },
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qvczhx6t",
     "title": "IO & VacuumLabs: Enhancing Plutus - Performance, Correctness, and Usability"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3q2yd5rxu",
+    "title": "IO: Cardano High Assurance Technical Collaboration"
   },
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qwt8k9fx",
@@ -56,12 +52,20 @@
     "title": "Pogun: Capital Without Compromise"
   },
   {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
+    "title": "IO & Midgard Labs: L2 Scalability Initiative"
+  },
+  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qx4njfhm",
     "title": "IO & Ensurable Systems: Cardano Maintenance Initiative"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
-    "title": "IO: Developer Experience Initiative"
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qz6es0cp",
+    "title": "IO: Cardano Upgrades"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qyxkn2yk",
+    "title": "IO: Consensus Initiative"
   },
   {
     "action_id": "gov_action1hkgl5l4fknsf7aktmcatkz6kfl7xpvn7rzh5vnxwexl0n3cc6zrsqt5459v",
