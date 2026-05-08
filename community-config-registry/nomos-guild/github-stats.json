@@ -1,5 +1,5 @@
 {
-  "lastFetched": "2026-05-01T02:09:05.919Z",
+  "lastFetched": "2026-05-08T02:08:53.597Z",
   "org": "nomos-guild",
   "repoStats": [
     {
@@ -21,7 +21,7 @@
       "full_name": "nomos-guild/cgov-api",
       "description": "The backend API for all NOMOS governance tools",
       "stars": 3,
-      "forks": 2
+      "forks": 3
     },
     {
       "name": "cgov-mcp",
@@ -36,25 +36,32 @@
       "description": "",
       "stars": 0,
       "forks": 1
+    },
+    {
+      "name": "cgov-kb",
+      "full_name": "nomos-guild/cgov-kb",
+      "description": "",
+      "stars": 0,
+      "forks": 0
     }
   ],
   "contributorStats": {
-    "total_commits": 557,
-    "total_pull_requests": 184,
-    "total_contributions": 741,
-    "unique_count": 9,
+    "total_commits": 576,
+    "total_pull_requests": 187,
+    "total_contributions": 763,
+    "unique_count": 10,
     "contributors": [
       {
         "login": "Technosophorso",
         "avatar_url": "https://avatars.githubusercontent.com/u/119736053?v=4",
-        "commits": 217,
-        "pull_requests": 90,
-        "contributions": 307,
+        "commits": 221,
+        "pull_requests": 92,
+        "contributions": 313,
         "repositories": [
           {
             "name": "cgov",
-            "commits": 192,
-            "pull_requests": 89,
+            "commits": 196,
+            "pull_requests": 91,
             "commit_timestamps": [
               "2025-12-11T09:13:36Z",
               "2025-12-21T11:08:52Z",
@@ -247,7 +254,11 @@
               "2026-04-27T06:47:22Z",
               "2026-04-27T06:53:42Z",
               "2026-04-27T07:40:02Z",
-              "2026-04-27T07:49:39Z"
+              "2026-04-27T07:49:39Z",
+              "2026-05-01T05:05:23Z",
+              "2026-05-01T05:10:19Z",
+              "2026-05-06T10:04:56Z",
+              "2026-05-06T10:11:22Z"
             ],
             "pr_timestamps": [
               "2025-12-21T11:09:23Z",
@@ -338,7 +349,9 @@
               "2026-04-26T09:11:51Z",
               "2026-04-26T15:19:50Z",
               "2026-04-27T06:47:47Z",
-              "2026-04-27T07:40:30Z"
+              "2026-04-27T07:40:30Z",
+              "2026-05-01T05:05:37Z",
+              "2026-05-06T10:05:22Z"
             ]
           },
           {
@@ -791,13 +804,13 @@
       {
         "login": "HinsonSIDAN",
         "avatar_url": "https://avatars.githubusercontent.com/u/90688504?v=4",
-        "commits": 68,
+        "commits": 83,
         "pull_requests": 7,
-        "contributions": 75,
+        "contributions": 90,
         "repositories": [
           {
             "name": "cgov",
-            "commits": 18,
+            "commits": 22,
             "pull_requests": 4,
             "commit_timestamps": [
               "2025-10-26T08:27:01Z",
@@ -817,7 +830,11 @@
               "2026-04-04T17:00:38Z",
               "2026-04-04T17:21:18Z",
               "2026-04-04T17:21:39Z",
-              "2026-04-05T04:07:22Z"
+              "2026-04-05T04:07:22Z",
+              "2026-05-04T08:51:14Z",
+              "2026-05-04T11:11:54Z",
+              "2026-05-04T16:13:53Z",
+              "2026-05-04T20:46:59Z"
             ],
             "pr_timestamps": [
               "2025-11-05T07:18:53Z",
@@ -839,7 +856,7 @@
           },
           {
             "name": "cgov-api",
-            "commits": 29,
+            "commits": 33,
             "pull_requests": 3,
             "commit_timestamps": [
               "2025-11-05T09:30:27Z",
@@ -870,7 +887,11 @@
               "2026-03-27T07:04:51Z",
               "2026-03-30T05:53:57Z",
               "2026-03-30T05:54:33Z",
-              "2026-04-10T09:38:14Z"
+              "2026-04-10T09:38:14Z",
+              "2026-05-04T03:09:04Z",
+              "2026-05-04T07:10:58Z",
+              "2026-05-04T10:38:12Z",
+              "2026-05-04T20:46:47Z"
             ],
             "pr_timestamps": [
               "2025-11-16T14:07:08Z",
@@ -880,7 +901,7 @@
           },
           {
             "name": "cgov-mcp",
-            "commits": 15,
+            "commits": 16,
             "pull_requests": 0,
             "commit_timestamps": [
               "2025-12-16T17:53:49Z",
@@ -897,7 +918,8 @@
               "2026-04-10T09:38:07Z",
               "2026-04-10T09:51:17Z",
               "2026-04-26T14:52:22Z",
-              "2026-04-26T15:17:44Z"
+              "2026-04-26T15:17:44Z",
+              "2026-05-04T07:19:40Z"
             ],
             "pr_timestamps": []
           },
@@ -909,6 +931,20 @@
               "2026-01-20T12:17:50Z",
               "2026-01-20T12:41:24Z",
               "2026-02-19T07:02:38Z"
+            ],
+            "pr_timestamps": []
+          },
+          {
+            "name": "cgov-kb",
+            "commits": 6,
+            "pull_requests": 0,
+            "commit_timestamps": [
+              "2026-05-04T04:03:43Z",
+              "2026-05-04T06:17:32Z",
+              "2026-05-04T09:50:41Z",
+              "2026-05-04T10:49:21Z",
+              "2026-05-04T11:11:42Z",
+              "2026-05-04T16:13:40Z"
             ],
             "pr_timestamps": []
           }
@@ -1037,6 +1073,24 @@
             "commit_timestamps": [],
             "pr_timestamps": [
               "2025-11-16T18:48:45Z"
+            ]
+          }
+        ]
+      },
+      {
+        "login": "DankeschonDohJehSai",
+        "avatar_url": "https://avatars.githubusercontent.com/u/279432207?v=4",
+        "commits": 0,
+        "pull_requests": 1,
+        "contributions": 1,
+        "repositories": [
+          {
+            "name": "cgov-api",
+            "commits": 0,
+            "pull_requests": 1,
+            "commit_timestamps": [],
+            "pr_timestamps": [
+              "2026-05-05T13:30:25Z"
             ]
           }
         ]
