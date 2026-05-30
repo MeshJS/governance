@@ -76,16 +76,8 @@
     "title": "IO: Cardano High Assurance Technical Collaboration"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qsuae57l",
-    "title": "Pogun: Capital Without Compromise"
-  },
-  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
     "title": "IO: Developer Experience Initiative"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qvczhx6t",
-    "title": "IO & VacuumLabs: Enhancing Plutus - Performance, Correctness, and Usability"
   },
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
@@ -94,6 +86,14 @@
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qwt8k9fx",
     "title": "Blockfrost: Maintenance and Next Generation Indexing"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qsuae57l",
+    "title": "Pogun: Capital Without Compromise"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qvczhx6t",
+    "title": "IO & VacuumLabs: Enhancing Plutus - Performance, Correctness, and Usability"
   },
   {
     "action_id": "gov_action1hkgl5l4fknsf7aktmcatkz6kfl7xpvn7rzh5vnxwexl0n3cc6zrsqt5459v",
