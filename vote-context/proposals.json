@@ -1,5 +1,9 @@
 [
   {
+    "action_id": "gov_action1cadmygtqv6r64pvwezw859wg36wpwp209cz94cc7ej9fdp7dyphqq58n5ur",
+    "title": "Reduce the committeeMinSize parameter from 7 to 5"
+  },
+  {
     "action_id": "gov_action1zljrlljt9cxlz7ra2nep43nxg0r54wcnrgexyuhuam9ah0ws607qq2vcg4x",
     "title": "Tweag Core Cardano Infrastructure: Treasury Withdrawal 2026–2027"
   },
@@ -64,6 +68,10 @@
     "title": "Revised Cardano Summit 2026 Singapore"
   },
   {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qwt8k9fx",
+    "title": "Blockfrost: Maintenance and Next Generation Indexing"
+  },
+  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qvczhx6t",
     "title": "IO & VacuumLabs: Enhancing Plutus - Performance, Correctness, and Usability"
   },
@@ -78,10 +86,6 @@
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qsuae57l",
     "title": "Pogun: Capital Without Compromise"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qwt8k9fx",
-    "title": "Blockfrost: Maintenance and Next Generation Indexing"
   },
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
@@ -248,6 +252,18 @@
     "title": "Withdraw ₳99,600 for BloxBean Java Tools Maintenance and Enhancement"
   },
   {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqj0vdlhj",
+    "title": "Withdraw ₳300,000 for Ledger App Rewrite administered by Intersect"
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlq5nrw6t9",
+    "title": "Withdraw ₳600,000 for Complete Web3 developer stack to make Cardano the smart..."
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqkqx0ecg",
+    "title": "Withdraw ₳5,885,000 for OSC Budget Proposal - Paid Open Source Model..."
+  },
+  {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqczags6z",
     "title": "Withdraw ₳578,571 for Gerolamo - Cardano node in typescript"
   },
@@ -308,12 +324,8 @@
     "title": "Withdraw ₳104,347 for MLabs Research towards Tooling for Elliptical Curves..."
   },
   {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpuz29v77",
-    "title": "Withdraw ₳3,000,000 for High-yield RWA Asset for Cardano: Tokenized Real Estate"
-  },
-  {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlp5u7pqqr",
-    "title": "Withdraw ₳12,000,000 for Cardano Builder DAO administered by Intersect"
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpx66gmxa",
+    "title": "Withdraw ₳605,000 for A free Native Asset CDN for Cardano Developers"
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpcdq823y",
@@ -328,8 +340,16 @@
     "title": "Withdraw ₳750,000 for Cardano Product Committee: Community-driven 2030 Carda..."
   },
   {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlp5u7pqqr",
+    "title": "Withdraw ₳12,000,000 for Cardano Builder DAO administered by Intersect"
+  },
+  {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpjq3z9u5",
     "title": "Withdraw ₳6,000,000 for Unveiling the First Unified Global Events Marketing S..."
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpuz29v77",
+    "title": "Withdraw ₳3,000,000 for High-yield RWA Asset for Cardano: Tokenized Real Estate"
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpk0mqrnw",
@@ -342,10 +362,6 @@
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpvhtd5td",
     "title": "Withdraw ₳592,780 for Beyond Minimum Viable Governance: Iteratively Improvin...."
-  },
-  {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpx66gmxa",
-    "title": "Withdraw ₳605,000 for A free Native Asset CDN for Cardano Developers"
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqx488pdm",
@@ -374,18 +390,6 @@
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqsufvuyl",
     "title": "Withdraw ₳220,914 for Dolos: Sustaining a Lightweight Cardano Data Node"
-  },
-  {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqj0vdlhj",
-    "title": "Withdraw ₳300,000 for Ledger App Rewrite administered by Intersect"
-  },
-  {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlq5nrw6t9",
-    "title": "Withdraw ₳600,000 for Complete Web3 developer stack to make Cardano the smart..."
-  },
-  {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqkqx0ecg",
-    "title": "Withdraw ₳5,885,000 for OSC Budget Proposal - Paid Open Source Model..."
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqz6d98zp",
