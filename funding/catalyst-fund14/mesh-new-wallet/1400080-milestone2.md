@@ -15,10 +15,10 @@ For the github links, we matched everything into one link so you dont have to ch
 	
 ### A) All developed code will be published and accessible via Mesh Github
 - https://github.com/MeshJS/wallet/releases/tag/v2.0.0-beta.10
-- 
+  
 ### B) All developed code will be published and accessible via Mesh Github
 - https://github.com/MeshJS/wallet/releases/tag/v2.0.0-beta.10
-- 
+  
 ### C) We will provide respective url’s to the code on Mesh Github
 - https://github.com/MeshJS/wallet/releases/tag/v2.0.0-beta.10
   
