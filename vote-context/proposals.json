@@ -44,8 +44,8 @@
     "title": "Alchemy by Sundial x Charms: Cardano-Native Bitcoin Treasury Protocol"
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sxypfkyr",
-    "title": "Withdraw 1,193,000 ada for Intersect Technical Steering Committee Support"
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8syhyg4hw",
+    "title": "Withdraw 1,310,960 ada for Hardware Wallet Maintenance 2026"
   },
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s5z9qdza",
@@ -68,8 +68,12 @@
     "title": "Withdraw 1,162,746 ada for MLabs Core Tool Maintenance & Enhancement: Plutarc..."
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8syhyg4hw",
-    "title": "Withdraw 1,310,960 ada for Hardware Wallet Maintenance 2026"
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s24l0u4y",
+    "title": "Withdraw 3,810,423 ada for Mithril Protocol"
+  },
+  {
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sgx6wlxf",
+    "title": "Withdraw 25,400,000 ada for Intersect: Governance coordination and technical ..."
   },
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sqcw2nc5",
@@ -80,12 +84,8 @@
     "title": "Withdraw 540,750 ada for by TxPipe Dolos: Maintaining Cardano's Lightweight D..."
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s24l0u4y",
-    "title": "Withdraw 3,810,423 ada for Mithril Protocol"
-  },
-  {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sgx6wlxf",
-    "title": "Withdraw 25,400,000 ada for Intersect: Governance coordination and technical ..."
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sxypfkyr",
+    "title": "Withdraw 1,193,000 ada for Intersect Technical Steering Committee Support"
   },
   {
     "action_id": "gov_action1suskjc6c4nw58c6wtmv77xe79gwj47wp4gvh9cqhhxujwxmam3cqqkz5nwj",
@@ -184,10 +184,6 @@
     "title": "IO: Cardano Upgrades"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
-    "title": "IO: Developer Experience Initiative"
-  },
-  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qvczhx6t",
     "title": "IO & VacuumLabs: Enhancing Plutus - Performance, Correctness, and Usability"
   },
@@ -200,20 +196,24 @@
     "title": "IO & Ensurable Systems: Cardano Maintenance Initiative"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
-    "title": "IO & Midgard Labs: L2 Scalability Initiative"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qwt8k9fx",
-    "title": "Blockfrost: Maintenance and Next Generation Indexing"
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qyxkn2yk",
+    "title": "IO: Consensus Initiative"
   },
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qsuae57l",
     "title": "Pogun: Capital Without Compromise"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qyxkn2yk",
-    "title": "IO: Consensus Initiative"
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qwt8k9fx",
+    "title": "Blockfrost: Maintenance and Next Generation Indexing"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
+    "title": "IO & Midgard Labs: L2 Scalability Initiative"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
+    "title": "IO: Developer Experience Initiative"
   },
   {
     "action_id": "gov_action1hkgl5l4fknsf7aktmcatkz6kfl7xpvn7rzh5vnxwexl0n3cc6zrsqt5459v",
