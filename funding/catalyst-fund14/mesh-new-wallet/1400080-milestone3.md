@@ -15,8 +15,8 @@ Here the completed Milestone 3 of the proposal, all objectives have been achieve
 ### A) All developed code will be published and accessible via Mesh Github
 - https://github.com/MeshJS/wallet/pull/9
   
-### C) We will provide respective url’s to the code on Mesh Github
+### B) We will provide respective url’s to the code on Mesh Github
 - https://github.com/MeshJS/wallet/pull/9
   
-### D) We will provide a url to the published tweet on X (Twitter) via the official Mesh account
+### C) We will provide a url to the published tweet on X (Twitter) via the official Mesh account
 - https://x.com/meshsdk/status/2076219961253446045
