@@ -9,7 +9,7 @@
 # Milestone Report
 
 Hey there Milestone Reviewers and everyone who is following the progress of this proposal.
-Here the completed Milestone 3 of the proposal, all objectives have been achieved.
+Here the completed Milestone 3 of the proposal, all objectives have been achieved and completed.
 
 	
 ### A) All developed code will be published and accessible via Mesh Github
@@ -19,4 +19,4 @@ Here the completed Milestone 3 of the proposal, all objectives have been achieve
 - https://github.com/MeshJS/wallet/pull/9
   
 ### D) We will provide a url to the published tweet on X (Twitter) via the official Mesh account
-- 
+- https://x.com/meshsdk/status/2076219961253446045
