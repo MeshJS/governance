@@ -44,8 +44,8 @@
     "title": "Alchemy by Sundial x Charms: Cardano-Native Bitcoin Treasury Protocol"
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sztttste",
-    "title": "Withdraw 540,750 ada for by TxPipe Dolos: Maintaining Cardano's Lightweight D..."
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sgx6wlxf",
+    "title": "Withdraw 25,400,000 ada for Intersect: Governance coordination and technical ..."
   },
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s5z9qdza",
@@ -68,24 +68,24 @@
     "title": "Withdraw 1,162,746 ada for MLabs Core Tool Maintenance & Enhancement: Plutarc..."
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s24l0u4y",
-    "title": "Withdraw 3,810,423 ada for Mithril Protocol"
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sqcw2nc5",
+    "title": "Withdraw 3,961,538 ada for Bringing Real-World Payments to Cardano with Wirex"
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sgx6wlxf",
-    "title": "Withdraw 25,400,000 ada for Intersect: Governance coordination and technical ..."
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sztttste",
+    "title": "Withdraw 540,750 ada for by TxPipe Dolos: Maintaining Cardano's Lightweight D..."
+  },
+  {
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8syhyg4hw",
+    "title": "Withdraw 1,310,960 ada for Hardware Wallet Maintenance 2026"
   },
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sxypfkyr",
     "title": "Withdraw 1,193,000 ada for Intersect Technical Steering Committee Support"
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sqcw2nc5",
-    "title": "Withdraw 3,961,538 ada for Bringing Real-World Payments to Cardano with Wirex"
-  },
-  {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8syhyg4hw",
-    "title": "Withdraw 1,310,960 ada for Hardware Wallet Maintenance 2026"
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s24l0u4y",
+    "title": "Withdraw 3,810,423 ada for Mithril Protocol"
   },
   {
     "action_id": "gov_action1suskjc6c4nw58c6wtmv77xe79gwj47wp4gvh9cqhhxujwxmam3cqqkz5nwj",
