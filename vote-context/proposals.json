@@ -1,5 +1,9 @@
 [
   {
+    "action_id": "gov_action14dr5yg75pchr2sz42djtuflpvx5qnsek29qg7s7cft8lzrqt5vrqqtqntpk",
+    "title": "Reduce minPoolCost to 75 ada and increase Plutus Memory Limits (Part 2)"
+  },
+  {
     "action_id": "gov_action1fzatpjn3e3r09mjzzfptznef9wxg8q4a5uraq04xvfjyhmfzhzfsqqgfc9h",
     "title": "Name the Protocol Version 12 hard fork “von Bergen“"
   },
@@ -48,8 +52,8 @@
     "title": "Alchemy by Sundial x Charms: Cardano-Native Bitcoin Treasury Protocol"
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sqcw2nc5",
-    "title": "Withdraw 3,961,538 ada for Bringing Real-World Payments to Cardano with Wirex"
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sztttste",
+    "title": "Withdraw 540,750 ada for by TxPipe Dolos: Maintaining Cardano's Lightweight D..."
   },
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s5z9qdza",
@@ -88,8 +92,8 @@
     "title": "Withdraw 1,310,960 ada for Hardware Wallet Maintenance 2026"
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sztttste",
-    "title": "Withdraw 540,750 ada for by TxPipe Dolos: Maintaining Cardano's Lightweight D..."
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sqcw2nc5",
+    "title": "Withdraw 3,961,538 ada for Bringing Real-World Payments to Cardano with Wirex"
   },
   {
     "action_id": "gov_action1suskjc6c4nw58c6wtmv77xe79gwj47wp4gvh9cqhhxujwxmam3cqqkz5nwj",
@@ -184,8 +188,8 @@
     "title": "Revised Cardano Summit 2026 Singapore"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qz6es0cp",
-    "title": "IO: Cardano Upgrades"
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
+    "title": "IO: Developer Experience Initiative"
   },
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qsuae57l",
@@ -216,8 +220,8 @@
     "title": "IO: Consensus Initiative"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
-    "title": "IO: Developer Experience Initiative"
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qz6es0cp",
+    "title": "IO: Cardano Upgrades"
   },
   {
     "action_id": "gov_action1hkgl5l4fknsf7aktmcatkz6kfl7xpvn7rzh5vnxwexl0n3cc6zrsqt5459v",
@@ -368,10 +372,6 @@
     "title": "Withdraw ₳99,600 for BloxBean Java Tools Maintenance and Enhancement"
   },
   {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzxt5eumh",
-    "title": "Withdraw ₳750,000 for Cardano Product Committee: Community-driven 2030 Carda..."
-  },
-  {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzgf074ea",
     "title": "Withdraw ₳104,347 for MLabs Research towards Tooling for Elliptical Curves..."
   },
@@ -462,6 +462,10 @@
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqqfgyy3v",
     "title": "Withdraw ₳2,162,096 for Midgard - Optimistic Rollups administered by Intersect"
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzxt5eumh",
+    "title": "Withdraw ₳750,000 for Cardano Product Committee: Community-driven 2030 Carda..."
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzyc3clg6",
