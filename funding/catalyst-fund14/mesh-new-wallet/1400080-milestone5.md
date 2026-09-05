@@ -7,7 +7,7 @@
 |Delivered|September 1, 2026|
 
 ### Public link to the developed code on Mesh Github
-All code is completed and packaged into the Mesh Wallet, available via the common Mesh on NPM
+All code is completed and packaged into the Mesh Wallet, available via
 - Github: https://github.com/MeshJS/mesh
 - NPMJS: https://www.npmjs.com/package/@meshsdk/wallet
 - Open Source licence: https://github.com/MeshJS/mesh/blob/main/LICENSE.md
