@@ -105,3 +105,4 @@ This proposal allowed Mesh to close a real gap in the Cardano developer ecosyste
 
 ### Link to Close-out video - must be either YouTube or Vimeo link only
 
+- https://youtu.be/dwWBFcPHazQ
