@@ -20,11 +20,11 @@ Documentation is updated and available at:
 - https://meshjs.dev/providers/bitcoin-maestro
 
 ### Public link to post on Twitter/X to inform the Public
-
+- https://x.com/meshsdk/status/2097777804276322627
 
 ### Public link to the Close Out Report
-
+- https://drive.google.com/file/d/1RDOZ9bncxZfN5ttFIhhDE4qxSMY3dyfj/view?usp=sharing
 
 ### Public link to the Close Out Video
-
+- https://youtu.be/dwWBFcPHazQ
 
