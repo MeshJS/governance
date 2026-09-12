@@ -1,5 +1,9 @@
 [
   {
+    "action_id": "gov_action1whncs25w727rj5tml7lmv48gnaf9mm66sdjds8s3l306et7xmkdsqzqd7s2",
+    "title": "Reduce minPoolCost to 75 ada"
+  },
+  {
     "action_id": "gov_action1gxxltxr02p28a398p8c6t08xhpg82wkkv9xgwvuxkly48lhgf20sqlkl2l8",
     "title": "Withdraw 11,787,063 ada for the OpenZeppelin Stack administered by Intersect"
   },
@@ -68,32 +72,28 @@
     "title": "Alchemy by Sundial x Charms: Cardano-Native Bitcoin Treasury Protocol"
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8ssd0ztd8",
-    "title": "Withdraw 540,750 ada for Pallas by TxPipe: Maintaining Cardano's Core Rust Li..."
-  },
-  {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sj72rg72",
-    "title": "Withdraw 1,684,050 ada for Tx3 by TxPipe: Open API Layer for Cardano's dApp P..."
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s24l0u4y",
+    "title": "Withdraw 3,810,423 ada for Mithril Protocol"
   },
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s5z9qdza",
     "title": "Withdraw 540,750 ada for UTxO RPC by TxPipe: Maintaining Cardano’s Integratio..."
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8svfsvefn",
-    "title": "Withdraw 1,162,746 ada for MLabs Core Tool Maintenance & Enhancement: Plutarc..."
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sj72rg72",
+    "title": "Withdraw 1,684,050 ada for Tx3 by TxPipe: Open API Layer for Cardano's dApp P..."
   },
   {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8s24l0u4y",
-    "title": "Withdraw 3,810,423 ada for Mithril Protocol"
-  },
-  {
-    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sgx6wlxf",
-    "title": "Withdraw 25,400,000 ada for Intersect: Governance coordination and technical ..."
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8ssd0ztd8",
+    "title": "Withdraw 540,750 ada for Pallas by TxPipe: Maintaining Cardano's Core Rust Li..."
   },
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sw64d667",
     "title": "Withdraw 540,750 ada for Oura by TxPipe: Maintaining Cardano’s Event Pipeline"
+  },
+  {
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8svfsvefn",
+    "title": "Withdraw 1,162,746 ada for MLabs Core Tool Maintenance & Enhancement: Plutarc..."
   },
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sxypfkyr",
@@ -110,6 +110,10 @@
   {
     "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sqcw2nc5",
     "title": "Withdraw 3,961,538 ada for Bringing Real-World Payments to Cardano with Wirex"
+  },
+  {
+    "action_id": "gov_action1k02990lhw6wh74t7c6ufw3mqaek9ujtvyan99dj5qv5kvcs7pn8sgx6wlxf",
+    "title": "Withdraw 25,400,000 ada for Intersect: Governance coordination and technical ..."
   },
   {
     "action_id": "gov_action1suskjc6c4nw58c6wtmv77xe79gwj47wp4gvh9cqhhxujwxmam3cqqkz5nwj",
@@ -204,40 +208,40 @@
     "title": "Revised Cardano Summit 2026 Singapore"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qwt8k9fx",
-    "title": "Blockfrost: Maintenance and Next Generation Indexing"
-  },
-  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3q2yd5rxu",
     "title": "IO: Cardano High Assurance Technical Collaboration"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qx4njfhm",
-    "title": "IO & Ensurable Systems: Cardano Maintenance Initiative"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qyxkn2yk",
-    "title": "IO: Consensus Initiative"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qvczhx6t",
-    "title": "IO & VacuumLabs: Enhancing Plutus - Performance, Correctness, and Usability"
-  },
-  {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qz6es0cp",
-    "title": "IO: Cardano Upgrades"
   },
   {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qsuae57l",
     "title": "Pogun: Capital Without Compromise"
   },
   {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
+    "title": "IO: Developer Experience Initiative"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qwt8k9fx",
+    "title": "Blockfrost: Maintenance and Next Generation Indexing"
+  },
+  {
     "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qghg4q43",
     "title": "IO & Midgard Labs: L2 Scalability Initiative"
   },
   {
-    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qqfu3vtv",
-    "title": "IO: Developer Experience Initiative"
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qvczhx6t",
+    "title": "IO & VacuumLabs: Enhancing Plutus - Performance, Correctness, and Usability"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qx4njfhm",
+    "title": "IO & Ensurable Systems: Cardano Maintenance Initiative"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qz6es0cp",
+    "title": "IO: Cardano Upgrades"
+  },
+  {
+    "action_id": "gov_action1w0shrfxqwv95kk0v4cn34wylz25a2cmqkq5jpc0e2yrahhqava3qyxkn2yk",
+    "title": "IO: Consensus Initiative"
   },
   {
     "action_id": "gov_action1hkgl5l4fknsf7aktmcatkz6kfl7xpvn7rzh5vnxwexl0n3cc6zrsqt5459v",
@@ -388,16 +392,16 @@
     "title": "Withdraw ₳99,600 for BloxBean Java Tools Maintenance and Enhancement"
   },
   {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzzy7m65d",
-    "title": "Withdraw ₳199,911 for OpShin - Python Smart Contracts for Cardano"
-  },
-  {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzyc3clg6",
     "title": "Withdraw ₳314,800 for PyCardano administered by Intersect"
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzgf074ea",
     "title": "Withdraw ₳104,347 for MLabs Research towards Tooling for Elliptical Curves..."
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzxt5eumh",
+    "title": "Withdraw ₳750,000 for Cardano Product Committee: Community-driven 2030 Carda..."
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlp679xfzf",
@@ -436,16 +440,12 @@
     "title": "Withdraw ₳424,800 for Hardware Wallets Maintenance administered by Intersect"
   },
   {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlq63cfnf0",
-    "title": "Withdraw ₳243,478 for MLabs Core Tool Maintenance & Enhancement: Plutarch"
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqudh2k4c",
+    "title": "Withdraw ₳11,070,323 for TWEAG's Proposals for multiple core budget project..."
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlpwywvhcq",
     "title": "Withdraw ₳69,459,000 for Catalyst 2025 Proposal by Input Output: Advancing De..."
-  },
-  {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzxt5eumh",
-    "title": "Withdraw ₳750,000 for Cardano Product Committee: Community-driven 2030 Carda..."
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqyxzxz7k",
@@ -488,8 +488,8 @@
     "title": "Withdraw ₳578,571 for Gerolamo - Cardano node in typescript"
   },
   {
-    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqudh2k4c",
-    "title": "Withdraw ₳11,070,323 for TWEAG's Proposals for multiple core budget project..."
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlq63cfnf0",
+    "title": "Withdraw ₳243,478 for MLabs Core Tool Maintenance & Enhancement: Plutarch"
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlq77jt4x4",
@@ -526,6 +526,10 @@
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzqhm6e8q",
     "title": "Withdraw ₳26,840,000 for Input Output Research (IOR): Cardano Vision - Wor..."
+  },
+  {
+    "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlzzy7m65d",
+    "title": "Withdraw ₳199,911 for OpShin - Python Smart Contracts for Cardano"
   },
   {
     "action_id": "gov_action13tfag48nf94rtjcdq7c06vhkslmxxw9h6c88sl7q5g5nnewcsvlqz6d98zp",
