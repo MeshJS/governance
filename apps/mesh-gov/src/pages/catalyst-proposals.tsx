@@ -64,7 +64,11 @@ const formatDate = (timestamp: string): string => {
 
 export default function CatalystProposals() {
   const router = useRouter();
-  const { catalystData, isLoading, error } = useData();
+  const {
+    catalystData,
+    isLoadingCatalyst: isLoading,
+    catalystError: error,
+  } = useData();
   const [filteredProjects, setFilteredProjects] = useState<CatalystProject[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [filterConfig, setFilterConfig] = useState<SearchFilterConfig>({

@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import { useData } from '../../contexts/DataContext';
 import styles from '../../styles/ProposalDetail.module.css';
 import videoStyles from '../../styles/Proposals.module.css';
 import PageHeader from '../../components/PageHeader';
@@ -26,7 +25,6 @@ const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
 
 export default function NewWalletProposal() {
   const router = useRouter();
-  const { isLoading, error } = useData();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
   const [isProposalModal, setIsProposalModal] = useState(false);
@@ -197,22 +195,6 @@ This step-by-step approach guarantees that the SDK will not only be cross-chain 
       },
     ],
   };
-
-  if (isLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading proposal details...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.error}>{error}</div>
-      </div>
-    );
-  }
 
   const formatBudget = (amount: number): string => {
     return `₳${amount.toLocaleString()}`;

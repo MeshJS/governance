@@ -1,10 +1,20 @@
+import { useEffect } from 'react';
 import { useData } from '../contexts/DataContext';
 import styles from '../styles/ContributorNetwork.module.css';
 import ContributorNetwork from '../components/ContributorNetwork';
 import PageHeader from '../components/PageHeader';
 
 export default function ContributorNetworkPage() {
-  const { contributorStats, isLoading, error } = useData();
+  const {
+    contributorStats,
+    isLoadingContributors: isLoading,
+    contributorsError: error,
+    loadContributorStats,
+  } = useData();
+
+  useEffect(() => {
+    loadContributorStats();
+  }, [loadContributorStats]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;

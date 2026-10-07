@@ -21,6 +21,7 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
     const filePath = getStatsFilePath();
     const raw = fs.readFileSync(filePath, 'utf-8');
     const data = JSON.parse(raw);
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=86400');
     return res.status(200).json(data);
   } catch (error: any) {
     console.error('Error reading nomos stats:', error.message);

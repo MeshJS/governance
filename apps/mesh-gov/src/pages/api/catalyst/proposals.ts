@@ -82,6 +82,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       totalFound: proposals.length,
     };
 
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=86400');
     return res.status(200).json(response);
   } catch (err) {
     console.error('❌ Failed to check catalyst proposals:', err);

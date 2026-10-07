@@ -25,7 +25,7 @@ interface VoteData {
 }
 
 export default function DRepVoting() {
-  const { drepVotingData, isLoading, error } = useData();
+  const { drepVotingData, isLoadingDRep: isLoading, drepError: error } = useData();
   const router = useRouter();
   const [lastNavigationTime, setLastNavigationTime] = useState(0);
   const [copied, setCopied] = useState(false);

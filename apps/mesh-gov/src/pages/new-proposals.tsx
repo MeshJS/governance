@@ -1,4 +1,3 @@
-import { useData } from '../contexts/DataContext';
 import styles from '../styles/Proposals.module.css';
 import PageHeader from '../components/PageHeader';
 import NewProposalCard from '../components/NewProposalCard';
@@ -23,24 +22,7 @@ const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
 };
 
 export default function NewProposals() {
-  const { isLoading, error } = useData();
   const router = useRouter();
-
-  if (isLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.error}>{error}</div>
-      </div>
-    );
-  }
 
   // Proposal data for demonstration
   const proposals = [

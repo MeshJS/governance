@@ -39,6 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     );
 
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=86400');
     return res.status(200).json({ packages: results });
   } catch (error) {
     console.error('API error:', error);

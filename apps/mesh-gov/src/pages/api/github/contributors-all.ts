@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const contributorStats = await getOrgContributorStats(orgLogin);
 
     // Helpful cache headers for edge/CDN layers
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=86400');
 
     return res.status(200).json(contributorStats);
   } catch (err) {
