@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   MeshData,
   CatalystContextData,
@@ -164,51 +164,58 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       })
   );
 
-  const loadContributorStats = async () => {
-    if (!contributorStats) {
-      await fetchContributorsAllWrapper();
-    }
-  };
+  // Lazy loaders are called from page effects, so they must keep a stable identity
+  // and only ever start one request per dataset.
+  const requested = useRef({ contributors: false, repo: false, nomos: false });
 
-  const loadRepoStats = async () => {
-    if (!repoStats) {
-      try {
-        const response = await fetch(
-          '/api/github/repo-stats?org=MeshJS&repos=mesh,web3-services,web3-sdk,multisig,midnight,mimir,cquisitor-lib,governance,mesh-pbl'
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setRepoStats(data);
-        }
-      } catch {
-        // Repo stats fetch failed
-      }
-    }
-  };
+  const loadContributorStats = useCallback(async () => {
+    if (requested.current.contributors) return;
+    requested.current.contributors = true;
+    if (loadFreshCache(CONTRIBUTOR_STATS_STORAGE_KEY)) return;
+    await fetchContributorsAllWrapper();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const loadNomosStats = async () => {
-    if (!nomosStats) {
-      try {
-        const cached = loadFreshCache<{ lastFetched: number }>('nomosStats');
-        if (cached) {
-          setNomosStats(cached);
-          return;
-        }
-        const response = await fetch('/api/github/nomos-stats');
-        if (response.ok) {
-          const data = await response.json();
-          setNomosStats(data);
-          safeSetItem('nomosStats', JSON.stringify({ ...data, lastFetched: Date.now() }));
-        }
-      } catch {
-        // Nomos stats fetch failed
+  const loadRepoStats = useCallback(async () => {
+    if (requested.current.repo) return;
+    requested.current.repo = true;
+    try {
+      const response = await fetch(
+        '/api/github/repo-stats?org=MeshJS&repos=mesh,web3-services,web3-sdk,multisig,midnight,mimir,cquisitor-lib,governance,mesh-pbl'
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setRepoStats(data);
       }
+    } catch {
+      // Repo stats fetch failed
     }
-  };
+  }, []);
+
+  const loadNomosStats = useCallback(async () => {
+    if (requested.current.nomos) return;
+    requested.current.nomos = true;
+    try {
+      const cached = loadFreshCache<{ lastFetched: number }>('nomosStats');
+      if (cached) {
+        setNomosStats(cached);
+        return;
+      }
+      const response = await fetch('/api/github/nomos-stats');
+      if (response.ok) {
+        const data = await response.json();
+        setNomosStats(data);
+        safeSetItem('nomosStats', JSON.stringify({ ...data, lastFetched: Date.now() }));
+      }
+    } catch {
+      // Nomos stats fetch failed
+    }
+  }, []);
 
   useEffect(() => {
     const load = async () => {
-      // Load cached data immediately for better UX (stale-while-revalidate)
+      // Use fresh cached data where available and only fetch what is missing or stale
+      const cachedKeys = new Set<string>();
       if (isLocalStorageAvailable() && DEV_CACHE_ENABLED) {
         const cacheEntries: Array<{
           key: string;
@@ -227,16 +234,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           if (cached) {
             setData(cached);
             setLoading(false);
+            cachedKeys.add(key);
           }
         }
       }
 
       // Start fetching fresh data in parallel (excluding contributors for lazy loading)
       const fetchPromises: Promise<void>[] = [];
-      if (isLoadingMesh) fetchPromises.push(fetchMeshDataWrapper());
-      if (isLoadingCatalyst) fetchPromises.push(fetchCatalystDataWrapper());
-      if (isLoadingDRep) fetchPromises.push(fetchDRepVotingDataWrapper());
-      if (isLoadingDiscord) fetchPromises.push(fetchDiscordStatsWrapper());
+      if (!cachedKeys.has(MESH_STORAGE_KEY)) fetchPromises.push(fetchMeshDataWrapper());
+      if (!cachedKeys.has(CATALYST_STORAGE_KEY)) fetchPromises.push(fetchCatalystDataWrapper());
+      if (!cachedKeys.has(DREP_VOTING_STORAGE_KEY)) fetchPromises.push(fetchDRepVotingDataWrapper());
+      if (!cachedKeys.has(DISCORD_STATS_STORAGE_KEY)) fetchPromises.push(fetchDiscordStatsWrapper());
 
       await Promise.all(fetchPromises);
     };

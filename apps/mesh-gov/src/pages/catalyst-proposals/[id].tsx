@@ -28,7 +28,11 @@ const getProjectStatus = (
 export default function ProposalDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const { catalystData, isLoading, error } = useData();
+  const {
+    catalystData,
+    isLoadingCatalyst: isLoading,
+    catalystError: error,
+  } = useData();
   const [proposal, setProposal] = useState<CatalystProject | null>(null);
 
   useEffect(() => {

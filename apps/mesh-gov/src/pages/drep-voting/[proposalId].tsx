@@ -8,7 +8,7 @@ import Link from 'next/link';
 export default function ProposalDetail() {
   const router = useRouter();
   const { proposalId } = router.query;
-  const { drepVotingData, isLoading, error } = useData();
+  const { drepVotingData, isLoadingDRep: isLoading, drepError: error } = useData();
   const [proposal, setProposal] = useState<any>(null);
 
   useEffect(() => {

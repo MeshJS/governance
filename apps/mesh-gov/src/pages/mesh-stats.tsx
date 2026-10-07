@@ -5,7 +5,15 @@ import { useMemo, useEffect } from 'react';
 import SectionTitle from '../components/SectionTitle';
 
 export default function MeshStatsPage() {
-  const { meshData, contributorStats, repoStats, isLoading, error, loadContributorStats, loadRepoStats } =
+  const {
+    meshData,
+    contributorStats,
+    repoStats,
+    isLoadingMesh: isLoading,
+    meshError: error,
+    loadContributorStats,
+    loadRepoStats,
+  } =
     useData();
 
   // Load contributor stats when component mounts

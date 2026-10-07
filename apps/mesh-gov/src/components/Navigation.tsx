@@ -9,6 +9,8 @@ const navItems = [
   {
     name: 'Overview',
     path: '/',
+    // Hidden from the menu; still the landing page at the site root
+    hidden: true,
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -31,6 +33,8 @@ const navItems = [
   {
     name: 'Mesh DRep',
     path: '/drep-voting',
+    // Hidden from the menu for now; the page stays reachable by URL
+    hidden: true,
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -220,7 +224,7 @@ const Navigation = () => {
         />
       </div>
       <div className={styles.navItems}>
-        {navItems.map(item => (
+        {navItems.filter(item => !item.hidden).map(item => (
           <Link
             key={item.path}
             href={item.path}
