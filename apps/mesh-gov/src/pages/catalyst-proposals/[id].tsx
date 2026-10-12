@@ -106,8 +106,6 @@ export default function ProposalDetail() {
               }}
               budget={proposal.projectDetails.budget}
               distributed={proposal.projectDetails.funds_distributed}
-              yesVotes={proposal.projectDetails.voting.yes_votes_count}
-              uniqueVoters={proposal.projectDetails.voting.unique_wallets}
               milestonesCompleted={proposal.milestonesCompleted}
               totalMilestones={proposal.projectDetails.milestones_qty}
             />
