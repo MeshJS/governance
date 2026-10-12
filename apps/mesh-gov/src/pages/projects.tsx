@@ -1255,7 +1255,7 @@ const projects: Project[] = [
   },
   {
     id: '5',
-    name: 'Mimir',
+    name: 'Mesh AI',
     description:
       'AI compatible web3 tools for enhanced blockchain development and smart contract interactions.',
     icon: '/logo-mesh-white-512x512.png',
@@ -1308,7 +1308,7 @@ const ProjectCard = ({
       UTXOS: 'web3-services',
       'Multisig Platform': 'multisig',
       Midnight: 'midnight',
-      Mimir: 'mimir',
+      'Mesh AI': 'mimir',
       Cquisitor: 'cquisitor-lib',
       Nomos: 'cgov',
     };
@@ -1382,7 +1382,7 @@ const ProjectCard = ({
     // Special handling for multi-repo projects
     const mimirRepos = ['mimir', 'skills', 'Mesh-AI', 'evolving-claude-skills'];
     const targetRepos = project.name === 'UTXOS' ? ['web3-services', 'web3-sdk']
-      : project.name === 'Mimir' ? mimirRepos
+      : project.name === 'Mesh AI' ? mimirRepos
       : [repoName];
 
     humanContributors.forEach(contributor => {
@@ -1449,7 +1449,7 @@ const ProjectCard = ({
         const web3SdkStats = repoStats.repoStats.find((repo: any) => repo.name === 'web3-sdk');
         stars = (web3ServicesStats?.stars || 0) + (web3SdkStats?.stars || 0);
         forks = (web3ServicesStats?.forks || 0) + (web3SdkStats?.forks || 0);
-      } else if (project.name === 'Mimir') {
+      } else if (project.name === 'Mesh AI') {
         mimirRepos.forEach(name => {
           const r = repoStats.repoStats.find((repo: any) => repo.name === name);
           stars += r?.stars || 0;
@@ -1551,7 +1551,7 @@ const ProjectCard = ({
             globalEndDate={timeWindowBoundaries.endDate || undefined}
             maxYValue={400}
           />
-        ) : project.name === 'Mimir' ? (
+        ) : project.name === 'Mesh AI' ? (
           <MimirRepositoryChart
             contributors={humanContributors}
             globalStartDate={timeWindowBoundaries.startDate || undefined}

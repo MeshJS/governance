@@ -7,8 +7,6 @@ interface Props {
   details: ProposalDetailsType;
   budget: number;
   distributed: number;
-  yesVotes: number;
-  uniqueVoters: number;
   milestonesCompleted: number;
   totalMilestones: number;
 }
@@ -21,8 +19,6 @@ export function ProposalDetails({
   details,
   budget,
   distributed,
-  yesVotes,
-  uniqueVoters,
   milestonesCompleted,
   totalMilestones,
 }: Props) {
@@ -54,14 +50,6 @@ export function ProposalDetails({
           <div className={styles.statCard}>
             <h3>Distributed</h3>
             <div className={styles.statValue}>{formatAda(distributed)} ₳</div>
-          </div>
-          <div className={styles.statCard}>
-            <h3>Yes Votes</h3>
-            <div className={styles.statValue}>{formatAda(yesVotes)}</div>
-          </div>
-          <div className={styles.statCard}>
-            <h3>Unique Voters</h3>
-            <div className={styles.statValue}>{uniqueVoters}</div>
           </div>
         </div>
 
