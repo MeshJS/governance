@@ -202,6 +202,7 @@ A fixed amount in ada: ₳50,000 a month for 12 months. There is no contingency 
 - **No staking, no voting.** The wallet is not delegated to any stake pool, and its voting power is delegated to the always-abstain DRep.
 - **Conflict of interest.** Mesh is a registered DRep. The Mesh DRep will abstain on this governance action.
 - **Multisig Wallet Addr1.** addr1x8lfcemwae3x3fmjjj7z6lry8thvlttr6f94epwgtf8w7k3kwfas3q9g7a3sgeruuxepc5k98gg3gfnf3sry40xze2rqcfp5te
+- ** Stake Key.** stake17ym8y7cgsz50wccyv37wrvsu2tzn5yg5ye5ccpj2hnpv4pse6q7jk
 
 ### How you can check 2026
 
